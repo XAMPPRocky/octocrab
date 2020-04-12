@@ -1,8 +1,10 @@
 [package]
 name = "octokit"
 version = "0.1.0"
-authors = ["Erin Power <xampprocky@gmail.com>"]
+authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
+description = "WIP"
+licence = "Apache-2.0/MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
