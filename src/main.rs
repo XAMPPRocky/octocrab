@@ -1,7 +1,7 @@
 use octocrab::Octocrab;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<std::error::Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let octocrab = Octocrab::default();
 
     println!(

@@ -1,5 +1,6 @@
 mod models;
 mod api;
+mod page;
 
 pub mod pulls {
     pub use crate::api::pulls::PullRequestState;
@@ -23,7 +24,7 @@ impl Octocrab {
         )
     }
 
-    async fn get<P: Serialize + ?Sized, R: FromResponse>(&self, url: String, parameters: Option<&P>) -> Result<R> {
+    pub async fn get<P: Serialize + ?Sized, R: FromResponse>(&self, url: String, parameters: Option<&P>) -> Result<R> {
         let full_url = format!("https://api.github.com{url}", url = url);
         let mut request = self.client.get(&full_url);
 
@@ -42,7 +43,7 @@ impl Octocrab {
 }
 
 #[async_trait::async_trait]
-trait FromResponse: Sized {
+pub trait FromResponse: Sized {
     async fn from_response(response: reqwest::Response) -> Result<Self>;
 }
 
