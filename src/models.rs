@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct PullRequest {
     pub url: Option<String>,
     pub id: i64,
@@ -44,6 +45,7 @@ pub struct PullRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Organization {
     pub login: String,
     pub id: Option<i64>,
@@ -90,6 +92,7 @@ pub struct Organization {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Contents {
     #[serde(rename = "type")]
     pub contents_type: String,
@@ -107,6 +110,7 @@ pub struct Contents {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum Event {
     AddedToProject,
     Assigned,
@@ -140,6 +144,7 @@ pub enum Event {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IssueEvent {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -158,6 +163,7 @@ pub struct IssueEvent {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Comment {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -170,6 +176,7 @@ pub struct Comment {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ProjectCard {
     pub id: Option<i64>,
     pub url: Option<String>,
@@ -181,6 +188,7 @@ pub struct ProjectCard {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Project {
     pub owner_url: Option<String>,
     pub url: Option<String>,
@@ -198,12 +206,14 @@ pub struct Project {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum ProjectCardContentType {
     Issue,
     PullRequest,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ProjectColumn {
     pub url: Option<String>,
     pub project_url: Option<String>,
@@ -216,6 +226,7 @@ pub struct ProjectColumn {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Team {
     pub id: i64,
     pub node_id: Option<String>,
@@ -236,6 +247,7 @@ pub struct Team {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Plan {
     pub name: String,
     pub space: i64,
@@ -243,6 +255,7 @@ pub struct Plan {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IssuePullRequest {
     pub url: Option<String>,
     pub html_url: Option<String>,
@@ -251,6 +264,7 @@ pub struct IssuePullRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Head {
     pub label: String,
     #[serde(rename = "ref")]
@@ -261,6 +275,7 @@ pub struct Head {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Base {
     pub label: String,
     #[serde(rename = "ref")]
@@ -271,6 +286,7 @@ pub struct Base {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Review {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -286,12 +302,14 @@ pub struct Review {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RequestedReviewers {
     pub users: Vec<User>,
     pub teams: Vec<Team>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct User {
     pub login: String,
     pub id: Option<i64>,
@@ -314,6 +332,7 @@ pub struct User {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Label {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -325,6 +344,7 @@ pub struct Label {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Milestone {
     pub url: Option<String>,
     pub html_url: Option<String>,
@@ -345,6 +365,7 @@ pub struct Milestone {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RequestedTeam {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -361,6 +382,7 @@ pub struct RequestedTeam {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Repository {
     pub id: i64,
     pub node_id: Option<String>,
@@ -444,6 +466,7 @@ pub struct Repository {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Commit {
     pub url: Option<String>,
     pub sha: Option<String>,
@@ -455,6 +478,7 @@ pub struct Commit {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Permissions {
     admin: Option<bool>,
     push: Option<bool>,
@@ -462,12 +486,14 @@ pub struct Permissions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CheckRuns {
     pub total_count: i32,
     pub check_runs: Vec<CheckRun>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CheckRun {
     pub id: Option<i64>,
     pub head_sha: Option<String>,
@@ -484,6 +510,7 @@ pub struct CheckRun {
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum CheckStatus {
     Queued,
     Completed,
@@ -491,6 +518,7 @@ pub enum CheckStatus {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CombinedStatus {
     pub state: StatusState,
     pub sha: String,
@@ -499,6 +527,7 @@ pub struct CombinedStatus {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Status {
     pub id: Option<i64>,
     pub node_id: Option<String>,
@@ -512,6 +541,7 @@ pub struct Status {
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum StatusState {
     Failure,
     Pending,
@@ -520,6 +550,7 @@ pub enum StatusState {
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[non_exhaustive]
 pub enum ReviewState {
     Approved,
     Pending,
@@ -527,6 +558,7 @@ pub enum ReviewState {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Links {
     #[serde(rename = "self")]
     pub self_link: Option<SelfLink>,
@@ -540,46 +572,55 @@ pub struct Links {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SelfLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct HtmlLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IssueLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommentsLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ReviewCommentsLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ReviewCommentLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitsLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct StatusesLink {
     pub href: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct InstallationRepositories {
     pub total_count: i64,
     pub repositories: Vec<Repository>,
@@ -587,6 +628,7 @@ pub struct InstallationRepositories {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[non_exhaustive]
 pub struct Installation {
     pub id: i64,
     pub account: User,
@@ -604,6 +646,7 @@ pub struct Installation {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[non_exhaustive]
 pub struct InstallationPermissions {
     pub metadata: String,
     pub contents: String,
@@ -613,6 +656,7 @@ pub struct InstallationPermissions {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[non_exhaustive]
 pub struct InstallationToken {
     pub token: String,
     pub expires_at: Option<String>,
