@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use reqwest::Url;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -6,15 +7,15 @@ pub struct PullRequest {
     pub url: Option<String>,
     pub id: i64,
     pub node_id: Option<String>,
-    pub html_url: String,
-    pub diff_url: Option<String>,
-    pub patch_url: Option<String>,
-    pub issue_url: Option<String>,
-    pub commits_url: Option<String>,
-    pub review_comments_url: Option<String>,
-    pub review_comment_url: Option<String>,
-    pub comments_url: Option<String>,
-    pub statuses_url: Option<String>,
+    pub html_url: Url,
+    pub diff_url: Option<Url>,
+    pub patch_url: Option<Url>,
+    pub issue_url: Option<Url>,
+    pub commits_url: Option<Url>,
+    pub review_comments_url: Option<Url>,
+    pub review_comment_url: Option<Url>,
+    pub comments_url: Option<Url>,
+    pub statuses_url: Option<Url>,
     pub number: i64,
     pub state: Option<String>,
     pub locked: Option<bool>,
@@ -574,49 +575,49 @@ pub struct Links {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SelfLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct HtmlLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct IssueLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CommentsLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ReviewCommentsLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ReviewCommentLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CommitsLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct StatusesLink {
-    pub href: String,
+    pub href: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
