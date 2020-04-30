@@ -1,4 +1,4 @@
-use crate::Octocrab;
+use crate::{Octocrab, Page};
 
 /// Filter by current status of the pull request.
 #[derive(Debug, Clone, Copy, serde::Serialize)]
@@ -44,13 +44,16 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Checks if a given pull request has been merged.
     pub async fn is_merged(&'octo self, pr: u64) -> crate::Result<bool> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/merge",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
-        let response = self.crab._get(url, None::<&()>).await?;
+        let response = self
+            .crab
+            ._get(self.crab.absolute_url(route)?, None::<&()>)
+            .await?;
 
         Ok(response.status() == 204)
     }
@@ -218,12 +221,44 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<Vec<crate::models::PullRequest>> {
+    pub async fn send(self) -> crate::Result<Page<crate::models::PullRequest>> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
         self.handler.crab.get(url, Some(&self)).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[tokio::test]
+    async fn serialize_create_pull_request() {
+        let octocrab = crate::Octocrab::default();
+        let handler = octocrab.pulls("rust-lang", "rust");
+        let list = handler
+            .list()
+            .state(crate::pulls::PullRequestState::Open)
+            .head("master")
+            .base("branch")
+            .sort(crate::pulls::PullRequestSorting::Popularity)
+            .direction(crate::pulls::PullRequestDirection::Ascending)
+            .per_page(100)
+            .page(1u8);
+
+        assert_eq!(
+            serde_json::to_value(list).unwrap(),
+            serde_json::json!({
+                "state": "open",
+                "head": "master",
+                "base": "branch",
+                "sort": "popularity",
+                "direction": "ascending",
+                "per_page": 100,
+                "page": 1,
+            })
+        )
     }
 }
