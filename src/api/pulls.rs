@@ -1,13 +1,6 @@
 use crate::{Octocrab, Page};
 
-/// Filter by current status of the pull request.
-#[derive(Debug, Clone, Copy, serde::Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum PullRequestState {
-    All,
-    Open,
-    Closed,
-}
+pub mod create;
 
 /// What to sort results by. Can be either `created`, `updated`, `popularity`
 /// (comment count) or `long-running` (age, filtering by pulls updated in the
@@ -38,7 +31,7 @@ pub struct PullRequestHandler<'octo> {
 }
 
 impl<'octo> PullRequestHandler<'octo> {
-    pub fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
         Self { crab, owner, repo }
     }
 
@@ -75,8 +68,8 @@ impl<'octo> PullRequestHandler<'octo> {
         title: impl Into<String>,
         head: impl Into<String>,
         base: impl Into<String>,
-    ) -> CreatePullRequestBuilder<'octo, '_> {
-        CreatePullRequestBuilder::new(self, title, head, base)
+    ) -> create::CreatePullRequestBuilder<'octo, '_> {
+        create::CreatePullRequestBuilder::new(self, title, head, base)
     }
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
@@ -87,69 +80,10 @@ impl<'octo> PullRequestHandler<'octo> {
 }
 
 #[derive(serde::Serialize)]
-pub struct CreatePullRequestBuilder<'octo, 'b> {
-    #[serde(skip)]
-    handler: &'b PullRequestHandler<'octo>,
-    title: String,
-    head: String,
-    base: String,
-    body: Option<String>,
-    draft: Option<bool>,
-    maintainer_can_modify: Option<bool>,
-}
-
-impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
-    pub fn new(
-        handler: &'b PullRequestHandler<'octo>,
-        title: impl Into<String>,
-        head: impl Into<String>,
-        base: impl Into<String>,
-    ) -> Self {
-        Self {
-            handler,
-            title: title.into(),
-            head: head.into(),
-            base: base.into(),
-            body: None,
-            draft: None,
-            maintainer_can_modify: None,
-        }
-    }
-
-    /// Set the body of the pull request
-    pub fn body(mut self, body: impl Into<Option<String>>) -> Self {
-        self.body = body.into();
-        self
-    }
-
-    /// Set the pull request as a draft.
-    pub fn draft(mut self, draft: impl Into<Option<bool>>) -> Self {
-        self.draft = draft.into();
-        self
-    }
-
-    /// Set whether other maintainers can modify the pull request.
-    pub fn maintainer_can_modify(mut self, maintainer_can_modify: impl Into<Option<bool>>) -> Self {
-        self.maintainer_can_modify = maintainer_can_modify.into();
-        self
-    }
-
-    pub async fn send(self) -> crate::Result<crate::models::PullRequest> {
-        let url = format!(
-            "/repos/{owner}/{repo}/pulls",
-            owner = self.handler.owner,
-            repo = self.handler.repo
-        );
-
-        self.handler.crab.post(url, Some(&self)).await
-    }
-}
-
-#[derive(serde::Serialize)]
 pub struct ListPullRequestsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
-    state: Option<PullRequestState>,
+    state: Option<super::StateParameter>,
     head: Option<String>,
     base: Option<String>,
     sort: Option<PullRequestSorting>,
@@ -172,8 +106,8 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
         }
     }
 
-    /// Filter pull requests by `PullRequestState`.
-    pub fn state(mut self, state: PullRequestState) -> Self {
+    /// Filter pull requests by `state`.
+    pub fn state(mut self, state: super::StateParameter) -> Self {
         self.state = Some(state);
         self
     }
@@ -240,7 +174,7 @@ mod tests {
         let handler = octocrab.pulls("rust-lang", "rust");
         let list = handler
             .list()
-            .state(crate::pulls::PullRequestState::Open)
+            .state(crate::params::State::Open)
             .head("master")
             .base("branch")
             .sort(crate::pulls::PullRequestSorting::Popularity)
@@ -258,29 +192,6 @@ mod tests {
                 "direction": "ascending",
                 "per_page": 100,
                 "page": 1,
-            })
-        )
-    }
-
-    #[tokio::test]
-    async fn serialize_create_pull_request() {
-        let octocrab = crate::Octocrab::default();
-        let handler = octocrab.pulls("rust-lang", "rust");
-        let list = handler
-            .create("test-pr", "master", "branch")
-            .body(String::from("testing..."))
-            .draft(true)
-            .maintainer_can_modify(true);
-
-        assert_eq!(
-            serde_json::to_value(list).unwrap(),
-            serde_json::json!({
-                "title": "test-pr",
-                "head": "master",
-                "base": "branch",
-                "body": "testing...",
-                "draft": true,
-                "maintainer_can_modify": true,
             })
         )
     }

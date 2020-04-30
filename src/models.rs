@@ -145,6 +145,34 @@ pub enum Event {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Issue {
+    pub id: i64,
+    pub node_id: String,
+    pub url: Url,
+    pub repository_url: Url,
+    pub labels_url: Url,
+    pub comments_url: Url,
+    pub events_url: Url,
+    pub html_url: Url,
+    pub number: i64,
+    pub state: String,
+    pub title: String,
+    pub body: String,
+    pub user: User,
+    pub labels: Vec<Label>,
+    pub assignee: User,
+    pub assignees: Vec<User>,
+    pub milestone: Milestone,
+    pub locked: bool,
+    pub active_lock_reason: String,
+    pub comments: i64,
+    pub pull_request: PullRequest,
+    pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct IssueEvent {
     pub id: Option<i64>,

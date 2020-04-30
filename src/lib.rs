@@ -9,9 +9,13 @@ mod page;
 
 pub mod models;
 
-pub use crate::api::pulls;
+pub use crate::api::{StateParameter, pulls, issues};
 pub use from_response::FromResponse;
 pub use page::Page;
+
+pub mod params {
+    pub use crate::api::StateParameter as State;
+}
 
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
@@ -44,16 +48,24 @@ impl Default for Octocrab {
 
 /// GitHub API Methods
 impl Octocrab {
-    /// Creates a [`PullRequestHandler`] for the repo specified at `owner/repo`,
+    /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's pull request API.
-    ///
-    /// [`PullRequestHandler`]: crate::pulls::PullRequestHandler
     pub fn pulls(
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
     ) -> api::pulls::PullRequestHandler {
         api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's issues API.
+    pub fn issues(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> api::issues::IssueHandler {
+        api::issues::IssueHandler::new(self, owner.into(), repo.into())
     }
 }
 

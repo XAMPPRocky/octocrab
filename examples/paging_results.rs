@@ -1,4 +1,4 @@
-use octocrab::{models, pulls, Octocrab, Page};
+use octocrab::{models, params, pulls, Octocrab, Page};
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
@@ -7,7 +7,7 @@ async fn main() -> octocrab::Result<()> {
     let mut current_page = octocrab
         .pulls("rust-lang", "rust")
         .list()
-        .state(pulls::PullRequestState::Open)
+        .state(params::State::Open)
         .send()
         .await?;
     let mut prs = current_page.take_items();
