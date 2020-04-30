@@ -13,6 +13,6 @@ jobs:
         os: [ubuntu, macos, windows]
     steps:
     - uses: actions/checkout@v2
-    - run: rustup default ${{ matrix.channel }} --profile minimal
+    - run: rustup default ${{ matrix.channel }}
     - run: cargo build --verbose --all-targets
     - run: cargo test
