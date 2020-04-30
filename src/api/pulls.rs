@@ -70,7 +70,7 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Get's a given pull request with by its `pr` number.
-    pub async fn create(
+    pub fn create(
         &'octo self,
         title: impl Into<String>,
         head: impl Into<String>,
@@ -235,7 +235,7 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
 mod tests {
 
     #[tokio::test]
-    async fn serialize_create_pull_request() {
+    async fn serialize_list_pull_request() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.pulls("rust-lang", "rust");
         let list = handler
@@ -258,6 +258,29 @@ mod tests {
                 "direction": "ascending",
                 "per_page": 100,
                 "page": 1,
+            })
+        )
+    }
+
+    #[tokio::test]
+    async fn serialize_create_pull_request() {
+        let octocrab = crate::Octocrab::default();
+        let handler = octocrab.pulls("rust-lang", "rust");
+        let list = handler
+            .create("test-pr", "master", "branch")
+            .body(String::from("testing..."))
+            .draft(true)
+            .maintainer_can_modify(true);
+
+        assert_eq!(
+            serde_json::to_value(list).unwrap(),
+            serde_json::json!({
+                "title": "test-pr",
+                "head": "master",
+                "base": "branch",
+                "body": "testing...",
+                "draft": true,
+                "maintainer_can_modify": true,
             })
         )
     }
