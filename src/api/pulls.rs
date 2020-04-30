@@ -43,7 +43,7 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Checks if a given pull request has been merged.
-    pub async fn is_merged(&self, pr: u64) -> crate::Result<bool> {
+    pub async fn is_merged(&'octo self, pr: u64) -> crate::Result<bool> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/merge",
             owner = self.owner,
@@ -56,7 +56,7 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Get's a given pull request with by its `pr` number.
-    pub async fn get(&self, pr: u64) -> crate::Result<crate::models::PullRequest> {
+    pub async fn get(&'octo self, pr: u64) -> crate::Result<crate::models::PullRequest> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
@@ -68,7 +68,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Get's a given pull request with by its `pr` number.
     pub async fn create(
-        &self,
+        &'octo self,
         title: impl Into<String>,
         head: impl Into<String>,
         base: impl Into<String>,
@@ -78,7 +78,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
     /// listing pulling requests.
-    pub fn list(&self) -> ListPullRequestsBuilder {
+    pub fn list(&'octo self) -> ListPullRequestsBuilder {
         ListPullRequestsBuilder::new(self)
     }
 }
