@@ -1,4 +1,4 @@
-use octocrab::{models, params, pulls, Octocrab, Page};
+use octocrab::{params, Octocrab};
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
@@ -8,6 +8,7 @@ async fn main() -> octocrab::Result<()> {
         .pulls("rust-lang", "rust")
         .list()
         .state(params::State::Open)
+        .per_page(100)
         .send()
         .await?;
     let mut prs = current_page.take_items();
@@ -18,12 +19,17 @@ async fn main() -> octocrab::Result<()> {
         prs.extend(current_page.items);
 
         if prs.len() > 100 {
-            println!("Got the first ~100 PRs.");
+            println!("Got the first ~100 PRs stopping.");
             break;
         }
     }
 
-    println!("Found {} items", prs.len());
+    println!("Found {} total items", prs.len());
+
+    for pr in prs {
+        println!("{}", pr.number);
+    }
+
 
     Ok(())
 }

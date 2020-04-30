@@ -8,14 +8,12 @@ mod from_response;
 mod page;
 
 pub mod models;
+pub mod params;
 
 pub use crate::api::{StateParameter, pulls, issues};
 pub use from_response::FromResponse;
 pub use page::Page;
 
-pub mod params {
-    pub use crate::api::StateParameter as State;
-}
 
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
