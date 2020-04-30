@@ -6,7 +6,7 @@ use crate::Octocrab;
 pub enum PullRequestState {
     All,
     Open,
-    Closed
+    Closed,
 }
 
 /// What to sort results by. Can be either `created`, `updated`, `popularity`
@@ -42,10 +42,103 @@ impl<'octo> PullRequestHandler<'octo> {
         Self { crab, owner, repo }
     }
 
+    /// Checks if a given pull request has been merged.
+    pub async fn is_merged(&self, pr: u64) -> crate::Result<bool> {
+        let url = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/merge",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+        let response = self.crab._get(url, None::<&()>).await?;
+
+        Ok(response.status() == 204)
+    }
+
+    /// Get's a given pull request with by its `pr` number.
+    pub async fn get(&self, pr: u64) -> crate::Result<crate::models::PullRequest> {
+        let url = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+        self.crab.get(url, None::<&()>).await
+    }
+
+    /// Get's a given pull request with by its `pr` number.
+    pub async fn create(
+        &self,
+        title: impl Into<String>,
+        head: impl Into<String>,
+        base: impl Into<String>,
+    ) -> CreatePullRequestBuilder<'octo, '_> {
+        CreatePullRequestBuilder::new(self, title, head, base)
+    }
+
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
     /// listing pulling requests.
     pub fn list(&self) -> ListPullRequestsBuilder {
         ListPullRequestsBuilder::new(self)
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct CreatePullRequestBuilder<'octo, 'b> {
+    #[serde(skip)]
+    handler: &'b PullRequestHandler<'octo>,
+    title: String,
+    head: String,
+    base: String,
+    body: Option<String>,
+    draft: Option<bool>,
+    maintainer_can_modify: Option<bool>,
+}
+
+impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
+    pub fn new(
+        handler: &'b PullRequestHandler<'octo>,
+        title: impl Into<String>,
+        head: impl Into<String>,
+        base: impl Into<String>,
+    ) -> Self {
+        Self {
+            handler,
+            title: title.into(),
+            head: head.into(),
+            base: base.into(),
+            body: None,
+            draft: None,
+            maintainer_can_modify: None,
+        }
+    }
+
+    /// Set the body of the pull request
+    pub fn body(mut self, body: impl Into<Option<String>>) -> Self {
+        self.body = body.into();
+        self
+    }
+
+    /// Set the pull request as a draft.
+    pub fn draft(mut self, draft: impl Into<Option<bool>>) -> Self {
+        self.draft = draft.into();
+        self
+    }
+
+    /// Set whether other maintainers can modify the pull request.
+    pub fn maintainer_can_modify(mut self, maintainer_can_modify: impl Into<Option<bool>>) -> Self {
+        self.maintainer_can_modify = maintainer_can_modify.into();
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<crate::models::PullRequest> {
+        let url = format!(
+            "/repos/{owner}/{repo}/pulls",
+            owner = self.handler.owner,
+            repo = self.handler.repo
+        );
+
+        self.handler.crab.post(url, Some(&self)).await
     }
 }
 
@@ -64,7 +157,16 @@ pub struct ListPullRequestsBuilder<'octo, 'b> {
 
 impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
     fn new(handler: &'b PullRequestHandler<'octo>) -> Self {
-        Self { handler, state: None, head: None, base: None, sort: None, direction: None, per_page: None, page: None }
+        Self {
+            handler,
+            state: None,
+            head: None,
+            base: None,
+            sort: None,
+            direction: None,
+            per_page: None,
+            page: None,
+        }
     }
 
     /// Filter pull requests by `PullRequestState`.
@@ -117,7 +219,11 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Vec<crate::models::PullRequest>> {
-        let url = format!("/repos/{owner}/{repo}/pulls", owner = self.handler.owner, repo = self.handler.repo);
+        let url = format!(
+            "/repos/{owner}/{repo}/pulls",
+            owner = self.handler.owner,
+            repo = self.handler.repo
+        );
         self.handler.crab.get(url, Some(&self)).await
     }
 }

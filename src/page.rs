@@ -1,5 +1,6 @@
 use hyperx::header::TypedHeaders;
 use url::Url;
+use snafu::ResultExt;
 
 /// A Page of GitHub results, with links to the next and previous page.
 #[non_exhaustive]
@@ -14,7 +15,11 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
         let (next, prev) = get_links(&response)?;
 
-        Ok(Self { items: response.json().await?, next, prev })
+        Ok(Self {
+            items: response.json().await.context(crate::error::Http)?,
+            next,
+            prev,
+        })
     }
 }
 
@@ -26,11 +31,11 @@ fn get_links(response: &reqwest::Response) -> crate::Result<(Option<Url>, Option
         for value in link_header.values() {
             if let Some(relations) = value.rel() {
                 if relations.contains(&hyperx::header::RelationType::Next) {
-                    next = Some(Url::parse(value.link())?);
+                    next = Some(Url::parse(value.link()).context(crate::error::Url)?);
                 }
 
                 if relations.contains(&hyperx::header::RelationType::Prev) {
-                    prev = Some(Url::parse(value.link())?);
+                    prev = Some(Url::parse(value.link()).context(crate::error::Url)?);
                 }
             }
         }
