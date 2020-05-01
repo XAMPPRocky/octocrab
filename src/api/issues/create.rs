@@ -35,8 +35,8 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
     }
 
     /// The contents of the issue.
-    pub fn body(mut self, body: impl Into<Option<String>>) -> Self {
-        self.body = body.into();
+    pub fn body<A: Into<String>>(mut self, body: impl Into<Option<A>>) -> Self {
+        self.body = body.into().map(A::into);
         self
     }
 

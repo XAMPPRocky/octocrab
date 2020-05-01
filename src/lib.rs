@@ -218,10 +218,7 @@ impl Octocrab {
     }
 
     /// A convience method to get the a page of results (if present).
-    pub async fn get_page<R: FromResponse>(
-        &self,
-        url: &Option<Url>,
-    ) -> crate::Result<Option<R>> {
+    pub async fn get_page<R: FromResponse>(&self, url: &Option<Url>) -> crate::Result<Option<R>> {
         match url {
             Some(url) => self.get(url, None::<&()>).await.map(Some),
             None => Ok(None),
