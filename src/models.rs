@@ -192,6 +192,16 @@ pub struct IssueEvent {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MembershipInvitation {
+    pub url: Url,
+    pub state: String,
+    pub role: String,
+    pub organization_url: Url,
+    pub organization: Organization,
+    pub user: User,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Comment {
     pub id: Option<i64>,

@@ -58,7 +58,8 @@ impl Octocrab {
     /// octocrab.add_previews(&["machine-man", "symmetra"]);
     /// ```
     pub fn add_previews(&mut self, previews: &[impl AsRef<str>]) {
-        self.previews.extend(previews.into_iter().map(Self::format_preview));
+        self.previews
+            .extend(previews.into_iter().map(Self::format_preview));
     }
 
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
@@ -79,6 +80,12 @@ impl Octocrab {
         repo: impl Into<String>,
     ) -> api::issues::IssueHandler {
         api::issues::IssueHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's issues API.
+    pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
+        api::orgs::OrgHandler::new(self, owner.into())
     }
 }
 
@@ -201,7 +208,10 @@ impl Octocrab {
         self.send_request(request).await
     }
 
-    async fn send_request(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
+    async fn send_request(
+        &self,
+        mut request: reqwest::RequestBuilder,
+    ) -> Result<reqwest::Response> {
         for preview in &self.previews {
             request = request.header(reqwest::header::ACCEPT, preview);
         }

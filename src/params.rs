@@ -39,3 +39,18 @@ pub mod pulls {
         LongRunning,
     }
 }
+
+pub mod orgs {
+    //! Parameter types for the organization API.
+
+    /// What to sort results by. Can be either `created`, `updated`, `popularity`
+    /// (comment count) or `long-running` (age, filtering by pulls updated in the
+    /// last month).
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Role {
+        Member,
+        Admin,
+    }
+}
