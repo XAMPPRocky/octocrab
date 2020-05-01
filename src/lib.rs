@@ -10,10 +10,9 @@ mod page;
 pub mod models;
 pub mod params;
 
-pub use crate::api::{pulls, issues};
+pub use crate::api::{issues, pulls};
 pub use from_response::FromResponse;
 pub use page::Page;
-
 
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
@@ -123,6 +122,33 @@ impl Octocrab {
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.get(url);
+
+        if let Some(parameters) = parameters {
+            request = request.query(parameters);
+        }
+
+        self.send_request(request).await
+    }
+
+    /// Send a `DELETE` request to `route` with optional query parameters,
+    /// returning the body of the response.
+    pub async fn delete<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
+    where
+        A: AsRef<str>,
+        P: Serialize + ?Sized,
+        R: FromResponse,
+    {
+        let response = self._get(self.absolute_url(route)?, parameters).await?;
+        R::from_response(Self::map_github_error(response).await?).await
+    }
+
+    /// Send a `DELETE` request with no additional post-processing.
+    async fn _delete<P: Serialize + ?Sized>(
+        &self,
+        url: impl reqwest::IntoUrl,
+        parameters: Option<&P>,
+    ) -> Result<reqwest::Response> {
+        let mut request = self.client.delete(url);
 
         if let Some(parameters) = parameters {
             request = request.query(parameters);

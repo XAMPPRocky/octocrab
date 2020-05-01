@@ -70,4 +70,3 @@ impl<'octo> PullRequestHandler<'octo> {
         list::ListPullRequestsBuilder::new(self)
     }
 }
-

@@ -30,6 +30,5 @@ async fn main() -> octocrab::Result<()> {
         println!("{}", pr.number);
     }
 
-
     Ok(())
 }

@@ -15,8 +15,8 @@ pub enum State {
 #[derive(Debug, Clone, Copy, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Direction {
-    #[serde(rename="asc")]
+    #[serde(rename = "asc")]
     Ascending,
-    #[serde(rename="desc")]
+    #[serde(rename = "desc")]
     Descending,
 }
