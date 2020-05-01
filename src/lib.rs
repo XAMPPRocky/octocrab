@@ -24,6 +24,7 @@ pub struct Octocrab {
     auth: Auth,
     client: reqwest::Client,
     pub base_url: Url,
+    previews: Vec<String>,
 }
 
 /// Defaults for Octocrab:
@@ -39,12 +40,27 @@ impl Default for Octocrab {
                 .user_agent("octocrab")
                 .build()
                 .unwrap(),
+            previews: Vec::new(),
         }
     }
 }
 
 /// GitHub API Methods
 impl Octocrab {
+    /// Adds a list of previews to include in the `Accept` header when sending
+    /// requests. See [GitHub's documentation][gh-previews] for more information
+    /// and a full list of available previews.
+    ///
+    /// [gh-previews]: https://developer.github.com/v3/previews/
+    ///
+    /// ```
+    /// let mut octocrab = octocrab::Octocrab::default();
+    /// octocrab.add_previews(&["machine-man", "symmetra"]);
+    /// ```
+    pub fn add_previews(&mut self, previews: &[impl AsRef<str>]) {
+        self.previews.extend(previews.into_iter().map(Self::format_preview));
+    }
+
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's pull request API.
     pub fn pulls(
@@ -78,7 +94,7 @@ impl Octocrab {
 /// etc.) that perform no pre or post processing and directly return the
 /// `reqwest::Response` struct.
 impl Octocrab {
-    /// Send a post request to `route` with an optional body, returning the body
+    /// Send a `POST` request to `route` with an optional body, returning the body
     /// of the response.
     pub async fn post<P: Serialize + ?Sized, R: FromResponse>(
         &self,
@@ -89,7 +105,7 @@ impl Octocrab {
         R::from_response(Self::map_github_error(response).await?).await
     }
 
-    /// Send a post request with no additional pre/post-processing.
+    /// Send a `POST` request with no additional pre/post-processing.
     pub async fn _post<P: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
@@ -104,7 +120,7 @@ impl Octocrab {
         self.send_request(request).await
     }
 
-    /// Send a get request to `route` with optional query parameters, returning
+    /// Send a `GET` request to `route` with optional query parameters, returning
     /// the body of the response.
     pub async fn get<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
     where
@@ -116,7 +132,7 @@ impl Octocrab {
         R::from_response(Self::map_github_error(response).await?).await
     }
 
-    /// Send a get request with no additional post-processing.
+    /// Send a `GET` request with no additional post-processing.
     pub async fn _get<P: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
@@ -185,12 +201,16 @@ impl Octocrab {
         self.send_request(request).await
     }
 
-    async fn send_request(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
+    async fn send_request(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
+        for preview in &self.previews {
+            request = request.header(reqwest::header::ACCEPT, preview);
+        }
+
         request.send().await.context(error::Http)
     }
 }
 
-/// Utility Methods
+/// # Utility Methods
 impl Octocrab {
     /// Returns an absolute url version of `url` using the `base_url` (default:
     /// `https://api.github.com`)
@@ -199,6 +219,17 @@ impl Octocrab {
             .base_url
             .join(url.as_ref())
             .context(crate::error::Url)?)
+    }
+
+    /// Formats a GitHub preview from it's name into the full value for the
+    /// `Accept` header.
+    /// ```
+    /// use octocrab::Octocrab;
+    ///
+    /// assert_eq!(Octocrab::format_preview("machine-man"), "application/vnd.github.machine-man-preview");
+    /// ```
+    pub fn format_preview(preview: impl AsRef<str>) -> String {
+        format!("application/vnd.github.{}-preview", preview.as_ref())
     }
 
     /// Maps a GitHub error response into and `Err()` variant if the status is
