@@ -71,10 +71,11 @@ impl Octocrab {
 /// configuration (Authenication, etc.). All of the HTTP methods (`get`, `post`,
 /// etc.) perform some amount of pre-processing such as making relative urls
 /// absolute, and post processing such as mapping any potential GitHub errors
-/// into `Err()` variants, and deserializing the response body.  This isn't
-/// always ideal when working with GitHub's API and as such there are additional
-/// methods available prefixed with `_` (e.g.  `_get`, `_post`, etc.) that
-/// perform no pre or post processing and directly return the
+/// into `Err()` variants, and deserializing the response body.
+///
+/// This isn't always ideal when working with GitHub's API and as such there are
+/// additional methods available prefixed with `_` (e.g.  `_get`, `_post`,
+/// etc.) that perform no pre or post processing and directly return the
 /// `reqwest::Response` struct.
 impl Octocrab {
     /// Send a post request to `route` with an optional body, returning the body
@@ -217,10 +218,10 @@ impl Octocrab {
     }
 
     /// A convience method to get the a page of results (if present).
-    pub async fn get_page<T: serde::de::DeserializeOwned>(
+    pub async fn get_page<R: FromResponse>(
         &self,
         url: &Option<Url>,
-    ) -> crate::Result<Option<Page<T>>> {
+    ) -> crate::Result<Option<R>> {
         match url {
             Some(url) => self.get(url, None::<&()>).await.map(Some),
             None => Ok(None),
