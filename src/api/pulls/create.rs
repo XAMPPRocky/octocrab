@@ -1,17 +1,5 @@
 /// A builder pattern struct for constructing an Octocrab request to create a
 /// pull request.
-/// ```no_run
-/// # async fn run() -> octocrab::Result<()> {
-/// # let octocrab = octocrab::Octocrab::default();
-/// let pr = octocrab
-///     .pulls("owner", "repo")
-///     .create("title", "head", "base")
-///     .body("hello world!")
-///     .send()
-///     .await?;
-/// # Ok(())
-/// # }
-/// ```
 #[derive(serde::Serialize)]
 pub struct CreatePullRequestBuilder<'octo, 'b> {
     #[serde(skip)]

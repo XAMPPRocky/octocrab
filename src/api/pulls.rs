@@ -3,18 +3,6 @@ use crate::{Octocrab, Page};
 pub mod create;
 pub mod list;
 
-/// What to sort results by. Can be either `created`, `updated`, `popularity`
-/// (comment count) or `long-running` (age, filtering by pulls updated in the
-/// last month).
-#[derive(Debug, Clone, Copy, serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PullRequestSorting {
-    Created,
-    Updated,
-    Popularity,
-    LongRunning,
-}
-
 /// A client to GitHub's pull request API.
 pub struct PullRequestHandler<'octo> {
     crab: &'octo Octocrab,
@@ -28,6 +16,13 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Checks if a given pull request has been merged.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.pulls("owner", "repo").is_merged(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn is_merged(&self, pr: u64) -> crate::Result<bool> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/merge",
@@ -44,6 +39,13 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Get's a given pull request with by its `pr` number.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let pr = octocrab.pulls("owner", "repo").get(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, pr: u64) -> crate::Result<crate::models::PullRequest> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pr}",
@@ -55,6 +57,18 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Get's a given pull request with by its `pr` number.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let pr = octocrab
+    ///     .pulls("owner", "repo")
+    ///     .create("title", "head", "base")
+    ///     .body("hello world!")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create(
         &self,
         title: impl Into<String>,
@@ -66,6 +80,26 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
     /// listing pulling requests.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let pr = octocrab.pulls("owner", "repo").list()
+    ///     // Optional Parameters
+    ///     .state(params::State::Open)
+    ///     .head("master")
+    ///     .base("branch")
+    ///     .sort(params::pulls::Sort::Popularity)
+    ///     .direction(params::Direction::Ascending)
+    ///     .per_page(100)
+    ///     .page(5u32)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> list::ListPullRequestsBuilder {
         list::ListPullRequestsBuilder::new(self)
     }

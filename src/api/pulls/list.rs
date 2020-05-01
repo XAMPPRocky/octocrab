@@ -7,10 +7,10 @@ pub struct ListPullRequestsBuilder<'octo, 'b> {
     state: Option<crate::params::State>,
     head: Option<String>,
     base: Option<String>,
-    sort: Option<PullRequestSorting>,
+    sort: Option<crate::params::pulls::Sort>,
     direction: Option<crate::params::Direction>,
     per_page: Option<u8>,
-    page: Option<usize>,
+    page: Option<u32>,
 }
 
 impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
@@ -50,7 +50,7 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
     /// What to sort results by. Can be either `created`, `updated`,
     /// `popularity` (comment count) or `long-running` (age, filtering by pulls
     /// updated in the last month).
-    pub fn sort(mut self, sort: impl Into<PullRequestSorting>) -> Self {
+    pub fn sort(mut self, sort: impl Into<crate::params::pulls::Sort>) -> Self {
         self.sort = Some(sort.into());
         self
     }
@@ -70,7 +70,7 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
     }
 
     /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<usize>) -> Self {
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
         self
     }
@@ -97,7 +97,7 @@ mod tests {
             .state(crate::params::State::Open)
             .head("master")
             .base("branch")
-            .sort(crate::pulls::PullRequestSorting::Popularity)
+            .sort(crate::params::pulls::Sort::Popularity)
             .direction(crate::params::Direction::Ascending)
             .per_page(100)
             .page(1u8);

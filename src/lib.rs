@@ -138,7 +138,7 @@ impl Octocrab {
         P: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._get(self.absolute_url(route)?, parameters).await?;
+        let response = self._delete(self.absolute_url(route)?, parameters).await?;
         R::from_response(Self::map_github_error(response).await?).await
     }
 
