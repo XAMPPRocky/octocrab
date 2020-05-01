@@ -116,12 +116,39 @@ impl Octocrab {
     }
 
     /// Send a get request with no additional post-processing.
-    async fn _get<P: Serialize + ?Sized>(
+    pub async fn _get<P: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.get(url);
+
+        if let Some(parameters) = parameters {
+            request = request.query(parameters);
+        }
+
+        self.send_request(request).await
+    }
+
+    /// Send a `PUT` request to `route` with optional query parameters,
+    /// returning the body of the response.
+    pub async fn put<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
+    where
+        A: AsRef<str>,
+        P: Serialize + ?Sized,
+        R: FromResponse,
+    {
+        let response = self._put(self.absolute_url(route)?, parameters).await?;
+        R::from_response(Self::map_github_error(response).await?).await
+    }
+
+    /// Send a `DELETE` request with no additional post-processing.
+    pub async fn _put<P: Serialize + ?Sized>(
+        &self,
+        url: impl reqwest::IntoUrl,
+        parameters: Option<&P>,
+    ) -> Result<reqwest::Response> {
+        let mut request = self.client.put(url);
 
         if let Some(parameters) = parameters {
             request = request.query(parameters);
@@ -143,7 +170,7 @@ impl Octocrab {
     }
 
     /// Send a `DELETE` request with no additional post-processing.
-    async fn _delete<P: Serialize + ?Sized>(
+    pub async fn _delete<P: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
         parameters: Option<&P>,
