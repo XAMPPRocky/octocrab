@@ -62,9 +62,7 @@ impl<'octo> OrgHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(
-        &self,
-    ) -> crate::Result<crate::models::Organization> {
+    pub async fn get(&self) -> crate::Result<crate::models::Organization> {
         let route = format!("/orgs/{org}", org = self.owner);
 
         self.crab.get(route, None::<&()>).await
