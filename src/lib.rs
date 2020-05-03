@@ -10,7 +10,7 @@ mod page;
 pub mod models;
 pub mod params;
 
-pub use crate::api::{issues, pulls};
+pub use crate::api::{issues, pulls, orgs};
 pub use from_response::FromResponse;
 pub use page::Page;
 

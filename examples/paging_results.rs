@@ -27,7 +27,7 @@ async fn main() -> octocrab::Result<()> {
     println!("Found {} total items", prs.len());
 
     for pr in prs {
-        println!("{}", pr.number);
+        println!("{:?}", pr);
     }
 
     Ok(())
