@@ -17,6 +17,12 @@ pub enum Error {
         source: reqwest::Error,
         backtrace: Backtrace,
     },
+    #[snafu(display("JSON Error: {}\n{}\nFound at {}", source, json, backtrace))]
+    Json {
+        source: serde_json::Error,
+        json: serde_json::Value,
+        backtrace: Backtrace,
+    },
     Other {
         source: Box<dyn std::error::Error>,
         backtrace: Backtrace,

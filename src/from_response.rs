@@ -8,6 +8,10 @@ pub trait FromResponse: Sized {
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> FromResponse for T {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
-        response.json().await.context(crate::error::Http)
+        let text = response.text().await.context(crate::error::Http)?;
+
+        serde_json::from_str(&text).with_context(|| crate::error::Json {
+            json: serde_json::from_str::<serde_json::Value>(&text).unwrap(),
+        })
     }
 }

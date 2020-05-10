@@ -1,7 +1,15 @@
 use crate::{models, Octocrab, Result};
 
 pub mod create;
+pub mod list;
+pub mod update;
 
+/// Handler for GitHub's issue API.
+///
+/// Note: GitHub's REST API v3 considers every pull request an issue, but not
+/// every issue is a pull request. For this reason, "Issues" endpoints may
+/// return both issues and pull requests in the response. You can identify pull
+/// requests by the `pull_request` key.
 pub struct IssueHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -33,6 +41,60 @@ impl<'octo> IssueHandler<'octo> {
         create::CreateIssueBuilder::new(self, title.into())
     }
 
+    /// List issues in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let issue = octocrab.issues("owner", "repo")
+    ///     .list()
+    ///     // Optional Parameters
+    ///     .state(params::State::All)
+    ///     .milestone(1234)
+    ///     .assignee("ferris")
+    ///     .creator("octocrab")
+    ///     .mentioned("octocat")
+    ///     .labels(&[String::from("help wanted"), String::from("good first issue")])
+    ///     .sort(params::issues::Sort::Comments)
+    ///     .direction(params::Direction::Ascending)
+    ///     .per_page(100)
+    ///     .page(1u8)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list(&self) -> list::ListIssuesBuilder<'_, '_, '_, '_> {
+        list::ListIssuesBuilder::new(self)
+    }
+
+
+    /// Update an issue in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models;
+    ///
+    /// let issue = octocrab.issues("owner", "repo")
+    ///     .update(1234u64)
+    ///     // Optional Parameters
+    ///     .title("Updated title")
+    ///     .body("New body")
+    ///     .state(models::IssueState::Closed)
+    ///     .milestone(1234u64)
+    ///     .assignees(&[String::from("ferris")])
+    ///     .labels(&[String::from("help wanted"), String::from("good first issue")])
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn update(&self, number: u64) -> update::UpdateIssueBuilder<'_, '_, '_, '_, '_, '_> {
+        update::UpdateIssueBuilder::new(self, number)
+    }
 }
 
 /// Assignees
@@ -122,7 +184,11 @@ pub struct ListAssigneesBuilder<'octo, 'r> {
 
 impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r IssueHandler<'octo>) -> Self {
-        Self { handler, per_page: None, page: None }
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
     }
 
     /// Results per page (max 100).
@@ -221,10 +287,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_label(
-        &self,
-        name: impl AsRef<str>,
-    ) -> Result<models::Label> {
+    pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
         let route = format!(
             "/repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
@@ -232,7 +295,9 @@ impl<'octo> IssueHandler<'octo> {
             name = name.as_ref(),
         );
 
-        self.crab.get(self.crab.absolute_url(route)?, None::<&()>).await
+        self.crab
+            .get(self.crab.absolute_url(route)?, None::<&()>)
+            .await
     }
 }
 
@@ -285,7 +350,9 @@ impl<'octo> IssueHandler<'octo> {
             comment_id = comment_id
         );
 
-        self.crab.get(self.crab.absolute_url(route)?, None::<&()>).await
+        self.crab
+            .get(self.crab.absolute_url(route)?, None::<&()>)
+            .await
     }
 
     /// Deletes a comment in an issue.
@@ -349,7 +416,13 @@ pub struct ListCommentsBuilder<'octo, 'r> {
 
 impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
-        Self { handler, issue_number, since: None, per_page: None, page: None }
+        Self {
+            handler,
+            issue_number,
+            since: None,
+            per_page: None,
+            page: None,
+        }
     }
 
     /// Results per page (max 100).
@@ -382,4 +455,3 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
-

@@ -4,11 +4,7 @@ use octocrab::Octocrab;
 async fn main() -> octocrab::Result<()> {
     let octocrab = Octocrab::default();
 
-    match octocrab
-        .issues("xampprocky", "tokei")
-        .check_assignee("xampprocky")
-        .await
-    {
+    match octocrab.issues("xampprocky", "tokei").list().send().await {
         Err(error) => panic!("{}", error),
         Ok(pull) => println!("{:#?}", pull),
     }

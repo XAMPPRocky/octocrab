@@ -145,6 +145,7 @@ pub enum Event {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Issue {
     pub id: i64,
     pub node_id: String,
@@ -160,16 +161,33 @@ pub struct Issue {
     pub body: String,
     pub user: User,
     pub labels: Vec<Label>,
-    pub assignee: User,
+    pub assignee: Option<User>,
     pub assignees: Vec<User>,
-    pub milestone: Milestone,
+    pub milestone: Option<Milestone>,
     pub locked: bool,
-    pub active_lock_reason: String,
+    pub active_lock_reason: Option<String>,
     pub comments: i64,
-    pub pull_request: PullRequest,
+    pub pull_request: Option<PullRequestLink>,
     pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+#[non_exhaustive]
+pub enum IssueState {
+    Open,
+    Closed,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PullRequestLink {
+    pub url: Url,
+    pub html_url: Url,
+    pub diff_url: Url,
+    pub patch_url: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

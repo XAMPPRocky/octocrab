@@ -10,7 +10,7 @@ mod page;
 pub mod models;
 pub mod params;
 
-pub use crate::api::{issues, pulls, orgs};
+pub use crate::api::{issues, orgs, pulls};
 pub use from_response::FromResponse;
 pub use page::Page;
 
@@ -47,20 +47,6 @@ impl Default for Octocrab {
 
 /// GitHub API Methods
 impl Octocrab {
-    /// Adds a list of previews to include in the `Accept` header when sending
-    /// requests. See [GitHub's documentation][gh-previews] for more information
-    /// and a full list of available previews.
-    ///
-    /// [gh-previews]: https://developer.github.com/v3/previews/
-    ///
-    /// ```
-    /// let mut octocrab = octocrab::Octocrab::default();
-    /// octocrab.add_previews(&["machine-man", "symmetra"]);
-    /// ```
-    pub fn add_previews(&mut self, previews: &[impl AsRef<str>]) {
-        self.previews
-            .extend(previews.into_iter().map(Self::format_preview));
-    }
 
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's pull request API.
@@ -154,6 +140,33 @@ impl Octocrab {
         self.send_request(request).await
     }
 
+    /// Send a `PATCH` request to `route` with optional query parameters,
+    /// returning the body of the response.
+    pub async fn patch<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
+    where
+        A: AsRef<str>,
+        B: Serialize + ?Sized,
+        R: FromResponse,
+    {
+        let response = self._patch(self.absolute_url(route)?, body).await?;
+        R::from_response(Self::map_github_error(response).await?).await
+    }
+
+    /// Send a `PATCH` request with no additional post-processing.
+    pub async fn _patch<B: Serialize + ?Sized>(
+        &self,
+        url: impl reqwest::IntoUrl,
+        parameters: Option<&B>,
+    ) -> Result<reqwest::Response> {
+        let mut request = self.client.patch(url);
+
+        if let Some(parameters) = parameters {
+            request = request.json(parameters);
+        }
+
+        self.send_request(request).await
+    }
+
     /// Send a `PUT` request to `route` with optional query parameters,
     /// returning the body of the response.
     pub async fn put<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
@@ -166,7 +179,7 @@ impl Octocrab {
         R::from_response(Self::map_github_error(response).await?).await
     }
 
-    /// Send a `DELETE` request with no additional post-processing.
+    /// Send a `PATCH` request with no additional post-processing.
     pub async fn _put<P: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
@@ -240,6 +253,21 @@ impl Octocrab {
     /// ```
     pub fn format_preview(preview: impl AsRef<str>) -> String {
         format!("application/vnd.github.{}-preview", preview.as_ref())
+    }
+
+    /// Adds a list of previews to include in the `Accept` header when sending
+    /// requests. See [GitHub's documentation][gh-previews] for more information
+    /// and a full list of available previews.
+    ///
+    /// [gh-previews]: https://developer.github.com/v3/previews/
+    ///
+    /// ```
+    /// let mut octocrab = octocrab::Octocrab::default();
+    /// octocrab.add_previews(&["machine-man", "symmetra"]);
+    /// ```
+    pub fn add_previews(&mut self, previews: &[impl AsRef<str>]) {
+        self.previews
+            .extend(previews.into_iter().map(Self::format_preview));
     }
 
     /// Maps a GitHub error response into and `Err()` variant if the status is

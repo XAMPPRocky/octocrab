@@ -34,7 +34,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
         let (prev, next) = get_links(&response)?;
 
         Ok(Self {
-            items: response.json().await.context(crate::error::Http)?,
+            items: crate::FromResponse::from_response(response).await?,
             next,
             prev,
         })
