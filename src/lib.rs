@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use once_cell::sync::Lazy;
 use reqwest::Url;
 use snafu::*;
 
@@ -20,11 +23,101 @@ use serde::Serialize;
 
 use auth::Auth;
 
-pub struct Octocrab {
+static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> = Lazy::new(|| {
+    arc_swap::ArcSwap::from_pointee(Octocrab::default())
+});
+
+
+/// Formats a GitHub preview from it's name into the full value for the
+/// `Accept` header.
+/// ```
+/// assert_eq!(octocrab::format_preview("machine-man"), "application/vnd.github.machine-man-preview");
+/// ```
+pub fn format_preview(preview: impl AsRef<str>) -> String {
+    format!("application/vnd.github.{}-preview", preview.as_ref())
+}
+
+/// Initialises the static instance using the configuration set by
+/// `builder`.
+/// ```
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let octocrab = octocrab::initialise(octocrab::Octocrab::builder())?;
+/// # Ok(())
+/// # }
+/// ```
+pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
+    Ok(STATIC_INSTANCE.swap(Arc::from(builder.init()?)))
+}
+
+/// Returns a new instance of `Octocrab`. If it hasn't been previously
+/// initialised it returns a default instance with no authentication set.
+/// ```
+/// let octocrab = octocrab::instance();
+/// ```
+pub fn instance() -> Arc<Octocrab> {
+    STATIC_INSTANCE.load().clone()
+}
+
+#[derive(Default)]
+pub struct OctocrabBuilder {
     auth: Auth,
+    previews: Vec<&'static str>,
+    base_url: Option<Url>,
+}
+
+/// A builder struct for `Octocrab`, allowing you to configure the client, such
+/// as using GitHub previews, the github instance, authentication, etc.
+/// ```
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let octocrab = octocrab::OctocrabBuilder::new()
+///     .add_preview("machine-man")
+///     .base_url("https://github.example.com")?
+///     .init()?;
+/// # Ok(())
+/// # }
+/// ```
+impl OctocrabBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn add_preview(mut self, preview: &'static str) -> Self {
+        self.previews.push(preview);
+        self
+    }
+
+    pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
+        self.base_url = Some(base_url.into_url().context(crate::error::Http)?);
+        Ok(self)
+    }
+
+    pub fn init(self) -> Result<Octocrab> {
+        let mut hmap = reqwest::header::HeaderMap::new();
+
+        for preview in &self.previews {
+            hmap.append(reqwest::header::ACCEPT, crate::format_preview(&preview).parse().unwrap());
+        }
+
+        let client = reqwest::Client::builder()
+            .user_agent("octocrab")
+            .default_headers(hmap)
+            .build()
+            .context(crate::error::Http)?;
+
+        Ok(Octocrab {
+            client,
+            base_url: self.base_url.unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap())
+        })
+    }
+}
+
+const GITHUB_BASE_URL: &str = "https://api.github.com";
+
+/// The GitHub API client.
+#[derive(Debug, Clone)]
+pub struct Octocrab {
     client: reqwest::Client,
     pub base_url: Url,
-    previews: Vec<String>,
 }
 
 /// Defaults for Octocrab:
@@ -34,14 +127,19 @@ pub struct Octocrab {
 impl Default for Octocrab {
     fn default() -> Self {
         Self {
-            base_url: Url::parse("https://api.github.com").unwrap(),
-            auth: Auth::default(),
+            base_url: Url::parse(GITHUB_BASE_URL).unwrap(),
             client: reqwest::ClientBuilder::new()
                 .user_agent("octocrab")
                 .build()
                 .unwrap(),
-            previews: Vec::new(),
         }
+    }
+}
+
+impl Octocrab {
+    /// Returns a new `OctocrabBuilder`.
+    pub fn builder() -> OctocrabBuilder {
+        OctocrabBuilder::default()
     }
 }
 
@@ -225,10 +323,6 @@ impl Octocrab {
         &self,
         mut request: reqwest::RequestBuilder,
     ) -> Result<reqwest::Response> {
-        for preview in &self.previews {
-            request = request.header(reqwest::header::ACCEPT, preview);
-        }
-
         request.send().await.context(error::Http)
     }
 }
@@ -242,32 +336,6 @@ impl Octocrab {
             .base_url
             .join(url.as_ref())
             .context(crate::error::Url)?)
-    }
-
-    /// Formats a GitHub preview from it's name into the full value for the
-    /// `Accept` header.
-    /// ```
-    /// use octocrab::Octocrab;
-    ///
-    /// assert_eq!(Octocrab::format_preview("machine-man"), "application/vnd.github.machine-man-preview");
-    /// ```
-    pub fn format_preview(preview: impl AsRef<str>) -> String {
-        format!("application/vnd.github.{}-preview", preview.as_ref())
-    }
-
-    /// Adds a list of previews to include in the `Accept` header when sending
-    /// requests. See [GitHub's documentation][gh-previews] for more information
-    /// and a full list of available previews.
-    ///
-    /// [gh-previews]: https://developer.github.com/v3/previews/
-    ///
-    /// ```
-    /// let mut octocrab = octocrab::Octocrab::default();
-    /// octocrab.add_previews(&["machine-man", "symmetra"]);
-    /// ```
-    pub fn add_previews(&mut self, previews: &[impl AsRef<str>]) {
-        self.previews
-            .extend(previews.into_iter().map(Self::format_preview));
     }
 
     /// Maps a GitHub error response into and `Err()` variant if the status is
