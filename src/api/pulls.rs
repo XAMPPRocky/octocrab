@@ -102,7 +102,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// use octocrab::params;
     ///
-    /// let pr = octocrab.pulls("owner", "repo").list()
+    /// let page = octocrab.pulls("owner", "repo").list()
     ///     // Optional Parameters
     ///     .state(params::State::Open)
     ///     .head("master")

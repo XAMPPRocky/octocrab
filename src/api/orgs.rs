@@ -38,7 +38,7 @@ impl<'octo> OrgHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let pr = octocrab.orgs("owner").add_or_update_membership("ferris", None).await?;
+    /// let invitation = octocrab.orgs("owner").add_or_update_membership("ferris", None).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -58,6 +58,28 @@ impl<'octo> OrgHandler<'octo> {
         self.crab.post(url, body.as_ref()).await
     }
 
+    /// Check if a user is, publicly or privately, a member of the organization.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// assert!(octocrab.orgs("owner").check_membership("ferris").await?);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn check_membership(&self, username: impl AsRef<str>) -> crate::Result<bool> {
+        let url = format!(
+            "/orgs/{org}/members/{username}",
+            org = self.owner,
+            username = username.as_ref(),
+        );
+
+        let response = self.crab._get(self.crab.absolute_url(url)?, None::<&()>).await?;
+        let status = response.status();
+
+        Ok(status == 204 || status == 301)
+    }
+
     /// Get an organization
     ///
     /// To see many of the organization response values, you need to be an
@@ -68,7 +90,7 @@ impl<'octo> OrgHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let pr = octocrab.orgs("owner").get().await?;
+    /// let org = octocrab.orgs("owner").get().await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -85,7 +107,7 @@ impl<'octo> OrgHandler<'octo> {
     /// use octocrab::params;
     ///
     /// // Get the least active repos belonging to `owner`.
-    /// let pr = octocrab::instance()
+    /// let page = octocrab::instance()
     ///     .orgs("owner")
     ///     .list_repos()
     ///     // Optional Parameters
