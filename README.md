@@ -125,7 +125,7 @@ current models using `serde`.
 allowing you to easily plug it into existing systems without worrying
 about having to integrate and pass around the client.
 
-```
+```rust
 // Initialises the static instance with your configuration and returns an
 // instance of the client.
 octocrab::initialise(octocrab::Octocrab::builder());
