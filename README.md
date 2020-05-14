@@ -7,7 +7,7 @@
 [![Documentation](https://docs.rs/octocrab/badge.svg)](https://docs.rs/octocrab/)
 
 Octocrab is an third party GitHub API client, allowing you to easily build
-your own GitHub integrations or bots. `Octocrab` comes with two primary
+your own GitHub integrations or bots in Rust. `Octocrab` comes with two primary
 set of APIs for communicating with GitHub, a high level strongly typed
 semantic API, and a lower level HTTP API for extending behaviour.
 
