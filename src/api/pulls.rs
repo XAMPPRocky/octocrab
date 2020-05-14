@@ -1,11 +1,17 @@
-use crate::{Octocrab, Page};
+//! The pull request API.
 
 mod create;
 mod list;
 
+use crate::{Octocrab, Page};
+
 pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
 
 /// A client to GitHub's pull request API.
+///
+/// Created with [`Octocrab::pulls`].
+///
+/// [`Octocrab::pulls`]: ../struct.Octocrab.html#method.pulls
 pub struct PullRequestHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -58,7 +64,16 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
-    /// Get's a given pull request with by its `pr` number.
+    /// Create a new pull request.
+    ///
+    /// - `title` — The title of the new pull request.
+    /// - `head` — The name of the branch where your changes are implemented.
+    ///   For cross-repository pull requests in the same network, namespace head
+    ///   with a user like this: `username:branch`.
+    /// - `base` — The name of the branch you want the changes pulled into. This
+    ///   should be an existing branch on the current repository. You cannot
+    ///   submit a pull request to one repository that requests a merge to a
+    ///   base of another repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();

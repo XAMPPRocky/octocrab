@@ -1,6 +1,7 @@
 use snafu::{Backtrace, Snafu};
 use std::fmt;
 
+/// An error that could have occurred while using `Octocrab`.
 #[derive(Snafu, Debug)]
 #[snafu(visibility = "pub(crate)")]
 pub enum Error {
@@ -24,11 +25,12 @@ pub enum Error {
         backtrace: Backtrace,
     },
     Other {
-        source: Box<dyn std::error::Error>,
+        source: Box<dyn std::error::Error + Send + Sync>,
         backtrace: Backtrace,
     },
 }
 
+/// An error returned from GitHub's API.
 #[derive(serde::Deserialize, Debug, Clone)]
 pub struct GitHubError {
     documentation_url: String,

@@ -1,5 +1,10 @@
 use super::*;
 
+/// A builder pattern struct for listing pull requests.
+///
+/// created by [`PullRequestHandler::list`]
+///
+/// [`PullRequestHandler::list`]: ./struct.PullRequestHandler.html#method.list
 #[derive(serde::Serialize)]
 pub struct ListPullRequestsBuilder<'octo, 'b> {
     #[serde(skip)]

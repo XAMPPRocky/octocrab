@@ -6,12 +6,22 @@
 //!
 //! ## Semantic API
 //! The semantic API provides strong typing around GitHub's API, as well as a
-//! set of [`models`].
+//! set of [`models`] that maps to GitHub's types. Currently the following 
+//! modules are available.
+//!
+//! - [`issues`] Issues and related items, e.g. comments, labels, etc.
+//! - [`pulls`] Pull Requests
+//! - [`orgs`] GitHub Organisations
+//!
+//! [`models`]: ./models/index.html
+//! [`issues`]: ./issues/struct.IssueHandler.html
+//! [`pulls`]: ./pulls/struct.PullRequestHandler.html
+//! [`orgs`]: ./orgs/struct.OrgHandler.html
 //!
 //! #### Getting a Pull Request
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
-//! // Get issue #404 from `octocrab/repo`.
+//! // Get ull request #404 from `octocrab/repo`.
 //! let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
 //! # Ok(())
 //! # }
@@ -49,16 +59,17 @@
 //!
 //! ## HTTP API
 //! The typed API currently doesn't cover all of GitHub's API at this time, and
-//! even if it did, since GitHub is in active development this library will
-//! likely always be somewhat behind GitHub. However that shouldn't mean that in
-//! order to use those features that you have to now fork or replace `octocrab`
-//! with your own solution.
+//! even if it did GitHub is in active development and this library will
+//! likely always be somewhat behind GitHub at some points in time. However that
+//! shouldn't mean that in order to use those features that you have to now fork
+//! or replace `octocrab` with your own solution.
 //!
-//! Instead `octocrab` provides a set of HTTP methods allowing you to easily
+//! Instead `octocrab` exposes a suite of HTTP methods allowing you to easily
 //! extend `Octocrab`'s existing behaviour. Using these HTTP methods allows you
-//! to keep using the same authenticationa dn configuration, while customising
-//! your request. There is a method for each HTTP method `get`, `post`, `patch`,
-//! `put`, `delete`, all of which accept a relative route and a optional body.
+//! to keep using the same authentication and configuration, while having
+//! control over the request and response. There is a method for each HTTP
+//! method `get`, `post`, `patch`, `put`, `delete`, all of which accept a
+//! relative route and a optional body.
 //!
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
@@ -69,11 +80,64 @@
 //! # }
 //! ```
 //!
-use std::sync::Arc;
-
-use once_cell::sync::Lazy;
-use reqwest::Url;
-use snafu::*;
+//! Each of the HTTP methods expects a body, formats the URL with the base
+//! URL, and errors if GitHub doesn't return a successful status, but this isn't
+//! always desired when working with GitHub's API, sometimes you need to check
+//! the response status or headers. As such there are companion methods `_get`,
+//! `_post`, etc. that perform no additional pre or post-processing to
+//! the request.
+//!
+//! ```no_run
+//! # async fn run() -> octocrab::Result<()> {
+//! let octocrab = octocrab::instance();
+//! let response =  octocrab
+//!     ._get("https://api.github.com/organizations", None::<&()>)
+//!     .await?;
+//!
+//! // You can also use `Octocrab::absolute_url` if you want to still to go to
+//! // the same base.
+//! let response =  octocrab
+//!     ._get(octocrab.absolute_url("/organizations")?, None::<&()>)
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! You can use the those HTTP methods to easily create your own extensions to
+//! `Octocrab`'s typed API. (Requires `async_trait`).
+//! ```
+//! use octocrab::{Octocrab, Page, Result, models};
+//!
+//! #[async_trait::async_trait]
+//! trait OrganisationExt {
+//!   async fn list_every_organisation(&self) -> Result<Page<models::Organization>>;
+//! }
+//!
+//! #[async_trait::async_trait]
+//! impl OrganisationExt for Octocrab {
+//!   async fn list_every_organisation(&self) -> Result<Page<models::Organization>> {
+//!     self.get("/organizations", None::<&()>).await
+//!   }
+//! }
+//! ```
+//!
+//! You can also easily access new properties that aren't available in the
+//! current models using `serde`.
+//!
+//! ## Static API
+//! `Octocrab` also provides a statically reference count version of its API,
+//! allowing you to easily plug it into existing systems without worrying
+//! about having to integrate and pass around the client.
+//!
+//! ```
+//! // Initialises the static instance with your configuration and returns an
+//! // instance of the client.
+//! octocrab::initialise(octocrab::Octocrab::builder());
+//! // Gets a instance of `Octocrab` from the static API. If you call this
+//! // without first calling `octocrab::initialise` a default client will be
+//! // initialised and returned instead.
+//! octocrab::instance();
+//! ```
 
 mod api;
 mod auth;
@@ -84,6 +148,15 @@ mod page;
 pub mod models;
 pub mod params;
 
+use std::sync::Arc;
+
+use once_cell::sync::Lazy;
+use reqwest::Url;
+use serde::Serialize;
+use snafu::*;
+
+use auth::Auth;
+
 pub use self::{
     api::{issues, orgs, pulls},
     error::{Error, GitHubError},
@@ -91,14 +164,14 @@ pub use self::{
     page::Page,
 };
 
+/// A convenience type with a default error type of `Octocrab::Error`.
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-use serde::Serialize;
-
-use auth::Auth;
+const GITHUB_BASE_URL: &str = "https://api.github.com";
 
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
+
 
 /// Formats a GitHub preview from it's name into the full value for the
 /// `Accept` header.
@@ -118,7 +191,7 @@ pub fn format_preview(preview: impl AsRef<str>) -> String {
 /// # }
 /// ```
 pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
-    Ok(STATIC_INSTANCE.swap(Arc::from(builder.init()?)))
+    Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
 }
 
 /// Returns a new instance of `Octocrab`. If it hasn't been previously
@@ -130,6 +203,7 @@ pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
 
+/// A Builder struct for `Octocrab`.
 #[derive(Default)]
 pub struct OctocrabBuilder {
     auth: Auth,
@@ -144,7 +218,7 @@ pub struct OctocrabBuilder {
 /// let octocrab = octocrab::OctocrabBuilder::new()
 ///     .add_preview("machine-man")
 ///     .base_url("https://github.example.com")?
-///     .init()?;
+///     .build()?;
 /// # Ok(())
 /// # }
 /// ```
@@ -153,23 +227,39 @@ impl OctocrabBuilder {
         Self::default()
     }
 
+    /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
         self.previews.push(preview);
         self
     }
 
+    /// Add a personal token to use for authentication.
+    pub fn personal_token(mut self, token: String) -> Self {
+        self.auth = Auth::PersonalToken(token);
+        self
+    }
+
+    /// Set the base url for `Octocrab`.
     pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
         self.base_url = Some(base_url.into_url().context(crate::error::Http)?);
         Ok(self)
     }
 
-    pub fn init(self) -> Result<Octocrab> {
+    /// Create the `Octocrab` client.
+    pub fn build(self) -> Result<Octocrab> {
         let mut hmap = reqwest::header::HeaderMap::new();
 
         for preview in &self.previews {
             hmap.append(
                 reqwest::header::ACCEPT,
                 crate::format_preview(&preview).parse().unwrap(),
+            );
+        }
+
+        if let Auth::PersonalToken(token) = self.auth {
+            hmap.append(
+                reqwest::header::AUTHORIZATION,
+                format!("Bearer {}", token).parse().unwrap(),
             );
         }
 
@@ -187,8 +277,6 @@ impl OctocrabBuilder {
         })
     }
 }
-
-const GITHUB_BASE_URL: &str = "https://api.github.com";
 
 /// The GitHub API client.
 #[derive(Debug, Clone)]
@@ -429,7 +517,10 @@ impl Octocrab {
     }
 
     /// A convience method to get the a page of results (if present).
-    pub async fn get_page<R: serde::de::DeserializeOwned>(&self, url: &Option<Url>) -> crate::Result<Option<Page<R>>> {
+    pub async fn get_page<R: serde::de::DeserializeOwned>(
+        &self,
+        url: &Option<Url>,
+    ) -> crate::Result<Option<Page<R>>> {
         match url {
             Some(url) => self.get(url, None::<&()>).await.map(Some),
             None => Ok(None),

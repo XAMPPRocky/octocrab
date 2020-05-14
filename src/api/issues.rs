@@ -1,8 +1,10 @@
-use crate::{models, Octocrab, Result};
+//! The issue API.
 
 mod create;
 mod list;
 mod update;
+
+use crate::{models, Octocrab, Result};
 
 pub use self::{create::CreateIssueBuilder, list::ListIssuesBuilder, update::UpdateIssueBuilder};
 
@@ -12,6 +14,10 @@ pub use self::{create::CreateIssueBuilder, list::ListIssuesBuilder, update::Upda
 /// every issue is a pull request. For this reason, "Issues" endpoints may
 /// return both issues and pull requests in the response. You can identify pull
 /// requests by the `pull_request` key.
+///
+/// Created with [`Octocrab::issues`].
+///
+/// [`Octocrab::issues`]: ../struct.Octocrab.html#method.issues
 pub struct IssueHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -338,7 +344,9 @@ impl<'octo> IssueHandler<'octo> {
             issue = number
         );
 
-        self.crab.post(route, Some(&serde_json::json!({ "body": body.as_ref() }))).await
+        self.crab
+            .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
+            .await
     }
 
     /// Gets a comment in the issue.

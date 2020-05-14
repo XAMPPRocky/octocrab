@@ -1,3 +1,4 @@
+//! Serde mappings from GitHub's JSON to structs.
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
@@ -48,16 +49,16 @@ pub struct PullRequest {
 #[non_exhaustive]
 pub struct Organization {
     pub login: String,
-    pub id: Option<i64>,
-    pub node_id: Option<String>,
-    pub url: Option<String>,
-    pub repos_url: String,
-    pub events_url: Option<String>,
-    pub hooks_url: Option<String>,
-    pub issues_url: Option<String>,
-    pub members_url: Option<String>,
-    pub public_members_url: Option<String>,
-    pub avatar_url: Option<String>,
+    pub id: u64,
+    pub node_id: String,
+    pub url: Url,
+    pub repos_url: Url,
+    pub events_url: Url,
+    pub hooks_url: Url,
+    pub issues_url: Url,
+    pub members_url: Url,
+    pub public_members_url: Url,
+    pub avatar_url: Url,
     pub description: Option<String>,
     pub name: Option<String>,
     pub company: Option<String>,
@@ -67,14 +68,13 @@ pub struct Organization {
     pub is_verified: Option<bool>,
     pub has_organization_projects: Option<bool>,
     pub has_repository_projects: Option<bool>,
-    pub public_repos: Option<i64>,
-    pub public_gists: Option<i64>,
-    pub followers: Option<i64>,
-    pub following: Option<i64>,
-    pub html_url: Option<String>,
-    pub created_at: Option<String>,
-    #[serde(rename = "type")]
-    pub type_field: Option<String>,
+    pub public_repos: Option<u32>,
+    pub public_gists: Option<u32>,
+    pub followers: Option<u32>,
+    pub following: Option<u32>,
+    pub html_url: Option<Url>,
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub r#type: Option<String>,
     pub total_private_repos: Option<i64>,
     pub owned_private_repos: Option<i64>,
     pub private_gists: Option<i64>,
@@ -97,15 +97,15 @@ pub struct Contents {
     #[serde(rename = "type")]
     pub contents_type: String,
     pub encoding: String,
-    pub size: i64,
+    pub size: u64,
     pub name: String,
     pub path: String,
     pub content: String,
     pub sha: String,
-    pub url: Option<String>,
-    pub git_url: String,
-    pub html_url: Option<String>,
-    pub download_url: String,
+    pub url: Url,
+    pub git_url: Url,
+    pub html_url: Url,
+    pub download_url: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -221,43 +221,43 @@ pub struct MembershipInvitation {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Comment {
-    pub id: Option<i64>,
-    pub node_id: Option<String>,
-    pub url: Option<String>,
-    pub html_url: Option<String>,
+    pub id: u64,
+    pub node_id: String,
+    pub url: Url,
+    pub html_url: Url,
     pub body: Option<String>,
     pub user: User,
     pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ProjectCard {
-    pub id: Option<i64>,
-    pub url: Option<String>,
-    pub project_id: Option<i64>,
-    pub project_url: Option<String>,
+    pub id: u64,
+    pub url: Url,
+    pub project_id: i64,
+    pub project_url: Url,
     pub column_name: Option<String>,
     pub previous_column_name: Option<String>,
-    pub column_url: Option<String>,
+    pub column_url: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Project {
-    pub owner_url: Option<String>,
-    pub url: Option<String>,
-    pub html_url: Option<String>,
-    pub columns_url: Option<String>,
-    pub id: Option<i64>,
-    pub node_id: Option<String>,
+    pub owner_url: Url,
+    pub url: Url,
+    pub html_url: Url,
+    pub columns_url: Url,
+    pub id: u64,
+    pub node_id: String,
     pub name: String,
     pub body: Option<String>,
-    pub number: Option<i64>,
+    pub number: u32,
     pub state: Option<String>,
-    pub creator: Option<User>,
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub creator: User,
+    pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
@@ -271,13 +271,13 @@ pub enum ProjectCardContentType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ProjectColumn {
-    pub url: Option<String>,
-    pub project_url: Option<String>,
-    pub cards_url: Option<String>,
+    pub url: Url,
+    pub project_url: Url,
+    pub cards_url: Url,
     pub id: i64,
-    pub node_id: Option<String>,
-    pub name: Option<String>,
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub node_id: String,
+    pub name: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
@@ -285,20 +285,20 @@ pub struct ProjectColumn {
 #[non_exhaustive]
 pub struct Team {
     pub id: i64,
-    pub node_id: Option<String>,
-    pub url: Option<String>,
-    pub html_url: Option<String>,
+    pub node_id: String,
+    pub url: Url,
+    pub html_url: Url,
     pub name: String,
     pub slug: String,
     pub description: String,
     pub privacy: String,
     pub permission: String,
-    pub members_url: String,
-    pub repositories_url: String,
+    pub members_url: Url,
+    pub repositories_url: Url,
     pub members_count: i64,
     pub repos_count: i64,
-    pub created_at: String,
-    pub updated_at: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     pub organization: Organization,
 }
 
@@ -402,12 +402,12 @@ pub struct Label {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Milestone {
-    pub url: Option<String>,
-    pub html_url: Option<String>,
-    pub labels_url: Option<String>,
-    pub id: Option<i64>,
-    pub node_id: Option<String>,
-    pub number: Option<i64>,
+    pub url: Url,
+    pub html_url: Url,
+    pub labels_url: Option<Url>,
+    pub id: i64,
+    pub node_id: String,
+    pub number: i64,
     pub state: Option<String>,
     pub title: String,
     pub description: Option<String>,
@@ -448,7 +448,6 @@ pub struct Repository {
     pub private: Option<bool>,
     pub html_url: Url,
     pub description: Option<String>,
-    #[serde(default)]
     pub fork: bool,
     pub url: Url,
     pub archive_url: Url,
@@ -480,7 +479,7 @@ pub struct Repository {
     pub notifications_url: Url,
     pub pulls_url: Url,
     pub releases_url: Url,
-    pub ssh_url: Url,
+    pub ssh_url: String,
     pub stargazers_url: Url,
     pub statuses_url: Url,
     pub subscribers_url: Url,
@@ -489,26 +488,26 @@ pub struct Repository {
     pub teams_url: Url,
     pub trees_url: Url,
     pub clone_url: Url,
-    pub mirror_url: Url,
+    pub mirror_url: Option<Url>,
     pub hooks_url: Url,
     pub svn_url: Url,
     pub homepage: Option<String>,
     pub language: Option<::serde_json::Value>,
-    pub forks_count: Option<i64>,
-    pub stargazers_count: Option<i64>,
-    pub watchers_count: Option<i64>,
-    pub size: Option<i64>,
-    pub default_branch: Option<String>,
-    pub open_issues_count: Option<i64>,
+    pub forks_count: u32,
+    pub stargazers_count: u32,
+    pub watchers_count: u32,
+    pub size: u32,
+    pub default_branch: String,
+    pub open_issues_count: u32,
     pub is_template: Option<bool>,
     pub topics: Option<Vec<String>>,
     pub has_issues: bool,
     pub has_projects: bool,
     pub has_wiki: bool,
     pub has_pages: bool,
-    pub has_downloads: Option<bool>,
-    pub archived: Option<bool>,
-    pub disabled: Option<bool>,
+    pub has_downloads: bool,
+    pub archived: bool,
+    pub disabled: bool,
     pub visibility: Option<String>,
     pub pushed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub created_at: chrono::DateTime<chrono::Utc>,
@@ -520,6 +519,17 @@ pub struct Repository {
     pub allow_merge_commit: Option<bool>,
     pub subscribers_count: Option<i64>,
     pub network_count: Option<i64>,
+    pub license: Option<License>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct License {
+    pub key: String,
+    pub name: String,
+    pub node_id: String,
+    pub spdx_id: String,
+    pub url: Option<Url>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -537,9 +547,9 @@ pub struct Commit {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Permissions {
-    admin: Option<bool>,
-    push: Option<bool>,
-    pull: Option<bool>,
+    admin: bool,
+    push: bool,
+    pull: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

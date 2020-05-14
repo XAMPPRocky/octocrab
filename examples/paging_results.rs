@@ -7,6 +7,7 @@ async fn main() -> octocrab::Result<()> {
     let mut current_page = octocrab
         .orgs("rust-lang")
         .list_repos()
+        .repo_type(params::repos::Type::Sources)
         .per_page(100)
         .send()
         .await?;
@@ -21,5 +22,6 @@ async fn main() -> octocrab::Result<()> {
 
         current_page = new_page;
     }
+
     Ok(())
 }

@@ -1,5 +1,6 @@
 use snafu::ResultExt;
 
+/// A trait for mapping from a `reqwest::Response` to an another type.
 #[async_trait::async_trait]
 pub trait FromResponse: Sized {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self>;

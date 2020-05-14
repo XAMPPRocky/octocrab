@@ -1,6 +1,16 @@
+//! The Organization API.
+
+mod list_repos;
+
 use crate::Octocrab;
 
+pub use self::list_repos::ListReposBuilder;
+
 /// A client to GitHub's organization API.
+///
+/// Created with [`Octocrab::orgs`].
+///
+/// [`Octocrab::orgs`]: ../struct.Octocrab.html#method.orgs
 pub struct OrgHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -66,5 +76,31 @@ impl<'octo> OrgHandler<'octo> {
         let route = format!("/orgs/{org}", org = self.owner);
 
         self.crab.get(route, None::<&()>).await
+    }
+
+    /// List repos for the specified organization.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params;
+    ///
+    /// // Get the least active repos belonging to `owner`.
+    /// let pr = octocrab::instance()
+    ///     .orgs("owner")
+    ///     .list_repos()
+    ///     // Optional Parameters
+    ///     .repo_type(params::repos::Type::Sources)
+    ///     .sort(params::repos::Sort::Pushed)
+    ///     .direction(params::Direction::Descending)
+    ///     .per_page(25)
+    ///     .page(5u32)
+    ///     // Send the request.
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_repos(&self) -> list_repos::ListReposBuilder {
+        list_repos::ListReposBuilder::new(self)
     }
 }

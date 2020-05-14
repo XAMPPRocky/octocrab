@@ -13,16 +13,7 @@ pub struct CreatePullRequestBuilder<'octo, 'b> {
 }
 
 impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
-    /// Creates a new `CreatePullRequestBuilder` with the required arguments.
-    /// - `title` — The title of the new pull request.
-    /// - `head` — The name of the branch where your changes are implemented.
-    ///   For cross-repository pull requests in the same network, namespace head
-    ///   with a user like this: `username:branch`.
-    /// - `base` — The name of the branch you want the changes pulled into. This
-    ///   should be an existing branch on the current repository. You cannot
-    ///   submit a pull request to one repository that requests a merge to a
-    ///   base of another repository.
-    pub fn new(
+    pub(crate) fn new(
         handler: &'b super::PullRequestHandler<'octo>,
         title: impl Into<String>,
         head: impl Into<String>,

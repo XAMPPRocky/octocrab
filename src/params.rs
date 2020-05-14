@@ -120,3 +120,38 @@ pub mod pulls {
         LongRunning,
     }
 }
+
+pub mod repos {
+    /// The type of repository to search for.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Type {
+        /// All repositories, usually the default.
+        All,
+        /// All forked rpositories.
+        Forks,
+        /// Only available if your organization is associated with an enterprise
+        /// account using GitHub Enterprise Cloud or GitHub Enterprise
+        /// Server 2.20+.
+        Internal,
+        /// All member repositories
+        Member,
+        ///  All private repositores
+        Private,
+        /// All public repositories
+        Public,
+        /// All source repostories (a repository that is not a fork).
+        Sources,
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Sort {
+        Created,
+        Updated,
+        Pushed,
+        FullName,
+    }
+}
