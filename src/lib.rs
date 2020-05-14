@@ -1,4 +1,4 @@
-//! # Octocrab: A modern & extensible GitHub API client.
+//! # Octocrab: A modern, extensible GitHub API client.
 //! Octocrab is an third party GitHub API client, allowing you to easily build
 //! your own GitHub integrations or bots. `Octocrab` comes with two primary
 //! set of APIs for communicating with GitHub, a high level strongly typed
