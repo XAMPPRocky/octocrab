@@ -1,10 +1,13 @@
 [package]
 name = "octocrab"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
-description = "WIP"
+readme = "README.md"
+homepage = "https://github.com/XAMPPRocky/octocrab"
+repository = "https://github.com/XAMPPRocky/octocrab.git"
 license = "Apache-2.0/MIT"
+documentation = "https://docs.rs/octocrab"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
