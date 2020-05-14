@@ -1,8 +1,10 @@
 use crate::{models, Octocrab, Result};
 
-pub mod create;
-pub mod list;
-pub mod update;
+mod create;
+mod list;
+mod update;
+
+pub use self::{create::CreateIssueBuilder, list::ListIssuesBuilder, update::UpdateIssueBuilder};
 
 /// Handler for GitHub's issue API.
 ///
@@ -19,6 +21,25 @@ pub struct IssueHandler<'octo> {
 impl<'octo> IssueHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
         Self { crab, owner, repo }
+    }
+
+    /// Gets a label from the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let label = octocrab.issues("owner", "repo").get_label("help wanted").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get(&self, number: u64) -> Result<models::Issue> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{number}",
+            owner = self.owner,
+            repo = self.repo,
+            number = number,
+        );
+
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Create a issue in the repository.
@@ -70,7 +91,6 @@ impl<'octo> IssueHandler<'octo> {
         list::ListIssuesBuilder::new(self)
     }
 
-
     /// Update an issue in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -117,10 +137,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(
-                self.crab.absolute_url(route)?,
-                Some(&serde_json::json!({ "assignees": assignees })),
-            )
+            .post(route, Some(&serde_json::json!({ "assignees": assignees })))
             .await
     }
 
@@ -237,10 +254,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(
-                self.crab.absolute_url(route)?,
-                Some(&serde_json::json!({ "labels": labels })),
-            )
+            .post(route, Some(&serde_json::json!({ "labels": labels })))
             .await
     }
 
@@ -269,7 +283,7 @@ impl<'octo> IssueHandler<'octo> {
 
         self.crab
             .post(
-                self.crab.absolute_url(route)?,
+                route,
                 Some(&serde_json::json!({
                     "name": name.as_ref(),
                     "color": color.as_ref(),
@@ -279,7 +293,7 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
-    /// Creates a label in the repository.
+    /// Gets a label from the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
@@ -295,9 +309,7 @@ impl<'octo> IssueHandler<'octo> {
             name = name.as_ref(),
         );
 
-        self.crab
-            .get(self.crab.absolute_url(route)?, None::<&()>)
-            .await
+        self.crab.get(route, None::<&()>).await
     }
 }
 
@@ -326,12 +338,7 @@ impl<'octo> IssueHandler<'octo> {
             issue = number
         );
 
-        self.crab
-            .post(
-                self.crab.absolute_url(route)?,
-                Some(&serde_json::json!({ "body": body.as_ref() })),
-            )
-            .await
+        self.crab.post(route, Some(&serde_json::json!({ "body": body.as_ref() }))).await
     }
 
     /// Gets a comment in the issue.
@@ -350,9 +357,7 @@ impl<'octo> IssueHandler<'octo> {
             comment_id = comment_id
         );
 
-        self.crab
-            .get(self.crab.absolute_url(route)?, None::<&()>)
-            .await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Deletes a comment in an issue.

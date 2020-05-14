@@ -85,7 +85,10 @@ mod tests {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.issues("rust-lang", "rust");
         let assignees = &[String::from("ferris")];
-        let labels = &[String::from("help wanted"), String::from("good first issue")];
+        let labels = &[
+            String::from("help wanted"),
+            String::from("good first issue"),
+        ];
         let update = handler
             .update(1234)
             .title("Updated title")

@@ -1,3 +1,74 @@
+//! # Octocrab: A modern & extensible GitHub API client.
+//! Octocrab is an third party GitHub API client, allowing you to easily build
+//! your own GitHub integrations or bots. `Octocrab` comes with two primary
+//! set of APIs for communicating with GitHub, a high level strongly typed
+//! semantic API, and a lower level HTTP API for extending behaviour.
+//!
+//! ## Semantic API
+//! The semantic API provides strong typing around GitHub's API, as well as a
+//! set of [`models`].
+//!
+//! #### Getting a Pull Request
+//! ```no_run
+//! # async fn run() -> octocrab::Result<()> {
+//! // Get issue #404 from `octocrab/repo`.
+//! let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! All methods with multiple optional parameters are built as `Builder`
+//! structs, allowing you to easily specify parameters.
+//!
+//! #### Listing issues
+//! ```no_run
+//! # async fn run() -> octocrab::Result<()> {
+//! use octocrab::{models, params};
+//!
+//! let octocrab = octocrab::instance();
+//! // Returns the first page of all issues.
+//! let page = octocrab.issues("octocrab", "repo")
+//!     .list()
+//!     // Optional Parameters
+//!     .creator("octocrab")
+//!     .state(params::State::All)
+//!     .per_page(50)
+//!     .send()
+//!     .await?;
+//!
+//! // Go through every page of issues. Warning: There's no rate limiting so
+//! // be careful.
+//! while let Some(page) = octocrab.get_page::<models::Issue>(&page.next).await? {
+//!     for issue in page {
+//!         println!("{}", issue.title);
+//!     }
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## HTTP API
+//! The typed API currently doesn't cover all of GitHub's API at this time, and
+//! even if it did, since GitHub is in active development this library will
+//! likely always be somewhat behind GitHub. However that shouldn't mean that in
+//! order to use those features that you have to now fork or replace `octocrab`
+//! with your own solution.
+//!
+//! Instead `octocrab` provides a set of HTTP methods allowing you to easily
+//! extend `Octocrab`'s existing behaviour. Using these HTTP methods allows you
+//! to keep using the same authenticationa dn configuration, while customising
+//! your request. There is a method for each HTTP method `get`, `post`, `patch`,
+//! `put`, `delete`, all of which accept a relative route and a optional body.
+//!
+//! ```no_run
+//! # async fn run() -> octocrab::Result<()> {
+//! let user: octocrab::models::User = octocrab::instance()
+//!     .get("/user", None::<&()>)
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
@@ -13,9 +84,12 @@ mod page;
 pub mod models;
 pub mod params;
 
-pub use crate::api::{issues, orgs, pulls};
-pub use from_response::FromResponse;
-pub use page::Page;
+pub use self::{
+    api::{issues, orgs, pulls},
+    error::{Error, GitHubError},
+    from_response::FromResponse,
+    page::Page,
+};
 
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
@@ -23,10 +97,8 @@ use serde::Serialize;
 
 use auth::Auth;
 
-static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> = Lazy::new(|| {
-    arc_swap::ArcSwap::from_pointee(Octocrab::default())
-});
-
+static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
+    Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
 
 /// Formats a GitHub preview from it's name into the full value for the
 /// `Accept` header.
@@ -95,7 +167,10 @@ impl OctocrabBuilder {
         let mut hmap = reqwest::header::HeaderMap::new();
 
         for preview in &self.previews {
-            hmap.append(reqwest::header::ACCEPT, crate::format_preview(&preview).parse().unwrap());
+            hmap.append(
+                reqwest::header::ACCEPT,
+                crate::format_preview(&preview).parse().unwrap(),
+            );
         }
 
         let client = reqwest::Client::builder()
@@ -106,7 +181,9 @@ impl OctocrabBuilder {
 
         Ok(Octocrab {
             client,
-            base_url: self.base_url.unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap())
+            base_url: self
+                .base_url
+                .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
         })
     }
 }
@@ -145,7 +222,6 @@ impl Octocrab {
 
 /// GitHub API Methods
 impl Octocrab {
-
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's pull request API.
     pub fn pulls(
@@ -208,7 +284,7 @@ impl Octocrab {
             request = request.json(body);
         }
 
-        self.send_request(request).await
+        self.execute(request).await
     }
 
     /// Send a `GET` request to `route` with optional query parameters, returning
@@ -235,7 +311,7 @@ impl Octocrab {
             request = request.query(parameters);
         }
 
-        self.send_request(request).await
+        self.execute(request).await
     }
 
     /// Send a `PATCH` request to `route` with optional query parameters,
@@ -262,7 +338,7 @@ impl Octocrab {
             request = request.json(parameters);
         }
 
-        self.send_request(request).await
+        self.execute(request).await
     }
 
     /// Send a `PUT` request to `route` with optional query parameters,
@@ -289,7 +365,7 @@ impl Octocrab {
             request = request.query(parameters);
         }
 
-        self.send_request(request).await
+        self.execute(request).await
     }
 
     /// Send a `DELETE` request to `route` with optional query parameters,
@@ -316,13 +392,11 @@ impl Octocrab {
             request = request.query(parameters);
         }
 
-        self.send_request(request).await
+        self.execute(request).await
     }
 
-    async fn send_request(
-        &self,
-        mut request: reqwest::RequestBuilder,
-    ) -> Result<reqwest::Response> {
+    /// Execute the given `request` octocrab's Client.
+    pub async fn execute(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
         request.send().await.context(error::Http)
     }
 }
@@ -355,7 +429,7 @@ impl Octocrab {
     }
 
     /// A convience method to get the a page of results (if present).
-    pub async fn get_page<R: FromResponse>(&self, url: &Option<Url>) -> crate::Result<Option<R>> {
+    pub async fn get_page<R: serde::de::DeserializeOwned>(&self, url: &Option<Url>) -> crate::Result<Option<Page<R>>> {
         match url {
             Some(url) => self.get(url, None::<&()>).await.map(Some),
             None => Ok(None),

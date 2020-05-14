@@ -3,6 +3,18 @@ use snafu::ResultExt;
 use url::Url;
 
 /// A Page of GitHub results, with links to the next and previous page.
+/// ```no_run
+///# async fn run() -> octocrab::Result<()> {
+/// let octocrab = octocrab::instance();
+///
+/// // Print the titles of the first page of issues.
+/// for issue in octocrab.issues("rust-lang", "rust").list().send().await? {
+///     println!("{}", issue.title);
+/// }
+///
+/// # Ok(())
+/// # }
+/// ```
 #[non_exhaustive]
 #[derive(Clone, Debug)]
 pub struct Page<T> {
@@ -25,6 +37,15 @@ impl<T> Default for Page<T> {
             next: None,
             prev: None,
         }
+    }
+}
+
+impl<T> IntoIterator for Page<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.items.into_iter()
     }
 }
 

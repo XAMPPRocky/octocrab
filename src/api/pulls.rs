@@ -1,7 +1,9 @@
 use crate::{Octocrab, Page};
 
-pub mod create;
-pub mod list;
+mod create;
+mod list;
+
+pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
 
 /// A client to GitHub's pull request API.
 pub struct PullRequestHandler<'octo> {
