@@ -2,10 +2,10 @@
 
 mod create;
 mod list;
-mod update;
 mod list_labels;
+mod update;
 
-use crate::{models, Octocrab, Result};
+use crate::{models, params, Octocrab, Result};
 
 pub use self::{
     create::CreateIssueBuilder,
@@ -126,6 +126,76 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub fn update(&self, number: u64) -> update::UpdateIssueBuilder<'_, '_, '_, '_, '_, '_> {
         update::UpdateIssueBuilder::new(self, number)
+    }
+
+    /// Users with push access can lock an issue or pull request's conversation.
+    ///
+    /// *Note* Providing a reason requires the `sailor-v` preview to enabled.
+    ///
+    /// See also: https://developer.github.com/v3/issues/#lock-an-issue
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params;
+    ///
+    /// assert!(octocrab::instance().issues("owner", "repo").lock(404, params::LockReason::OffTopic).await?);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn lock(
+        &self,
+        number: u64,
+        reason: impl Into<Option<params::LockReason>>,
+    ) -> Result<bool> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{number}/lock",
+            owner = self.owner,
+            repo = self.repo,
+            number = number,
+        );
+
+        let response = self
+            .crab
+            ._put(
+                self.crab.absolute_url(route)?,
+                reason
+                    .into()
+                    .map(|reason| {
+                        serde_json::json!({
+                            "lock_reason": reason,
+                        })
+                    })
+                    .as_ref(),
+            )
+            .await?;
+
+        Ok(response.status() == 204)
+    }
+
+    /// Users with push access can unlock an issue or pull request's conversation.
+    ///
+    /// See also: https://developer.github.com/v3/issues/#unlock-an-issue
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params;
+    ///
+    /// assert!(octocrab::instance().issues("owner", "repo").unlock(404).await?);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn unlock(&self, number: u64) -> Result<bool> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{number}/lock",
+            owner = self.owner,
+            repo = self.repo,
+            number = number,
+        );
+
+        let response = self
+            .crab
+            ._delete(self.crab.absolute_url(route)?, None::<&()>)
+            .await?;
+
+        Ok(response.status() == 204)
     }
 }
 

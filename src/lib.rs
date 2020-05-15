@@ -6,7 +6,7 @@
 //!
 //! ## Semantic API
 //! The semantic API provides strong typing around GitHub's API, as well as a
-//! set of [`models`] that maps to GitHub's types. Currently the following 
+//! set of [`models`] that maps to GitHub's types. Currently the following
 //! modules are available.
 //!
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
@@ -171,7 +171,6 @@ const GITHUB_BASE_URL: &str = "https://api.github.com";
 
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
-
 
 /// Formats a GitHub preview from it's name into the full value for the
 /// `Accept` header.
@@ -532,6 +531,12 @@ impl Octocrab {
 mod tests {
     #[test]
     fn absolute_url_escapes() {
-        assert_eq!(crate::instance().absolute_url("/help wanted").unwrap().as_str(), String::from(crate::GITHUB_BASE_URL) + "/help%20wanted");
+        assert_eq!(
+            crate::instance()
+                .absolute_url("/help wanted")
+                .unwrap()
+                .as_str(),
+            String::from(crate::GITHUB_BASE_URL) + "/help%20wanted"
+        );
     }
 }

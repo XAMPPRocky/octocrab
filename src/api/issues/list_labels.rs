@@ -85,4 +85,3 @@ impl<'octo, 'r> ListLabelsForRepoBuilder<'octo, 'r> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
-

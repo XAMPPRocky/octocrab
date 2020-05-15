@@ -23,6 +23,20 @@ pub enum Direction {
     Descending,
 }
 
+/// The reason for locking an issue.
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[non_exhaustive]
+pub enum LockReason {
+    #[serde(rename = "off-topic")]
+    OffTopic,
+    #[serde(rename = "too heated")]
+    TooHeated,
+    #[serde(rename = "resolved")]
+    Resolved,
+    #[serde(rename = "spam")]
+    Spam,
+}
+
 pub mod issues {
     //! Parameter types for the issues API.
 

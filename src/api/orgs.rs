@@ -74,7 +74,10 @@ impl<'octo> OrgHandler<'octo> {
             username = username.as_ref(),
         );
 
-        let response = self.crab._get(self.crab.absolute_url(url)?, None::<&()>).await?;
+        let response = self
+            .crab
+            ._get(self.crab.absolute_url(url)?, None::<&()>)
+            .await?;
         let status = response.status();
 
         Ok(status == 204 || status == 301)
