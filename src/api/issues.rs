@@ -3,10 +3,16 @@
 mod create;
 mod list;
 mod update;
+mod list_labels;
 
 use crate::{models, Octocrab, Result};
 
-pub use self::{create::CreateIssueBuilder, list::ListIssuesBuilder, update::UpdateIssueBuilder};
+pub use self::{
+    create::CreateIssueBuilder,
+    list::ListIssuesBuilder,
+    list_labels::{ListLabelsForIssueBuilder, ListLabelsForRepoBuilder},
+    update::UpdateIssueBuilder,
+};
 
 /// Handler for GitHub's issue API.
 ///
@@ -337,6 +343,42 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab.delete(route, None::<&()>).await
+    }
+
+    /// List labels from an issue on a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_labels_for_issue(404)
+    ///     // Optional Parameters
+    ///     .per_page(20)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_labels_for_issue(&self, number: u64) -> ListLabelsForIssueBuilder {
+        ListLabelsForIssueBuilder::new(self, number)
+    }
+
+    /// List all labels from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_labels_for_repo()
+    ///     // Optional Parameters
+    ///     .per_page(20)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_labels_for_repo(&self) -> ListLabelsForRepoBuilder {
+        ListLabelsForRepoBuilder::new(self)
     }
 }
 
