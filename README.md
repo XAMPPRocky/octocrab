@@ -11,6 +11,11 @@ your own GitHub integrations or bots in Rust. `Octocrab` comes with two primary
 set of APIs for communicating with GitHub, a high level strongly typed
 semantic API, and a lower level HTTP API for extending behaviour.
 
+#### Cargo.toml
+```toml
+octocrab = "0.2"
+```
+
 ## Semantic API
 The semantic API provides strong typing around GitHub's API, as well as a
 set of [`models`] that maps to GitHub's types. Currently the following 
