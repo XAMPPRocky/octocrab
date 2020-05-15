@@ -123,7 +123,7 @@ impl<'octo> IssueHandler<'octo> {
     }
 }
 
-/// Assignees
+/// # Assignees
 impl<'octo> IssueHandler<'octo> {
     /// Adds up to 10 assignees to an issue. Users already assigned to an issue
     /// are not replaced.
@@ -238,7 +238,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
     }
 }
 
-/// Labels
+/// # Labels
 impl<'octo> IssueHandler<'octo> {
     /// Adds `labels` to an issue.
     /// ```no_run
@@ -299,6 +299,28 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
+    /// Deletes a label in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let label = octocrab
+    ///     .issues("owner", "repo")
+    ///     .delete_label("help wanted")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
+        let route = format!(
+            "/repos/{owner}/{repo}/labels/{name}",
+            owner = self.owner,
+            repo = self.repo,
+            name = name.as_ref(),
+        );
+
+        self.crab.delete(route, None::<&()>).await
+    }
+
     /// Gets a label from the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -319,7 +341,7 @@ impl<'octo> IssueHandler<'octo> {
     }
 }
 
-/// Comments
+/// # Comments
 impl<'octo> IssueHandler<'octo> {
     /// Creates a comment in the issue.
     /// ```no_run

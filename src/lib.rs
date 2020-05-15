@@ -527,3 +527,11 @@ impl Octocrab {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn absolute_url_escapes() {
+        assert_eq!(crate::instance().absolute_url("/help wanted").unwrap().as_str(), String::from(crate::GITHUB_BASE_URL) + "/help%20wanted");
+    }
+}
