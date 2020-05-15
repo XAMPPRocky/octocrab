@@ -56,7 +56,9 @@ let page = octocrab.issues("octocrab", "repo")
 
 // Go through every page of issues. Warning: There's no rate limiting so
 // be careful.
-while let Some(page) = octocrab.get_page::<models::Issue>(&page.next).await? {
+let mut next_page = page.next;
+while let Some(page) = octocrab.get_page::<models::Issue>(&next_page).await? {
+    next_page = page.next;
     for issue in page {
         println!("{}", issue.title);
     }
