@@ -6,9 +6,9 @@
 [![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/octocrab?category=code)](https://github.com/XAMPPRocky/octocrab)
 [![Documentation](https://docs.rs/octocrab/badge.svg)](https://docs.rs/octocrab/)
 
-Octocrab is an third party GitHub API client, allowing you to easily build
+Octocrab is a third party GitHub API client, allowing you to easily build
 your own GitHub integrations or bots in Rust. `Octocrab` comes with two primary
-set of APIs for communicating with GitHub, a high level strongly typed
+sets of APIs for communicating with GitHub, a high level strongly typed
 semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
@@ -67,14 +67,14 @@ while let Some(page) = octocrab.get_page::<models::Issue>(&page.next).await? {
 The typed API currently doesn't cover all of GitHub's API at this time, and
 even if it did GitHub is in active development and this library will
 likely always be somewhat behind GitHub at some points in time. However that
-shouldn't mean that in order to use those features that you have to now fork
+shouldn't mean that in order to use those features, you have to fork
 or replace `octocrab` with your own solution.
 
 Instead `octocrab` exposes a suite of HTTP methods allowing you to easily
 extend `Octocrab`'s existing behaviour. Using these HTTP methods allows you
 to keep using the same authentication and configuration, while having
 control over the request and response. There is a method for each HTTP
-method `get`, `post`, `patch`, `put`, `delete`, all of which accept a
+method, `get`, `post`, `patch`, `put`, `delete`, all of which accept a
 relative route and a optional body.
 
 ```rust
@@ -126,7 +126,7 @@ You can also easily access new properties that aren't available in the
 current models using `serde`.
 
 ## Static API
-`Octocrab` also provides a statically reference count version of its API,
+`Octocrab` also provides a statically reference counted version of its API,
 allowing you to easily plug it into existing systems without worrying
 about having to integrate and pass around the client.
 
