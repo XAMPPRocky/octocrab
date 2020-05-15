@@ -25,10 +25,10 @@ modules are available.
 - [`pulls`] Pull Requests
 - [`orgs`] GitHub Organisations
 
-[`models`]: https://docs.rs/octocrab/0.2.1/octocrab/models/index.html
-[`issues`]: https://docs.rs/octocrab/0.2.1/octocrab/issues/struct.IssueHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.2.1/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.2.1/octocrab/orgs/struct.OrgHandler.html
+[`models`]: https://docs.rs/octocrab/0.2.2/octocrab/models/index.html
+[`issues`]: https://docs.rs/octocrab/0.2.2/octocrab/issues/struct.IssueHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.2.2/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.2.2/octocrab/orgs/struct.OrgHandler.html
 
 #### Getting a Pull Request
 ```rust
