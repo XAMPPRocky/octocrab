@@ -243,8 +243,7 @@ impl<'octo> IssueHandler<'octo> {
     /// Adds `labels` to an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let labels = octocrab
+    /// let labels = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .add_labels(101, &[String::from("help wanted")])
     ///     .await?;
@@ -267,8 +266,7 @@ impl<'octo> IssueHandler<'octo> {
     /// Creates a label in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let label = octocrab
+    /// let label = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .create_label("help wanted", "59dd5a", "")
     ///     .await?;
@@ -299,11 +297,31 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
+    /// Gets a label from the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let label = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .get_label("help wanted")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
+        let route = format!(
+            "/repos/{owner}/{repo}/labels/{name}",
+            owner = self.owner,
+            repo = self.repo,
+            name = name.as_ref(),
+        );
+
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// Deletes a label in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let label = octocrab
+    /// let label = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .delete_label("help wanted")
     ///     .await?;
@@ -320,25 +338,6 @@ impl<'octo> IssueHandler<'octo> {
 
         self.crab.delete(route, None::<&()>).await
     }
-
-    /// Gets a label from the repository.
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let label = octocrab.issues("owner", "repo").get_label("help wanted").await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
-        let route = format!(
-            "/repos/{owner}/{repo}/labels/{name}",
-            owner = self.owner,
-            repo = self.repo,
-            name = name.as_ref(),
-        );
-
-        self.crab.get(route, None::<&()>).await
-    }
 }
 
 /// # Comments
@@ -346,8 +345,7 @@ impl<'octo> IssueHandler<'octo> {
     /// Creates a comment in the issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let comment = octocrab
+    /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .create_comment(101, "Beep Boop")
     ///     .await?;
@@ -374,8 +372,10 @@ impl<'octo> IssueHandler<'octo> {
     /// Gets a comment in the issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let comment = octocrab.issues("owner", "repo").get_comment(101).await?;
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .get_comment(101)
+    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -393,8 +393,7 @@ impl<'octo> IssueHandler<'octo> {
     /// Deletes a comment in an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// octocrab.issues("owner", "repo").delete_comment(101).await?;
+    /// octocrab::instance().issues("owner", "repo").delete_comment(101).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -421,8 +420,7 @@ impl<'octo> IssueHandler<'octo> {
     /// Lists comments in the issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let comment = octocrab
+    /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .list_comments(101)
     ///     .since(chrono::Utc::now())
