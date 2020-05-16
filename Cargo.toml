@@ -16,6 +16,11 @@ documentation = "https://docs.rs/octocrab"
 # and only builds that target
 targets = ["x86_64-unknown-linux-gnu"]
 
+[features]
+default = []
+
+rate-limiting = []
+
 [dependencies]
 reqwest = { version = "0.10.4", features = ["json"] }
 tokio = { version = "0.2.17", features = ["full"] }

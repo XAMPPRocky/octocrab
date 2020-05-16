@@ -149,6 +149,9 @@ mod error;
 mod from_response;
 mod page;
 
+#[cfg(feature = "rate-limiting")]
+mod rate_limiting;
+
 pub mod models;
 pub mod params;
 
@@ -160,6 +163,15 @@ use serde::Serialize;
 use snafu::*;
 
 use auth::Auth;
+
+#[cfg(feature = "rate-limiting")]
+use std::sync::Mutex;
+#[cfg(feature = "rate-limiting")]
+use rate_limiting::{RateLimiter, RateLimiterState};
+#[cfg(feature = "rate-limiting")]
+use tokio::time::delay_for;
+#[cfg(feature = "rate-limiting")]
+use chrono::Utc;
 
 pub use self::{
     api::{issues, gitignore, markdown, orgs, pulls},
@@ -294,6 +306,8 @@ impl OctocrabBuilder {
             base_url: self
                 .base_url
                 .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
+            #[cfg(feature = "rate-limiting")]
+            rate_limiter: Arc::new(Mutex::new(RateLimiter::new())),
         })
     }
 }
@@ -303,6 +317,8 @@ impl OctocrabBuilder {
 pub struct Octocrab {
     client: reqwest::Client,
     pub base_url: Url,
+    #[cfg(feature = "rate-limiting")]
+    rate_limiter: Arc<Mutex<RateLimiter>>,
 }
 
 /// Defaults for Octocrab:
@@ -317,6 +333,8 @@ impl Default for Octocrab {
                 .user_agent("octocrab")
                 .build()
                 .unwrap(),
+            #[cfg(feature = "rate-limiting")]
+            rate_limiter: Arc::new(Mutex::new(RateLimiter::new())),
         }
     }
 }
@@ -513,9 +531,60 @@ impl Octocrab {
         self.execute(request).await
     }
 
+    #[cfg(not(feature = "rate-limiting"))]
     /// Execute the given `request` octocrab's Client.
     pub async fn execute(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
         request.send().await.context(error::Http)
+    }
+
+    #[cfg(feature = "rate-limiting")]
+    /// Execute the given `request` octocrab's Client.
+    pub async fn execute(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
+        if let Some(delay) = {
+            let mut limiter = self.rate_limiter
+                .as_ref()
+                .lock()
+                .expect("Poisoned rate limiter mutex");
+            limiter.request_delay()
+        } {
+            delay.await;
+        }
+
+        {
+            self.rate_limiter
+                .as_ref()
+                .lock()
+                .expect("Poisoned rate limiter mutex")
+                .register_request();
+        }
+
+        let request_cloned = request.try_clone().unwrap(); // we never use streams in bodies
+        let response = request.send().await.context(error::Http);
+
+        let delay = {
+            let mut limiter = self.rate_limiter
+                .as_ref()
+                .lock()
+                .expect("Poisoned rate limiter mutex");
+            limiter.register_response(&response);
+            if let RateLimiterState::RateLimited(reset) = &limiter.state {
+                (*reset - Utc::now()).to_std().ok()
+            } else {
+                None
+            }
+        };
+
+        if let (Ok(res), Some(delay)) = (&response, &delay) {
+            if res.status() == reqwest::StatusCode::FORBIDDEN {
+                // 403 because of rate limiting, queue a retry request.
+                delay_for(*delay).await;
+                request_cloned.send().await.context(error::Http)
+            } else {
+                response
+            }
+        } else {
+            response
+        }
     }
 }
 
