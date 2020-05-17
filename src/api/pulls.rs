@@ -3,6 +3,8 @@
 mod create;
 mod list;
 
+use snafu::ResultExt;
+
 use crate::{Octocrab, Page};
 
 pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
@@ -29,7 +31,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let pr = octocrab::instance()
     ///     .pulls("owner", "repo")
-    ///     .media_type(octocrab::params::pulls::MediaType::Diff)
+    ///     .media_type(octocrab::params::pulls::MediaType::Full)
     ///     .get(404)
     ///     .await?;
     /// # Ok(())
@@ -66,8 +68,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Get's a given pull request with by its `pr` number.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let pr = octocrab.pulls("owner", "repo").get(101).await?;
+    /// let pr = octocrab::instance().pulls("owner", "repo").get(101).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -80,6 +81,52 @@ impl<'octo> PullRequestHandler<'octo> {
         );
 
         self.http_get(url, None::<&()>).await
+    }
+
+    /// Get's a given pull request's `diff`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let diff = octocrab::instance().pulls("owner", "repo").get_diff(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_diff(&self, pr: u64) -> crate::Result<String> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        let request = self.crab.client.get(self.crab.absolute_url(route)?)
+            .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
+
+        let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
+
+        response.text().await.context(crate::error::Http)
+    }
+
+    /// Get's a given pull request's patch.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let diff = octocrab::instance().pulls("owner", "repo").get_patch(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_patch(&self, pr: u64) -> crate::Result<String> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        let request = self.crab.client.get(self.crab.absolute_url(route)?)
+            .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
+
+        let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
+
+        response.text().await.context(crate::error::Http)
     }
 
     /// Create a new pull request.

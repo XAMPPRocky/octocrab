@@ -134,9 +134,11 @@ pub mod pulls {
         LongRunning,
     }
 
-    /// What to sort results by. Can be either `created`, `updated`, `popularity`
-    /// (comment count) or `long-running` (age, filtering by pulls updated in the
-    /// last month).
+    /// Custom media types are used in the API to let consumers choose the
+    /// format of the data they wish to receive. This is done by adding one or
+    /// more of the following types to the Accept header when you make a
+    /// request. Media types are specific to resources, allowing them to change
+    /// independently and support formats that other resources don't.
     #[derive(Debug, Clone, Copy, serde::Serialize)]
     #[serde(rename_all = "lowercase")]
     #[non_exhaustive]
@@ -145,8 +147,6 @@ pub mod pulls {
         Text,
         Html,
         Full,
-        Diff,
-        Patch,
     }
 
     impl std::fmt::Display for MediaType {
@@ -156,8 +156,6 @@ pub mod pulls {
                 Self::Text => "text",
                 Self::Html => "html",
                 Self::Full => "full",
-                Self::Diff => "diff",
-                Self::Patch => "patch",
             };
 
             f.write_str(text)
