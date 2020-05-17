@@ -16,11 +16,28 @@ pub struct PullRequestHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
     repo: String,
+    media_type: Option<crate::params::pulls::MediaType>,
 }
 
 impl<'octo> PullRequestHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self { crab, owner, repo }
+        Self { crab, owner, repo, media_type: None }
+    }
+
+    /// Set the media type for this request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let pr = octocrab::instance()
+    ///     .pulls("owner", "repo")
+    ///     .media_type(octocrab::params::pulls::MediaType::Diff)
+    ///     .get(404)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn media_type(mut self, media_type: crate::params::pulls::MediaType) -> Self {
+        self.media_type = Some(media_type);
+        self
     }
 
     /// Checks if a given pull request has been merged.
@@ -61,7 +78,8 @@ impl<'octo> PullRequestHandler<'octo> {
             repo = self.repo,
             pr = pr
         );
-        self.crab.get(url, None::<&()>).await
+
+        self.http_get(url, None::<&()>).await
     }
 
     /// Create a new pull request.
@@ -120,4 +138,45 @@ impl<'octo> PullRequestHandler<'octo> {
     pub fn list(&self) -> list::ListPullRequestsBuilder {
         list::ListPullRequestsBuilder::new(self)
     }
+}
+
+impl<'octo> PullRequestHandler<'octo> {
+    pub(crate) async fn http_get<R, A, P>(&self, route: A, parameters: Option<&P>) -> crate::Result<R>
+    where
+        A: AsRef<str>,
+        P: serde::Serialize + ?Sized,
+        R: crate::FromResponse,
+    {
+        let mut request = self.crab.client.get(self.crab.absolute_url(route)?);
+
+        if let Some(parameters) = parameters {
+            request = request.query(parameters);
+        }
+
+        if let Some(media_type) = self.media_type {
+            request = request.header(reqwest::header::ACCEPT, crate::format_media_type(&media_type.to_string()));
+        }
+
+        R::from_response(crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    pub(crate) async fn http_post<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
+    where
+        A: AsRef<str>,
+        P: serde::Serialize + ?Sized,
+        R: crate::FromResponse,
+    {
+        let mut request = self.crab.client.post(self.crab.absolute_url(route)?);
+
+        if let Some(body) = body {
+            request = request.json(body);
+        }
+
+        if let Some(media_type) = self.media_type {
+            request = request.header(reqwest::header::ACCEPT, crate::format_media_type(&media_type.to_string()));
+        }
+
+        R::from_response(crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
 }

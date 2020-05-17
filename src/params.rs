@@ -133,6 +133,36 @@ pub mod pulls {
         Popularity,
         LongRunning,
     }
+
+    /// What to sort results by. Can be either `created`, `updated`, `popularity`
+    /// (comment count) or `long-running` (age, filtering by pulls updated in the
+    /// last month).
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "lowercase")]
+    #[non_exhaustive]
+    pub enum MediaType {
+        Raw,
+        Text,
+        Html,
+        Full,
+        Diff,
+        Patch,
+    }
+
+    impl std::fmt::Display for MediaType {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            let text = match self {
+                Self::Raw => "raw",
+                Self::Text => "text",
+                Self::Html => "html",
+                Self::Full => "full",
+                Self::Diff => "diff",
+                Self::Patch => "patch",
+            };
+
+            f.write_str(text)
+        }
+    }
 }
 
 pub mod repos {

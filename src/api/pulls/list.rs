@@ -87,7 +87,7 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.http_get(url, Some(&self)).await
     }
 }
 

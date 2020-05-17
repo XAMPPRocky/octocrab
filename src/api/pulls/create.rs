@@ -56,7 +56,7 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
             repo = self.handler.repo
         );
 
-        self.handler.crab.post(url, Some(&self)).await
+        self.handler.http_post(url, Some(&self)).await
     }
 }
 

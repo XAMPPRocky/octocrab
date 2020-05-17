@@ -181,6 +181,23 @@ pub fn format_preview(preview: impl AsRef<str>) -> String {
     format!("application/vnd.github.{}-preview", preview.as_ref())
 }
 
+/// Formats a media type from it's name into the full value for the
+/// `Accept` header.
+/// ```
+/// assert_eq!(octocrab::format_media_type("html"), "application/vnd.github.v3.html+json");
+/// assert_eq!(octocrab::format_media_type("json"), "application/vnd.github.v3.json");
+/// assert_eq!(octocrab::format_media_type("patch"), "application/vnd.github.v3.patch");
+/// ```
+pub fn format_media_type(media_type: impl AsRef<str>) -> String {
+    let media_type = media_type.as_ref();
+    let json_suffix = match  media_type {
+        "raw" | "text" | "html" | "full" => "+json",
+        _ => "",
+    };
+
+    format!("application/vnd.github.v3.{}{}", media_type, json_suffix)
+}
+
 /// Initialises the static instance using the configuration set by
 /// `builder`.
 /// ```
