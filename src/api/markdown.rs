@@ -1,3 +1,4 @@
+//! The markdown API
 use snafu::ResultExt;
 
 use crate::Octocrab;
