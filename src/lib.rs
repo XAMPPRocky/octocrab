@@ -383,6 +383,11 @@ impl Octocrab {
     ) -> api::pulls::PullRequestHandler {
         api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
+
+    /// Creates a `MetaHandler` that allows you to access some metadata.
+    pub fn meta(&self) -> api::meta::MetaHandler {
+        api::meta::MetaHandler::new(self)
+    }
 }
 
 /// # HTTP Methods

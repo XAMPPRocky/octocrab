@@ -736,3 +736,30 @@ pub struct InstallationToken {
     pub permissions: Permissions,
     pub repositories: Option<Vec<Repository>>,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RateLimits {
+    pub resources: ResourcesRateLimits,
+    #[deprecated(
+        note = "This has been deprecated by GitHub. Use `RateLimits::resources::core` instead."
+    )]
+    pub rate: RateLimit,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResourcesRateLimits {
+    pub core: RateLimit,
+    pub search: RateLimit,
+    pub graphql: RateLimit,
+    pub integration_manifest: RateLimit,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RateLimit {
+    pub limit: u32,
+    pub remaining: u32,
+    pub reset: chrono::DateTime<chrono::Utc>,
+}
