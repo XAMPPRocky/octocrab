@@ -10,6 +10,7 @@
 //! modules are available.
 //!
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
+//! - [`gitignore`] Gitignore templates
 //! - [`pulls`] Pull Requests
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
@@ -160,7 +161,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, markdown, orgs, pulls},
+    api::{issues, gitignore, markdown, orgs, pulls},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -341,6 +342,11 @@ impl Octocrab {
     /// Creates a `MarkdownHandler`.
     pub fn markdown(&self) -> markdown::MarkdownHandler {
         markdown::MarkdownHandler::new(self)
+    }
+
+    /// Creates a `GitIgnoreHandler`.
+    pub fn gitignore(&self) -> gitignore::GitignoreHandler {
+        gitignore::GitignoreHandler::new(self)
     }
 
     /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
