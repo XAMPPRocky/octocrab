@@ -103,6 +103,24 @@ pub mod issues {
     }
 }
 
+pub mod markdown {
+    /// The rendering mode.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "lowercase")]
+    #[non_exhaustive]
+    pub enum Mode {
+        /// Render a document in plain Markdown, just like README.md files
+        /// are rendered.
+        Markdown,
+        /// Render a document in [GitHub Flavored Markdown][gfm], which creates
+        /// links for user mentions as well as references to SHA-1 hashes,
+        /// issues, and pull requests.
+        ///
+        /// [gfm]: https://github.github.com/gfm/
+        Gfm,
+    }
+}
+
 pub mod orgs {
     //! Parameter types for the organization API.
 

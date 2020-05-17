@@ -11,11 +11,13 @@
 //!
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`pulls`] Pull Requests
+//! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
 //!
 //! [`models`]: ./models/index.html
 //! [`issues`]: ./issues/struct.IssueHandler.html
 //! [`pulls`]: ./pulls/struct.PullRequestHandler.html
+//! [`markdown`]: ./markdown/struct.MarkdownHandler.html
 //! [`orgs`]: ./orgs/struct.OrgHandler.html
 //!
 //! #### Getting a Pull Request
@@ -158,7 +160,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, orgs, pulls},
+    api::{issues, markdown, orgs, pulls},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -326,16 +328,6 @@ impl Octocrab {
 
 /// GitHub API Methods
 impl Octocrab {
-    /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
-    /// that allows you to access GitHub's pull request API.
-    pub fn pulls(
-        &self,
-        owner: impl Into<String>,
-        repo: impl Into<String>,
-    ) -> api::pulls::PullRequestHandler {
-        api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
-    }
-
     /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's issues API.
     pub fn issues(
@@ -346,10 +338,25 @@ impl Octocrab {
         api::issues::IssueHandler::new(self, owner.into(), repo.into())
     }
 
+    /// Creates a `MarkdownHandler`.
+    pub fn markdown(&self) -> markdown::MarkdownHandler {
+        markdown::MarkdownHandler::new(self)
+    }
+
     /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's issues API.
     pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
         api::orgs::OrgHandler::new(self, owner.into())
+    }
+
+    /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's pull request API.
+    pub fn pulls(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> api::pulls::PullRequestHandler {
+        api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
 }
 
