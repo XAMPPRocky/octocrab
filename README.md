@@ -21,14 +21,19 @@ The semantic API provides strong typing around GitHub's API, as well as a
 set of [`models`] that maps to GitHub's types. Currently the following 
 modules are available.
 
+- [`gitignore`] Gitignore templates
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
-- [`pulls`] Pull Requests
+- [`markdown`] Rendering Markdown with GitHub
 - [`orgs`] GitHub Organisations
+- [`pulls`] Pull Requests
 
-[`models`]: https://docs.rs/octocrab/0.2.2/octocrab/models/index.html
-[`issues`]: https://docs.rs/octocrab/0.2.2/octocrab/issues/struct.IssueHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.2.2/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.2.2/octocrab/orgs/struct.OrgHandler.html
+[`models`]: https://docs.rs/octocrab/0.2.3/octocrab/models/index.html
+
+[`gitignore`]: https://docs.rs/octocrab/0.2.3/octocrab/gitignore/struct.GitignoreHandler.html
+[`markdown`]: https://docs.rs/octocrab/0.2.3/octocrab/gitignore/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.2.3/octocrab/issues/struct.IssueHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.2.3/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.2.3/octocrab/orgs/struct.OrgHandler.html
 
 #### Getting a Pull Request
 ```rust

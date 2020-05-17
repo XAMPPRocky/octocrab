@@ -9,17 +9,18 @@
 //! set of [`models`] that maps to GitHub's types. Currently the following
 //! modules are available.
 //!
-//! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`gitignore`] Gitignore templates
-//! - [`pulls`] Pull Requests
+//! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
+//! - [`pulls`] Pull Requests
 //!
-//! [`models`]: ./models/index.html
+//! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
 //! [`issues`]: ./issues/struct.IssueHandler.html
-//! [`pulls`]: ./pulls/struct.PullRequestHandler.html
 //! [`markdown`]: ./markdown/struct.MarkdownHandler.html
+//! [`models`]: ./models/index.html
 //! [`orgs`]: ./orgs/struct.OrgHandler.html
+//! [`pulls`]: ./pulls/struct.PullRequestHandler.html
 //!
 //! #### Getting a Pull Request
 //! ```no_run
