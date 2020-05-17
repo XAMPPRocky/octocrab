@@ -23,7 +23,12 @@ pub struct PullRequestHandler<'octo> {
 
 impl<'octo> PullRequestHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self { crab, owner, repo, media_type: None }
+        Self {
+            crab,
+            owner,
+            repo,
+            media_type: None,
+        }
     }
 
     /// Set the media type for this request.
@@ -98,7 +103,10 @@ impl<'octo> PullRequestHandler<'octo> {
             pr = pr
         );
 
-        let request = self.crab.client.get(self.crab.absolute_url(route)?)
+        let request = self
+            .crab
+            .client
+            .get(self.crab.absolute_url(route)?)
             .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
 
         let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
@@ -121,7 +129,10 @@ impl<'octo> PullRequestHandler<'octo> {
             pr = pr
         );
 
-        let request = self.crab.client.get(self.crab.absolute_url(route)?)
+        let request = self
+            .crab
+            .client
+            .get(self.crab.absolute_url(route)?)
             .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
 
         let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
@@ -188,7 +199,11 @@ impl<'octo> PullRequestHandler<'octo> {
 }
 
 impl<'octo> PullRequestHandler<'octo> {
-    pub(crate) async fn http_get<R, A, P>(&self, route: A, parameters: Option<&P>) -> crate::Result<R>
+    pub(crate) async fn http_get<R, A, P>(
+        &self,
+        route: A,
+        parameters: Option<&P>,
+    ) -> crate::Result<R>
     where
         A: AsRef<str>,
         P: serde::Serialize + ?Sized,
@@ -201,10 +216,16 @@ impl<'octo> PullRequestHandler<'octo> {
         }
 
         if let Some(media_type) = self.media_type {
-            request = request.header(reqwest::header::ACCEPT, crate::format_media_type(&media_type.to_string()));
+            request = request.header(
+                reqwest::header::ACCEPT,
+                crate::format_media_type(&media_type.to_string()),
+            );
         }
 
-        R::from_response(crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(
+            crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?,
+        )
+        .await
     }
 
     pub(crate) async fn http_post<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -220,10 +241,15 @@ impl<'octo> PullRequestHandler<'octo> {
         }
 
         if let Some(media_type) = self.media_type {
-            request = request.header(reqwest::header::ACCEPT, crate::format_media_type(&media_type.to_string()));
+            request = request.header(
+                reqwest::header::ACCEPT,
+                crate::format_media_type(&media_type.to_string()),
+            );
         }
 
-        R::from_response(crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(
+            crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?,
+        )
+        .await
     }
-
 }

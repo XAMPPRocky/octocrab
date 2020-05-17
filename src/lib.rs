@@ -190,7 +190,7 @@ pub fn format_preview(preview: impl AsRef<str>) -> String {
 /// ```
 pub fn format_media_type(media_type: impl AsRef<str>) -> String {
     let media_type = media_type.as_ref();
-    let json_suffix = match  media_type {
+    let json_suffix = match media_type {
         "raw" | "text" | "html" | "full" => "+json",
         _ => "",
     };
