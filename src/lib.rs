@@ -149,9 +149,6 @@ mod error;
 mod from_response;
 mod page;
 
-#[cfg(feature = "rate-limiting")]
-mod rate_limiting;
-
 pub mod models;
 pub mod params;
 
@@ -164,14 +161,16 @@ use snafu::*;
 
 use auth::Auth;
 
-#[cfg(feature = "rate-limiting")]
-use std::sync::Mutex;
-#[cfg(feature = "rate-limiting")]
-use rate_limiting::{RateLimiter, RateLimiterState};
-#[cfg(feature = "rate-limiting")]
-use tokio::time::delay_for;
-#[cfg(feature = "rate-limiting")]
-use chrono::Utc;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "rate-limiting")] {
+        mod rate_limiting;
+
+        use std::sync::Mutex;
+        use rate_limiting::{RateLimiter, RateLimiterState};
+        use tokio::time::delay_for;
+        use chrono::Utc;
+    }
+}
 
 pub use self::{
     api::{issues, gitignore, markdown, orgs, pulls},
