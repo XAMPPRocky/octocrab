@@ -357,7 +357,7 @@ impl Octocrab {
     }
 
     /// Creates a `TeamHandler` for the specified organization that allows
-    // you to access GitHub's teams API.
+    /// you to access GitHub's teams API.
     pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
         api::teams::TeamHandler::new(self, owner.into())
     }
