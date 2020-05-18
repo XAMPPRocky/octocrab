@@ -215,3 +215,24 @@ pub mod repos {
         FullName,
     }
 }
+
+pub mod teams {
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Privacy {
+        Secret,
+        Closed,
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Permission {
+        Pull,
+        Push,
+        Admin,
+        Maintain,
+        Triage,
+    }
+}

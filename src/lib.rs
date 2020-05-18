@@ -162,7 +162,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, gitignore, markdown, orgs, pulls, current},
+    api::{issues, gitignore, markdown, orgs, pulls, current, teams},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -354,6 +354,12 @@ impl Octocrab {
     /// that allows you to access GitHub's issues API.
     pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
         api::orgs::OrgHandler::new(self, owner.into())
+    }
+
+    /// Creates a `TeamHandler` for the specified organization that allows
+    // you to access GitHub's teams API.
+    pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
+        api::teams::TeamHandler::new(self, owner.into())
     }
 
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
