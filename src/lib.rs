@@ -162,7 +162,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, gitignore, markdown, orgs, pulls},
+    api::{issues, gitignore, markdown, orgs, pulls, current},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -364,6 +364,12 @@ impl Octocrab {
         repo: impl Into<String>,
     ) -> api::pulls::PullRequestHandler {
         api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates a `CurrentAuthHandler` that allows you to access
+    /// information about the current authenticated user.
+    pub fn current(&self) -> api::current::CurrentAuthHandler {
+        api::current::CurrentAuthHandler::new(self)
     }
 }
 
