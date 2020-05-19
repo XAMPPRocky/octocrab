@@ -74,7 +74,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         &self,
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
-        permission: Option<params::teams::Permission>,
+        permission: impl Into<Option<params::teams::Permission>>,
     ) -> Result<()> {
         let url = format!(
             "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
@@ -83,7 +83,7 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        self.crab.put(url, permission.as_ref()).await
+        self.crab.put(url, permission.into().as_ref()).await
     }
 
     /// Removes a repository from a team.

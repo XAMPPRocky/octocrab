@@ -76,10 +76,10 @@ impl<'octo> TeamHandler<'octo> {
     ///     .teams("owner")
     ///     .create("new-team")
     ///     .description("My team created from Octocrab!")
-    ///     .maintainers(&["ferris"])
-    ///     .repo_names(&["crab-stuff"])
+    ///     .maintainers(&vec![String::from("ferris")])
+    ///     .repo_names(&vec![String::from("crab-stuff")])
     ///     .privacy(params::teams::Privacy::Closed)
-    ///     .parent_team_id(1)
+    ///     .parent_team_id(1u64)
     ///     .send()
     ///     .await?;
     /// # Ok(())
@@ -99,7 +99,7 @@ impl<'octo> TeamHandler<'octo> {
     ///     .edit("some-team", "Some Team")
     ///     .description("I edited from Octocrab!")
     ///     .privacy(params::teams::Privacy::Secret)
-    ///     .parent_team_id(2)
+    ///     .parent_team_id(2u64)
     ///     .send()
     ///     .await?;
     /// # Ok(())
