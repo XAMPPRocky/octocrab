@@ -165,6 +165,7 @@ impl<'octo> IssueHandler<'octo> {
                         })
                     })
                     .as_ref(),
+                    None::<&()>,
             )
             .await?;
 

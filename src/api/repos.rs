@@ -41,7 +41,7 @@ impl<'octo> RepoHandler<'octo> {
             .post(
                 url,
                 Some(&serde_json::json!({
-                    "ref": reference.ref_url(),
+                    "ref": reference.full_ref_url(),
                     "sha": sha,
                 })),
             )
@@ -77,5 +77,9 @@ impl<'octo> RepoHandler<'octo> {
             base64::encode(content),
             Some(sha.into()),
         )
+    }
+
+    pub fn pulls(&self) -> super::pulls::PullRequestHandler {
+        super::pulls::PullRequestHandler::new(self.crab, self.owner.clone(), self.repo.clone())
     }
 }

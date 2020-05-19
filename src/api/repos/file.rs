@@ -10,7 +10,9 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     content: String,
     sha: Option<String>,
     branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     commiter: Option<models::AuthorUser>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     author: Option<models::AuthorUser>,
 }
 
@@ -49,7 +51,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
         self
     }
 
-    pub async fn send(self) -> Result<()> {
+    pub async fn send(self) -> Result<serde_json::Value> {
         // FIXME: change return type
         let url = format!(
             "/repos/{owner}/{repo}/contents/{path}",
@@ -57,6 +59,6 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.put(url, Some(&self)).await
+        self.handler.crab.put(url, None::<&()>, Some(&self)).await
     }
 }

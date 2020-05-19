@@ -162,7 +162,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, gitignore, markdown, orgs, pulls, current, teams},
+    api::{issues, gitignore, markdown, orgs, pulls, current, teams, repos},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -481,26 +481,32 @@ impl Octocrab {
 
     /// Send a `PUT` request to `route` with optional query parameters,
     /// returning the body of the response.
-    pub async fn put<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
+    pub async fn put<R, A, P, B>(&self, route: A, parameters: Option<&P>, body: Option<&B>) -> Result<R>
     where
         A: AsRef<str>,
         P: Serialize + ?Sized,
+        B: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._put(self.absolute_url(route)?, parameters).await?;
+        let response = self._put(self.absolute_url(route)?, parameters, body).await?;
         R::from_response(Self::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
-    pub async fn _put<P: Serialize + ?Sized>(
+    pub async fn _put<P: Serialize + ?Sized, B: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
         parameters: Option<&P>,
+        body: Option<&B>
     ) -> Result<reqwest::Response> {
         let mut request = self.client.put(url);
 
         if let Some(parameters) = parameters {
             request = request.query(parameters);
+        }
+
+        if let Some(body) = body {
+            request = request.json(body);
         }
 
         self.execute(request).await
