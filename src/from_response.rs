@@ -11,7 +11,8 @@ impl<T: serde::de::DeserializeOwned> FromResponse for T {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
         let text = response.text().await.context(crate::error::Http)?;
 
-        serde_json::from_str(&text).with_context(|| crate::error::Json {
+        let de = &mut serde_json::Deserializer::from_str(&text);
+        serde_path_to_error::deserialize(de).with_context(|| crate::error::Json {
             json: serde_json::from_str::<serde_json::Value>(&text).unwrap(),
         })
     }
