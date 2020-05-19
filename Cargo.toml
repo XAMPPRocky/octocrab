@@ -21,6 +21,7 @@ reqwest = { version = "0.10.4", features = ["json"] }
 tokio = { version = "0.2.17", features = ["full"] }
 serde = { version = "1.0.106", features = ["derive"] }
 serde_json = "1.0.51"
+serde_path_to_error = "0.1.2"
 async-trait = "0.1.30"
 chrono = { version = "0.4.11", features = ["serde"] }
 url = { version = "2.1.1", features = ["serde"] }
