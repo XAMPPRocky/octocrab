@@ -756,10 +756,10 @@ pub enum Object {
     Commit { sha: String, url: Url },
 }
 
+/// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[non_exhaustive]
 pub struct AuthorUser {
-    name: String,
-    email: String,
+    pub name: String,
+    pub email: String,
 }

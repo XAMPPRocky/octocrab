@@ -215,6 +215,7 @@ pub mod repos {
         FullName,
     }
 
+    /// A Git reference, either a branch or a tag.
     pub enum Reference {
         Branch(String),
         Tag(String),

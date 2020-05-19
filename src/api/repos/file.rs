@@ -36,21 +36,25 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
         }
     }
 
+    /// The branch to commit to.
     pub fn branch(mut self, branch: impl Into<String>) -> Self {
         self.branch = Some(branch.into());
         self
     }
 
+    /// The person that commited the file.
     pub fn commiter(mut self, commiter: impl Into<models::AuthorUser>) -> Self {
         self.commiter = Some(commiter.into());
         self
     }
 
+    /// The author of the file.
     pub fn author(mut self, author: impl Into<models::AuthorUser>) -> Self {
         self.author = Some(author.into());
         self
     }
 
+    /// Sends the actual request.
     pub async fn send(self) -> Result<serde_json::Value> {
         // FIXME: change return type
         let url = format!(

@@ -372,6 +372,8 @@ impl Octocrab {
         api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
 
+    /// Creates a `RepoHandler` for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's repository API.
     pub fn repos(
         &self,
         owner: impl Into<String>,
