@@ -132,6 +132,19 @@ impl OrganisationExt for Octocrab {
 You can also easily access new properties that aren't available in the
 current models using `serde`.
 
+```rust
+#[derive(Deserialize)]
+struct RepositoryWithVisibility {
+    #[serde(flatten)]
+    inner: octocrab::models::Repository,
+    visibility: String,
+}
+
+let my_repo = octocrab::instance()
+    .get::<RepositoryWithVisibility>("https://api.github.com/repos/XAMPPRocky/octocrab", None::<&()>)
+    .await?;
+```
+
 ## Static API
 `Octocrab` also provides a statically reference counted version of its API,
 allowing you to easily plug it into existing systems without worrying
