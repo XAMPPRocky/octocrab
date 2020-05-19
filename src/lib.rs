@@ -372,6 +372,14 @@ impl Octocrab {
         api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
 
+    pub fn repos(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> api::repos::RepoHandler {
+        api::repos::RepoHandler::new(self, owner.into(), repo.into())
+    }
+
     /// Creates a `CurrentAuthHandler` that allows you to access
     /// information about the current authenticated user.
     pub fn current(&self) -> api::current::CurrentAuthHandler {

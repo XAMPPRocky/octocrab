@@ -214,6 +214,20 @@ pub mod repos {
         Pushed,
         FullName,
     }
+
+    pub enum Reference {
+        Branch(String),
+        Tag(String),
+    }
+
+    impl Reference {
+        pub fn ref_url(&self) -> String {
+            match self {
+                Self::Branch(branch) => format!("heads/{}", branch),
+                Self::Tag(tag) => format!("tags/{}", tag),
+            }
+        }
+    }
 }
 
 pub mod teams {

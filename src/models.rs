@@ -736,3 +736,30 @@ pub struct InstallationToken {
     pub permissions: Permissions,
     pub repositories: Option<Vec<Repository>>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct Ref {
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub node_id: String,
+    pub url: Url,
+    pub object: Object,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(tag = "type")]
+#[non_exhaustive]
+pub enum Object {
+    Commit { sha: String, url: Url },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct AuthorUser {
+    name: String,
+    email: String,
+}
