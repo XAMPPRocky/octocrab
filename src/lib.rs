@@ -350,8 +350,8 @@ impl Octocrab {
         gitignore::GitignoreHandler::new(self)
     }
 
-    /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
-    /// that allows you to access GitHub's issues API.
+    /// Creates an `OrgHandler` for the specified organization,
+    /// that allows you to access GitHub's organization API.
     pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
         api::orgs::OrgHandler::new(self, owner.into())
     }
