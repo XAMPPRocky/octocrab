@@ -29,8 +29,8 @@ impl<'octo> TeamRepoHandler<'octo> {
     /// Checks if a team manages a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let manages_repo = octocrab.teams("owner")
+    /// let manages_repo = octocrab::instance()
+    ///     .teams("owner")
     ///     .repos("team")
     ///     .manages("owner", "repo")
     ///     .await?;
@@ -60,9 +60,10 @@ impl<'octo> TeamRepoHandler<'octo> {
     /// Updates a team's permissions for a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
     /// use octocrab::params;
-    /// octocrab.teams("owner")
+    ///
+    /// octocrab::instance()
+    ///     .teams("owner")
     ///     .repos("team")
     ///     .add_or_update("owner", "repo", params::teams::Permission::Maintain)
     ///     .await?;
@@ -88,8 +89,8 @@ impl<'octo> TeamRepoHandler<'octo> {
     /// Removes a repository from a team.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// octocrab.teams("owner")
+    /// octocrab::instance()
+    ///     .teams("owner")
     ///     .repos("team")
     ///     .remove("owner", "repo")
     ///     .await?;

@@ -2,20 +2,20 @@ use super::*;
 use crate::params;
 
 #[derive(serde::Serialize)]
-pub struct EditTeamBuilder<'octo, 'a> {
+pub struct EditTeamBuilder<'octo, 'r> {
     #[serde(skip)]
-    handler: &'a TeamHandler<'octo>,
+    handler: &'r TeamHandler<'octo>,
     #[serde(skip)]
     slug: String,
     name: String,
     description: Option<String>,
     privacy: Option<params::teams::Privacy>,
     permission: Option<params::teams::Permission>,
-    parent_team_id: Option<i64>,
+    parent_team_id: Option<u64>,
 }
 
-impl<'octo, 'a> EditTeamBuilder<'octo, 'a> {
-    pub(crate) fn new(handler: &'a TeamHandler<'octo>, slug: String, name: String) -> Self {
+impl<'octo, 'r> EditTeamBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r TeamHandler<'octo>, slug: String, name: String) -> Self {
         Self {
             handler,
             slug,
@@ -42,7 +42,7 @@ impl<'octo, 'a> EditTeamBuilder<'octo, 'a> {
     }
 
     /// The ID of the team to set as the parent team.
-    pub fn parent_team_id(mut self, parent_team_id: impl Into<i64>) -> Self {
+    pub fn parent_team_id(mut self, parent_team_id: impl Into<u64>) -> Self {
         self.parent_team_id = Some(parent_team_id.into());
         self
     }

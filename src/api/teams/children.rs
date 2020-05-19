@@ -2,17 +2,17 @@ use super::*;
 use crate::{models, Page, Result};
 
 #[derive(serde::Serialize)]
-pub struct ListChildTeamsBuilder<'octo, 'a> {
+pub struct ListChildTeamsBuilder<'octo, 'r> {
     #[serde(skip)]
-    handler: &'a TeamHandler<'octo>,
+    handler: &'r TeamHandler<'octo>,
     #[serde(skip)]
     slug: String,
     per_page: Option<u8>,
     page: Option<u32>,
 }
 
-impl<'octo, 'a> ListChildTeamsBuilder<'octo, 'a> {
-    pub(crate) fn new(handler: &'a TeamHandler<'octo>, slug: String) -> Self {
+impl<'octo, 'r> ListChildTeamsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r TeamHandler<'octo>, slug: String) -> Self {
         Self {
             handler,
             slug,

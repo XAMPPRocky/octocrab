@@ -2,20 +2,20 @@ use super::*;
 use crate::params;
 
 #[derive(serde::Serialize)]
-pub struct CreateTeamBuilder<'octo, 'a> {
+pub struct CreateTeamBuilder<'octo, 'h, 'a, 'b> {
     #[serde(skip)]
-    handler: &'a TeamHandler<'octo>,
+    handler: &'h TeamHandler<'octo>,
     name: String,
     description: Option<String>,
-    maintainers: Option<Vec<String>>,
-    repo_names: Option<Vec<String>>,
+    maintainers: Option<&'a [String]>,
+    repo_names: Option<&'b [String]>,
     privacy: Option<params::teams::Privacy>,
     permission: Option<params::teams::Permission>,
-    parent_team_id: Option<i64>,
+    parent_team_id: Option<u64>,
 }
 
-impl<'octo, 'a> CreateTeamBuilder<'octo, 'a> {
-    pub(crate) fn new(handler: &'a TeamHandler<'octo>, name: String) -> Self {
+impl<'octo, 'h, 'a, 'b> CreateTeamBuilder<'octo, 'h, 'a, 'b> {
+    pub(crate) fn new(handler: &'h TeamHandler<'octo>, name: String) -> Self {
         Self {
             handler,
             name,
@@ -35,16 +35,16 @@ impl<'octo, 'a> CreateTeamBuilder<'octo, 'a> {
     }
 
     /// The organization members who will become team maintainers.
-    pub fn maintainers(mut self, maintainers: impl Into<Vec<String>>) -> Self {
-        self.maintainers = Some(maintainers.into());
+    pub fn maintainers(mut self, maintainers: &'a (impl AsRef<[String]> + ?Sized)) -> Self {
+        self.maintainers = Some(maintainers.as_ref());
         self
     }
 
     /// The repositories to add the team to.
     ///
     /// Note: the repo name must be its full name, e.g. `"org/repo"`.
-    pub fn repo_names(mut self, repo_names: impl Into<Vec<String>>) -> Self {
-        self.repo_names = Some(repo_names.into());
+    pub fn repo_names(mut self, repo_names: &'b (impl AsRef<[String]> + ?Sized)) -> Self {
+        self.repo_names = Some(repo_names.as_ref());
         self
     }
 
@@ -57,7 +57,7 @@ impl<'octo, 'a> CreateTeamBuilder<'octo, 'a> {
     }
 
     /// The ID of the team to set as the parent team.
-    pub fn parent_team_id(mut self, parent_team_id: impl Into<i64>) -> Self {
+    pub fn parent_team_id(mut self, parent_team_id: impl Into<u64>) -> Self {
         self.parent_team_id = Some(parent_team_id.into());
         self
     }

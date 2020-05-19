@@ -6,7 +6,7 @@ mod edit;
 mod list;
 mod team_repos;
 
-pub use {
+pub use self::{
     children::ListChildTeamsBuilder,
     create::CreateTeamBuilder,
     edit::EditTeamBuilder,
@@ -34,8 +34,8 @@ impl<'octo> TeamHandler<'octo> {
     /// Lists teams in the organization.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let teams = octocrab.teams("owner")
+    /// let teams = octocrab::instance()
+    ///     .teams("owner")
     ///     .list()
     ///     .per_page(10)
     ///     .page(1u8)
@@ -51,8 +51,10 @@ impl<'octo> TeamHandler<'octo> {
     /// Gets a team from its slug.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// let team = octocrab.teams("owner").get("team").await?;
+    /// let team = octocrab::instance()
+    ///     .teams("owner")
+    ///     .get("team")
+    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -68,10 +70,10 @@ impl<'octo> TeamHandler<'octo> {
     /// Creates a new team in the organization.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
     /// use octocrab::params;
     ///
-    /// octocrab.teams("owner")
+    /// octocrab::instance()
+    ///     .teams("owner")
     ///     .create("new-team")
     ///     .description("My team created from Octocrab!")
     ///     .maintainers(&["ferris"])
@@ -90,10 +92,10 @@ impl<'octo> TeamHandler<'octo> {
     /// Creates a new team in the organization.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
     /// use octocrab::params;
     ///
-    /// octocrab.teams("owner")
+    /// octocrab::instance()
+    ///     .teams("owner")
     ///     .edit("some-team", "Some Team")
     ///     .description("I edited from Octocrab!")
     ///     .privacy(params::teams::Privacy::Secret)
@@ -110,8 +112,7 @@ impl<'octo> TeamHandler<'octo> {
     /// Deletes a team from the organization.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// octocrab.teams("owner").delete("some-team").await?;
+    /// octocrab::instance().teams("owner").delete("some-team").await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -128,7 +129,8 @@ impl<'octo> TeamHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// octocrab.teams("owner")
+    /// octocrab::instance()
+    ///     .teams("owner")
     ///     .children("parent-team")
     ///     .per_page(5)
     ///     .page(1u8)
