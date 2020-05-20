@@ -1,6 +1,6 @@
 use crate::params;
-use crate::{Octocrab, Result};
-use reqwest::StatusCode;
+use crate::{models, FromResponse, Octocrab, Result};
+use reqwest::header::ACCEPT;
 
 /// Handler for managing a team's repositories through
 /// GitHub's teams API.
@@ -14,34 +14,28 @@ pub struct TeamRepoHandler<'octo> {
     team: String,
 }
 
-/// Whether a team manages a repository.
-pub enum ManagesRepo {
-    Yes,
-    No,
-    Err,
-}
-
 impl<'octo> TeamRepoHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, org: String, team: String) -> Self {
         Self { crab, org, team }
     }
 
-    /// Checks if a team manages a repository.
+    /// Checks if a team manages a repository, returning the repository if it does.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let manages_repo = octocrab::instance()
     ///     .teams("owner")
     ///     .repos("team")
-    ///     .manages("owner", "repo")
-    ///     .await?;
+    ///     .check_manages("owner", "repo")
+    ///     .await
+    ///     .is_ok();
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn manages(
+    pub async fn check_manages(
         &self,
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
-    ) -> Result<ManagesRepo> {
+    ) -> Result<models::Repository> {
         let url = format!(
             "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
@@ -49,12 +43,13 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        let res = self.crab._get(&url, None::<&()>).await?;
-        Ok(match res.status() {
-            StatusCode::NO_CONTENT => ManagesRepo::Yes,
-            StatusCode::NOT_FOUND => ManagesRepo::No,
-            _ => ManagesRepo::Err,
-        })
+        let req = self
+            .crab
+            .client
+            .get(&url)
+            .header(ACCEPT, "application/vnd.github.v3.repository+json");
+        let res = self.crab.execute(req).await?;
+        models::Repository::from_response(res).await
     }
 
     /// Updates a team's permissions for a repository.
@@ -83,7 +78,9 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        self.crab.put(url, permission.into().as_ref()).await
+        Octocrab::map_github_error(self.crab._put(&url, permission.into().as_ref()).await?)
+            .await
+            .map(|_| ())
     }
 
     /// Removes a repository from a team.

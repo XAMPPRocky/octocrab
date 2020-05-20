@@ -131,7 +131,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// octocrab::instance()
     ///     .teams("owner")
-    ///     .children("parent-team")
+    ///     .list_children("parent-team")
     ///     .per_page(5)
     ///     .page(1u8)
     ///     .send()
@@ -139,7 +139,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn children(&self, team_slug: impl Into<String>) -> ListChildTeamsBuilder {
+    pub fn list_children(&self, team_slug: impl Into<String>) -> ListChildTeamsBuilder {
         ListChildTeamsBuilder::new(self, team_slug.into())
     }
 
