@@ -763,3 +763,26 @@ pub struct AuthorUser {
     pub name: String,
     pub email: String,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct FileUpdate {
+    pub content: Content,
+    pub commit: Commit,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Content {
+    pub name: String,
+    pub path: String,
+    pub sha: String,
+    pub size: i64,
+    pub url: String,
+    pub html_url: String,
+    pub git_url: String,
+    pub download_url: String,
+    pub r#type: String,
+    #[serde(rename = "_links")]
+    pub links: Links,
+}
