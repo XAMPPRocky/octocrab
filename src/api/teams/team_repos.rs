@@ -80,7 +80,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         );
         Octocrab::map_github_error(self.crab._put(&url, permission.into().as_ref()).await?)
             .await
-            .map(|_| ())
+            .map(drop)
     }
 
     /// Removes a repository from a team.

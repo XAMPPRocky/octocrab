@@ -11,7 +11,7 @@ pub use self::{
     create::CreateTeamBuilder,
     edit::EditTeamBuilder,
     list::ListTeamsBuilder,
-    team_repos::{ManagesRepo, TeamRepoHandler},
+    team_repos::TeamRepoHandler,
 };
 
 use crate::{models, Octocrab, Result};
