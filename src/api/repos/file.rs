@@ -8,7 +8,9 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     path: String,
     message: String,
     content: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sha: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     commiter: Option<models::AuthorUser>,
@@ -63,5 +65,50 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
             path = self.path,
         );
         self.handler.crab.put(url, Some(&self)).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::models::AuthorUser;
+
+    #[test]
+    fn serialize() {
+        let octocrab = crate::instance();
+        let repo = octocrab.repos("owner", "repo");
+        let builder = repo
+            .update_file(
+                "tests/test.txt",
+                "Update test.txt",
+                "This is a test.",
+                "testsha",
+            )
+            .branch("not-master")
+            .commiter(AuthorUser {
+                name: "Octocat".to_string(),
+                email: "octocat@github.com".to_string(),
+            })
+            .author(AuthorUser {
+                name: "Ferris".to_string(),
+                email: "ferris@rust-lang.org".to_string(),
+            });
+
+        assert_eq!(
+            serde_json::to_value(builder).unwrap(),
+            serde_json::json!({
+                "message": "Update test.txt",
+                "content": base64::encode("This is a test."),
+                "sha": "testsha",
+                "branch": "not-master",
+                "commiter": {
+                    "name": "Octocat",
+                    "email": "octocat@github.com"
+                },
+                "author": {
+                    "name": "Ferris",
+                    "email": "ferris@rust-lang.org"
+                }
+            })
+        )
     }
 }
