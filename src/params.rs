@@ -37,6 +37,38 @@ pub enum LockReason {
     Spam,
 }
 
+pub mod actions {
+    //! Parameter types for the actions API.
+
+    /// The archive format for artifacts.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum ArchiveFormat {
+        Zip,
+    }
+
+    impl std::fmt::Display for ArchiveFormat {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            let text = match self {
+                Self::Zip => "zip",
+            };
+
+            f.write_str(text)
+        }
+    }
+
+    /// Configures the access that repositories have to the organization secret.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Visibility {
+        All,
+        Private,
+        Selected,
+    }
+}
+
 pub mod issues {
     //! Parameter types for the issues API.
 

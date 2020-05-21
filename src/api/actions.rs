@@ -1,7 +1,7 @@
 //! GitHub Actions
 use snafu::ResultExt;
 
-use crate::Octocrab;
+use crate::{params, Octocrab};
 
 /// Handler for GitHub's actions API.
 ///
@@ -111,6 +111,25 @@ impl<'octo> ActionsHandler<'octo> {
             .map(drop)
     }
 
+    async fn follow_location_to_data(
+        &self,
+        response: reqwest::Response,
+    ) -> crate::Result<bytes::Bytes> {
+        let location = response
+            .headers()
+            .get(reqwest::header::LOCATION)
+            .expect("No Location header found in download_workflow_run_logs")
+            .to_str()
+            .expect("Location URL not valid str");
+
+        self.crab
+            ._get(location, None::<&()>)
+            .await?
+            .bytes()
+            .await
+            .context(crate::error::Http)
+    }
+
     /// Downloads and returns the raw data representing a zip of the logs from
     /// the workflow run specified by `run_id`.
     /// ```no_run
@@ -135,25 +154,45 @@ impl<'octo> ActionsHandler<'octo> {
             run_id = run_id,
         );
 
-        let response = self.crab._get(&route, None::<&()>).await?;
-
-        let location = response
-            .headers()
-            .get(reqwest::header::LOCATION)
-            .expect("No Location header found in download_workflow_run_logs")
-            .to_str()
-            .expect("Location URL not valid str");
-
-        self.crab
-            ._get(location, None::<&()>)
-            .await?
-            .bytes()
+        self.follow_location_to_data(self.crab._get(&route, None::<&()>).await?)
             .await
-            .context(crate::error::Http)
     }
 
-    /// Downloads and returns the raw data representing a zip of the logs from
-    /// the workflow run specified by `run_id`.
+    /// Downloads and returns the raw data representing an artifact from a
+    /// repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::actions::ArchiveFormat;
+    ///
+    /// octocrab::instance()
+    ///     .actions()
+    ///     .download_artifact("owner", "repo", 1234, ArchiveFormat::Zip)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn download_artifact(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        artifact_id: u64,
+        archive_format: params::actions::ArchiveFormat,
+    ) -> crate::Result<bytes::Bytes> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            artifact_id = artifact_id,
+            archive_format = archive_format,
+        );
+
+        self.follow_location_to_data(self.crab._get(&route, None::<&()>).await?)
+            .await
+    }
+
+    /// Deletes all logs for a workflow run. You must authenticate using an
+    /// access token with the `repo` scope to use this endpoint. GitHub Apps
+    /// must have the `actions:write` permission to use this endpoint.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
@@ -179,6 +218,25 @@ impl<'octo> ActionsHandler<'octo> {
         crate::map_github_error(self.crab._delete(&route, None::<&()>).await?)
             .await
             .map(drop)
+    }
+
+    /// Get an organization's public key, which you need to encrypt secrets.
+    /// You need to encrypt a secret before you can create or update secrets.
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the secrets organization
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let org = octocrab.actions().get_org_public_key("org").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_org_public_key(&self, org: impl AsRef<str>) -> crate::Result<crate::models::PublicKey> {
+        let route = format!("/orgs/{org}/actions/secrets/public-key", org = org.as_ref());
+
+        self.crab.get(route, None::<&()>).await
     }
 }
 
