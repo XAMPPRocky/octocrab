@@ -700,7 +700,7 @@ pub struct InstallationRepositories {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct Installation {
     pub id: i64,
@@ -718,7 +718,7 @@ pub struct Installation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationPermissions {
     pub metadata: String,
@@ -728,7 +728,7 @@ pub struct InstallationPermissions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationToken {
     pub token: String,
@@ -738,7 +738,7 @@ pub struct InstallationToken {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct Ref {
     #[serde(rename = "ref")]
@@ -749,7 +749,7 @@ pub struct Ref {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 #[non_exhaustive]
 pub enum Object {
@@ -758,7 +758,7 @@ pub enum Object {
 
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct AuthorUser {
     pub name: String,
     pub email: String,

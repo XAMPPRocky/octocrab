@@ -63,6 +63,6 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.put(url, None::<&()>, Some(&self)).await
+        self.handler.crab.put(url, Some(&self)).await
     }
 }

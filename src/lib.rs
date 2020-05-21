@@ -483,29 +483,23 @@ impl Octocrab {
 
     /// Send a `PUT` request to `route` with optional query parameters,
     /// returning the body of the response.
-    pub async fn put<R, A, P, B>(&self, route: A, parameters: Option<&P>, body: Option<&B>) -> Result<R>
+    pub async fn put<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
     where
         A: AsRef<str>,
-        P: Serialize + ?Sized,
         B: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._put(self.absolute_url(route)?, parameters, body).await?;
+        let response = self._put(self.absolute_url(route)?, body).await?;
         R::from_response(Self::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
-    pub async fn _put<P: Serialize + ?Sized, B: Serialize + ?Sized>(
+    pub async fn _put<B: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
-        parameters: Option<&P>,
         body: Option<&B>
     ) -> Result<reqwest::Response> {
         let mut request = self.client.put(url);
-
-        if let Some(parameters) = parameters {
-            request = request.query(parameters);
-        }
 
         if let Some(body) = body {
             request = request.json(body);
