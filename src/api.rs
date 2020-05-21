@@ -1,9 +1,9 @@
 pub mod actions;
+pub mod current;
 pub mod gitignore;
 pub mod issues;
 pub mod markdown;
 pub mod orgs;
 pub mod pulls;
-pub mod current;
-pub mod teams;
 pub mod repos;
+pub mod teams;
