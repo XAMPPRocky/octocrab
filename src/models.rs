@@ -700,7 +700,7 @@ pub struct InstallationRepositories {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct Installation {
     pub id: i64,
@@ -718,7 +718,7 @@ pub struct Installation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationPermissions {
     pub metadata: String,
@@ -728,11 +728,61 @@ pub struct InstallationPermissions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationToken {
     pub token: String,
     pub expires_at: Option<String>,
     pub permissions: Permissions,
     pub repositories: Option<Vec<Repository>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct Ref {
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub node_id: String,
+    pub url: Url,
+    pub object: Object,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
+#[non_exhaustive]
+pub enum Object {
+    Commit { sha: String, url: Url },
+}
+
+/// The author of a commit, identified by its name and email.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct AuthorUser {
+    pub name: String,
+    pub email: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct FileUpdate {
+    pub content: Content,
+    pub commit: Commit,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Content {
+    pub name: String,
+    pub path: String,
+    pub sha: String,
+    pub size: i64,
+    pub url: String,
+    pub html_url: String,
+    pub git_url: String,
+    pub download_url: String,
+    pub r#type: String,
+    #[serde(rename = "_links")]
+    pub links: Links,
 }

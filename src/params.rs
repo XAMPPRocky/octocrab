@@ -214,6 +214,32 @@ pub mod repos {
         Pushed,
         FullName,
     }
+
+    /// A Git reference, either a branch or a tag.
+    #[derive(Debug, Clone)]
+    pub enum Reference {
+        Branch(String),
+        Tag(String),
+    }
+
+    impl Reference {
+        pub fn ref_url(&self) -> String {
+            match self {
+                Self::Branch(branch) => format!("heads/{}", branch),
+                Self::Tag(tag) => format!("tags/{}", tag),
+            }
+        }
+
+        pub fn full_ref_url(&self) -> String {
+            format!("refs/{}", self.ref_url())
+        }
+    }
+
+    impl std::fmt::Display for Reference {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str(&self.full_ref_url())
+        }
+    }
 }
 
 pub mod teams {

@@ -5,3 +5,4 @@ pub mod orgs;
 pub mod pulls;
 pub mod current;
 pub mod teams;
+pub mod repos;
