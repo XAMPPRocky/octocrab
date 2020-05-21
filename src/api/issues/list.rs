@@ -5,15 +5,25 @@ use crate::params;
 pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     #[serde(skip)]
     handler: &'b IssueHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     state: Option<params::State>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     milestone: Option<params::issues::Filter<u64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     assignee: Option<params::issues::Filter<&'c str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     creator: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     mentioned: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     labels: Option<&'d [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<crate::params::issues::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<crate::params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

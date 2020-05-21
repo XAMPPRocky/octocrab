@@ -6,11 +6,17 @@ pub struct CreateTeamBuilder<'octo, 'h, 'a, 'b> {
     #[serde(skip)]
     handler: &'h TeamHandler<'octo>,
     name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     maintainers: Option<&'a [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     repo_names: Option<&'b [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     privacy: Option<params::teams::Privacy>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     permission: Option<params::teams::Permission>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     parent_team_id: Option<u64>,
 }
 

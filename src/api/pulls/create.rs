@@ -7,8 +7,11 @@ pub struct CreatePullRequestBuilder<'octo, 'b> {
     title: String,
     head: String,
     base: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     draft: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     maintainer_can_modify: Option<bool>,
 }
 

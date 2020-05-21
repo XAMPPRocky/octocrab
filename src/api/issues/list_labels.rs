@@ -6,7 +6,9 @@ pub struct ListLabelsForIssueBuilder<'octo, 'r> {
     handler: &'r IssueHandler<'octo>,
     #[serde(skip)]
     number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 
@@ -49,7 +51,9 @@ impl<'octo, 'r> ListLabelsForIssueBuilder<'octo, 'r> {
 pub struct ListLabelsForRepoBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r IssueHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 
