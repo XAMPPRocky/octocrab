@@ -162,7 +162,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{issues, gitignore, markdown, orgs, pulls, current, teams, repos},
+    api::{actions, issues, gitignore, markdown, orgs, pulls, current, teams, repos},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -200,6 +200,22 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
     };
 
     format!("application/vnd.github.v3.{}{}", media_type, json_suffix)
+}
+
+/// Maps a GitHub error response into and `Err()` variant if the status is
+/// not a success.
+pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Response> {
+    if response.status().is_success() {
+        Ok(response)
+    } else {
+        Err(error::Error::GitHub {
+            source: response
+                .json::<error::GitHubError>()
+                .await
+                .context(error::Http)?,
+            backtrace: Backtrace::generate(),
+        })
+    }
 }
 
 /// Initialises the static instance using the configuration set by
@@ -330,6 +346,11 @@ impl Octocrab {
 
 /// GitHub API Methods
 impl Octocrab {
+    /// Creates a `ActionsHandler`.
+    pub fn actions(&self) -> actions::ActionsHandler {
+        actions::ActionsHandler::new(self)
+    }
+
     /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's issues API.
     pub fn issues(
@@ -409,7 +430,7 @@ impl Octocrab {
         body: Option<&P>,
     ) -> Result<R> {
         let response = self._post(self.absolute_url(route)?, body).await?;
-        R::from_response(Self::map_github_error(response).await?).await
+        R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `POST` request with no additional pre/post-processing.
@@ -436,7 +457,7 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self._get(self.absolute_url(route)?, parameters).await?;
-        R::from_response(Self::map_github_error(response).await?).await
+        R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `GET` request with no additional post-processing.
@@ -463,7 +484,7 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self._patch(self.absolute_url(route)?, body).await?;
-        R::from_response(Self::map_github_error(response).await?).await
+        R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
@@ -490,7 +511,7 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self._put(self.absolute_url(route)?, body).await?;
-        R::from_response(Self::map_github_error(response).await?).await
+        R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
@@ -517,7 +538,7 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self._delete(self.absolute_url(route)?, parameters).await?;
-        R::from_response(Self::map_github_error(response).await?).await
+        R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `DELETE` request with no additional post-processing.
@@ -550,22 +571,6 @@ impl Octocrab {
             .base_url
             .join(url.as_ref())
             .context(crate::error::Url)?)
-    }
-
-    /// Maps a GitHub error response into and `Err()` variant if the status is
-    /// not a success.
-    pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Response> {
-        if response.status().is_success() {
-            Ok(response)
-        } else {
-            Err(error::Error::GitHub {
-                source: response
-                    .json::<error::GitHubError>()
-                    .await
-                    .context(error::Http)?,
-                backtrace: Backtrace::generate(),
-            })
-        }
     }
 
     /// A convience method to get the a page of results (if present).

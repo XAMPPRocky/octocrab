@@ -39,9 +39,17 @@ impl<'octo> GitignoreHandler<'octo> {
     /// ```
     pub async fn get(&self, name: impl AsRef<str>) -> crate::Result<String> {
         let route = format!("/gitignore/templates/{name}", name = name.as_ref());
-        let request = self.crab.client.get(self.crab.absolute_url(route)?)
+        let request = self
+            .crab
+            .client
+            .get(self.crab.absolute_url(route)?)
             .header(reqwest::header::ACCEPT, crate::format_media_type("raw"));
 
-        self.crab.execute(request).await?.text().await.context(crate::error::Http)
+        self.crab
+            .execute(request)
+            .await?
+            .text()
+            .await
+            .context(crate::error::Http)
     }
 }

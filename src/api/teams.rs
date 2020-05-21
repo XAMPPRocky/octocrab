@@ -119,7 +119,7 @@ impl<'octo> TeamHandler<'octo> {
             org = self.owner,
             team = team_slug.into(),
         );
-        Octocrab::map_github_error(self.crab._delete(&url, None::<&()>).await?)
+        crate::map_github_error(self.crab._delete(&url, None::<&()>).await?)
             .await
             .map(drop)
     }

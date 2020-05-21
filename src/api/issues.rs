@@ -250,7 +250,7 @@ impl<'octo> IssueHandler<'octo> {
         } else if status == 404 {
             Ok(false)
         } else {
-            Err(Octocrab::map_github_error(response).await.unwrap_err())
+            Err(crate::map_github_error(response).await.unwrap_err())
         }
     }
 
@@ -525,7 +525,7 @@ impl<'octo> IssueHandler<'octo> {
         if response.status() == 204 {
             Ok(())
         } else {
-            Octocrab::map_github_error(response).await.map(drop)
+            crate::map_github_error(response).await.map(drop)
         }
     }
 

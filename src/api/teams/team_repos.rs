@@ -78,7 +78,7 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        Octocrab::map_github_error(self.crab._put(&url, permission.into().as_ref()).await?)
+        crate::map_github_error(self.crab._put(&url, permission.into().as_ref()).await?)
             .await
             .map(drop)
     }

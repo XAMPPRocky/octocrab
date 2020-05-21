@@ -124,7 +124,6 @@ mod tests {
             .mode(crate::params::markdown::Mode::Gfm)
             .context("owner/repo");
 
-
         assert_eq!(
             serde_json::to_value(render).unwrap(),
             serde_json::json!({

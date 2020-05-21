@@ -109,7 +109,7 @@ impl<'octo> PullRequestHandler<'octo> {
             .get(self.crab.absolute_url(route)?)
             .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
 
-        let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
+        let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
         response.text().await.context(crate::error::Http)
     }
@@ -135,7 +135,7 @@ impl<'octo> PullRequestHandler<'octo> {
             .get(self.crab.absolute_url(route)?)
             .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
 
-        let response = crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?;
+        let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
         response.text().await.context(crate::error::Http)
     }
@@ -222,10 +222,7 @@ impl<'octo> PullRequestHandler<'octo> {
             );
         }
 
-        R::from_response(
-            crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?,
-        )
-        .await
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
 
     pub(crate) async fn http_post<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -247,9 +244,6 @@ impl<'octo> PullRequestHandler<'octo> {
             );
         }
 
-        R::from_response(
-            crate::Octocrab::map_github_error(self.crab.execute(request).await?).await?,
-        )
-        .await
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
 }

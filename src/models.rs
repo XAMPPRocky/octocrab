@@ -446,7 +446,7 @@ pub struct RequestedTeam {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Repository {
-    pub id: i64,
+    pub id: u64,
     pub node_id: String,
     pub name: String,
     pub full_name: String,
@@ -785,4 +785,12 @@ pub struct Content {
     pub r#type: String,
     #[serde(rename = "_links")]
     pub links: Links,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct PublicKey {
+    pub key_id: String,
+    pub key: String,
 }

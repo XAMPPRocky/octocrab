@@ -103,6 +103,25 @@ impl<'octo> OrgHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Get an organization's public key, which you need to encrypt secrets.
+    /// You need to encrypt a secret before you can create or update secrets.
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the secrets organization
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let org = octocrab.orgs("owner").get_public_key().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_public_key(&self) -> crate::Result<crate::models::PublicKey> {
+        let route = format!("/orgs/{org}/actions/secrets/public-key", org = self.owner);
+
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// List repos for the specified organization.
     ///
     /// ```no_run
