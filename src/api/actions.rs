@@ -233,10 +233,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_org_public_key(
-        &self,
-        org: impl AsRef<str>,
-    ) -> crate::Result<crate::models::PublicKey> {
+    pub async fn get_org_public_key(&self, org: impl AsRef<str>) -> crate::Result<crate::models::PublicKey> {
         let route = format!("/orgs/{org}/actions/secrets/public-key", org = org.as_ref());
 
         self.crab.get(route, None::<&()>).await

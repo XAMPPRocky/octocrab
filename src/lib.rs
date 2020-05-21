@@ -162,7 +162,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{actions, current, gitignore, issues, markdown, orgs, pulls, repos, teams},
+    api::{actions, issues, gitignore, markdown, orgs, pulls, current, teams, repos},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -518,7 +518,7 @@ impl Octocrab {
     pub async fn _put<B: Serialize + ?Sized>(
         &self,
         url: impl reqwest::IntoUrl,
-        body: Option<&B>,
+        body: Option<&B>
     ) -> Result<reqwest::Response> {
         let mut request = self.client.put(url);
 
