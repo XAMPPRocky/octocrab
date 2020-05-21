@@ -7,11 +7,8 @@ mod list;
 mod team_repos;
 
 pub use self::{
-    children::ListChildTeamsBuilder,
-    create::CreateTeamBuilder,
-    edit::EditTeamBuilder,
-    list::ListTeamsBuilder,
-    team_repos::TeamRepoHandler,
+    children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
+    list::ListTeamsBuilder, team_repos::TeamRepoHandler,
 };
 
 use crate::{models, Octocrab, Result};
@@ -122,7 +119,9 @@ impl<'octo> TeamHandler<'octo> {
             org = self.owner,
             team = team_slug.into(),
         );
-        self.crab.delete(url, None::<&()>).await
+        Octocrab::map_github_error(self.crab._delete(&url, None::<&()>).await?)
+            .await
+            .map(drop)
     }
 
     /// List the child teams of a team in the organization.
