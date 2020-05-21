@@ -164,10 +164,4 @@ impl<'octo> RepoHandler<'octo> {
             Some(sha.into()),
         )
     }
-
-    /// Creates a new `PullRequestHandler` for the repository,
-    /// that allows you to access GitHub's pull request API.
-    pub fn pulls(&self) -> super::pulls::PullRequestHandler {
-        super::pulls::PullRequestHandler::new(self.crab, self.owner.clone(), self.repo.clone())
-    }
 }
