@@ -13,7 +13,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
 ```toml
-octocrab = "0.2"
+octocrab = "0.3"
 ```
 
 ## Semantic API
