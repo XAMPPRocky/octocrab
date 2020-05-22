@@ -5,7 +5,9 @@ use crate::{models, Page, Result};
 pub struct ListTeamsBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r TeamHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

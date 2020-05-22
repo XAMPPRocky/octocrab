@@ -9,12 +9,19 @@ use super::*;
 pub struct ListPullRequestsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     state: Option<crate::params::State>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     head: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     base: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<crate::params::pulls::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<crate::params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

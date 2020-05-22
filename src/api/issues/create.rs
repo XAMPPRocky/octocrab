@@ -5,9 +5,13 @@ pub struct CreateIssueBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r super::IssueHandler<'octo>,
     title: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     milestone: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     labels: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     assignees: Option<Vec<String>>,
 }
 

@@ -8,9 +8,13 @@ pub struct EditTeamBuilder<'octo, 'r> {
     #[serde(skip)]
     slug: String,
     name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     privacy: Option<params::teams::Privacy>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     permission: Option<params::teams::Permission>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     parent_team_id: Option<u64>,
 }
 

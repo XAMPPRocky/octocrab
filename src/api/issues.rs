@@ -277,7 +277,9 @@ impl<'octo> IssueHandler<'octo> {
 pub struct ListAssigneesBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r IssueHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 
@@ -554,8 +556,11 @@ pub struct ListCommentsBuilder<'octo, 'r> {
     handler: &'r IssueHandler<'octo>,
     #[serde(skip)]
     issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
     since: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

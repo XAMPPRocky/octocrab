@@ -7,11 +7,17 @@ pub struct UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     handler: &'a IssueHandler<'octo>,
     #[serde(skip)]
     number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
     title: Option<&'b str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<&'c str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     assignees: Option<&'d [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     state: Option<models::IssueState>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     milestone: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     labels: Option<&'e [String]>,
 }
 

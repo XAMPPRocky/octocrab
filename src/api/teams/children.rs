@@ -7,7 +7,9 @@ pub struct ListChildTeamsBuilder<'octo, 'r> {
     handler: &'r TeamHandler<'octo>,
     #[serde(skip)]
     slug: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

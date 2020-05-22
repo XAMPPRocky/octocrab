@@ -73,7 +73,9 @@ pub struct RenderMarkdownBuilder<'octo, 'r, 'text> {
     #[serde(skip)]
     handler: &'r MarkdownHandler<'octo>,
     text: &'text str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     mode: Option<crate::params::markdown::Mode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     context: Option<String>,
 }
 

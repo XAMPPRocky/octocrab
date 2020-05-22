@@ -4,10 +4,15 @@ use super::*;
 pub struct ListReposBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b OrgHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     r#type: Option<crate::params::repos::Type>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<crate::params::repos::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<crate::params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 
