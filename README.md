@@ -21,19 +21,27 @@ The semantic API provides strong typing around GitHub's API, as well as a
 set of [`models`] that maps to GitHub's types. Currently the following 
 modules are available.
 
+- [`actions`] GitHub Actions
+- [`current`] Information about the current user.
 - [`gitignore`] Gitignore templates
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
 - [`markdown`] Rendering Markdown with GitHub
 - [`orgs`] GitHub Organisations
 - [`pulls`] Pull Requests
+- [`repos`] Repositories
+- [`teams`] Teams
 
-[`models`]: https://docs.rs/octocrab/0.2.3/octocrab/models/index.html
+[`models`]: https://docs.rs/octocrab/0.3.0/octocrab/models/index.html
 
-[`gitignore`]: https://docs.rs/octocrab/0.2.3/octocrab/gitignore/struct.GitignoreHandler.html
-[`markdown`]: https://docs.rs/octocrab/0.2.3/octocrab/gitignore/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/0.2.3/octocrab/issues/struct.IssueHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.2.3/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.2.3/octocrab/orgs/struct.OrgHandler.html
+[`actions`]: https://docs.rs/octocrab/0.3.0/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/0.3.0/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/0.3.0/octocrab/gitignore/struct.GitignoreHandler.html
+[`markdown`]: https://docs.rs/octocrab/0.3.0/octocrab/gitignore/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.3.0/octocrab/issues/struct.IssueHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.3.0/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.3.0/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/0.3.0/octocrab/repos/struct.RepoHandler.html
+[`teams`]: https://docs.rs/octocrab/0.3.0/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust

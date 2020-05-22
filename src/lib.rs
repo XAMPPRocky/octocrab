@@ -9,18 +9,26 @@
 //! set of [`models`] that maps to GitHub's types. Currently the following
 //! modules are available.
 //!
+//! - [`actions`] GitHub Actions
+//! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
+//! - [`repos`] Repositories
+//! - [`teams`] Teams
 //!
+//! [`actions`]: ./actions/struct.ActionsHandler.html
+//! [`current`]: ./current/struct.CurrentAuthHandler.html
 //! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
 //! [`issues`]: ./issues/struct.IssueHandler.html
 //! [`markdown`]: ./markdown/struct.MarkdownHandler.html
 //! [`models`]: ./models/index.html
 //! [`orgs`]: ./orgs/struct.OrgHandler.html
 //! [`pulls`]: ./pulls/struct.PullRequestHandler.html
+//! [`repos`]: ./repos/struct.RepoHandler.html
+//! [`teams`]: ./teams/struct.TeamHandler.html
 //!
 //! #### Getting a Pull Request
 //! ```no_run

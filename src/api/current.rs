@@ -1,5 +1,14 @@
+//! Get data about the currently authenticated user.
+
 use crate::{models, Octocrab, Result};
 
+/// Handler for the current authenication API. **Note** All of the methods
+/// provided below require at least some authenication such as personal token
+/// in order to be used.
+///
+/// Created with [`Octocrab::current`].
+///
+/// [`Octocrab::current`]: ../struct.Octocrab.html#method.current
 pub struct CurrentAuthHandler<'octo> {
     crab: &'octo Octocrab,
 }
