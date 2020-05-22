@@ -346,7 +346,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let labels = octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .replace_labels(101, &[String::from("help wanted")])
+    ///     .replace_all_labels(101, &[String::from("help wanted")])
     ///     .await?;
     /// # Ok(())
     /// # }
