@@ -341,6 +341,29 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
+    /// Replaces all labels for an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let labels = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .replace_all_labels(101, &[String::from("help wanted")])
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn replace_all_labels(&self, number: u64, labels: &[String]) -> Result<Vec<models::Label>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{issue}/labels",
+            owner = self.owner,
+            repo = self.repo,
+            issue = number
+        );
+
+        self.crab
+            .put(route, Some(&serde_json::json!({ "labels": labels })))
+            .await
+    }
+
     /// Creates a label in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
