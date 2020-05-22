@@ -31,17 +31,17 @@ modules are available.
 - [`repos`] Repositories
 - [`teams`] Teams
 
-[`models`]: https://docs.rs/octocrab/0.3.0/octocrab/models/index.html
+[`models`]: https://docs.rs/octocrab/0.3.1/octocrab/models/index.html
 
-[`actions`]: https://docs.rs/octocrab/0.3.0/octocrab/actions/struct.ActionsHandler.html
-[`current`]: https://docs.rs/octocrab/0.3.0/octocrab/current/struct.CurrentAuthHandler.html
-[`gitignore`]: https://docs.rs/octocrab/0.3.0/octocrab/gitignore/struct.GitignoreHandler.html
-[`markdown`]: https://docs.rs/octocrab/0.3.0/octocrab/gitignore/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/0.3.0/octocrab/issues/struct.IssueHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.3.0/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.3.0/octocrab/orgs/struct.OrgHandler.html
-[`repos`]: https://docs.rs/octocrab/0.3.0/octocrab/repos/struct.RepoHandler.html
-[`teams`]: https://docs.rs/octocrab/0.3.0/octocrab/teams/struct.TeamHandler.html
+[`actions`]: https://docs.rs/octocrab/0.3.1/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/0.3.1/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/0.3.1/octocrab/gitignore/struct.GitignoreHandler.html
+[`markdown`]: https://docs.rs/octocrab/0.3.1/octocrab/gitignore/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.3.1/octocrab/issues/struct.IssueHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.3.1/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.3.1/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/0.3.1/octocrab/repos/struct.RepoHandler.html
+[`teams`]: https://docs.rs/octocrab/0.3.1/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
