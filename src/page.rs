@@ -21,12 +21,29 @@ pub struct Page<T> {
     pub items: Vec<T>,
     pub next: Option<Url>,
     pub prev: Option<Url>,
+    pub first: Option<Url>,
+    pub last: Option<Url>,
 }
 
 impl<T> Page<T> {
     /// Returns the current set of items, replacing it with an empty Vec.
     pub fn take_items(&mut self) -> Vec<T> {
         std::mem::replace(&mut self.items, Vec::new())
+    }
+
+    /// If `last` is present, return the number of pages for this navigation.
+    pub fn number_of_pages(&self) -> Option<u32> {
+        self.last.as_ref().and_then(|url| {
+            url.query_pairs()
+                .filter_map(|(k, v)| {
+                    if k == "page" {
+                        Some(v).and_then(|v| v.parse().ok())
+                    } else {
+                        None
+                    }
+                })
+                .next()
+        })
     }
 }
 
@@ -36,6 +53,8 @@ impl<T> Default for Page<T> {
             items: Vec::new(),
             next: None,
             prev: None,
+            first: None,
+            last: None,
         }
     }
 }
@@ -52,19 +71,25 @@ impl<T> IntoIterator for Page<T> {
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
-        let (prev, next) = get_links(&response)?;
+        let (first, prev, next, last) = get_links(&response)?;
 
         Ok(Self {
             items: crate::FromResponse::from_response(response).await?,
             next,
             prev,
+            first,
+            last,
         })
     }
 }
 
-fn get_links(response: &reqwest::Response) -> crate::Result<(Option<Url>, Option<Url>)> {
+fn get_links(
+    response: &reqwest::Response,
+) -> crate::Result<(Option<Url>, Option<Url>, Option<Url>, Option<Url>)> {
+    let mut first = None;
     let mut prev = None;
     let mut next = None;
+    let mut last = None;
 
     if let Ok(link_header) = response.headers().decode::<hyperx::header::Link>() {
         for value in link_header.values() {
@@ -76,9 +101,17 @@ fn get_links(response: &reqwest::Response) -> crate::Result<(Option<Url>, Option
                 if relations.contains(&hyperx::header::RelationType::Prev) {
                     prev = Some(Url::parse(value.link()).context(crate::error::Url)?);
                 }
+
+                if relations.contains(&hyperx::header::RelationType::First) {
+                    first = Some(Url::parse(value.link()).context(crate::error::Url)?)
+                }
+
+                if relations.contains(&hyperx::header::RelationType::Last) {
+                    last = Some(Url::parse(value.link()).context(crate::error::Url)?)
+                }
             }
         }
     }
 
-    Ok((prev, next))
+    Ok((first, prev, next, last))
 }
