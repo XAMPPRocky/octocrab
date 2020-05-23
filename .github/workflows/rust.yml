@@ -27,52 +27,16 @@ jobs:
             os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Install toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: ${{ matrix.rust }}
-        override: true
-    - name: Build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-    - name: Run tests
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
+    - run: rustup default ${{ matrix.rust }}
+    - run: cargo build --verbose --all-targets
+    - run: cargo test
 
   clippy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-        components: clippy
-    - name: Run clippy
-      uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
+    - run: cargo clippy
 
   format:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-        components: rustfmt
-    - name: Check formatting
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: -- --check
+    - run: cargo fmt -- --check
