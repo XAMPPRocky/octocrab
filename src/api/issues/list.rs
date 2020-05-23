@@ -16,6 +16,7 @@ pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     mentioned: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "comma_separated")]
     labels: Option<&'d [String]>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<crate::params::issues::Sort>,
@@ -124,6 +125,10 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     }
 }
 
+fn comma_separated<S: serde::Serializer>(labels: &Option<&[String]>, serializer: S) -> Result<S::Ok, S::Error> {
+    serializer.serialize_str(&labels.unwrap().join(","))
+}
+
 #[cfg(test)]
 mod tests {
     #[tokio::test]
@@ -155,7 +160,7 @@ mod tests {
                 "assignee": "ferris",
                 "creator": "octocrab",
                 "mentioned": "octocat",
-                "labels": ["help wanted", "good first issue"],
+                "labels": "help wanted,good first issue",
                 "sort": "comments",
                 "direction": "asc",
                 "per_page": 100,

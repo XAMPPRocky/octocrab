@@ -204,8 +204,10 @@ pub struct Issue {
     pub state: String,
     pub title: String,
     pub body: String,
-    pub body_text: String,
-    pub body_html: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
     pub user: User,
     pub labels: Vec<Label>,
     #[serde(skip_serializing_if = "Option::is_none")]
