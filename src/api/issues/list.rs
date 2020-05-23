@@ -125,7 +125,10 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     }
 }
 
-fn comma_separated<S: serde::Serializer>(labels: &Option<&[String]>, serializer: S) -> Result<S::Ok, S::Error> {
+fn comma_separated<S: serde::Serializer>(
+    labels: &Option<&[String]>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
     serializer.serialize_str(&labels.unwrap().join(","))
 }
 
