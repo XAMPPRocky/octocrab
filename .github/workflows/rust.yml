@@ -6,26 +6,11 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        type: [stable, beta, nightly, windows, macos]
-        include:
-          - type: stable
-            rust: stable
-            os: ubuntu-latest
-          - type: beta
-            rust: beta
-            os: ubuntu-latest
-          - type: nightly
-            rust: nightly
-            os: ubuntu-latest
-          - type: windows
-            rust: stable
-            os: windows-latest
-          - type: macos
-            rust: stable
-            os: macos-latest
-    runs-on: ${{ matrix.os }}
+        channel: [stable, beta, nightly]
+        os: [ubuntu, macos, windows]
     steps:
     - uses: actions/checkout@v2
     - run: rustup default ${{ matrix.rust }}
