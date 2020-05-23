@@ -351,7 +351,11 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn replace_all_labels(&self, number: u64, labels: &[String]) -> Result<Vec<models::Label>> {
+    pub async fn replace_all_labels(
+        &self,
+        number: u64,
+        labels: &[String],
+    ) -> Result<Vec<models::Label>> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{issue}/labels",
             owner = self.owner,
