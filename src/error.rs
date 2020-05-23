@@ -3,7 +3,7 @@ use std::fmt;
 
 /// An error that could have occurred while using `Octocrab`.
 #[derive(Snafu, Debug)]
-#[snafu(visibility = "pub(crate)")]
+#[snafu(visibility = "pub")]
 pub enum Error {
     GitHub {
         source: GitHubError,
@@ -32,9 +32,10 @@ pub enum Error {
 
 /// An error returned from GitHub's API.
 #[derive(serde::Deserialize, Debug, Clone)]
+#[non_exhaustive]
 pub struct GitHubError {
-    documentation_url: String,
-    message: String,
+    pub documentation_url: String,
+    pub message: String,
 }
 
 impl fmt::Display for GitHubError {
