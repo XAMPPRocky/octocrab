@@ -12,8 +12,6 @@ impl<T: serde::de::DeserializeOwned> FromResponse for T {
         let text = response.text().await.context(crate::error::Http)?;
 
         let de = &mut serde_json::Deserializer::from_str(&text);
-        serde_path_to_error::deserialize(de).with_context(|| crate::error::Json {
-            json: serde_json::from_str::<serde_json::Value>(&text).unwrap(),
-        })
+        serde_path_to_error::deserialize(de).context(crate::error::Json)
     }
 }

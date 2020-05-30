@@ -150,6 +150,7 @@
 //! // initialised and returned instead.
 //! octocrab::instance();
 //! ```
+#![cfg_attr(test, recursion_limit="512")]
 
 mod api;
 mod auth;
@@ -170,7 +171,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{actions, current, gitignore, issues, markdown, orgs, pulls, repos, teams},
+    api::{actions, current, gitignore, issues, markdown, orgs, pulls, repos, search, teams},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -415,6 +416,12 @@ impl Octocrab {
     /// information about the current authenticated user.
     pub fn current(&self) -> api::current::CurrentAuthHandler {
         api::current::CurrentAuthHandler::new(self)
+    }
+
+    /// Creates a `SearchHandler` that allows you to construct general queries
+    /// to GitHub's API.
+    pub fn search(&self) -> search::SearchHandler {
+        search::SearchHandler::new(self)
     }
 }
 

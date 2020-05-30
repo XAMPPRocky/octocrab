@@ -19,6 +19,8 @@ use url::Url;
 #[derive(Clone, Debug)]
 pub struct Page<T> {
     pub items: Vec<T>,
+    pub incomplete_results: Option<bool>,
+    pub total_count: Option<u64>,
     pub next: Option<Url>,
     pub prev: Option<Url>,
     pub first: Option<Url>,
@@ -51,6 +53,8 @@ impl<T> Default for Page<T> {
     fn default() -> Self {
         Self {
             items: Vec::new(),
+            incomplete_results: None,
+            total_count: None,
             next: None,
             prev: None,
             first: None,
@@ -73,13 +77,30 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
         let (first, prev, next, last) = get_links(&response)?;
 
-        Ok(Self {
-            items: crate::FromResponse::from_response(response).await?,
-            next,
-            prev,
-            first,
-            last,
-        })
+        let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
+
+        if json.is_array() {
+         Ok(Self {
+             items: serde_json::from_value(json).context(crate::error::Serde)?,
+             incomplete_results: None,
+             total_count: None,
+             next,
+             prev,
+             first,
+             last,
+         })
+        } else {
+         Ok(Self {
+             items: serde_json::from_value(json.get("items").cloned().unwrap()).context(crate::error::Serde)?,
+             incomplete_results: json.get("incomplete_results").and_then(serde_json::Value::as_bool),
+             total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
+             next,
+             prev,
+             first,
+             last,
+         })
+        }
+
     }
 }
 

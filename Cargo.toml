@@ -32,4 +32,4 @@ base64 = "0.12"
 bytes = "0.5.4"
 
 [dev-dependencies]
-tokio = { version = "0.2.17", features = ["macros"] }
+tokio = { version = "0.2.17", default-features = false, features = ["macros"] }

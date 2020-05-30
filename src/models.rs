@@ -213,12 +213,13 @@ pub struct Issue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignee: Option<User>,
     pub assignees: Vec<User>,
+    pub author_association: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub milestone: Option<Milestone>,
     pub locked: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_lock_reason: Option<String>,
-    pub comments: i64,
+    pub comments: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pull_request: Option<PullRequestLink>,
     #[serde(skip_serializing_if = "Option::is_none")]

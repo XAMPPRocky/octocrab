@@ -18,10 +18,14 @@ pub enum Error {
         source: reqwest::Error,
         backtrace: Backtrace,
     },
-    #[snafu(display("JSON Error in {}: {}\n{}\nFound at {}", source.path(), source.inner(), json, backtrace))]
+    #[snafu(display("Serde Error: {}\nFound at {}", source, backtrace))]
+    Serde {
+        source: serde_json::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(display("JSON Error in {}: {}\nFound at {}", source.path(), source.inner(), backtrace))]
     Json {
         source: serde_path_to_error::Error<serde_json::Error>,
-        json: serde_json::Value,
         backtrace: Backtrace,
     },
     Other {
@@ -35,6 +39,7 @@ pub enum Error {
 #[non_exhaustive]
 pub struct GitHubError {
     pub documentation_url: String,
+    pub errors: Option<Vec<serde_json::Value>>,
     pub message: String,
 }
 
