@@ -32,18 +32,18 @@ modules are available.
 - [`search`] GitHub's search API.
 - [`teams`] Teams
 
-[`models`]: https://docs.rs/octocrab/0.3.1/octocrab/models/index.html
+[`models`]: https://docs.rs/octocrab/0.3.2/octocrab/models/index.html
 
-[`actions`]: https://docs.rs/octocrab/0.3.1/octocrab/actions/struct.ActionsHandler.html
-[`current`]: https://docs.rs/octocrab/0.3.1/octocrab/current/struct.CurrentAuthHandler.html
-[`gitignore`]: https://docs.rs/octocrab/0.3.1/octocrab/gitignore/struct.GitignoreHandler.html
-[`markdown`]: https://docs.rs/octocrab/0.3.1/octocrab/gitignore/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/0.3.1/octocrab/issues/struct.IssueHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.3.1/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.3.1/octocrab/orgs/struct.OrgHandler.html
-[`repos`]: https://docs.rs/octocrab/0.3.1/octocrab/repos/struct.RepoHandler.html
-[`search`]: https://docs.rs/octocrab/0.3.1/octocrab/search/struct.SearchHandler.html
-[`teams`]: https://docs.rs/octocrab/0.3.1/octocrab/teams/struct.TeamHandler.html
+[`actions`]: https://docs.rs/octocrab/0.3.2/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/0.3.2/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/0.3.2/octocrab/gitignore/struct.GitignoreHandler.html
+[`markdown`]: https://docs.rs/octocrab/0.3.2/octocrab/gitignore/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.3.2/octocrab/issues/struct.IssueHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.3.2/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.3.2/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/0.3.2/octocrab/repos/struct.RepoHandler.html
+[`search`]: https://docs.rs/octocrab/0.3.2/octocrab/search/struct.SearchHandler.html
+[`teams`]: https://docs.rs/octocrab/0.3.2/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
