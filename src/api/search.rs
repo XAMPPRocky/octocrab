@@ -41,8 +41,8 @@ impl<'octo> SearchHandler<'octo> {
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
     ///     .search()
-    ///     .commits("tetris language:rust")
-    ///     .sort("stars")
+    ///     .commits("hello world repo:XAMPPRocky/octocrab")
+    ///     .sort("author-date")
     ///     .order("desc")
     ///     .send()
     ///     .await?;
