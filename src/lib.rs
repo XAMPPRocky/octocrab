@@ -17,6 +17,7 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
 //! - [`repos`] Repositories
+//! - [`search`] GitHub's search API.
 //! - [`teams`] Teams
 //!
 //! [`actions`]: ./actions/struct.ActionsHandler.html
@@ -28,6 +29,7 @@
 //! [`orgs`]: ./orgs/struct.OrgHandler.html
 //! [`pulls`]: ./pulls/struct.PullRequestHandler.html
 //! [`repos`]: ./repos/struct.RepoHandler.html
+//! [`search`]: ./search/struct.SearchHandler.html
 //! [`teams`]: ./teams/struct.TeamHandler.html
 //!
 //! #### Getting a Pull Request

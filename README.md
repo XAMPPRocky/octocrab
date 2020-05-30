@@ -29,6 +29,7 @@ modules are available.
 - [`orgs`] GitHub Organisations
 - [`pulls`] Pull Requests
 - [`repos`] Repositories
+- [`search`] GitHub's search API.
 - [`teams`] Teams
 
 [`models`]: https://docs.rs/octocrab/0.3.1/octocrab/models/index.html
@@ -41,6 +42,7 @@ modules are available.
 [`pulls`]: https://docs.rs/octocrab/0.3.1/octocrab/pulls/struct.PullRequestHandler.html
 [`orgs`]: https://docs.rs/octocrab/0.3.1/octocrab/orgs/struct.OrgHandler.html
 [`repos`]: https://docs.rs/octocrab/0.3.1/octocrab/repos/struct.RepoHandler.html
+[`search`]: https://docs.rs/octocrab/0.3.1/octocrab/search/struct.SearchHandler.html
 [`teams`]: https://docs.rs/octocrab/0.3.1/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
