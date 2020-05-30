@@ -150,7 +150,7 @@
 //! // initialised and returned instead.
 //! octocrab::instance();
 //! ```
-#![cfg_attr(test, recursion_limit="512")]
+#![cfg_attr(test, recursion_limit = "512")]
 
 mod api;
 mod auth;

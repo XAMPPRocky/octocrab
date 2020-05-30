@@ -49,7 +49,6 @@ impl Default for ContentType {
     }
 }
 
-
 /// A handler for handling search queries to GitHub.
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct QueryHandler<'octo, 'query, T> {
@@ -61,11 +60,11 @@ pub struct QueryHandler<'octo, 'query, T> {
     route: &'static str,
     #[serde(skip)]
     content_type: ContentType,
-    #[serde(rename="q")]
+    #[serde(rename = "q")]
     query: &'query str,
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<String>,
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     order: Option<String>,
 }
 
@@ -100,6 +99,8 @@ impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
 impl<'octo, 'query, T: serde::de::DeserializeOwned> QueryHandler<'octo, 'query, T> {
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<T>> {
-        self.crab.get(&format!("/search/{}", self.route), Some(&self)).await
+        self.crab
+            .get(&format!("/search/{}", self.route), Some(&self))
+            .await
     }
 }

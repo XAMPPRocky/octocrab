@@ -80,27 +80,29 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
         let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
 
         if json.is_array() {
-         Ok(Self {
-             items: serde_json::from_value(json).context(crate::error::Serde)?,
-             incomplete_results: None,
-             total_count: None,
-             next,
-             prev,
-             first,
-             last,
-         })
+            Ok(Self {
+                items: serde_json::from_value(json).context(crate::error::Serde)?,
+                incomplete_results: None,
+                total_count: None,
+                next,
+                prev,
+                first,
+                last,
+            })
         } else {
-         Ok(Self {
-             items: serde_json::from_value(json.get("items").cloned().unwrap()).context(crate::error::Serde)?,
-             incomplete_results: json.get("incomplete_results").and_then(serde_json::Value::as_bool),
-             total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
-             next,
-             prev,
-             first,
-             last,
-         })
+            Ok(Self {
+                items: serde_json::from_value(json.get("items").cloned().unwrap())
+                    .context(crate::error::Serde)?,
+                incomplete_results: json
+                    .get("incomplete_results")
+                    .and_then(serde_json::Value::as_bool),
+                total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
+                next,
+                prev,
+                first,
+                last,
+            })
         }
-
     }
 }
 
