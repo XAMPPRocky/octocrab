@@ -952,7 +952,16 @@ pub struct Content {
     pub download_url: String,
     pub r#type: String,
     #[serde(rename = "_links")]
-    pub links: Links,
+    pub links: ContentLinks,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct ContentLinks {
+    pub git: Url,
+    pub html: Url,
+    #[serde(rename="self")]
+    pub _self: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
