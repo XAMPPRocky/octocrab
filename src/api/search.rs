@@ -170,7 +170,6 @@ impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
         self.page = Some(page.into());
         self
     }
-
 }
 
 impl<'octo, 'query, T: serde::de::DeserializeOwned> QueryHandler<'octo, 'query, T> {

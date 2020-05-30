@@ -960,7 +960,7 @@ pub struct Content {
 pub struct ContentLinks {
     pub git: Url,
     pub html: Url,
-    #[serde(rename="self")]
+    #[serde(rename = "self")]
     pub _self: Url,
 }
 
