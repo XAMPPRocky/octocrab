@@ -6,7 +6,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     match octocrab
         .search()
-        .issues_or_pulls("tokei is:pr")
+        .issues_and_pull_requests("tokei is:pr")
         .send()
         .await
     {
