@@ -31,7 +31,7 @@ All  Octocrab releases are supported by the community and through
 - [`Page::number_of_pages`] Get the number of pages in a paginated query
   if possible.
 
-## Changes
+### Changes
 - [`Page<T>`] now has new fields for being used with GitHub's search APi such as
   `incomplete_results` and  `total_count`.
 
