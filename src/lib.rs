@@ -13,7 +13,7 @@
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
-//! - [`license`] License Metadata.
+//! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
