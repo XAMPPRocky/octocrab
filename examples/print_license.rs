@@ -9,4 +9,3 @@ async fn main() -> octocrab::Result<()> {
 
     Ok(())
 }
-

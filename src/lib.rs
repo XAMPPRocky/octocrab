@@ -177,7 +177,9 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams},
+    api::{
+        actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams,
+    },
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -434,7 +436,6 @@ impl Octocrab {
     pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
         api::teams::TeamHandler::new(self, owner.into())
     }
-
 }
 
 /// # GraphQL API.
@@ -450,13 +451,15 @@ impl Octocrab {
     ///# }
     /// ```
     pub async fn graphql<R: crate::FromResponse>(&self, body: impl AsRef<str>) -> crate::Result<R> {
-        self.post("/graphql", Some(&serde_json::json!({
-            "query": body.as_ref(),
-        }))).await
+        self.post(
+            "/graphql",
+            Some(&serde_json::json!({
+                "query": body.as_ref(),
+            })),
+        )
+        .await
     }
 }
-
-
 
 /// # HTTP Methods
 /// A collection of different of HTTP methods to use with Octocrab's

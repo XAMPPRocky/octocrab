@@ -670,7 +670,6 @@ pub struct License {
     pub limitations: Option<Vec<String>>,
     pub body: Option<String>,
     pub featured: Option<bool>,
-
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

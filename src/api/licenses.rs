@@ -36,6 +36,8 @@ impl<'octo> LicenseHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, key: impl AsRef<str>) -> crate::Result<models::License> {
-        self.crab.get(format!("/licenses/{}", key.as_ref()), None::<&()>).await
+        self.crab
+            .get(format!("/licenses/{}", key.as_ref()), None::<&()>)
+            .await
     }
 }
