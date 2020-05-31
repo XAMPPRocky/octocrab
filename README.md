@@ -25,6 +25,7 @@ modules are available.
 - [`current`] Information about the current user.
 - [`gitignore`] Gitignore templates.
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
+- [`license`] License Metadata.
 - [`markdown`] Rendering Markdown with GitHub.
 - [`orgs`] GitHub Organisations.
 - [`pulls`] Pull Requests.
@@ -39,6 +40,7 @@ modules are available.
 [`gitignore`]: https://docs.rs/octocrab/0.3.2/octocrab/gitignore/struct.GitignoreHandler.html
 [`markdown`]: https://docs.rs/octocrab/0.3.2/octocrab/gitignore/struct.MarkdownHandler.html
 [`issues`]: https://docs.rs/octocrab/0.3.2/octocrab/issues/struct.IssueHandler.html
+[`licenses`]: https://docs.rs/octocrab/0.3.2/octocrab/licenses/struct.LicenseHandler.html
 [`pulls`]: https://docs.rs/octocrab/0.3.2/octocrab/pulls/struct.PullRequestHandler.html
 [`orgs`]: https://docs.rs/octocrab/0.3.2/octocrab/orgs/struct.OrgHandler.html
 [`repos`]: https://docs.rs/octocrab/0.3.2/octocrab/repos/struct.RepoHandler.html

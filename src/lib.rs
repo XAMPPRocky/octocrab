@@ -13,6 +13,7 @@
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
+//! - [`license`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
@@ -24,6 +25,7 @@
 //! [`current`]: ./current/struct.CurrentAuthHandler.html
 //! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
 //! [`issues`]: ./issues/struct.IssueHandler.html
+//! [`licenses`]: ./licenses/struct.LicenseHandler.html
 //! [`markdown`]: ./markdown/struct.MarkdownHandler.html
 //! [`models`]: ./models/index.html
 //! [`orgs`]: ./orgs/struct.OrgHandler.html
