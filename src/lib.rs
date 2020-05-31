@@ -173,7 +173,7 @@ use snafu::*;
 use auth::Auth;
 
 pub use self::{
-    api::{actions, current, gitignore, issues, markdown, orgs, pulls, repos, search, teams},
+    api::{actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams},
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -370,6 +370,11 @@ impl Octocrab {
         repo: impl Into<String>,
     ) -> api::issues::IssueHandler {
         api::issues::IssueHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates a `LicenseHandler`.
+    pub fn licenses(&self) -> licenses::LicenseHandler {
+        licenses::LicenseHandler::new(self)
     }
 
     /// Creates a `MarkdownHandler`.

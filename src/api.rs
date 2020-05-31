@@ -2,6 +2,7 @@ pub mod actions;
 pub mod current;
 pub mod gitignore;
 pub mod issues;
+pub mod licenses;
 pub mod markdown;
 pub mod orgs;
 pub mod pulls;

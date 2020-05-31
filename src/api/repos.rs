@@ -22,6 +22,23 @@ impl<'octo> RepoHandler<'octo> {
         Self { crab, owner, repo }
     }
 
+    /// Get's a repository's license.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let license = octocrab::instance().repos("owner", "repo").license().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn license(&self) -> Result<models::Content> {
+        let url = format!(
+            "/repos/{owner}/{repo}/license",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        self.crab.get(url, None::<&()>).await
+    }
+
     /// Fetches a single reference in the Git database.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
