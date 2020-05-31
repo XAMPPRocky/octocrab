@@ -21,16 +21,16 @@ The semantic API provides strong typing around GitHub's API, as well as a
 set of [`models`] that maps to GitHub's types. Currently the following 
 modules are available.
 
-- [`actions`] GitHub Actions
+- [`actions`] GitHub Actions.
 - [`current`] Information about the current user.
-- [`gitignore`] Gitignore templates
+- [`gitignore`] Gitignore templates.
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
-- [`markdown`] Rendering Markdown with GitHub
-- [`orgs`] GitHub Organisations
-- [`pulls`] Pull Requests
-- [`repos`] Repositories
+- [`markdown`] Rendering Markdown with GitHub.
+- [`orgs`] GitHub Organisations.
+- [`pulls`] Pull Requests.
+- [`repos`] Repositories.
 - [`search`] GitHub's search API.
-- [`teams`] Teams
+- [`teams`] Teams.
 
 [`models`]: https://docs.rs/octocrab/0.3.2/octocrab/models/index.html
 

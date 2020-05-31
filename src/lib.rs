@@ -17,7 +17,7 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
 //! - [`repos`] Repositories
-//! - [`search`] GitHub's search API.
+//! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //!
 //! [`actions`]: ./actions/struct.ActionsHandler.html

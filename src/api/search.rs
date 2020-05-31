@@ -1,4 +1,4 @@
-//! Get data about the currently authenticated user.
+//! Using GitHub's search.
 
 use crate::{models, Octocrab};
 
