@@ -12,6 +12,7 @@
 //! - [`actions`] GitHub Actions
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
+//! - [`graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
@@ -24,6 +25,7 @@
 //! [`actions`]: ./actions/struct.ActionsHandler.html
 //! [`current`]: ./current/struct.CurrentAuthHandler.html
 //! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
+//! [`graphql`]: ./struct.Octocrab.html#graphql-api
 //! [`issues`]: ./issues/struct.IssueHandler.html
 //! [`licenses`]: ./licenses/struct.LicenseHandler.html
 //! [`markdown`]: ./markdown/struct.MarkdownHandler.html
@@ -350,6 +352,7 @@ impl Default for Octocrab {
     }
 }
 
+/// # Constructors
 impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
     pub fn builder() -> OctocrabBuilder {
@@ -357,11 +360,22 @@ impl Octocrab {
     }
 }
 
-/// GitHub API Methods
+/// # GitHub API Methods
 impl Octocrab {
     /// Creates a `ActionsHandler`.
     pub fn actions(&self) -> actions::ActionsHandler {
         actions::ActionsHandler::new(self)
+    }
+
+    /// Creates a `CurrentAuthHandler` that allows you to access
+    /// information about the current authenticated user.
+    pub fn current(&self) -> api::current::CurrentAuthHandler {
+        api::current::CurrentAuthHandler::new(self)
+    }
+
+    /// Creates a `GitIgnoreHandler`.
+    pub fn gitignore(&self) -> gitignore::GitignoreHandler {
+        gitignore::GitignoreHandler::new(self)
     }
 
     /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
@@ -383,22 +397,10 @@ impl Octocrab {
     pub fn markdown(&self) -> markdown::MarkdownHandler {
         markdown::MarkdownHandler::new(self)
     }
-
-    /// Creates a `GitIgnoreHandler`.
-    pub fn gitignore(&self) -> gitignore::GitignoreHandler {
-        gitignore::GitignoreHandler::new(self)
-    }
-
     /// Creates an `OrgHandler` for the specified organization,
     /// that allows you to access GitHub's organization API.
     pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
         api::orgs::OrgHandler::new(self, owner.into())
-    }
-
-    /// Creates a `TeamHandler` for the specified organization that allows
-    /// you to access GitHub's teams API.
-    pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
-        api::teams::TeamHandler::new(self, owner.into())
     }
 
     /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
@@ -421,18 +423,40 @@ impl Octocrab {
         api::repos::RepoHandler::new(self, owner.into(), repo.into())
     }
 
-    /// Creates a `CurrentAuthHandler` that allows you to access
-    /// information about the current authenticated user.
-    pub fn current(&self) -> api::current::CurrentAuthHandler {
-        api::current::CurrentAuthHandler::new(self)
-    }
-
     /// Creates a `SearchHandler` that allows you to construct general queries
     /// to GitHub's API.
     pub fn search(&self) -> search::SearchHandler {
         search::SearchHandler::new(self)
     }
+
+    /// Creates a `TeamHandler` for the specified organization that allows
+    /// you to access GitHub's teams API.
+    pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
+        api::teams::TeamHandler::new(self, owner.into())
+    }
+
 }
+
+/// # GraphQL API.
+impl Octocrab {
+    /// Sends a graphql query to GitHub, and deserialises the response
+    /// from JSON.
+    /// ```no_run
+    ///# async fn run() -> octocrab::Result<()> {
+    /// let response: serde_json::Value = octocrab::instance()
+    ///     .graphql("query { viewer { login }}")
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn graphql<R: crate::FromResponse>(&self, body: impl AsRef<str>) -> crate::Result<R> {
+        self.post("/graphql", Some(&serde_json::json!({
+            "query": body.as_ref(),
+        }))).await
+    }
+}
+
+
 
 /// # HTTP Methods
 /// A collection of different of HTTP methods to use with Octocrab's

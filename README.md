@@ -24,6 +24,7 @@ modules are available.
 - [`actions`] GitHub Actions.
 - [`current`] Information about the current user.
 - [`gitignore`] Gitignore templates.
+- [`graphql`] GraphQL.
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
 - [`licenses`] License Metadata.
 - [`markdown`] Rendering Markdown with GitHub.
@@ -38,6 +39,7 @@ modules are available.
 [`actions`]: https://docs.rs/octocrab/0.4.0/octocrab/actions/struct.ActionsHandler.html
 [`current`]: https://docs.rs/octocrab/0.4.0/octocrab/current/struct.CurrentAuthHandler.html
 [`gitignore`]: https://docs.rs/octocrab/0.4.0/octocrab/gitignore/struct.GitignoreHandler.html
+[`graphql`]: https://docs.rs/octocrab/0.4.0/octocrab/struct.Octocrab.html#graphql-api
 [`markdown`]: https://docs.rs/octocrab/0.4.0/octocrab/gitignore/struct.MarkdownHandler.html
 [`issues`]: https://docs.rs/octocrab/0.4.0/octocrab/issues/struct.IssueHandler.html
 [`licenses`]: https://docs.rs/octocrab/0.4.0/octocrab/licenses/struct.LicenseHandler.html
