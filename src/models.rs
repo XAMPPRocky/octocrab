@@ -375,12 +375,16 @@ pub struct Team {
     pub permission: String,
     pub members_url: Url,
     pub repositories_url: Url,
-    pub members_count: i64,
-    pub repos_count: i64,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub members_count: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repos_count: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub organization: Organization,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization: Option<Organization>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
