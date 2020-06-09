@@ -450,7 +450,10 @@ impl Octocrab {
     ///# Ok(())
     ///# }
     /// ```
-    pub async fn graphql<R: crate::FromResponse>(&self, body: &(impl serde::Serialize + ?Sized)) -> crate::Result<R> {
+    pub async fn graphql<R: crate::FromResponse>(
+        &self,
+        body: &(impl serde::Serialize + ?Sized),
+    ) -> crate::Result<R> {
         self.post(
             "/graphql",
             Some(&serde_json::json!({
