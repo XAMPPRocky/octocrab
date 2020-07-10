@@ -16,7 +16,7 @@ impl<'octo> SearchHandler<'octo> {
         Self { crab }
     }
 
-    /// Searchs for all the repositories matching the search query.
+    /// Searches for all the repositories matching the search query.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -36,7 +36,7 @@ impl<'octo> SearchHandler<'octo> {
         QueryHandler::new(self.crab, "repositories", query.as_ref())
     }
 
-    /// Searchs for all the commits matching the search query.
+    /// Searches for all the commits matching the search query.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -56,7 +56,7 @@ impl<'octo> SearchHandler<'octo> {
         QueryHandler::new(self.crab, "commits", query.as_ref())
     }
 
-    /// Searchs for all users matching the search query.
+    /// Searches for all users matching the search query.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -76,7 +76,7 @@ impl<'octo> SearchHandler<'octo> {
         QueryHandler::new(self.crab, "users", query.as_ref())
     }
 
-    /// Searchs for all the issues matching the search query.
+    /// Searches for all the issues matching the search query.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -94,6 +94,26 @@ impl<'octo> SearchHandler<'octo> {
         query: &'query (impl AsRef<str> + ?Sized),
     ) -> QueryHandler<'octo, 'query, models::Issue> {
         QueryHandler::new(self.crab, "issues", query.as_ref())
+    }
+
+    /// Searches for all code matching the search query.
+    /// ```no_run
+    ///# async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .search()
+    ///     .code("println! language:rust repo:rust-lang/rust")
+    ///     .sort("indexed")
+    ///     .order("asc")
+    ///     .send()
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn code<'query>(
+        self,
+        query: &'query (impl AsRef<str> + ?Sized),
+    ) -> QueryHandler<'octo, 'query, models::Code> {
+        QueryHandler::new(self.crab, "code", query.as_ref())
     }
 }
 

@@ -586,7 +586,8 @@ pub struct Repository {
     pub git_commits_url: Url,
     pub git_refs_url: Url,
     pub git_tags_url: Url,
-    pub git_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub git_url: Option<Url>,
     pub issue_comment_url: Url,
     pub issue_events_url: Url,
     pub issues_url: Url,
@@ -598,7 +599,8 @@ pub struct Repository {
     pub notifications_url: Url,
     pub pulls_url: Url,
     pub releases_url: Url,
-    pub ssh_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ssh_url: Option<String>,
     pub stargazers_url: Url,
     pub statuses_url: Url,
     pub subscribers_url: Url,
@@ -606,37 +608,53 @@ pub struct Repository {
     pub tags_url: Url,
     pub teams_url: Url,
     pub trees_url: Url,
-    pub clone_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clone_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mirror_url: Option<Url>,
     pub hooks_url: Url,
-    pub svn_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub svn_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub homepage: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<::serde_json::Value>,
-    pub forks_count: u32,
-    pub stargazers_count: u32,
-    pub watchers_count: u32,
-    pub size: u32,
-    pub default_branch: String,
-    pub open_issues_count: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forks_count: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stargazers_count: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub watchers_count: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_issues_count: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_template: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub topics: Option<Vec<String>>,
-    pub has_issues: bool,
-    pub has_projects: bool,
-    pub has_wiki: bool,
-    pub has_pages: bool,
-    pub has_downloads: bool,
-    pub archived: bool,
-    pub disabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_issues: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_projects: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_wiki: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_pages: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_downloads: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub archived: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disabled: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pushed_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -691,6 +709,18 @@ pub struct Commit {
     pub comments_url: Option<String>,
     pub author: User,
     pub committer: User,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Code {
+    pub name: String,
+    pub path: String,
+    pub sha: String,
+    pub url: Url,
+    pub git_url: Url,
+    pub html_url: Url,
+    pub repository: Repository,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
