@@ -694,6 +694,17 @@ pub struct Commit {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Code {
+    pub name: String,
+    pub path: String,
+    pub sha: String,
+    pub url: Url,
+    pub git_url: Url,
+    pub html_url: Url,
+    pub repository: Repository,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Permissions {
     admin: bool,
