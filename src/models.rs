@@ -712,6 +712,7 @@ pub struct Commit {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Code {
     pub name: String,
     pub path: String,
