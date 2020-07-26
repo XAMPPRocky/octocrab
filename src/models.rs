@@ -707,8 +707,8 @@ pub struct Commit {
     pub html_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments_url: Option<String>,
-    pub author: User,
-    pub committer: User,
+    pub author: AuthorUser,
+    pub committer: AuthorUser,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
