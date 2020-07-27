@@ -13,7 +13,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
 ```toml
-octocrab = "0.4"
+octocrab = "0.5"
 ```
 
 ## Semantic API
@@ -34,20 +34,20 @@ modules are available.
 - [`search`] GitHub's search API.
 - [`teams`] Teams.
 
-[`models`]: https://docs.rs/octocrab/0.4.1/octocrab/models/index.html
+[`models`]: https://docs.rs/octocrab/0.5.0/octocrab/models/index.html
 
-[`actions`]: https://docs.rs/octocrab/0.4.1/octocrab/actions/struct.ActionsHandler.html
-[`current`]: https://docs.rs/octocrab/0.4.1/octocrab/current/struct.CurrentAuthHandler.html
-[`gitignore`]: https://docs.rs/octocrab/0.4.1/octocrab/gitignore/struct.GitignoreHandler.html
-[`graphql`]: https://docs.rs/octocrab/0.4.1/octocrab/struct.Octocrab.html#graphql-api
-[`markdown`]: https://docs.rs/octocrab/0.4.1/octocrab/gitignore/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/0.4.1/octocrab/issues/struct.IssueHandler.html
-[`licenses`]: https://docs.rs/octocrab/0.4.1/octocrab/licenses/struct.LicenseHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.4.1/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.4.1/octocrab/orgs/struct.OrgHandler.html
-[`repos`]: https://docs.rs/octocrab/0.4.1/octocrab/repos/struct.RepoHandler.html
-[`search`]: https://docs.rs/octocrab/0.4.1/octocrab/search/struct.SearchHandler.html
-[`teams`]: https://docs.rs/octocrab/0.4.1/octocrab/teams/struct.TeamHandler.html
+[`actions`]: https://docs.rs/octocrab/0.5.0/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/0.5.0/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/0.5.0/octocrab/gitignore/struct.GitignoreHandler.html
+[`graphql`]: https://docs.rs/octocrab/0.5.0/octocrab/struct.Octocrab.html#graphql-api
+[`markdown`]: https://docs.rs/octocrab/0.5.0/octocrab/gitignore/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.5.0/octocrab/issues/struct.IssueHandler.html
+[`licenses`]: https://docs.rs/octocrab/0.5.0/octocrab/licenses/struct.LicenseHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.5.0/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.5.0/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/0.5.0/octocrab/repos/struct.RepoHandler.html
+[`search`]: https://docs.rs/octocrab/0.5.0/octocrab/search/struct.SearchHandler.html
+[`teams`]: https://docs.rs/octocrab/0.5.0/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
