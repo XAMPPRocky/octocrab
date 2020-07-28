@@ -5,6 +5,12 @@ on:
   pull_request:
 
 jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cargo fmt --all -- --check
+
   build:
     runs-on: ${{ matrix.os }}-latest
     strategy:
