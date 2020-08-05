@@ -1,4 +1,4 @@
-use crate::models;
+use super::*;
 
 #[derive(serde::Serialize)]
 pub struct CreateIssueBuilder<'octo, 'r> {
