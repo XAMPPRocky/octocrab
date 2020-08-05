@@ -1,5 +1,4 @@
 use super::*;
-use crate::models;
 
 #[derive(serde::Serialize)]
 pub struct UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {

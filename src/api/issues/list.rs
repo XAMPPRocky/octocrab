@@ -1,5 +1,4 @@
 use super::*;
-use crate::params;
 
 #[derive(serde::Serialize)]
 pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
@@ -19,9 +18,9 @@ pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     #[serde(serialize_with = "comma_separated")]
     labels: Option<&'d [String]>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sort: Option<crate::params::issues::Sort>,
+    sort: Option<params::issues::Sort>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    direction: Option<crate::params::Direction>,
+    direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -75,7 +74,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     }
 
     /// Filter pull requests by `state`.
-    pub fn state(mut self, state: crate::params::State) -> Self {
+    pub fn state(mut self, state: params::State) -> Self {
         self.state = Some(state);
         self
     }
@@ -89,7 +88,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     /// What to sort results by. Can be either `created`, `updated`,
     /// `popularity` (comment count) or `long-running` (age, filtering by pulls
     /// updated in the last month).
-    pub fn sort(mut self, sort: impl Into<crate::params::issues::Sort>) -> Self {
+    pub fn sort(mut self, sort: impl Into<params::issues::Sort>) -> Self {
         self.sort = Some(sort.into());
         self
     }
@@ -97,7 +96,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     /// The direction of the sort. Can be either ascending or descending.
     /// Default: descending when sort is `created` or sort is not specified,
     /// otherwise ascending sort.
-    pub fn direction(mut self, direction: impl Into<crate::params::Direction>) -> Self {
+    pub fn direction(mut self, direction: impl Into<params::Direction>) -> Self {
         self.direction = Some(direction.into());
         self
     }
@@ -115,7 +114,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<crate::Page<crate::models::Issue>> {
+    pub async fn send(self) -> crate::Result<crate::Page<models::Issue>> {
         let url = format!(
             "/repos/{owner}/{repo}/issues",
             owner = self.handler.owner,
