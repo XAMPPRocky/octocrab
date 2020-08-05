@@ -28,7 +28,7 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<models::Issue> {
+    pub async fn send(self) -> crate::Result<models::issues::Issue> {
         let route = format!(
             "/repos/{owner}/{repo}/issues",
             owner = self.handler.owner,

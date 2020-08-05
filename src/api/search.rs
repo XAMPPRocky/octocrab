@@ -92,7 +92,7 @@ impl<'octo> SearchHandler<'octo> {
     pub fn issues_and_pull_requests<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
-    ) -> QueryHandler<'octo, 'query, models::Issue> {
+    ) -> QueryHandler<'octo, 'query, models::issues::Issue> {
         QueryHandler::new(self.crab, "issues", query.as_ref())
     }
 

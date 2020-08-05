@@ -43,7 +43,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(&self, number: u64) -> Result<models::Issue> {
+    pub async fn get(&self, number: u64) -> Result<models::issues::Issue> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{number}",
             owner = self.owner,
@@ -210,7 +210,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn add_assignees(&self, number: u64, assignees: &[u64]) -> Result<models::Issue> {
+    pub async fn add_assignees(&self, number: u64, assignees: &[u64]) -> Result<models::issues::Issue> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{issue}/assignees",
             owner = self.owner,
@@ -497,7 +497,7 @@ impl<'octo> IssueHandler<'octo> {
         &self,
         number: u64,
         body: impl AsRef<str>,
-    ) -> Result<models::Comment> {
+    ) -> Result<models::issues::Comment> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.owner,
@@ -520,7 +520,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_comment(&self, comment_id: u64) -> Result<models::Comment> {
+    pub async fn get_comment(&self, comment_id: u64) -> Result<models::issues::Comment> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
@@ -621,7 +621,7 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     }
 
     /// Send the actual request.
-    pub async fn send(self) -> Result<crate::Page<models::Comment>> {
+    pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.handler.owner,
