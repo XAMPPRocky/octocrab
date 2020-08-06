@@ -29,7 +29,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn license(&self) -> Result<models::Content> {
+    pub async fn license(&self) -> Result<models::repos::Content> {
         let url = format!(
             "/repos/{owner}/{repo}/license",
             owner = self.owner,
@@ -51,7 +51,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_ref(&self, reference: &params::repos::Reference) -> Result<models::Ref> {
+    pub async fn get_ref(&self, reference: &params::repos::Reference) -> Result<models::repos::Ref> {
         let url = format!(
             "/repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,
@@ -79,7 +79,7 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         reference: &params::repos::Reference,
         sha: impl Into<String>,
-    ) -> Result<models::Ref> {
+    ) -> Result<models::repos::Ref> {
         let url = format!(
             "/repos/{owner}/{repo}/git/refs",
             owner = self.owner,

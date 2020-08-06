@@ -13,9 +13,9 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    commiter: Option<models::AuthorUser>,
+    commiter: Option<models::repos::AuthorUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    author: Option<models::AuthorUser>,
+    author: Option<models::repos::AuthorUser>,
 }
 
 impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
@@ -45,19 +45,19 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     }
 
     /// The person that commited the file.
-    pub fn commiter(mut self, commiter: impl Into<models::AuthorUser>) -> Self {
+    pub fn commiter(mut self, commiter: impl Into<models::repos::AuthorUser>) -> Self {
         self.commiter = Some(commiter.into());
         self
     }
 
     /// The author of the file.
-    pub fn author(mut self, author: impl Into<models::AuthorUser>) -> Self {
+    pub fn author(mut self, author: impl Into<models::repos::AuthorUser>) -> Self {
         self.author = Some(author.into());
         self
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<models::FileUpdate> {
+    pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let url = format!(
             "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
@@ -70,7 +70,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
 
 #[cfg(test)]
 mod tests {
-    use crate::models::AuthorUser;
+    use crate::models::repos::AuthorUser;
 
     #[test]
     fn serialize() {
