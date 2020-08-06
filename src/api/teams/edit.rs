@@ -52,7 +52,7 @@ impl<'octo, 'r> EditTeamBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<models::Team> {
+    pub async fn send(self) -> Result<models::teams::Team> {
         let url = format!(
             "/orgs/{org}/teams/{team}",
             org = self.handler.owner,
