@@ -52,7 +52,7 @@ impl<'octo> SearchHandler<'octo> {
     pub fn commits<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
-    ) -> QueryHandler<'octo, 'query, models::Commit> {
+    ) -> QueryHandler<'octo, 'query, models::repos::Commit> {
         QueryHandler::new(self.crab, "commits", query.as_ref())
     }
 
