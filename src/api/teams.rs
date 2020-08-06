@@ -55,7 +55,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(&self, team_slug: impl Into<String>) -> Result<models::Team> {
+    pub async fn get(&self, team_slug: impl Into<String>) -> Result<models::teams::Team> {
         let url = format!(
             "/orgs/{org}/teams/{team}",
             org = self.owner,

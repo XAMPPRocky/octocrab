@@ -47,7 +47,7 @@ pub struct PullRequest {
     pub assignee: Option<User>,
     pub assignees: Vec<User>,
     pub requested_reviewers: Vec<User>,
-    pub requested_teams: Vec<RequestedTeam>,
+    pub requested_teams: Vec<teams::RequestedTeam>,
     pub head: Head,
     pub base: Base,
     #[serde(rename = "_links")]
