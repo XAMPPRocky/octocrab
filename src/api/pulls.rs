@@ -77,7 +77,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(&self, pr: u64) -> crate::Result<crate::models::PullRequest> {
+    pub async fn get(&self, pr: u64) -> crate::Result<crate::models::pulls::PullRequest> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,

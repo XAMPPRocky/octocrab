@@ -52,7 +52,7 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
     }
 
     /// Sends the request to create the pull request.
-    pub async fn send(self) -> crate::Result<crate::models::PullRequest> {
+    pub async fn send(self) -> crate::Result<crate::models::pulls::PullRequest> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls",
             owner = self.handler.owner,

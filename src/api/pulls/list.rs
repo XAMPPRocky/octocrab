@@ -88,7 +88,7 @@ impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<Page<crate::models::PullRequest>> {
+    pub async fn send(self) -> crate::Result<Page<crate::models::pulls::PullRequest>> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls",
             owner = self.handler.owner,
