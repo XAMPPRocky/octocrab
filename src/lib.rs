@@ -66,7 +66,7 @@
 //!
 //! // Go through every page of issues. Warning: There's no rate limiting so
 //! // be careful.
-//! while let Some(page) = octocrab.get_page::<models::Issue>(&page.next).await? {
+//! while let Some(page) = octocrab.get_page::<models::issues::Issue>(&page.next).await? {
 //!     for issue in page {
 //!         println!("{}", issue.title);
 //!     }
@@ -128,12 +128,12 @@
 //!
 //! #[async_trait::async_trait]
 //! trait OrganisationExt {
-//!   async fn list_every_organisation(&self) -> Result<Page<models::Organization>>;
+//!   async fn list_every_organisation(&self) -> Result<Page<models::orgs::Organization>>;
 //! }
 //!
 //! #[async_trait::async_trait]
 //! impl OrganisationExt for Octocrab {
-//!   async fn list_every_organisation(&self) -> Result<Page<models::Organization>> {
+//!   async fn list_every_organisation(&self) -> Result<Page<models::orgs::Organization>> {
 //!     self.get("/organizations", None::<&()>).await
 //!   }
 //! }

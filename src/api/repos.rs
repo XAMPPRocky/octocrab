@@ -99,7 +99,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new file in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::models::AuthorUser;
+    /// use octocrab::models::repos::AuthorUser;
     ///
     /// // Commit to add "crabs/ferris.txt"
     /// octocrab::instance()
@@ -141,7 +141,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::AuthorUser;
+    /// use octocrab::models::repos::AuthorUser;
     ///
     /// // Given the file blob for "crabs/ferris.txt", commit to update the file.
     /// octocrab::instance()
