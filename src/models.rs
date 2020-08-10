@@ -2,6 +2,12 @@
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
+pub mod issues;
+pub mod orgs;
+pub mod pulls;
+pub mod repos;
+pub mod teams;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Contents {
@@ -533,9 +539,3 @@ pub struct PublicKey {
     pub key_id: String,
     pub key: String,
 }
-
-pub mod issues;
-pub mod orgs;
-pub mod pulls;
-pub mod repos;
-pub mod teams;
