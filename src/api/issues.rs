@@ -531,7 +531,7 @@ impl<'octo> IssueHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
-    /// Creates a comment in the issue.
+    /// Updates a comment in the issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let comment = octocrab::instance()
