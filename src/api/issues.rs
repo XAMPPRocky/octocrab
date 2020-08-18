@@ -531,6 +531,33 @@ impl<'octo> IssueHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Updates a comment in the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .update_comment(101, "Beep Boop")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_comment(
+        &self,
+        comment_id: u64,
+        body: impl AsRef<str>,
+    ) -> Result<models::issues::Comment> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
+            owner = self.owner,
+            repo = self.repo,
+            comment_id = comment_id
+        );
+
+        self.crab
+            .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
+            .await
+    }
+
     /// Deletes a comment in an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
