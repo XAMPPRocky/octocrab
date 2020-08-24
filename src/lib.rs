@@ -610,6 +610,28 @@ impl Octocrab {
         self.execute(request).await
     }
 
+    /// Construct a `reqwest::RequestBuilder` with the given http method. This can be executed
+    /// with [execute](struct.Octocrab.html#method.execute).
+    ///
+    /// ```no_run
+    /// # async fn doc() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let octocrab_builder = octocrab::OctocrabBuilder::new();
+    /// # let octocrab = octocrab_builder.personal_token("".to_owned()).base_url("https://api.github.com")?.build()?;
+    /// let url = format!("{}/events", octocrab.base_url);
+    /// let builder = octocrab.request_builder(&url, reqwest::Method::GET)
+    ///     .header("if-none-match", "\"73ca617c70cd2bd9b6f009dab5e2d49d\"");
+    /// let response = octocrab.execute(builder).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn request_builder(
+        &self,
+        url: impl reqwest::IntoUrl,
+        method: reqwest::Method,
+    ) -> reqwest::RequestBuilder {
+        self.client.request(method, url)
+    }
+
     /// Execute the given `request` octocrab's Client.
     pub async fn execute(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
         request.send().await.context(error::Http)
