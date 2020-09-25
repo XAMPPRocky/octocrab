@@ -9,7 +9,7 @@ pub struct Notification {
     pub reason: String,
     pub unread: bool,
     pub updated_at: chrono::DateTime<chrono::Utc>,
-    pub last_read_at: chrono::DateTime<chrono::Utc>,
+    pub last_read_at: Option<chrono::DateTime<chrono::Utc>>,
     pub url: Url,
 }
 
@@ -38,8 +38,8 @@ pub enum Reason {
 #[non_exhaustive]
 pub struct Subject {
     pub title: String,
-    pub url: Url,
-    pub latest_comment_url: Url,
+    pub url: Option<Url>,
+    pub latest_comment_url: Option<Url>,
     #[serde(rename = "type")]
     pub type_: String,
 }
