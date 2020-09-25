@@ -9,6 +9,7 @@
 //! set of [`models`] that maps to GitHub's types. Currently the following
 //! modules are available.
 //!
+//! - [`activity`] GitHub Activity
 //! - [`actions`] GitHub Actions
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
@@ -22,6 +23,7 @@
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //!
+//! [`activity`]: ./activity/struct.ActivityHandler.html
 //! [`actions`]: ./actions/struct.ActionsHandler.html
 //! [`current`]: ./current/struct.CurrentAuthHandler.html
 //! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
@@ -178,7 +180,7 @@ use auth::Auth;
 
 pub use self::{
     api::{
-        actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams,
+        actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams, activity
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -373,6 +375,11 @@ impl Octocrab {
     /// information about the current authenticated user.
     pub fn current(&self) -> api::current::CurrentAuthHandler {
         api::current::CurrentAuthHandler::new(self)
+    }
+
+    /// Creates a `ActivityHandler` for the current authenticated user.
+    pub fn activity(&self) -> api::activity::ActivityHandler {
+        api::activity::ActivityHandler::new(self)
     }
 
     /// Creates a `GitIgnoreHandler`.

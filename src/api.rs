@@ -1,4 +1,5 @@
 pub mod actions;
+pub mod activity;
 pub mod current;
 pub mod gitignore;
 pub mod issues;

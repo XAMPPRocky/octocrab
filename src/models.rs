@@ -2,6 +2,7 @@
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
+pub mod activity;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;
