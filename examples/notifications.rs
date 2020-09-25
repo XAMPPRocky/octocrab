@@ -6,8 +6,10 @@ async fn main() -> octocrab::Result<()> {
         .personal_token(env!("GITHUB_TOKEN").to_string())
         .build()?;
 
-    let x = octocrab.activity().notifications().list_notifications().await?;
-    println!("count: {}", x.len());
+    let notifications = octocrab.activity().notifications().list().send().await?;
+    for n in notifications {
+        println!("unread notification: {}", n.subject.title);
+    }
 
     Ok(())
 }

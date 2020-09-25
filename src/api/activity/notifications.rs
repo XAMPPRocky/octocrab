@@ -19,8 +19,8 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// List all notifications for the current user.
-    pub async fn list(&self) -> crate::Result<Vec<Notification>> {
-        self.crab.get("/notifications", None::<&()>).await
+    pub fn list(&self) -> ListNotificationsBuilder<'octo> {
+        ListNotificationsBuilder::new(self.crab)
     }
 }
 
