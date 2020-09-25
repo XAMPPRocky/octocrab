@@ -3,6 +3,7 @@
 use crate::Octocrab;
 use crate::Page;
 use crate::models::activity::Notification;
+use crate::models::activity::ThreadSubscription;
 
 type DateTime = chrono::DateTime<chrono::Utc>;
 
@@ -49,6 +50,34 @@ impl<'octo> NotificationsHandler<'octo> {
         let url = self.crab.absolute_url("/notifications")?;
 
         let response = self.crab._put(url, body.as_ref()).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// This checks to see if the current user is subscribed to a thread.
+    pub async fn get_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<ThreadSubscription> {
+        let url = format!("/notifications/threads/{}/subscription", thread.into());
+
+        self.crab.get(url, None::<&()>).await
+    }
+
+    /// Ignore or unignore a thread subscription, that is enabled by watching a repository.
+    pub async fn set_thread_subscription(&self, thread: impl Into<u64>, ignored: bool) -> crate::Result<ThreadSubscription> {
+        #[derive(serde::Serialize)]
+        struct Inner {
+            ignored: bool,
+        }
+
+        let url = format!("/notifications/threads/{}/subscription", thread.into());
+        let body = Inner { ignored };
+
+        self.crab.get(url, Some(&body)).await
+    }
+
+    /// Mutes the whole thread conversation until you comment or get mentioned.
+    pub async fn delete_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<()> {
+        let url = self.crab.absolute_url(format!("/notifications/threads/{}/subscription", thread.into()))?;
+
+        let response = self.crab._delete(url, body.as_ref()).await?;
         crate::map_github_error(response).await.map(drop)
     }
 

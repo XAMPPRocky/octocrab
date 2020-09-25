@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Notification {
-    #[serde(deserialize_with = "parse_u32")]
+    #[serde(deserialize_with = "parse_u64")]
     pub id: u64,
     pub repository: Repository,
     pub subject: Subject,
@@ -44,8 +44,18 @@ pub struct Subject {
     #[serde(rename = "type")]
     pub type_: String,
 }
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ThreadSubscription {
+    pub subscribed: bool,
+    pub ignored: bool,
+    pub reason: Option<Reason>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub url: Url,
+    pub thread_url: Url,
+}
 
-fn parse_u32<'de, D>(deserializer: D) -> Result<u64, D::Error>
+fn parse_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
