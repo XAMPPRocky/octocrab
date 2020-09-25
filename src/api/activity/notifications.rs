@@ -4,6 +4,8 @@ use crate::Octocrab;
 use crate::Page;
 use crate::models::activity::Notification;
 
+type DateTime = chrono::DateTime<chrono::Utc>;
+
 /// Handler for GitHub's notifications API.
 ///
 /// Created with [`ActivityHandler::notifications`].
@@ -16,6 +18,38 @@ pub struct NotificationsHandler<'octo> {
 impl<'octo> NotificationsHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
         Self { crab }
+    }
+
+    /// Gets a notification by their id.
+    pub async fn get(&self, id: impl Into<u64>) -> crate::Result<Notification> {
+        let url = format!("/notifications/threads/{}", id.into());
+        self.crab.get(url, None::<&()>).await
+    }
+    
+    /// Marks a single thread as read.
+    pub async fn mark_as_read(&self, id: impl Into<u64>) -> crate::Result<()> {
+        let url = format!("/notifications/threads/{}", id.into());
+        let url = self.crab.absolute_url(url)?;
+
+        let response = self.crab._patch(url, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Marks all notifications as read.
+    ///
+    /// If you provide a `last_read_at` parameter,
+    /// anything updated since this time will not be marked as read.
+    pub async fn mark_all_as_read(&self, last_read_at: impl Into<Option<DateTime>>) -> crate::Result<()> {
+        #[derive(serde::Serialize)]
+        struct Inner {
+            last_read_at: DateTime,
+        }
+
+        let body = last_read_at.into().map(|last_read_at| Inner { last_read_at });
+        let url = self.crab.absolute_url("/notifications")?;
+
+        let response = self.crab._put(url, body.as_ref()).await?;
+        crate::map_github_error(response).await.map(drop)
     }
 
     /// List all notifications for the current user.

@@ -8,7 +8,12 @@ async fn main() -> octocrab::Result<()> {
         .personal_token(token)
         .build()?;
 
-    let notifications = octocrab.activity().notifications().list().all(true).send().await?;
+    let notifications = octocrab.activity()
+        .notifications()
+        .list()
+        .all(true)
+        .send()
+        .await?;
     for n in notifications {
         println!("unread notification: {}", n.subject.title);
     }

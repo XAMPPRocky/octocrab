@@ -3,7 +3,8 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Notification {
-    pub id: String,
+    #[serde(deserialize_with = "parse_u32")]
+    pub id: u64,
     pub repository: Repository,
     pub subject: Subject,
     pub reason: String,
@@ -42,4 +43,17 @@ pub struct Subject {
     pub latest_comment_url: Option<Url>,
     #[serde(rename = "type")]
     pub type_: String,
+}
+
+fn parse_u32<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::Error;
+
+    let raw = String::deserialize(deserializer)?;
+    match raw.parse() {
+        Ok(val) => Ok(val),
+        Err(_) => Err(D::Error::custom("expected `id` to be a number")),
+    }
 }
