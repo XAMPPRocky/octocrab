@@ -1,9 +1,9 @@
 //! Github Notifications API
 
-use crate::Octocrab;
-use crate::Page;
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
+use crate::Octocrab;
+use crate::Page;
 
 type DateTime = chrono::DateTime<chrono::Utc>;
 
@@ -26,7 +26,7 @@ impl<'octo> NotificationsHandler<'octo> {
         let url = format!("/notifications/threads/{}", id.into());
         self.crab.get(url, None::<&()>).await
     }
-    
+
     /// Marks a single thread as read.
     pub async fn mark_as_read(&self, id: impl Into<u64>) -> crate::Result<()> {
         let url = format!("/notifications/threads/{}", id.into());
@@ -36,17 +36,44 @@ impl<'octo> NotificationsHandler<'octo> {
         crate::map_github_error(response).await.map(drop)
     }
 
-    /// Marks all notifications as read.
-    ///
-    /// If you provide a `last_read_at` parameter,
-    /// anything updated since this time will not be marked as read.
-    pub async fn mark_all_as_read(&self, last_read_at: impl Into<Option<DateTime>>) -> crate::Result<()> {
+    pub async fn mark_repo_as_read(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        last_read_at: impl Into<Option<DateTime>>,
+    ) -> crate::Result<()> {
         #[derive(serde::Serialize)]
         struct Inner {
             last_read_at: DateTime,
         }
 
-        let body = last_read_at.into().map(|last_read_at| Inner { last_read_at });
+        let body = last_read_at
+            .into()
+            .map(|last_read_at| Inner { last_read_at });
+
+        let url = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        let url = self.crab.absolute_url(url)?;
+
+        let response = self.crab._put(url, body.as_ref()).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Marks all notifications as read.
+    ///
+    /// If you provide a `last_read_at` parameter,
+    /// anything updated since this time will not be marked as read.
+    pub async fn mark_all_as_read(
+        &self,
+        last_read_at: impl Into<Option<DateTime>>,
+    ) -> crate::Result<()> {
+        #[derive(serde::Serialize)]
+        struct Inner {
+            last_read_at: DateTime,
+        }
+
+        let body = last_read_at
+            .into()
+            .map(|last_read_at| Inner { last_read_at });
         let url = self.crab.absolute_url("/notifications")?;
 
         let response = self.crab._put(url, body.as_ref()).await?;
@@ -54,14 +81,21 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// This checks to see if the current user is subscribed to a thread.
-    pub async fn get_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<ThreadSubscription> {
+    pub async fn get_thread_subscription(
+        &self,
+        thread: impl Into<u64>,
+    ) -> crate::Result<ThreadSubscription> {
         let url = format!("/notifications/threads/{}/subscription", thread.into());
 
         self.crab.get(url, None::<&()>).await
     }
 
     /// Ignore or unignore a thread subscription, that is enabled by watching a repository.
-    pub async fn set_thread_subscription(&self, thread: impl Into<u64>, ignored: bool) -> crate::Result<ThreadSubscription> {
+    pub async fn set_thread_subscription(
+        &self,
+        thread: impl Into<u64>,
+        ignored: bool,
+    ) -> crate::Result<ThreadSubscription> {
         #[derive(serde::Serialize)]
         struct Inner {
             ignored: bool,
@@ -75,15 +109,28 @@ impl<'octo> NotificationsHandler<'octo> {
 
     /// Mutes the whole thread conversation until you comment or get mentioned.
     pub async fn delete_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<()> {
-        let url = self.crab.absolute_url(format!("/notifications/threads/{}/subscription", thread.into()))?;
+        let url = self.crab.absolute_url(format!(
+            "/notifications/threads/{}/subscription",
+            thread.into()
+        ))?;
 
-        let response = self.crab._delete(url, body.as_ref()).await?;
+        let response = self.crab._delete(url, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
+    }
+
+    /// List all notifications for the current user, that are in a given repository.
+    pub fn list_for_repo(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> ListNotificationsBuilder<'octo> {
+        let url = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        ListNotificationsBuilder::new(self.crab, url)
     }
 
     /// List all notifications for the current user.
     pub fn list(&self) -> ListNotificationsBuilder<'octo> {
-        ListNotificationsBuilder::new(self.crab)
+        ListNotificationsBuilder::new(self.crab, "/notifications".to_string())
     }
 }
 
@@ -94,6 +141,8 @@ impl<'octo> NotificationsHandler<'octo> {
 /// [`NotificationsHandler::list`]: ./struct.NotificationsHandler.html#method.list
 #[derive(serde::Serialize)]
 pub struct ListNotificationsBuilder<'octo> {
+    #[serde(skip)]
+    url: String,
     #[serde(skip)]
     crab: &'octo Octocrab,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -111,8 +160,9 @@ pub struct ListNotificationsBuilder<'octo> {
 }
 
 impl<'octo> ListNotificationsBuilder<'octo> {
-    fn new(crab: &'octo Octocrab) -> Self {
+    fn new(crab: &'octo Octocrab, url: String) -> Self {
         Self {
+            url,
             crab,
             all: None,
             participating: None,
@@ -134,7 +184,7 @@ impl<'octo> ListNotificationsBuilder<'octo> {
         self.participating = Some(v);
         self
     }
-    
+
     /// Only show notifications updated after the given time.
     pub fn since(mut self, since: chrono::DateTime<chrono::Utc>) -> Self {
         self.since = Some(since);
@@ -161,6 +211,6 @@ impl<'octo> ListNotificationsBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Notification>> {
-        self.crab.get("/notifications", Some(&self)).await
+        self.crab.get(&self.url, Some(&self)).await
     }
 }
