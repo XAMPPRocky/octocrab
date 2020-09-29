@@ -10,6 +10,8 @@ type DateTime = chrono::DateTime<chrono::Utc>;
 /// Handler for GitHub's notifications API.
 ///
 /// Created with [`ActivityHandler::notifications`].
+/// **Note:** All of these methods require authentication using
+/// your GitHub Access Token with the right privileges.
 ///
 /// [`ActivityHandler::notifications`]: ../struct.ActivityHandler.html#method.notifications
 pub struct NotificationsHandler<'octo> {
@@ -22,12 +24,40 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// Gets a notification by their id.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// let thread = crab.activity()
+    ///     .notifications()
+    ///     .get(123u32)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, id: impl Into<u64>) -> crate::Result<Notification> {
         let url = format!("/notifications/threads/{}", id.into());
         self.crab.get(url, None::<&()>).await
     }
 
     /// Marks a single thread as read.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// crab.activity()
+    ///     .notifications()
+    ///     .mark_as_read(123u32)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn mark_as_read(&self, id: impl Into<u64>) -> crate::Result<()> {
         let url = format!("/notifications/threads/{}", id.into());
         let url = self.crab.absolute_url(url)?;
@@ -36,6 +66,21 @@ impl<'octo> NotificationsHandler<'octo> {
         crate::map_github_error(response).await.map(drop)
     }
 
+    /// Marks all notifications in a repository as read.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// crab
+    ///     .activity()
+    ///     .notifications()
+    ///     .mark_repo_as_read("XAMPPRocky", "octocrab", None)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn mark_repo_as_read(
         &self,
         owner: impl AsRef<str>,
@@ -62,6 +107,20 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// If you provide a `last_read_at` parameter,
     /// anything updated since this time will not be marked as read.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// crab.activity()
+    ///     .notifications()
+    ///     .mark_all_as_read(None)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn mark_all_as_read(
         &self,
         last_read_at: impl Into<Option<DateTime>>,
@@ -81,6 +140,21 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// This checks to see if the current user is subscribed to a thread.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// let subscription = crab
+    ///     .activity()
+    ///     .notifications()
+    ///     .get_thread_subscription(123u32)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_thread_subscription(
         &self,
         thread: impl Into<u64>,
@@ -91,6 +165,21 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// Ignore or unignore a thread subscription, that is enabled by watching a repository.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// let subscription = crab
+    ///     .activity()
+    ///     .notifications()
+    ///     .set_thread_subscription(123u32, true)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn set_thread_subscription(
         &self,
         thread: impl Into<u64>,
@@ -108,6 +197,19 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// Mutes the whole thread conversation until you comment or get mentioned.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// crab.activity()
+    ///     .notifications()
+    ///     .delete_thread_subscription(123u32)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<()> {
         let url = self.crab.absolute_url(format!(
             "/notifications/threads/{}/subscription",
@@ -119,6 +221,23 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// List all notifications for the current user, that are in a given repository.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// let notifications = crab.activity()
+    ///     .notifications()
+    ///     .list_for_repo("XAMPPRocky", "octocrab")
+    ///     // Also show notifications that are marked as read.
+    ///     .all(true)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_for_repo(
         &self,
         owner: impl AsRef<str>,
@@ -129,6 +248,21 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// List all notifications for the current user.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let crab = octocrab::Octocrab::builder()
+    ///     .personal_token("...".to_string())
+    ///     .build()?;
+    ///
+    /// let notifications = crab.activity()
+    ///     .notifications()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListNotificationsBuilder<'octo> {
         ListNotificationsBuilder::new(self.crab, "/notifications".to_string())
     }
