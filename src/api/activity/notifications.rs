@@ -67,6 +67,7 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// Marks all notifications in a repository as read.
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let crab = octocrab::Octocrab::builder()
