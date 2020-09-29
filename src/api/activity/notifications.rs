@@ -27,11 +27,8 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// let thread = crab.activity()
+    /// let thread = octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .get(123u32)
     ///     .await?;
@@ -47,11 +44,8 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// crab.activity()
+    /// octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .mark_as_read(123u32)
     ///     .await?;
@@ -70,11 +64,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// crab
+    /// octocrab::instance() 
     ///     .activity()
     ///     .notifications()
     ///     .mark_repo_as_read("XAMPPRocky", "octocrab", None)
@@ -111,11 +101,8 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// crab.activity()
+    /// octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .mark_all_as_read(None)
     ///     .await?;
@@ -144,11 +131,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// let subscription = crab
+    /// let subscription = octocrab::instance() 
     ///     .activity()
     ///     .notifications()
     ///     .get_thread_subscription(123u32)
@@ -169,11 +152,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// let subscription = crab
+    /// let subscription = octocrab::instance()
     ///     .activity()
     ///     .notifications()
     ///     .set_thread_subscription(123u32, true)
@@ -200,11 +179,8 @@ impl<'octo> NotificationsHandler<'octo> {
     /// Mutes the whole thread conversation until you comment or get mentioned.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// crab.activity()
+    /// octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .delete_thread_subscription(123u32)
     ///     .await?;
@@ -225,11 +201,8 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// let notifications = crab.activity()
+    /// let notifications = octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .list_for_repo("XAMPPRocky", "octocrab")
     ///     // Also show notifications that are marked as read.
@@ -252,11 +225,8 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let crab = octocrab::Octocrab::builder()
-    ///     .personal_token("...".to_string())
-    ///     .build()?;
-    ///
-    /// let notifications = crab.activity()
+    /// let notifications = octocrab::instance()
+    ///     .activity()
     ///     .notifications()
     ///     .list()
     ///     .send()
