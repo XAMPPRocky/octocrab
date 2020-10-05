@@ -171,7 +171,7 @@ octocrab::initialise(octocrab::Octocrab::builder());
 // Gets a instance of `Octocrab` from the static API. If you call this
 // without first calling `octocrab::initialise` a default client will be
 // initialised and returned instead.
-octocrab::instance();
+let octocrab = octocrab::instance();
 ```
 
 
