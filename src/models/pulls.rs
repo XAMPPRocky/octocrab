@@ -40,7 +40,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub merged_at: Option<String>,
+    pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
