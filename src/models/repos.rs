@@ -76,3 +76,22 @@ pub struct ContentLinks {
     #[serde(rename = "self")]
     pub _self: Url,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct Tag {
+    name: String,
+    commit: CommitObject,
+    zipball_url: Url,
+    tarball_url: Url,
+    node_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct CommitObject {
+    sha: String,
+    url: Url,
+}

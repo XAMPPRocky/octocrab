@@ -1,8 +1,10 @@
 //! The repositories API.
 
 mod file;
+mod tags;
 
 pub use file::UpdateFileBuilder;
+pub use tags::ListTagsBuilder;
 
 use crate::{models, params, Octocrab, Result};
 
@@ -180,5 +182,16 @@ impl<'octo> RepoHandler<'octo> {
             base64::encode(content),
             Some(sha.into()),
         )
+    }
+
+    /// List tags from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let tags = octocrab::instance().repos("owner", "repo").list_tags().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_tags(&self) -> ListTagsBuilder<'_, '_> {
+        ListTagsBuilder::new(self)
     }
 }
