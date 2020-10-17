@@ -1,6 +1,7 @@
 //! The repositories API.
 
 mod file;
+mod releases;
 mod tags;
 
 pub use file::UpdateFileBuilder;
@@ -193,5 +194,10 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_tags(&self) -> ListTagsBuilder<'_, '_> {
         ListTagsBuilder::new(self)
+    }
+
+    /// Creates a `ReleasesHandler` for the specified repository.
+    pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
+        releases::ReleasesHandler::new(self)
     }
 }

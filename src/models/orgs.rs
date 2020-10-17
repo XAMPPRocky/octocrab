@@ -93,4 +93,3 @@ pub struct Plan {
     pub space: i64,
     pub private_repos: i64,
 }
-
