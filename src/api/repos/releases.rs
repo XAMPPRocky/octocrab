@@ -14,8 +14,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         Self { parent }
     }
 
-    /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
-    /// listing pulling requests.
+    /// Creates a new `ListReleasesBuilder` that can be configured to filter
+    /// listing releases.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
@@ -34,13 +34,36 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     pub fn list(&self) -> ListReleasesBuilder<'_, '_, '_> {
         ListReleasesBuilder::new(self)
     }
+
+    /// Creates a new `CreateReleaseBuilder` with `tag_name`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let page = octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .create("v1.0.0")
+    ///     // Optional Parameters
+    ///     .target_commitish("main")
+    ///     .name("Version 1.0.0")
+    ///     .body("Announcing 1.0.0!")
+    ///     .draft(false)
+    ///     .prerelease(false)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn create<'t>(&self, tag_name: &'t (impl AsRef<str> + ?Sized)) -> CreateReleaseBuilder<'_, '_, '_, 't, '_, '_, '_> {
+        CreateReleaseBuilder::new(self, tag_name.as_ref())
+    }
 }
 
-/// A builder pattern struct for listing pull requests.
+/// A builder pattern struct for listing releases.
 ///
-/// created by [`PullRequestHandler::list`]
+/// created by [`ReleasesHandler::list`]
 ///
-/// [`PullRequestHandler::list`]: ./struct.PullRequestHandler.html#method.list
+/// [`PullRequestHandler::list`]: ./struct.ReleasesHandler.html#method.list
 #[derive(serde::Serialize)]
 pub struct ListReleasesBuilder<'octo, 'r1, 'r2> {
     #[serde(skip)]
@@ -83,33 +106,81 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    #[tokio::test]
-    async fn serialize() {
-        let octocrab = crate::Octocrab::default();
-        let handler = octocrab.pulls("rust-lang", "rust");
-        let list = handler
-            .list()
-            .state(crate::params::State::Open)
-            .head("master")
-            .base("branch")
-            .sort(crate::params::pulls::Sort::Popularity)
-            .direction(crate::params::Direction::Ascending)
-            .per_page(100)
-            .page(1u8);
+/// A builder pattern struct for listing releases.
+///
+/// created by [`ReleasesHandler::list`]
+///
+/// [`PullRequestHandler::list`]: ./struct.ReleasesHandler.html#method.list
+#[derive(serde::Serialize)]
+pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+    #[serde(skip)]
+    handler: &'handler ReleasesHandler<'octo, 'repos>,
+    tag_name: &'tag_name str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    target_commitish: Option<&'target_commitish str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<&'name str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    body: Option<&'body str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    draft: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    prerelease: Option<bool>,
+}
 
-        assert_eq!(
-            serde_json::to_value(list).unwrap(),
-            serde_json::json!({
-                "state": "open",
-                "head": "master",
-                "base": "branch",
-                "sort": "popularity",
-                "direction": "asc",
-                "per_page": 100,
-                "page": 1,
-            })
-        )
+impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+    pub(crate) fn new(handler: &'handler ReleasesHandler<'octo, 'repos>, tag_name: &'tag_name str) -> Self {
+        Self {
+            handler,
+            tag_name,
+            target_commitish: None,
+            name: None,
+            body: None,
+            draft: None,
+            prerelease: None,
+        }
+    }
+
+    /// Specifies the commitish value that determines where the Git tag is
+    /// created from. Can be any branch or commit SHA. Unused if the Git tag
+    /// already exists. Default: the repository's default branch
+    /// (usually `main`).
+    pub fn target_commitish(mut self, target_commitish: &'target_commitish (impl AsRef<str> + ?Sized)) -> Self {
+        self.target_commitish = Some(target_commitish.as_ref());
+        self
+    }
+
+    /// The name of the release.
+    pub fn name(mut self, name: &'name (impl AsRef<str> + ?Sized)) -> Self {
+        self.name = Some(name.as_ref());
+        self
+    }
+
+    /// Text describing the contents of the tag.
+    pub fn body(mut self, body: &'body (impl AsRef<str> + ?Sized)) -> Self {
+        self.body = Some(body.as_ref());
+        self
+    }
+
+    /// Whether to set the release as a "draft" release or not.
+    pub fn draft(mut self, draft: impl Into<bool>) -> Self {
+        self.draft = Some(draft.into());
+        self
+    }
+
+    /// Whether to set the release as a "prerelease" or not.
+    pub fn prerelease(mut self, prerelease: impl Into<bool>) -> Self {
+        self.prerelease = Some(prerelease.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
+        let url = format!(
+            "/repos/{owner}/{repo}/releases",
+            owner = self.handler.parent.owner,
+            repo = self.handler.parent.repo
+        );
+        self.handler.parent.crab.get(url, Some(&self)).await
     }
 }
