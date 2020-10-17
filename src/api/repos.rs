@@ -54,7 +54,10 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_ref(&self, reference: &params::repos::Reference) -> Result<models::repos::Ref> {
+    pub async fn get_ref(
+        &self,
+        reference: &params::repos::Reference,
+    ) -> Result<models::repos::Ref> {
         let url = format!(
             "/repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,

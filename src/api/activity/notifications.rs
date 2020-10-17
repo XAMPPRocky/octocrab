@@ -64,7 +64,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// octocrab::instance() 
+    /// octocrab::instance()
     ///     .activity()
     ///     .notifications()
     ///     .mark_repo_as_read("XAMPPRocky", "octocrab", None)
@@ -131,7 +131,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let subscription = octocrab::instance() 
+    /// let subscription = octocrab::instance()
     ///     .activity()
     ///     .notifications()
     ///     .get_thread_subscription(123u32)

@@ -210,7 +210,11 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn add_assignees(&self, number: u64, assignees: &[u64]) -> Result<models::issues::Issue> {
+    pub async fn add_assignees(
+        &self,
+        number: u64,
+        assignees: &[u64],
+    ) -> Result<models::issues::Issue> {
         let route = format!(
             "/repos/{owner}/{repo}/issues/{issue}/assignees",
             owner = self.owner,

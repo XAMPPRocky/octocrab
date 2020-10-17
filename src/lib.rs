@@ -180,7 +180,8 @@ use auth::Auth;
 
 pub use self::{
     api::{
-        actions, current, gitignore, issues, licenses, markdown, orgs, pulls, repos, search, teams, activity
+        actions, activity, current, gitignore, issues, licenses, markdown, orgs, pulls, repos,
+        search, teams,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,

@@ -1,6 +1,8 @@
 //! Serde mappings from GitHub's JSON to structs.
+use chrono::{DateTime, Utc};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
+
 
 pub mod activity;
 pub mod issues;
@@ -97,7 +99,7 @@ pub struct IssueEvent {
     pub commit_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub commit_url: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -130,9 +132,9 @@ pub struct Project {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
     pub creator: User,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -151,9 +153,9 @@ pub struct ProjectColumn {
     pub id: i64,
     pub node_id: String,
     pub name: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -334,11 +336,11 @@ pub struct Repository {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pushed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub pushed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -425,9 +427,9 @@ pub struct CheckRun {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub started_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
@@ -460,9 +462,9 @@ pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub state: StatusState,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<User>,
