@@ -13,9 +13,9 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    commiter: Option<models::repos::AuthorUser>,
+    commiter: Option<models::repos::GitUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    author: Option<models::repos::AuthorUser>,
+    author: Option<models::repos::GitUser>,
 }
 
 impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
@@ -45,13 +45,13 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     }
 
     /// The person that commited the file.
-    pub fn commiter(mut self, commiter: impl Into<models::repos::AuthorUser>) -> Self {
+    pub fn commiter(mut self, commiter: impl Into<models::repos::GitUser>) -> Self {
         self.commiter = Some(commiter.into());
         self
     }
 
     /// The author of the file.
-    pub fn author(mut self, author: impl Into<models::repos::AuthorUser>) -> Self {
+    pub fn author(mut self, author: impl Into<models::repos::GitUser>) -> Self {
         self.author = Some(author.into());
         self
     }
@@ -70,7 +70,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
 
 #[cfg(test)]
 mod tests {
-    use crate::models::repos::AuthorUser;
+    use crate::models::repos::GitUser;
 
     #[test]
     fn serialize() {
@@ -84,11 +84,11 @@ mod tests {
                 "testsha",
             )
             .branch("not-master")
-            .commiter(AuthorUser {
+            .commiter(GitUser {
                 name: "Octocat".to_string(),
                 email: "octocat@github.com".to_string(),
             })
-            .author(AuthorUser {
+            .author(GitUser {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
             });

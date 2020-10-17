@@ -105,7 +105,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new file in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::models::repos::AuthorUser;
+    /// use octocrab::models::repos::GitUser;
     ///
     /// // Commit to add "crabs/ferris.txt"
     /// octocrab::instance()
@@ -116,11 +116,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         "Thought there’d never be a Rust Rap?\n"
     ///     )
     ///     .branch("master")
-    ///     .commiter(AuthorUser {
+    ///     .commiter(GitUser {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(AuthorUser {
+    ///     .author(GitUser {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -147,7 +147,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::repos::AuthorUser;
+    /// use octocrab::models::repos::GitUser;
     ///
     /// // Given the file blob for "crabs/ferris.txt", commit to update the file.
     /// octocrab::instance()
@@ -159,11 +159,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         blob_sha
     ///     )
     ///     .branch("master")
-    ///     .commiter(AuthorUser {
+    ///     .commiter(GitUser {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(AuthorUser {
+    ///     .author(GitUser {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })

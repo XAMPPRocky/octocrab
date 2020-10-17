@@ -1,5 +1,3 @@
-use chrono::{DateTime, Utc};
-
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -34,14 +32,14 @@ pub struct Commit {
     pub html_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments_url: Option<String>,
-    pub author: AuthorUser,
-    pub committer: AuthorUser,
+    pub author: GitUser,
+    pub committer: GitUser,
 }
 
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct AuthorUser {
+pub struct GitUser {
     pub name: String,
     pub email: String,
 }
