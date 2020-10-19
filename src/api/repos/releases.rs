@@ -57,6 +57,66 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     pub fn create<'t>(&self, tag_name: &'t (impl AsRef<str> + ?Sized)) -> CreateReleaseBuilder<'_, '_, '_, 't, '_, '_, '_> {
         CreateReleaseBuilder::new(self, tag_name.as_ref())
     }
+
+    /// Fetches a single asset by its ID.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let asset = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .get_asset(42)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_asset(&self, asset_id: usize) -> crate::Result<models::repos::Asset> {
+        let url = format!(
+            "/repos/{owner}/{repo}/assets/{asset_id}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            asset_id = asset_id,
+        );
+
+        self.parent.crab.get(url, None::<&()>).await
+    }
+
+    /// Streams the binary contents of an asset.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use futures_util::StreamExt;
+    ///
+    /// let mut stream = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .stream_asset(42)
+    ///     .await?;
+    ///
+    /// while let Some(chunk) = stream.next().await {
+    ///     println!("{:?}", chunk);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    // #[cfg(any(feature = "stream", doc))]
+    //#[doc_cfg::doc_cfg(feature = "stream")]
+    pub async fn stream_asset(&self, asset_id: usize) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
+        use futures_util::TryStreamExt;
+        use snafu::GenerateBacktrace;
+
+        let url = format!(
+            "/repos/{owner}/{repo}/assets/{asset_id}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            asset_id = asset_id,
+        );
+
+        Ok(self.parent.crab.execute(
+                self.parent.crab.request_builder(&url, reqwest::Method::GET)
+                    .header(reqwest::header::ACCEPT, "application/octet-stream"))
+                    .await?
+                    .bytes_stream()
+                    .map_err(|source| crate::error::Error::Http { source, backtrace: snafu::Backtrace::generate() }))
+    }
 }
 
 /// A builder pattern struct for listing releases.

@@ -623,10 +623,9 @@ impl Octocrab {
     ///
     /// ```no_run
     /// # async fn doc() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let octocrab_builder = octocrab::OctocrabBuilder::new();
-    /// # let octocrab = octocrab_builder.personal_token("".to_owned()).base_url("https://api.github.com")?.build()?;
+    /// let octocrab = octocrab::instance();
     /// let url = format!("{}/events", octocrab.base_url);
-    /// let builder = octocrab.request_builder(&url, reqwest::Method::GET)
+    /// let builder = octocrab::instance().request_builder(&url, reqwest::Method::GET)
     ///     .header("if-none-match", "\"73ca617c70cd2bd9b6f009dab5e2d49d\"");
     /// let response = octocrab.execute(builder).await?;
     /// # Ok(())

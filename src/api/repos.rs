@@ -1,11 +1,12 @@
 //! The repositories API.
 
 mod file;
-mod releases;
+pub mod releases;
 mod tags;
 
 pub use file::UpdateFileBuilder;
 pub use tags::ListTagsBuilder;
+pub use releases::{ReleasesHandler};
 
 use crate::{models, params, Octocrab, Result};
 
