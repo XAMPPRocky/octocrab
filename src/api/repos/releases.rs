@@ -80,6 +80,27 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.parent.crab.get(url, None::<&()>).await
     }
 
+    /// Fetches a single asset by its ID.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .get_latest()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_latest(&self) -> crate::Result<models::repos::Release> {
+        let url = format!(
+            "/repos/{owner}/{repo}/releases/latest",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+        );
+
+        self.parent.crab.get(url, None::<&()>).await
+    }
+
     /// Streams the binary contents of an asset.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -88,7 +109,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// let mut stream = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .releases()
-    ///     .stream_asset(42)
+    ///     .stream_asset(42usize)
     ///     .await?;
     ///
     /// while let Some(chunk) = stream.next().await {
@@ -97,8 +118,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Ok(())
     /// # }
     /// ```
-    // #[cfg(any(feature = "stream", doc))]
-    //#[doc_cfg::doc_cfg(feature = "stream")]
+    #[doc_cfg::doc_cfg(feature = "stream")]
     pub async fn stream_asset(&self, asset_id: usize) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
         use snafu::GenerateBacktrace;
