@@ -4,7 +4,7 @@ use super::*;
 #[non_exhaustive]
 pub struct PullRequest {
     pub url: String,
-    pub id: i64,
+    pub id: u64,
     pub node_id: String,
     pub html_url: Url,
     pub diff_url: Url,
@@ -15,7 +15,7 @@ pub struct PullRequest {
     pub review_comment_url: Url,
     pub comments_url: Url,
     pub statuses_url: Url,
-    pub number: i64,
+    pub number: u64,
     pub state: IssueState,
     pub locked: bool,
     pub title: String,
@@ -156,12 +156,9 @@ pub struct StatusesLink {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Review {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub node_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub html_url: Option<String>,
+    pub id: u64,
+    pub node_id: String,
+    pub html_url: Url,
     pub user: User,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
