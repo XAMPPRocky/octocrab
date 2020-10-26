@@ -80,7 +80,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.parent.crab.get(url, None::<&()>).await
     }
 
-    /// Fetches a single asset by its ID.
+    /// Gets the latest release.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let release = octocrab::instance()
@@ -96,6 +96,28 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
             "/repos/{owner}/{repo}/releases/latest",
             owner = self.parent.owner,
             repo = self.parent.repo,
+        );
+
+        self.parent.crab.get(url, None::<&()>).await
+    }
+
+    /// Gets the release using its tag.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .get_by_tag("v1.0.0")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_by_tag(&self, tag: &str) -> crate::Result<models::repos::Release> {
+        let url = format!(
+            "/repos/{owner}/{repo}/releases/tags/{tag}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            tag = tag,
         );
 
         self.parent.crab.get(url, None::<&()>).await
@@ -137,6 +159,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
                     .bytes_stream()
                     .map_err(|source| crate::error::Error::Http { source, backtrace: snafu::Backtrace::generate() }))
     }
+
 }
 
 /// A builder pattern struct for listing releases.
