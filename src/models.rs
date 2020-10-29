@@ -228,14 +228,13 @@ pub struct Milestone {
     pub open_issues: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub closed_issues: Option<i64>,
+    pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<String>,
+    pub updated_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<String>,
+    pub closed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub due_on: Option<String>,
+    pub due_on: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

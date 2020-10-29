@@ -18,6 +18,7 @@ pub struct PullRequest {
     pub number: u64,
     pub state: IssueState,
     pub locked: bool,
+    pub maintainer_can_modify: bool,
     pub title: String,
     pub user: User,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -48,12 +49,14 @@ pub struct PullRequest {
     pub assignees: Vec<User>,
     pub requested_reviewers: Vec<User>,
     pub requested_teams: Vec<teams::RequestedTeam>,
+    pub rebaseable: Option<bool>,
     pub head: Head,
     pub base: Base,
     #[serde(rename = "_links")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<Links>,
-    pub author_association: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<String>,
     pub draft: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
@@ -62,11 +65,13 @@ pub struct PullRequest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Head {
-    pub label: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
     #[serde(rename = "ref")]
     pub ref_field: String,
     pub sha: String,
-    pub user: User,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
 }
@@ -167,7 +172,7 @@ pub struct Review {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<ReviewState>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pull_request_url: Option<String>,
+    pub pull_request_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub submitted_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(rename = "_links")]
