@@ -14,7 +14,7 @@ pub struct Issue {
     pub number: i64,
     pub state: String,
     pub title: String,
-    pub body: String,
+    pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
