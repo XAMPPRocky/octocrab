@@ -34,6 +34,7 @@ doc-cfg = "0.1.0"
 
 [dev-dependencies]
 tokio = { version = "1.0", default-features = false, features = ["macros", "rt-multi-thread"] }
+wiremock = "0.4.0"
 
 [features]
 default = ["reqwest/native-tls"]

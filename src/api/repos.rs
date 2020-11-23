@@ -1,5 +1,6 @@
 //! The repositories API.
 
+pub mod events;
 mod file;
 pub mod forks;
 pub mod releases;
@@ -10,7 +11,6 @@ pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
-
 use crate::{models, params, Octocrab, Result};
 
 /// Handler for GitHub's repository API.
@@ -209,5 +209,36 @@ impl<'octo> RepoHandler<'octo> {
     /// Create a status for a specified commit in the specified repository.
     pub fn create_status(&self, sha: String, state: models::StatusState) -> CreateStatusBuilder {
         CreateStatusBuilder::new(self, sha, state)
+    }
+
+    /// List events on this repository.
+    ///
+    /// Takes an optional etag which allows for efficient polling. Here is a quick example to poll a
+    /// repositories events.
+    /// ```no_run
+    /// # use std::convert::TryFrom;
+    /// # use octocrab::{models::events::Event, etag::{Etagged,Etag}, Page};
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let mut etag = None;
+    /// loop {
+    ///     let response: Etagged<Page<Event>> = octocrab::instance()
+    ///         .repos("owner", "repo")
+    ///         .events()
+    ///         .etag(etag)
+    ///         .send()
+    ///         .await?;
+    ///     if let Some(page) = response.value {
+    ///         // do something with the page ...
+    ///     } else {
+    ///         println!("No new data received, trying again soon");
+    ///     }
+    ///     etag = response.etag;
+    ///     // add a delay before the next iteration
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn events(&self) -> events::ListRepoEventsBuilder<'_, '_> {
+        events::ListRepoEventsBuilder::new(self)
     }
 }

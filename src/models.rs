@@ -4,6 +4,7 @@ use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
 pub mod activity;
+pub mod events;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;

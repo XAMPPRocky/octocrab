@@ -1,0 +1,19 @@
+{
+  "id": "14304136554",
+  "type": "AmazingEvent",
+  "actor": {
+    "id": 7131143,
+    "login": "jon-betts",
+    "display_login": "jon-betts",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jon-betts",
+    "avatar_url": "https://avatars.githubusercontent.com/u/7131143?"
+  },
+  "repo": {
+    "id": 311739396,
+    "name": "hypothesis/checkmate",
+    "url": "https://api.github.com/repos/hypothesis/checkmate"
+  },
+  "public": true,
+  "created_at": "2020-11-24T20:04:43Z"
+}
