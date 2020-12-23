@@ -6,8 +6,6 @@ use crate::{models, Octocrab};
 /// Handler for GitHub's license API.
 ///
 /// Created with [`Octocrab::licenses`].
-///
-/// [`Octocrab::licenses`]: ../struct.Octocrab.html#method.licenses
 pub struct LicenseHandler<'octo> {
     crab: &'octo Octocrab,
 }

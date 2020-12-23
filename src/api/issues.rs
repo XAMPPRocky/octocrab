@@ -22,8 +22,6 @@ pub use self::{
 /// requests by the `pull_request` key.
 ///
 /// Created with [`Octocrab::issues`].
-///
-/// [`Octocrab::issues`]: ../struct.Octocrab.html#method.issues
 pub struct IssueHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

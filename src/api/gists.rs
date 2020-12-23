@@ -6,11 +6,9 @@ use http::StatusCode;
 use crate::Octocrab;
 use crate::params::gists::File;
 
-/// Handler for GitHub's gitignore API.
+/// Handler for GitHub's gist API.
 ///
-/// Created with [`Octocrab::gitignore`].
-///
-/// [`Octocrab::gitignore`]: ../struct.Octocrab.html#method.gitignore
+/// Created with [`Octocrab::gists`].
 pub struct GistHandler<'octo> {
     crab: &'octo Octocrab,
 }

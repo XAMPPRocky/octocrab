@@ -12,8 +12,6 @@ pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
 /// A client to GitHub's pull request API.
 ///
 /// Created with [`Octocrab::pulls`].
-///
-/// [`Octocrab::pulls`]: ../struct.Octocrab.html#method.pulls
 pub struct PullRequestHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

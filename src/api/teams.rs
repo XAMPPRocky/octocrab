@@ -16,8 +16,6 @@ use crate::{models, Octocrab, Result};
 /// Handler for GitHub's teams API.
 ///
 /// Created with [`Octocrab::teams`].
-///
-/// [`Octocrab::teams`]: ../struct.Octocrab.html#method.teams
 pub struct TeamHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

@@ -5,8 +5,6 @@ use crate::{models, Octocrab};
 /// Handler for the search API.
 ///
 /// Created with [`Octocrab::search`].
-///
-/// [`Octocrab::search`]: ../struct.Octocrab.html#method.search
 pub struct SearchHandler<'octo> {
     crab: &'octo Octocrab,
 }

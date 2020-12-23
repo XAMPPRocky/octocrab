@@ -13,8 +13,6 @@ use crate::{models, params, Octocrab, Result};
 /// Handler for GitHub's repository API.
 ///
 /// Created with [`Octocrab::repos`].
-///
-/// [`Octocrab::repos`]: ../struct.Octocrab.html#method.repos
 pub struct RepoHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

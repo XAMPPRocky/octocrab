@@ -7,8 +7,6 @@ use crate::{models, Octocrab, Result};
 /// in order to be used.
 ///
 /// Created with [`Octocrab::current`].
-///
-/// [`Octocrab::current`]: ../struct.Octocrab.html#method.current
 pub struct CurrentAuthHandler<'octo> {
     crab: &'octo Octocrab,
 }

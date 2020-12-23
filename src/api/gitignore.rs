@@ -7,8 +7,6 @@ use crate::Octocrab;
 /// Handler for GitHub's gitignore API.
 ///
 /// Created with [`Octocrab::gitignore`].
-///
-/// [`Octocrab::gitignore`]: ../struct.Octocrab.html#method.gitignore
 pub struct GitignoreHandler<'octo> {
     crab: &'octo Octocrab,
 }

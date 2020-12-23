@@ -7,8 +7,6 @@ pub mod notifications;
 /// Handler for GitHub's activity API.
 ///
 /// Created with [`Octocrab::activity`].
-///
-/// [`Octocrab::activity`]: ../struct.Octocrab.html#method.activity
 pub struct ActivityHandler<'octo> {
     crab: &'octo Octocrab,
 }

@@ -1,6 +1,6 @@
 //! # Octocrab: A modern, extensible GitHub API client.
 //! Octocrab is an third party GitHub API client, allowing you to easily build
-//! your own GitHub integrations or bots. `Octocrab` comes with two primary
+//! your own GitHub integrations or bots. `octocrab` comes with two primary
 //! set of APIs for communicating with GitHub, a high level strongly typed
 //! semantic API, and a lower level HTTP API for extending behaviour.
 //!
@@ -13,30 +13,16 @@
 //! - [`actions`] GitHub Actions
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
-//! - [`graphql`] GraphQL.
+//! - [`Octocrab::graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
 //! - [`repos`] Repositories
+//! - [`repos::releases`] Repositories
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
-//!
-//! [`activity`]: ./activity/struct.ActivityHandler.html
-//! [`actions`]: ./actions/struct.ActionsHandler.html
-//! [`current`]: ./current/struct.CurrentAuthHandler.html
-//! [`gitignore`]: ./gitignore/struct.GitignoreHandler.html
-//! [`graphql`]: ./struct.Octocrab.html#graphql-api
-//! [`issues`]: ./issues/struct.IssueHandler.html
-//! [`licenses`]: ./licenses/struct.LicenseHandler.html
-//! [`markdown`]: ./markdown/struct.MarkdownHandler.html
-//! [`models`]: ./models/index.html
-//! [`orgs`]: ./orgs/struct.OrgHandler.html
-//! [`pulls`]: ./pulls/struct.PullRequestHandler.html
-//! [`repos`]: ./repos/struct.RepoHandler.html
-//! [`search`]: ./search/struct.SearchHandler.html
-//! [`teams`]: ./teams/struct.TeamHandler.html
 //!
 //! #### Getting a Pull Request
 //! ```no_run
@@ -145,7 +131,7 @@
 //! current models using `serde`.
 //!
 //! ## Static API
-//! `Octocrab` also provides a statically reference count version of its API,
+//! `octocrab` also provides a statically reference count version of its API,
 //! allowing you to easily plug it into existing systems without worrying
 //! about having to integrate and pass around the client.
 //!
@@ -188,7 +174,7 @@ pub use self::{
     page::Page,
 };
 
-/// A convenience type with a default error type of `Octocrab::Error`.
+/// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URL: &str = "https://api.github.com";
@@ -250,21 +236,13 @@ pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
     Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
 }
 
-/// Returns a new instance of `Octocrab`. If it hasn't been previously
+/// Returns a new instance of [`Octocrab`]. If it hasn't been previously
 /// initialised it returns a default instance with no authentication set.
 /// ```
 /// let octocrab = octocrab::instance();
 /// ```
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
-}
-
-/// A Builder struct for `Octocrab`.
-#[derive(Default)]
-pub struct OctocrabBuilder {
-    auth: Auth,
-    previews: Vec<&'static str>,
-    base_url: Option<Url>,
 }
 
 /// A builder struct for `Octocrab`, allowing you to configure the client, such
@@ -278,6 +256,13 @@ pub struct OctocrabBuilder {
 /// # Ok(())
 /// # }
 /// ```
+#[derive(Default)]
+pub struct OctocrabBuilder {
+    auth: Auth,
+    previews: Vec<&'static str>,
+    base_url: Option<Url>,
+}
+
 impl OctocrabBuilder {
     pub fn new() -> Self {
         Self::default()
@@ -367,82 +352,85 @@ impl Octocrab {
 
 /// # GitHub API Methods
 impl Octocrab {
-    /// Creates a `ActionsHandler`.
+    /// Creates a new [`actions::ActionsHandler`] for accessing information from
+    /// GitHub Actions.
     pub fn actions(&self) -> actions::ActionsHandler {
         actions::ActionsHandler::new(self)
     }
 
-    /// Creates a `CurrentAuthHandler` that allows you to access
+    /// Creates a [`current::CurrentAuthHandler`] that allows you to access
     /// information about the current authenticated user.
-    pub fn current(&self) -> api::current::CurrentAuthHandler {
-        api::current::CurrentAuthHandler::new(self)
+    pub fn current(&self) -> current::CurrentAuthHandler {
+        current::CurrentAuthHandler::new(self)
     }
 
-    /// Creates a `ActivityHandler` for the current authenticated user.
-    pub fn activity(&self) -> api::activity::ActivityHandler {
-        api::activity::ActivityHandler::new(self)
+    /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
+    pub fn activity(&self) -> activity::ActivityHandler {
+        activity::ActivityHandler::new(self)
     }
 
-    /// Creates a `GitIgnoreHandler`.
+    /// Creates a [`gitignore::GitignoreHandler`] for accessing information
+    /// about `gitignore`.
     pub fn gitignore(&self) -> gitignore::GitignoreHandler {
         gitignore::GitignoreHandler::new(self)
     }
 
-    /// Creates a `IssueHandler` for the repo specified at `owner/repo`,
+    /// Creates a [`issues::IssueHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's issues API.
     pub fn issues(
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> api::issues::IssueHandler {
-        api::issues::IssueHandler::new(self, owner.into(), repo.into())
+    ) -> issues::IssueHandler {
+        issues::IssueHandler::new(self, owner.into(), repo.into())
     }
 
-    /// Creates a `LicenseHandler`.
+    /// Creates a [`licenses::LicenseHandler`].
     pub fn licenses(&self) -> licenses::LicenseHandler {
         licenses::LicenseHandler::new(self)
     }
 
-    /// Creates a `MarkdownHandler`.
+    /// Creates a [`markdown::MarkdownHandler`].
     pub fn markdown(&self) -> markdown::MarkdownHandler {
         markdown::MarkdownHandler::new(self)
     }
-    /// Creates an `OrgHandler` for the specified organization,
+
+    /// Creates an [`orgs::OrgHandler`] for the specified organization,
     /// that allows you to access GitHub's organization API.
-    pub fn orgs(&self, owner: impl Into<String>) -> api::orgs::OrgHandler {
-        api::orgs::OrgHandler::new(self, owner.into())
+    pub fn orgs(&self, owner: impl Into<String>) -> orgs::OrgHandler {
+        orgs::OrgHandler::new(self, owner.into())
     }
 
-    /// Creates a `PullRequestHandler` for the repo specified at `owner/repo`,
-    /// that allows you to access GitHub's pull request API.
+    /// Creates a [`pulls::PullRequestHandler`] for the repo specified at
+    /// `owner/repo`, that allows you to access GitHub's pull request API.
     pub fn pulls(
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> api::pulls::PullRequestHandler {
-        api::pulls::PullRequestHandler::new(self, owner.into(), repo.into())
+    ) -> pulls::PullRequestHandler {
+        pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
 
-    /// Creates a `RepoHandler` for the repo specified at `owner/repo`,
+    /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
     pub fn repos(
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> api::repos::RepoHandler {
-        api::repos::RepoHandler::new(self, owner.into(), repo.into())
+    ) -> repos::RepoHandler {
+        repos::RepoHandler::new(self, owner.into(), repo.into())
     }
 
-    /// Creates a `SearchHandler` that allows you to construct general queries
+    /// Creates a [`search::SearchHandler`] that allows you to construct general queries
     /// to GitHub's API.
     pub fn search(&self) -> search::SearchHandler {
         search::SearchHandler::new(self)
     }
 
-    /// Creates a `TeamHandler` for the specified organization that allows
+    /// Creates a [`teams::TeamHandler`] for the specified organization that allows
     /// you to access GitHub's teams API.
-    pub fn teams(&self, owner: impl Into<String>) -> api::teams::TeamHandler {
-        api::teams::TeamHandler::new(self, owner.into())
+    pub fn teams(&self, owner: impl Into<String>) -> teams::TeamHandler {
+        teams::TeamHandler::new(self, owner.into())
     }
 }
 

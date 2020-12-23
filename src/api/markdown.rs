@@ -6,8 +6,6 @@ use crate::Octocrab;
 /// Handler for GitHub's markdown API.
 ///
 /// Created with [`Octocrab::markdown`].
-///
-/// [`Octocrab::markdown`]: ../struct.Octocrab.html#method.markdown
 pub struct MarkdownHandler<'octo> {
     crab: &'octo Octocrab,
 }

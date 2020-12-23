@@ -3,8 +3,6 @@ use super::*;
 /// Handler for GitHub's releases API.
 ///
 /// Created with [`RepoHandler::releases`].
-///
-/// [`RepoHandler::releases`]: ../struct.RepoHandler.html#method.releases
 pub struct ReleasesHandler<'octo, 'r> {
     parent: &'r RepoHandler<'octo>,
 }
@@ -14,7 +12,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         Self { parent }
     }
 
-    /// Creates a new `ListReleasesBuilder` that can be configured to filter
+    /// Creates a new [`ListReleasesBuilder`] that can be configured to filter
     /// listing releases.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -35,7 +33,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         ListReleasesBuilder::new(self)
     }
 
-    /// Creates a new `CreateReleaseBuilder` with `tag_name`.
+    /// Creates a new [`CreateReleaseBuilder`] with `tag_name`.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
@@ -165,8 +163,6 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 /// A builder pattern struct for listing releases.
 ///
 /// created by [`ReleasesHandler::list`]
-///
-/// [`PullRequestHandler::list`]: ./struct.ReleasesHandler.html#method.list
 #[derive(serde::Serialize)]
 pub struct ListReleasesBuilder<'octo, 'r1, 'r2> {
     #[serde(skip)]
@@ -211,9 +207,7 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
 
 /// A builder pattern struct for listing releases.
 ///
-/// created by [`ReleasesHandler::list`]
-///
-/// [`PullRequestHandler::list`]: ./struct.ReleasesHandler.html#method.list
+/// created by [`ReleasesHandler::create`].
 #[derive(serde::Serialize)]
 pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
     #[serde(skip)]

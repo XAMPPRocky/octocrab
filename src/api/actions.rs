@@ -6,8 +6,6 @@ use crate::{params, Octocrab};
 /// Handler for GitHub's actions API.
 ///
 /// Created with [`Octocrab::actions`].
-///
-/// [`Octocrab::actions`]: ../struct.Octocrab.html#method.actions
 pub struct ActionsHandler<'octo> {
     crab: &'octo Octocrab,
 }

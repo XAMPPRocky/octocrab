@@ -9,8 +9,6 @@ pub use self::list_repos::ListReposBuilder;
 /// A client to GitHub's organization API.
 ///
 /// Created with [`Octocrab::orgs`].
-///
-/// [`Octocrab::orgs`]: ../struct.Octocrab.html#method.orgs
 pub struct OrgHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

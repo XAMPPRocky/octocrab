@@ -1,7 +1,7 @@
 use snafu::{Backtrace, Snafu};
 use std::fmt;
 
-/// An error that could have occurred while using `Octocrab`.
+/// An error that could have occurred while using [`crate::Octocrab`].
 #[derive(Snafu, Debug)]
 #[snafu(visibility = "pub")]
 pub enum Error {

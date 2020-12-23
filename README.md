@@ -30,6 +30,7 @@ modules are available.
 - [`markdown`] Rendering Markdown with GitHub.
 - [`orgs`] GitHub Organisations.
 - [`pulls`] Pull Requests.
+- [`releases`] Releases.
 - [`repos`] Repositories.
 - [`search`] GitHub's search API.
 - [`teams`] Teams.
@@ -46,6 +47,7 @@ modules are available.
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
+[`releases`]: https://docs.rs/octocrab/0.8.1/octocrab/repos/struct.ReleasesHandler.html
 [`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
 [`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
 
