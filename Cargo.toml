@@ -33,7 +33,7 @@ futures-util = { version = "0.3.6", optional = true }
 doc-cfg = "0.1.0"
 
 [dev-dependencies]
-tokio = { version = "0.3.6", default-features = false, features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.0.0", default-features = false, features = ["macros", "rt-multi-thread"] }
 
 [features]
 default = []
