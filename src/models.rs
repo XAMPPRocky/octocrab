@@ -11,7 +11,7 @@ pub mod pulls;
 pub mod repos;
 pub mod teams;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Contents {
     #[serde(rename = "type")]
@@ -28,7 +28,7 @@ pub struct Contents {
     pub download_url: Url,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Event {
@@ -71,7 +71,7 @@ pub enum IssueState {
     Closed,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct IssueEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -102,7 +102,7 @@ pub struct IssueEvent {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ProjectCard {
     pub id: u64,
@@ -137,14 +137,14 @@ pub struct Project {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum ProjectCardContentType {
     Issue,
     PullRequest,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ProjectColumn {
     pub url: Url,
@@ -158,7 +158,7 @@ pub struct ProjectColumn {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct IssuePullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -171,7 +171,7 @@ pub struct IssuePullRequest {
     pub patch_url: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct User {
     pub login: String,
@@ -194,7 +194,7 @@ pub struct User {
     pub site_admin: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Label {
     pub id: i64,
@@ -207,7 +207,7 @@ pub struct Label {
     pub default: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Milestone {
     pub url: Url,
@@ -358,7 +358,7 @@ pub struct Repository {
     pub license: Option<License>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct License {
     pub key: String,
@@ -389,7 +389,7 @@ pub struct Code {
     pub repository: Repository,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Permissions {
     admin: bool,
@@ -397,14 +397,14 @@ pub struct Permissions {
     pull: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CheckRuns {
     pub total_count: i32,
     pub check_runs: Vec<CheckRun>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CheckRun {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -431,7 +431,7 @@ pub struct CheckRun {
     pub completed_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum CheckStatus {
@@ -440,7 +440,7 @@ pub enum CheckStatus {
     InProgress,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CombinedStatus {
     pub state: StatusState,
@@ -449,7 +449,7 @@ pub struct CombinedStatus {
     pub statuses: Vec<Status>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -469,7 +469,7 @@ pub struct Status {
     pub creator: Option<User>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum StatusState {
@@ -485,7 +485,7 @@ pub struct InstallationRepositories {
     pub repositories: Vec<Repository>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct Installation {
@@ -511,7 +511,7 @@ pub struct Installation {
     pub repository_selection: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationPermissions {
@@ -534,7 +534,7 @@ pub struct InstallationToken {
     pub repositories: Option<Vec<Repository>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct PublicKey {
