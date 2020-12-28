@@ -277,7 +277,6 @@ pub mod repos {
         #[derive(Debug, Clone, Copy, serde::Serialize)]
         #[serde(rename_all = "snake_case")]
         #[non_exhaustive]
-
         pub enum Sort {
             Newest,
             Oldest,
