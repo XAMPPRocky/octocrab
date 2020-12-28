@@ -69,7 +69,7 @@ pub struct CreateForkBuilder<'octo, 'r> {
     organization: Option<String>,
 }
 impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
-    pub fn new(handler: &'r RepoHandler<'octo>) -> Self {
+    pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
         Self {
             handler,
             organization: None,
