@@ -22,7 +22,7 @@ pub struct ListForksBuilder<'octo, 'r> {
 }
 
 impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
-    pub fn new(handler: &'r RepoHandler<'octo>) -> Self {
+    pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
         Self {
             handler,
             per_page: None,
