@@ -85,9 +85,9 @@ impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
 
 impl<'octo> RepoHandler<'octo> {
     /// List forks of a repository. Optionally, specify the
-    /// [sort](./forks/struct.ListForksBuilder.html#method.sort) order,
-    /// [page](./forks/struct.ListForksBuilder.html#method.page),
-    /// and items [per_page](./forks/struct.ListForksBuilder.html#method.per_page)
+    /// [sort](ListForksBuilder::sort()) order,
+    /// [page](ListForksBuilder::page()),
+    /// and items [per_page](ListForksBuilder::per_page())
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params::repos::forks::Sort;
@@ -108,7 +108,7 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Creates a fork of a repository. Optionally, specify the target
-    /// [organization](./forks/struct.CreateForkBuilder.html#method.organization) to
+    /// [organization](CreateForkBuilder::organization()) to
     /// create the fork in.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
