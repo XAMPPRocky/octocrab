@@ -112,7 +112,13 @@ impl<'octo> RepoHandler<'octo> {
     /// create the fork in.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let new_fork = octocrab::instance().repos("owner", "repo").create_fork().organization("weyland-yutani").send().await?;
+    /// let new_fork = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .create_fork()
+    ///     // Optional Parameters
+    ///     .organization("weyland-yutani")
+    ///     .send()
+    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
