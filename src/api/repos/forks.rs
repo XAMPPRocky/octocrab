@@ -91,7 +91,15 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params::repos::forks::Sort;
-    /// let forks = octocrab::instance().repos("owner", "repo").list_forks().sort(Sort::Oldest).page(2u32).per_page(30).send().await?;
+    /// let forks = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .list_forks()
+    ///     // Optional Parameters
+    ///     .sort(Sort::Oldest)
+    ///     .page(2u32)
+    ///     .per_page(30)
+    ///     .send()
+    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
