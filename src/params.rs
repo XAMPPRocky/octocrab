@@ -272,6 +272,18 @@ pub mod repos {
             f.write_str(&self.full_ref_url())
         }
     }
+    pub mod forks {
+        /// The available methods to sort repository forks by.
+        #[derive(Debug, Clone, Copy, serde::Serialize)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+
+        pub enum Sort {
+            Newest,
+            Oldest,
+            Stargazers,
+        }
+    }
 }
 
 pub mod teams {

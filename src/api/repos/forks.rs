@@ -1,13 +1,5 @@
+use super::params::repos::forks::Sort;
 use super::*;
-
-/// The available methods to sort repository forks by.
-#[derive(serde::Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum ForkSort {
-    Newest,
-    Oldest,
-    Stargazers,
-}
 
 #[derive(serde::Serialize)]
 pub struct ListForksBuilder<'octo, 'r> {
@@ -18,7 +10,7 @@ pub struct ListForksBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sort: Option<ForkSort>,
+    sort: Option<Sort>,
 }
 
 impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
@@ -44,15 +36,13 @@ impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
     }
 
     /// Sort order of the results.
-    pub fn sort(mut self, sort: ForkSort) -> Self {
+    pub fn sort(mut self, sort: Sort) -> Self {
         self.sort = Some(sort);
         self
     }
 
     /// Sends the actual request.
-    pub async fn send(
-        self,
-    ) -> crate::Result<crate::Page<crate::models::Repository>> {
+    pub async fn send(self) -> crate::Result<crate::Page<crate::models::Repository>> {
         let url = format!(
             "/repos/{owner}/{repo}/forks",
             owner = self.handler.owner,
@@ -94,18 +84,14 @@ impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
 }
 
 impl<'octo> RepoHandler<'octo> {
-    /// List forks of a repository.
+    /// List forks of a repository. Optionally, specify the
+    /// [sort](./forks/struct.ListForksBuilder.html#method.sort) order,
+    /// [page](./forks/struct.ListForksBuilder.html#method.page),
+    /// and items [per_page](./forks/struct.ListForksBuilder.html#method.per_page)
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let forks = octocrab::instance().repos("owner", "repo").list_forks().send().await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    /// Optionally, specify a sort order with [`ForkSort`].
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::repos::forks::ForkSort;
-    /// let forks = octocrab::instance().repos("owner", "repo").list_forks().sort(ForkSort::Oldest).send().await?;
+    /// use octocrab::params::repos::forks::Sort;
+    /// let forks = octocrab::instance().repos("owner", "repo").list_forks().sort(Sort::Oldest).page(2u32).per_page(30).send().await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -113,10 +99,12 @@ impl<'octo> RepoHandler<'octo> {
         ListForksBuilder::new(self)
     }
 
-    /// Creates a fork of a repository.
+    /// Creates a fork of a repository. Optionally, specify the target
+    /// [organization](./forks/struct.CreateForkBuilder.html#method.organization) to
+    /// create the fork in.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let new_fork = octocrab::instance().repos("owner", "repo").create_fork().send().await?;
+    /// let new_fork = octocrab::instance().repos("owner", "repo").create_fork().organization("weyland-yutani").send().await?;
     /// # Ok(())
     /// # }
     /// ```
