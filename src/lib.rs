@@ -20,6 +20,7 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`pulls`] Pull Requests
 //! - [`repos`] Repositories
+//! - [`repos::forks`] Repositories
 //! - [`repos::releases`] Repositories
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
@@ -413,11 +414,7 @@ impl Octocrab {
 
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
-    pub fn repos(
-        &self,
-        owner: impl Into<String>,
-        repo: impl Into<String>,
-    ) -> repos::RepoHandler {
+    pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
         repos::RepoHandler::new(self, owner.into(), repo.into())
     }
 
