@@ -3,10 +3,12 @@
 mod file;
 pub mod forks;
 pub mod releases;
+mod status;
 mod tags;
 
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
+pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
 
 use crate::{models, params, Octocrab, Result};
@@ -202,5 +204,10 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a `ReleasesHandler` for the specified repository.
     pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
         releases::ReleasesHandler::new(self)
+    }
+
+    /// Create a status for a specified commit in the specified repository.
+    pub fn create_status(&self, sha: String, state: models::StatusState) -> CreateStatusBuilder {
+        CreateStatusBuilder::new(self, sha, state)
     }
 }
