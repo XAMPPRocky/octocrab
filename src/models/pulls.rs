@@ -17,7 +17,9 @@ pub struct PullRequest {
     pub statuses_url: Url,
     pub number: u64,
     pub state: IssueState,
+    #[serde(default)]
     pub locked: bool,
+    #[serde(default)]
     pub maintainer_can_modify: bool,
     pub title: String,
     pub user: User,
