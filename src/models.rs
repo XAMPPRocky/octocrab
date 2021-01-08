@@ -476,6 +476,7 @@ pub enum StatusState {
     Failure,
     Pending,
     Success,
+    Error,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
