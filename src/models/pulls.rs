@@ -190,3 +190,24 @@ pub enum ReviewState {
     Pending,
     ChangesRequested,
 }
+
+/// The complete list of actions that can trigger the sending of a
+/// `pull_request` webhook
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PullRequestAction {
+    Opened,
+    Edited,
+    Closed,
+    Assigned,
+    Unassigned,
+    ReviewRequested,
+    ReviewRequestRemoved,
+    ReadyForReview,
+    Labeled,
+    Unlabeled,
+    Synchronize,
+    Locked,
+    Unlocked,
+    Reopened,
+}
