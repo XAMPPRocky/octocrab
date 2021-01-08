@@ -15,7 +15,7 @@ documentation = "https://docs.rs/octocrab"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-reqwest = { version = "0.11.0", features = ["json"] }
+reqwest = { version = "0.11.0", default-features = false, features = ["json"] }
 serde = { version = "1.0.106", features = ["derive"] }
 serde_json = "1.0.51"
 serde_path_to_error = "0.1.2"
@@ -36,5 +36,6 @@ doc-cfg = "0.1.0"
 tokio = { version = "1.0", default-features = false, features = ["macros", "rt-multi-thread"] }
 
 [features]
-default = []
+default = ["reqwest/native-tls"]
+rustls = ["reqwest/rustls-tls"]
 stream = ["futures-core", "futures-util", "reqwest/stream"]
