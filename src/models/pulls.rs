@@ -191,10 +191,20 @@ pub enum ReviewState {
     ChangesRequested,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum PullRequestReviewAction {
+    Submitted,
+    Edited,
+    Dismissed,
+}
+
 /// The complete list of actions that can trigger the sending of a
 /// `pull_request` webhook
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum PullRequestAction {
     Opened,
     Edited,
