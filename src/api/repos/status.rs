@@ -1,6 +1,5 @@
 use super::*;
-use crate::models::{Status, StatusState, User};
-use chrono::{DateTime, Utc};
+use crate::models::StatusState;
 
 #[derive(serde::Serialize)]
 pub struct CreateStatusBuilder<'octo, 'r> {
