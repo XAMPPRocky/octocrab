@@ -343,6 +343,32 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
+    /// Removes `label` from an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let removed_labels = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .remove_label(101, "my_label")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_label(
+        &self,
+        number: u64,
+        label: impl AsRef<str>,
+    ) -> Result<Vec<models::Label>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
+            owner = self.owner,
+            repo = self.repo,
+            issue_number = number,
+            name = label.as_ref(),
+        );
+
+        self.crab.delete(route, None::<&()>).await
+    }
+
     /// Replaces all labels for an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
