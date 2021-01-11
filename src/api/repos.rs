@@ -7,11 +7,11 @@ pub mod releases;
 mod status;
 mod tags;
 
+use crate::{models, params, Octocrab, Result};
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
-use crate::{models, params, Octocrab, Result};
 
 /// Handler for GitHub's repository API.
 ///
@@ -217,7 +217,7 @@ impl<'octo> RepoHandler<'octo> {
     /// repositories events.
     /// ```no_run
     /// # use std::convert::TryFrom;
-    /// # use octocrab::{models::events::Event, etag::{Etagged,Etag}, Page};
+    /// # use octocrab::{models::events::Event, etag::{Etagged,EntityTag}, Page};
     /// # async fn run() -> octocrab::Result<()> {
     /// let mut etag = None;
     /// loop {

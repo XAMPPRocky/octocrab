@@ -1,15 +1,12 @@
 //! GitHub Repository Events
 use crate::{
-    etag::{Etag, Etagged},
+    etag::{EntityTag, Etagged},
     models::events,
     repos::RepoHandler,
     FromResponse, Page,
 };
-use reqwest::{
-    header::{self, HeaderMap},
-    Method, StatusCode,
-};
-use std::convert::TryFrom;
+use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
+use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
     handler: &'handler RepoHandler<'octo>,
@@ -18,7 +15,7 @@ pub struct ListRepoEventsBuilder<'octo, 'handler> {
 }
 
 struct Headers {
-    etag: Option<Etag>,
+    etag: Option<EntityTag>,
 }
 
 #[derive(serde::Serialize)]
@@ -42,7 +39,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
     }
 
     /// Etag for this request.
-    pub fn etag(mut self, etag: Option<Etag>) -> Self {
+    pub fn etag(mut self, etag: Option<EntityTag>) -> Self {
         self.headers.etag = etag;
         self
     }
@@ -69,7 +66,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
         );
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
-            headers.append(header::IF_NONE_MATCH, etag.into());
+            headers.encode(&IfNoneMatch::Items(vec![etag]));
         }
         let builder = self
             .handler
@@ -81,8 +78,9 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
         let response = self.handler.crab.execute(builder).await?;
         let etag = response
             .headers()
-            .get(header::ETAG)
-            .and_then(|val| Etag::try_from(val).ok());
+            .decode::<ETag>()
+            .ok()
+            .map(|etag| (*etag).clone());
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {
