@@ -110,14 +110,15 @@ fn deserialize_payload(
     data: serde_json::Value,
 ) -> Result<Option<EventPayload>, serde_json::Error> {
     let maybe_payload = match event_type {
-        EventType::PushEvent => serde_json::from_value::<PushEventPayload>(data)
-            .map(|payload| Some(EventPayload::PushEvent(payload)))?,
-        EventType::CreateEvent => serde_json::from_value::<CreateEventPayload>(data)
-            .map(|payload| Some(EventPayload::CreateEvent(payload)))?,
-        _ => serde_json::from_value::<serde_json::Value>(data)
-            .map(|payload| Some(EventPayload::UnknownEvent(payload)))?,
+        EventType::PushEvent => {
+            serde_json::from_value::<PushEventPayload>(data).map(EventPayload::PushEvent)?
+        }
+        EventType::CreateEvent => {
+            serde_json::from_value::<CreateEventPayload>(data).map(EventPayload::CreateEvent)?
+        }
+        _ => EventPayload::UnknownEvent(data),
     };
-    Ok(maybe_payload)
+    Ok(Some(maybe_payload))
 }
 
 #[cfg(test)]
