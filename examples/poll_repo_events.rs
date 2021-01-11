@@ -26,7 +26,7 @@ async fn main() -> octocrab::Result<()> {
                 if !seen.contains(&event.id) {
                     println!(
                         "New event : id = {:?}, type = {:?}, time = {:?}",
-                        event.id, event.typ, event.created_at
+                        event.id, event.r#type, event.created_at
                     );
                     if seen.len() == TRACKING_CAPACITY {
                         seen.pop_back();

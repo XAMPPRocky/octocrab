@@ -1,6 +1,6 @@
+use crate::models::repos::GitUser;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
-use crate::models::repos::GitUser;
 
 /// The payload in an event type.
 ///
@@ -23,8 +23,7 @@ pub struct PushEventPayload {
     pub push_id: u64,
     pub size: u64,
     pub distinct_size: u64,
-    #[serde(rename = "ref")]
-    pub ref_field: String,
+    pub r#ref: String,
     pub head: String,
     pub before: String,
     pub commits: Vec<Commit>,
@@ -35,8 +34,7 @@ pub struct PushEventPayload {
 #[non_exhaustive]
 pub struct CreateEventPayload {
     // a null ref will occur on the initial create event
-    #[serde(rename = "ref")]
-    pub ref_field: Option<String>,
+    pub r#ref: Option<String>,
     pub ref_type: String,
     pub master_branch: String,
     pub description: Option<String>,

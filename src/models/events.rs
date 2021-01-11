@@ -10,8 +10,7 @@ use serde::{de::Error, Deserialize, Serialize};
 #[non_exhaustive]
 pub struct Event {
     pub id: String,
-    #[serde(rename = "type")]
-    pub typ: EventType,
+    pub r#type: EventType,
     pub actor: Actor,
     pub repo: Repository,
     pub public: bool,
@@ -85,7 +84,7 @@ impl<'de> Deserialize<'de> for Event {
         })?;
         let event = Event {
             id: intermediate.id,
-            typ: event_type,
+            r#type: event_type,
             actor: intermediate.actor,
             repo: intermediate.repo,
             public: intermediate.public,
@@ -132,7 +131,7 @@ mod test {
         let json = include_str!("../../tests/resources/push_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.id, "14289834535".to_owned());
-        assert_eq!(event.typ, EventType::PushEvent);
+        assert_eq!(event.r#type, EventType::PushEvent);
         assert_eq!(
             event.actor,
             Actor {
@@ -171,7 +170,7 @@ mod test {
                 assert_eq!(payload.push_id, 6080608029);
                 assert_eq!(payload.size, 1);
                 assert_eq!(payload.distinct_size, 1);
-                assert_eq!(payload.ref_field, "refs/heads/master");
+                assert_eq!(payload.r#ref, "refs/heads/master");
                 assert_eq!(payload.head, "eb1a60c03544dcea290f2d57bb66ae188ce25778");
                 assert_eq!(payload.before, "9b2afb3a8e03fb30cc09e5efb64823bde802cf59");
                 assert_eq!(payload.commits.len(), 1);
@@ -203,7 +202,7 @@ mod test {
         let payload = event.payload.unwrap();
         match payload {
             EventPayload::CreateEvent(payload) => {
-                assert_eq!(payload.ref_field, Some("url-normalisation".to_string()));
+                assert_eq!(payload.r#ref, Some("url-normalisation".to_string()));
                 assert_eq!(payload.ref_type, "branch");
                 assert_eq!(payload.master_branch, "main");
                 assert_eq!(
@@ -269,7 +268,7 @@ mod test {
     fn should_capture_event_name_if_we_dont_currently_handle_this_event() {
         let json = include_str!("../../tests/resources/unknown_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        match event.typ {
+        match event.r#type {
             EventType::UnknownEvent(typ) => assert_eq!(typ, "AmazingEvent"),
             _ => panic!("unexpected event deserialized"),
         }
