@@ -21,6 +21,7 @@ pub struct Event {
 
 /// The type of an event.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 #[non_exhaustive]
 pub enum EventType {
     PushEvent,
