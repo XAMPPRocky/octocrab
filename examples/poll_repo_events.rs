@@ -36,6 +36,6 @@ async fn main() -> octocrab::Result<()> {
             }
         }
         etag = response.etag;
-        tokio::time::delay_for(tokio::time::Duration::from_millis(DELAY_MS)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(DELAY_MS)).await;
     }
 }
