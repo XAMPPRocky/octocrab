@@ -189,6 +189,7 @@ pub enum ReviewState {
     Approved,
     Pending,
     ChangesRequested,
+    Commented,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
