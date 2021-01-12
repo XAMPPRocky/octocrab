@@ -153,6 +153,7 @@ mod error;
 mod from_response;
 mod page;
 
+pub mod etag;
 pub mod models;
 pub mod params;
 
