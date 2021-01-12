@@ -440,13 +440,19 @@ pub enum CheckStatus {
     InProgress,
 }
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CombinedStatus {
     pub state: StatusState,
     pub sha: String,
     pub total_count: i64,
     pub statuses: Vec<Status>,
+    #[serde(skip_serializing)]
+    pub repository: Option<Repository>,
+    #[serde(skip_serializing)]
+    pub commit_url: Option<Url>,
+    #[serde(skip_serializing)]
+    pub url: Option<Url>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -467,6 +473,8 @@ pub struct Status {
     pub state: StatusState,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<User>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context: Option<String>,
 }
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
