@@ -80,7 +80,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
             .headers()
             .decode::<ETag>()
             .ok()
-            .map(|etag| (*etag).clone());
+            .map(|ETag(tag)| tag);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {
