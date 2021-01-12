@@ -222,3 +222,12 @@ pub enum PullRequestAction {
     Unlocked,
     Reopened,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct Merge {
+    pub sha: Option<String>,
+    pub message: Option<String>,
+    pub merged: bool,
+}
