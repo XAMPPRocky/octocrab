@@ -241,4 +241,29 @@ impl<'octo> RepoHandler<'octo> {
     pub fn events(&self) -> events::ListRepoEventsBuilder<'_, '_> {
         events::ListRepoEventsBuilder::new(self)
     }
+
+    /// Gets the combined status for the specified reference.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let master = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_combined_status_for_ref(&Reference::Branch("main".to_string()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_combined_status_for_ref(
+        &self,
+        reference: &params::repos::Reference,
+    ) -> Result<models::CombinedStatus> {
+        let url = format!(
+            "/repos/{owner}/{repo}/commits/{reference}/status",
+            owner = self.owner,
+            repo = self.repo,
+            reference = reference.ref_url(),
+        );
+        self.crab.get(url, None::<&()>).await
+    }
 }
