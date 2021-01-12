@@ -194,6 +194,24 @@ impl<'octo> PullRequestHandler<'octo> {
     pub fn list(&self) -> list::ListPullRequestsBuilder {
         list::ListPullRequestsBuilder::new(self)
     }
+
+    /// Lists all of the `Review`s associated with the pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let reviews = octocrab::instance().pulls("owner", "repo").list_reviews(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn list_reviews(&self, pr: u64) -> crate::Result<Vec<crate::models::pulls::Review>> {
+        let url = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/reviews",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        self.http_get(url, None::<&()>).await
+    }
 }
 
 impl<'octo> PullRequestHandler<'octo> {
