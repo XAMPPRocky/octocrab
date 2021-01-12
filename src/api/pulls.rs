@@ -2,6 +2,7 @@
 
 mod create;
 mod list;
+mod merge;
 
 use snafu::ResultExt;
 
@@ -212,6 +213,31 @@ impl<'octo> PullRequestHandler<'octo> {
 
         self.http_get(url, None::<&()>).await
     }
+
+    /// Creates a new `MergePullRequestsBuilder` that can be configured used to
+    /// merge a pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let page = octocrab.pulls("owner", "repo").merge(20)
+    ///     // Optional Parameters
+    ///     .title("cool title")
+    ///     .message("a message")
+    ///     // Won't merge of the HEAD commit of the PR branch is not the same
+    ///     .sha("0123456")
+    ///     // The method to use when merging, will default to `Merge`
+    ///     .method(params::pulls::MergeMethod::Squash)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn merge(&self, pr: u64) -> merge::MergePullRequestsBuilder {
+        merge::MergePullRequestsBuilder::new(self, pr)
+    }
 }
 
 impl<'octo> PullRequestHandler<'octo> {
@@ -249,6 +275,32 @@ impl<'octo> PullRequestHandler<'octo> {
     {
         let mut request = self.crab.client.post(self.crab.absolute_url(route)?);
 
+        request = self.build_request(request, body);
+
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    pub(crate) async fn http_put<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
+    where
+        A: AsRef<str>,
+        P: serde::Serialize + ?Sized,
+        R: crate::FromResponse,
+    {
+        let mut request = self.crab.client.put(self.crab.absolute_url(route)?);
+
+        request = self.build_request(request, body);
+
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    fn build_request<P>(
+        &self,
+        mut request: reqwest::RequestBuilder,
+        body: Option<&P>,
+    ) -> reqwest::RequestBuilder
+    where
+        P: serde::Serialize + ?Sized,
+    {
         if let Some(body) = body {
             request = request.json(body);
         }
@@ -260,6 +312,6 @@ impl<'octo> PullRequestHandler<'octo> {
             );
         }
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        request
     }
 }

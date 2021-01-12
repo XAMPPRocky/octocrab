@@ -211,6 +211,15 @@ pub mod pulls {
             f.write_str(text)
         }
     }
+
+    #[derive(Debug, Copy, Clone, PartialEq, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum MergeMethod {
+        Merge,
+        Squash,
+        Rebase,
+    }
 }
 
 pub mod repos {
