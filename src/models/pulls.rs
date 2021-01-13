@@ -182,14 +182,50 @@ pub struct Review {
     pub links: Option<Links>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[derive(Debug, Copy, Clone, PartialEq, Serialize)]
+#[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE"))]
 #[non_exhaustive]
 pub enum ReviewState {
     Approved,
     Pending,
     ChangesRequested,
     Commented,
+}
+
+// This is rather annoying, but Github uses both SCREAMING_SNAKE_CASE and snake_case
+// for the review state, it's uppercase when coming from an API request, but
+// lowercase when coming from a webhook payload, so we need to deserialize both,
+// but still use uppercase for serialization
+impl<'de> Deserialize<'de> for ReviewState {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct Visitor;
+
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = ReviewState;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a string")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(match value {
+                    "APPROVED" | "approved" => ReviewState::Approved,
+                    "PENDING" | "pending" => ReviewState::Pending,
+                    "CHANGES_REQUESTED" | "changes_requested" => ReviewState::ChangesRequested,
+                    "COMMENTED" | "commented" => ReviewState::Commented,
+                    unknown => return Err(E::custom(format!("unknown variant `{}`, expected one of `approved`, `pending`, `changes_requested`, `commented`", unknown))),
+                })
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
@@ -230,4 +266,26 @@ pub struct Merge {
     pub sha: Option<String>,
     pub message: Option<String>,
     pub merged: bool,
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn deserializes_review_state() {
+        use super::ReviewState;
+
+        let states: Vec<ReviewState> =
+            serde_json::from_str(r#"["APPROVED","pending","CHANGES_REQUESTED","commented"]"#)
+                .unwrap();
+
+        assert_eq!(
+            states,
+            &[
+                ReviewState::Approved,
+                ReviewState::Pending,
+                ReviewState::ChangesRequested,
+                ReviewState::Commented
+            ]
+        );
+    }
 }
