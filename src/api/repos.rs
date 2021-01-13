@@ -249,7 +249,7 @@ impl<'octo> RepoHandler<'octo> {
     ///
     /// let master = octocrab::instance()
     ///     .repos("owner", "repo")
-    ///     .get_combined_status_for_ref(&Reference::Branch("main".to_string()))
+    ///     .combined_status_for_ref(&Reference::Branch("main".to_string()))
     ///     .await?;
     /// # Ok(())
     /// # }
