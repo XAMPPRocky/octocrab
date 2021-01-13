@@ -1,6 +1,6 @@
 pub mod payload;
 
-use self::payload::{CreateEventPayload, EventPayload, PushEventPayload};
+use self::payload::{CreateEventPayload, EventPayload, IssuesEventPayload, PushEventPayload};
 use chrono::{DateTime, Utc};
 use reqwest::Url;
 use serde::{de::Error, Deserialize, Serialize};
@@ -26,6 +26,7 @@ pub struct Event {
 pub enum EventType {
     PushEvent,
     CreateEvent,
+    IssuesEvent,
     UnknownEvent(String),
 }
 
@@ -101,6 +102,7 @@ fn deserialize_event_type(event_type: &str) -> EventType {
     match event_type {
         "CreateEvent" => EventType::CreateEvent,
         "PushEvent" => EventType::PushEvent,
+        "IssuesEvent" => EventType::IssuesEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
     }
 }
@@ -115,6 +117,9 @@ fn deserialize_payload(
         }
         EventType::CreateEvent => {
             serde_json::from_value::<CreateEventPayload>(data).map(EventPayload::CreateEvent)?
+        }
+        EventType::IssuesEvent => {
+            serde_json::from_value::<IssuesEventPayload>(data).map(EventPayload::IssuesEvent)?
         }
         _ => EventPayload::UnknownEvent(data),
     };
@@ -138,6 +143,13 @@ mod test {
         let json = include_str!("../../tests/resources/create_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::CreateEvent);
+    }
+
+    #[test]
+    fn should_deserialize_issues_event() {
+        let json = include_str!("../../tests/resources/issues_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::IssuesEvent);
     }
 
     #[test]

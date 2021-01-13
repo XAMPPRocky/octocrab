@@ -1,8 +1,10 @@
 mod create;
+mod issues;
 mod push;
 
 use crate::models::repos::GitUser;
 pub use create::*;
+pub use issues::*;
 pub use push::*;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
@@ -18,6 +20,7 @@ use serde::{Deserialize, Serialize};
 pub enum EventPayload {
     PushEvent(PushEventPayload),
     CreateEvent(CreateEventPayload),
+    IssuesEvent(IssuesEventPayload),
     UnknownEvent(serde_json::Value),
 }
 
