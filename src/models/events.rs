@@ -123,98 +123,21 @@ fn deserialize_payload(
 
 #[cfg(test)]
 mod test {
-    use super::{Actor, Event, EventPayload, EventType, Repository};
-    use crate::models::repos::GitUser;
-    use chrono::DateTime;
+    use super::{Event, EventPayload, EventType};
     use reqwest::Url;
 
     #[test]
     fn should_deserialize_push_event() {
         let json = include_str!("../../tests/resources/push_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        assert_eq!(event.id, "14289834535".to_owned());
         assert_eq!(event.r#type, EventType::PushEvent);
-        assert_eq!(
-            event.actor,
-            Actor {
-                id: 8739360,
-                login: "orhanarifoglu".to_string(),
-                display_login: "orhanarifoglu".to_string(),
-                gravatar_id: "".to_string(),
-                url: Url::parse("https://api.github.com/users/orhanarifoglu").unwrap(),
-                avatar_url: Url::parse("https://avatars.githubusercontent.com/u/8739360?").unwrap(),
-            }
-        );
-        assert_eq!(
-            event.repo,
-            Repository {
-                id: 291596188,
-                name: "orhanarifoglu/orhanarifoglu".to_string(),
-                url: Url::parse("https://api.github.com/repos/orhanarifoglu/orhanarifoglu")
-                    .unwrap()
-            }
-        );
-        assert!(event.public);
-        assert_eq!(
-            event.created_at,
-            DateTime::parse_from_rfc3339("2020-11-23T19:54:09Z").unwrap()
-        );
     }
 
     #[test]
-    fn should_deserialize_push_event_with_correct_payload() {
-        let json = include_str!("../../tests/resources/push_event.json");
-        let event: Event = serde_json::from_str(json).unwrap();
-        assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
-        match payload {
-            EventPayload::PushEvent(payload) => {
-                assert_eq!(payload.push_id, 6080608029);
-                assert_eq!(payload.size, 1);
-                assert_eq!(payload.distinct_size, 1);
-                assert_eq!(payload.r#ref, "refs/heads/master");
-                assert_eq!(payload.head, "eb1a60c03544dcea290f2d57bb66ae188ce25778");
-                assert_eq!(payload.before, "9b2afb3a8e03fb30cc09e5efb64823bde802cf59");
-                assert_eq!(payload.commits.len(), 1);
-                let commit = payload.commits.get(0).unwrap();
-                assert_eq!(commit.sha, "eb1a60c03544dcea290f2d57bb66ae188ce25778");
-                assert_eq!(
-                    commit.author,
-                    GitUser {
-                        name: "readme-bot".to_string(),
-                        email: "readme-bot@example.com".to_string()
-                    }
-                );
-                assert_eq!(commit.message, "Charts Updated");
-                assert_eq!(commit.distinct, true);
-                assert_eq!(
-                    commit.url,
-                    Url::parse("https://api.github.com/repos/user/user/commits/12345").unwrap()
-                );
-            }
-            _ => panic!("unexpected event deserialized"),
-        }
-    }
-
-    #[test]
-    fn should_deserialize_create_event_with_correct_payload() {
+    fn should_deserialize_create_event() {
         let json = include_str!("../../tests/resources/create_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
-        match payload {
-            EventPayload::CreateEvent(payload) => {
-                assert_eq!(payload.r#ref, Some("url-normalisation".to_string()));
-                assert_eq!(payload.ref_type, "branch");
-                assert_eq!(payload.master_branch, "main");
-                assert_eq!(
-                    payload.description,
-                    Some("Your friendly URL vetting service".to_string())
-                );
-                assert_eq!(payload.pusher_type, "user");
-            }
-            _ => panic!("unexpected event deserialized"),
-        }
+        assert_eq!(event.r#type, EventType::CreateEvent);
     }
 
     #[test]
@@ -250,18 +173,6 @@ mod test {
                 assert_eq!(map.get("ref_type").unwrap(), "branch");
                 assert_eq!(map.get("pusher_type").unwrap(), "user");
             }
-            _ => panic!("unexpected event deserialized"),
-        }
-    }
-
-    #[test]
-    fn should_deserialize_null_description_as_none() {
-        let json = include_str!("../../tests/resources/create_event_with_null_description.json");
-        let event: Event = serde_json::from_str(json).unwrap();
-        assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
-        match payload {
-            EventPayload::CreateEvent(payload) => assert_eq!(payload.description, None),
             _ => panic!("unexpected event deserialized"),
         }
     }
