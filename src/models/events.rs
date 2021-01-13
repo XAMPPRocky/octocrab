@@ -161,7 +161,7 @@ mod test {
 
     #[test]
     fn should_deserialize_unknown_event_payload() {
-        let json = include_str!("../../tests/resources/delete_event.json");
+        let json = include_str!("../../tests/resources/unknown_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.payload.is_some());
         let payload = event.payload.unwrap();
