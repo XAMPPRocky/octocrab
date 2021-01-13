@@ -183,7 +183,7 @@ pub struct Review {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum ReviewState {
     Approved,
