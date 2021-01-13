@@ -254,7 +254,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_combined_status_for_ref(
+    pub async fn combined_status_for_ref(
         &self,
         reference: &params::repos::Reference,
     ) -> Result<models::CombinedStatus> {
