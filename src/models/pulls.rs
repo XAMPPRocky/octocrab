@@ -43,6 +43,8 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub mergeable_state: Option<MergeableState>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
@@ -266,6 +268,29 @@ pub struct Merge {
     pub sha: Option<String>,
     pub message: Option<String>,
     pub merged: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum MergeableState {
+    /// The head ref is out of date.
+    Behind,
+    /// The merge is blocked, eg. the base branch is protected by a required
+    /// status check that is pending
+    Blocked,
+    /// Mergeable and passing commit status.
+    Clean,
+    /// The merge commit cannot be cleanly created.
+    Dirty,
+    /// The merge is blocked due to the pull request being a draft.
+    Draft,
+    /// Mergeable with passing commit status and pre-receive hooks.
+    HasHooks,
+    /// The state cannot currently be determined.
+    Unknown,
+    /// Mergeable with non-passing commit status.
+    Unstable,
 }
 
 #[cfg(test)]
