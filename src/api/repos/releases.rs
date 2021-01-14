@@ -138,7 +138,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Ok(())
     /// # }
     /// ```
-    #[doc_cfg::doc_cfg(feature = "stream")]
+    #[cfg(feature = "stream")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "stream")))]
     pub async fn stream_asset(&self, asset_id: usize) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
         use snafu::GenerateBacktrace;
