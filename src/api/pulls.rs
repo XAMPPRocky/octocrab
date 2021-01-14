@@ -203,7 +203,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn list_reviews(&self, pr: u64) -> crate::Result<Vec<crate::models::pulls::Review>> {
+    pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/reviews",
             owner = self.owner,
