@@ -1,9 +1,11 @@
 mod create;
+mod issue_comment;
 mod issues;
 mod push;
 
 use crate::models::repos::GitUser;
 pub use create::*;
+pub use issue_comment::*;
 pub use issues::*;
 pub use push::*;
 use reqwest::Url;
@@ -21,6 +23,7 @@ pub enum EventPayload {
     PushEvent(PushEventPayload),
     CreateEvent(CreateEventPayload),
     IssuesEvent(IssuesEventPayload),
+    IssueCommentEvent(IssueCommentEventPayload),
     UnknownEvent(serde_json::Value),
 }
 
