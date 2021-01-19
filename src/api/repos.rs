@@ -266,4 +266,17 @@ impl<'octo> RepoHandler<'octo> {
         );
         self.crab.get(url, None::<&()>).await
     }
+
+    /// Deletes this repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance().repos("owner", "repo").delete().await
+    /// # }
+    /// ```
+    pub async fn delete(self) -> Result<()> {
+        let url = format!("/repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
+        crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
+            .await
+            .map(drop)
+    }
 }
