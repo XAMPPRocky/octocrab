@@ -64,7 +64,6 @@ pub struct PullRequestEventChangesFrom {
 #[cfg(test)]
 mod test {
     use serde_json::json;
-
     use super::{PullRequestChanges, PullRequestEventAction, PullRequestEventChangesFrom};
     use crate::models::events::{payload::EventPayload, Event};
 

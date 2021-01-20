@@ -2,6 +2,7 @@ mod create;
 mod issue_comment;
 mod issues;
 mod pull_request;
+mod pull_request_review_comment;
 mod push;
 
 use crate::models::repos::GitUser;
@@ -9,6 +10,7 @@ pub use create::*;
 pub use issue_comment::*;
 pub use issues::*;
 pub use pull_request::*;
+pub use pull_request_review_comment::*;
 pub use push::*;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
@@ -27,6 +29,7 @@ pub enum EventPayload {
     IssuesEvent(IssuesEventPayload),
     IssueCommentEvent(IssueCommentEventPayload),
     PullRequestEvent(Box<PullRequestEventPayload>),
+    PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
     UnknownEvent(serde_json::Value),
 }
 
