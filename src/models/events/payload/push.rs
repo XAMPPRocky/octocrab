@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Commit;
 
-/// The payload in a [`EventPayload::PushEvent`] type.
+/// The payload in a [`super::EventPayload::PushEvent`] type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PushEventPayload {
