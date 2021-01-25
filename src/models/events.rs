@@ -2,7 +2,7 @@ pub mod payload;
 
 use self::payload::{
     CreateEventPayload, EventPayload, IssueCommentEventPayload, IssuesEventPayload,
-    PushEventPayload,
+    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
 };
 use chrono::{DateTime, Utc};
 use reqwest::Url;
@@ -31,6 +31,8 @@ pub enum EventType {
     CreateEvent,
     IssuesEvent,
     IssueCommentEvent,
+    PullRequestEvent,
+    PullRequestReviewCommentEvent,
     UnknownEvent(String),
 }
 
@@ -108,6 +110,8 @@ fn deserialize_event_type(event_type: &str) -> EventType {
         "PushEvent" => EventType::PushEvent,
         "IssuesEvent" => EventType::IssuesEvent,
         "IssueCommentEvent" => EventType::IssueCommentEvent,
+        "PullRequestEvent" => EventType::PullRequestEvent,
+        "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
     }
 }
@@ -128,6 +132,12 @@ fn deserialize_payload(
         }
         EventType::IssueCommentEvent => serde_json::from_value::<IssueCommentEventPayload>(data)
             .map(EventPayload::IssueCommentEvent)?,
+        EventType::PullRequestEvent => serde_json::from_value::<PullRequestEventPayload>(data)
+            .map(|payload| EventPayload::PullRequestEvent(Box::new(payload)))?,
+        EventType::PullRequestReviewCommentEvent => {
+            serde_json::from_value::<PullRequestReviewCommentEventPayload>(data)
+                .map(|payload| EventPayload::PullRequestReviewCommentEvent(Box::new(payload)))?
+        }
         _ => EventPayload::UnknownEvent(data),
     };
     Ok(Some(maybe_payload))
@@ -164,6 +174,20 @@ mod test {
         let json = include_str!("../../tests/resources/issue_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::IssueCommentEvent);
+    }
+
+    #[test]
+    fn should_deserialize_pull_request_event() {
+        let json = include_str!("../../tests/resources/pull_request_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::PullRequestEvent);
+    }
+
+    #[test]
+    fn should_deserialize_pull_request_review_comment_event() {
+        let json = include_str!("../../tests/resources/pull_request_review_comment_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::PullRequestReviewCommentEvent);
     }
 
     #[test]
