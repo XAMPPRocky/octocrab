@@ -1,3 +1,4 @@
+mod commit_comment;
 mod create;
 mod issue_comment;
 mod issues;
@@ -6,6 +7,7 @@ mod pull_request_review_comment;
 mod push;
 
 use crate::models::repos::GitUser;
+pub use commit_comment::*;
 pub use create::*;
 pub use issue_comment::*;
 pub use issues::*;
@@ -28,6 +30,7 @@ pub enum EventPayload {
     CreateEvent(CreateEventPayload),
     IssuesEvent(IssuesEventPayload),
     IssueCommentEvent(IssueCommentEventPayload),
+    CommitCommentEvent(CommitCommentEventPayload),
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
     UnknownEvent(serde_json::Value),
