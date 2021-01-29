@@ -1,8 +1,9 @@
 pub mod payload;
 
 use self::payload::{
-    CreateEventPayload, EventPayload, IssueCommentEventPayload, IssuesEventPayload,
-    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
+    CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
+    IssueCommentEventPayload, IssuesEventPayload, PullRequestEventPayload,
+    PullRequestReviewCommentEventPayload, PushEventPayload,
 };
 use chrono::{DateTime, Utc};
 use reqwest::Url;
@@ -29,8 +30,10 @@ pub struct Event {
 pub enum EventType {
     PushEvent,
     CreateEvent,
+    DeleteEvent,
     IssuesEvent,
     IssueCommentEvent,
+    CommitCommentEvent,
     PullRequestEvent,
     PullRequestReviewCommentEvent,
     UnknownEvent(String),
@@ -108,8 +111,10 @@ fn deserialize_event_type(event_type: &str) -> EventType {
     match event_type {
         "CreateEvent" => EventType::CreateEvent,
         "PushEvent" => EventType::PushEvent,
+        "DeleteEvent" => EventType::DeleteEvent,
         "IssuesEvent" => EventType::IssuesEvent,
         "IssueCommentEvent" => EventType::IssueCommentEvent,
+        "CommitCommentEvent" => EventType::CommitCommentEvent,
         "PullRequestEvent" => EventType::PullRequestEvent,
         "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
@@ -127,11 +132,16 @@ fn deserialize_payload(
         EventType::CreateEvent => {
             serde_json::from_value::<CreateEventPayload>(data).map(EventPayload::CreateEvent)?
         }
+        EventType::DeleteEvent => {
+            serde_json::from_value::<DeleteEventPayload>(data).map(EventPayload::DeleteEvent)?
+        }
         EventType::IssuesEvent => {
             serde_json::from_value::<IssuesEventPayload>(data).map(EventPayload::IssuesEvent)?
         }
         EventType::IssueCommentEvent => serde_json::from_value::<IssueCommentEventPayload>(data)
             .map(EventPayload::IssueCommentEvent)?,
+        EventType::CommitCommentEvent => serde_json::from_value::<CommitCommentEventPayload>(data)
+            .map(EventPayload::CommitCommentEvent)?,
         EventType::PullRequestEvent => serde_json::from_value::<PullRequestEventPayload>(data)
             .map(|payload| EventPayload::PullRequestEvent(Box::new(payload)))?,
         EventType::PullRequestReviewCommentEvent => {
@@ -188,6 +198,20 @@ mod test {
         let json = include_str!("../../tests/resources/pull_request_review_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::PullRequestReviewCommentEvent);
+    }
+
+    #[test]
+    fn should_deserialize_commit_comment_event() {
+        let json = include_str!("../../tests/resources/commit_comment_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::CommitCommentEvent);
+    }
+
+    #[test]
+    fn should_deserialize_delete_event() {
+        let json = include_str!("../../tests/resources/delete_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::DeleteEvent);
     }
 
     #[test]
