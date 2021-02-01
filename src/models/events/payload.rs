@@ -2,6 +2,7 @@ mod commit_comment;
 mod create;
 mod delete;
 mod fork;
+mod gollum;
 mod issue_comment;
 mod issues;
 mod pull_request;
@@ -13,6 +14,7 @@ pub use commit_comment::*;
 pub use create::*;
 pub use delete::*;
 pub use fork::*;
+pub use gollum::*;
 pub use issue_comment::*;
 pub use issues::*;
 pub use pull_request::*;
@@ -37,6 +39,7 @@ pub enum EventPayload {
     IssueCommentEvent(IssueCommentEventPayload),
     CommitCommentEvent(CommitCommentEventPayload),
     ForkEvent(ForkEventPayload),
+    GollumEvent(GollumEventPayload),
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
     UnknownEvent(serde_json::Value),
