@@ -2,7 +2,7 @@ pub mod payload;
 
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
-    IssueCommentEventPayload, IssuesEventPayload, PullRequestEventPayload,
+    ForkEventPayload, IssueCommentEventPayload, IssuesEventPayload, PullRequestEventPayload,
     PullRequestReviewCommentEventPayload, PushEventPayload,
 };
 use chrono::{DateTime, Utc};
@@ -34,6 +34,7 @@ pub enum EventType {
     IssuesEvent,
     IssueCommentEvent,
     CommitCommentEvent,
+    ForkEvent,
     PullRequestEvent,
     PullRequestReviewCommentEvent,
     UnknownEvent(String),
@@ -115,6 +116,7 @@ fn deserialize_event_type(event_type: &str) -> EventType {
         "IssuesEvent" => EventType::IssuesEvent,
         "IssueCommentEvent" => EventType::IssueCommentEvent,
         "CommitCommentEvent" => EventType::CommitCommentEvent,
+        "ForkEvent" => EventType::ForkEvent,
         "PullRequestEvent" => EventType::PullRequestEvent,
         "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
@@ -142,6 +144,9 @@ fn deserialize_payload(
             .map(EventPayload::IssueCommentEvent)?,
         EventType::CommitCommentEvent => serde_json::from_value::<CommitCommentEventPayload>(data)
             .map(EventPayload::CommitCommentEvent)?,
+        EventType::ForkEvent => {
+            serde_json::from_value::<ForkEventPayload>(data).map(EventPayload::ForkEvent)?
+        }
         EventType::PullRequestEvent => serde_json::from_value::<PullRequestEventPayload>(data)
             .map(|payload| EventPayload::PullRequestEvent(Box::new(payload)))?,
         EventType::PullRequestReviewCommentEvent => {
@@ -212,6 +217,13 @@ mod test {
         let json = include_str!("../../tests/resources/delete_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::DeleteEvent);
+    }
+
+    #[test]
+    fn should_deserialize_fork_event() {
+        let json = include_str!("../../tests/resources/fork_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::ForkEvent);
     }
 
     #[test]
