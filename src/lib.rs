@@ -314,6 +314,17 @@ impl OctocrabBuilder {
 
         Ok(Octocrab {
             client,
+            path_prefix: match self.base_url.as_ref() {
+                Some(url) => {
+                    // In case of toplevel mount
+                    if url.path() == "/" {
+                        None
+                    } else {
+                        Some(url.path().to_string())
+                    }
+                }
+                None => None,
+            },
             base_url: self
                 .base_url
                 .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
@@ -325,6 +336,7 @@ impl OctocrabBuilder {
 #[derive(Debug, Clone)]
 pub struct Octocrab {
     client: reqwest::Client,
+    path_prefix: Option<String>,
     pub base_url: Url,
 }
 
@@ -336,6 +348,7 @@ impl Default for Octocrab {
     fn default() -> Self {
         Self {
             base_url: Url::parse(GITHUB_BASE_URL).unwrap(),
+            path_prefix: None,
             client: reqwest::ClientBuilder::new()
                 .user_agent("octocrab")
                 .build()
@@ -638,8 +651,17 @@ impl Octocrab {
     pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
         Ok(self
             .base_url
-            .join(url.as_ref())
+            .join(&self.path_with_prefix(url.as_ref()))
             .context(crate::error::Url)?)
+    }
+
+    fn path_with_prefix<'a>(&self, path: &'a str) -> String {
+        match self.path_prefix.as_ref() {
+            Some(prefix) => {
+                format!("{}{}", prefix, path)
+            }
+            None => path.to_string(),
+        }
     }
 
     /// A convience method to get the a page of results (if present).
