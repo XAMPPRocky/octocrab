@@ -666,4 +666,42 @@ mod tests {
             String::from(crate::GITHUB_BASE_URL) + "/help%20wanted"
         );
     }
+
+    #[test]
+    fn absolute_url_for_subdir() {
+        assert_eq!(
+            crate::OctocrabBuilder::new()
+                .base_url("https://git.example.com/api/v3/")
+                .unwrap()
+                .build()
+                .unwrap()
+                .absolute_url("/my/api")
+                .unwrap()
+                .as_str(),
+            String::from("https://git.example.com/my/api")
+        );
+    }
+
+    #[test]
+    fn relative_url() {
+        assert_eq!(
+            crate::instance().absolute_url("my/api").unwrap().as_str(),
+            String::from(crate::GITHUB_BASE_URL) + "/my/api"
+        );
+    }
+
+    #[test]
+    fn relative_url_for_subdir() {
+        assert_eq!(
+            crate::OctocrabBuilder::new()
+                .base_url("https://git.example.com/api/v3/")
+                .unwrap()
+                .build()
+                .unwrap()
+                .absolute_url("my/api")
+                .unwrap()
+                .as_str(),
+            String::from("https://git.example.com/api/v3/my/api")
+        );
+    }
 }
