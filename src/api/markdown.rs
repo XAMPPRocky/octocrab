@@ -53,7 +53,7 @@ impl<'octo> MarkdownHandler<'octo> {
         let request = self
             .crab
             .client
-            .post(self.crab.absolute_url("/markdown/raw")?)
+            .post(self.crab.absolute_url("markdown/raw")?)
             .header(reqwest::header::CONTENT_TYPE, "text/x-markdown")
             .body(text.into());
 
@@ -104,7 +104,7 @@ impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
     pub async fn send(self) -> crate::Result<String> {
         self.handler
             .crab
-            ._post(self.handler.crab.absolute_url("/markdown")?, Some(&self))
+            ._post(self.handler.crab.absolute_url("markdown")?, Some(&self))
             .await?
             .text()
             .await

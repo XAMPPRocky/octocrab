@@ -18,6 +18,6 @@ impl<'octo> CurrentAuthHandler<'octo> {
 
     /// Fetches information about the current user.
     pub async fn user(&self) -> Result<models::User> {
-        self.crab.get("/user", None::<&()>).await
+        self.crab.get("user", None::<&()>).await
     }
 }

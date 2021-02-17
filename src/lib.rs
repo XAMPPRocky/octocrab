@@ -81,7 +81,7 @@
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
 //! let user: octocrab::models::User = octocrab::instance()
-//!     .get("/user", None::<&()>)
+//!     .get("user", None::<&()>)
 //!     .await?;
 //! # Ok(())
 //! # }
@@ -104,7 +104,7 @@
 //! // You can also use `Octocrab::absolute_url` if you want to still to go to
 //! // the same base.
 //! let response =  octocrab
-//!     ._get(octocrab.absolute_url("/organizations")?, None::<&()>)
+//!     ._get(octocrab.absolute_url("organizations")?, None::<&()>)
 //!     .await?;
 //! # Ok(())
 //! # }
@@ -123,7 +123,7 @@
 //! #[async_trait::async_trait]
 //! impl OrganisationExt for Octocrab {
 //!   async fn list_every_organisation(&self) -> Result<Page<models::orgs::Organization>> {
-//!     self.get("/organizations", None::<&()>).await
+//!     self.get("organizations", None::<&()>).await
 //!   }
 //! }
 //! ```
@@ -449,7 +449,7 @@ impl Octocrab {
         body: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
         self.post(
-            "/graphql",
+            "graphql",
             Some(&serde_json::json!({
                 "query": body,
             })),
@@ -664,6 +664,44 @@ mod tests {
                 .unwrap()
                 .as_str(),
             String::from(crate::GITHUB_BASE_URL) + "/help%20wanted"
+        );
+    }
+
+    #[test]
+    fn absolute_url_for_subdir() {
+        assert_eq!(
+            crate::OctocrabBuilder::new()
+                .base_url("https://git.example.com/api/v3/")
+                .unwrap()
+                .build()
+                .unwrap()
+                .absolute_url("/my/api")
+                .unwrap()
+                .as_str(),
+            String::from("https://git.example.com/my/api")
+        );
+    }
+
+    #[test]
+    fn relative_url() {
+        assert_eq!(
+            crate::instance().absolute_url("my/api").unwrap().as_str(),
+            String::from(crate::GITHUB_BASE_URL) + "/my/api"
+        );
+    }
+
+    #[test]
+    fn relative_url_for_subdir() {
+        assert_eq!(
+            crate::OctocrabBuilder::new()
+                .base_url("https://git.example.com/api/v3/")
+                .unwrap()
+                .build()
+                .unwrap()
+                .absolute_url("my/api")
+                .unwrap()
+                .as_str(),
+            String::from("https://git.example.com/api/v3/my/api")
         );
     }
 }

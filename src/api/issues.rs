@@ -43,7 +43,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get(&self, number: u64) -> Result<models::issues::Issue> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}",
+            "repos/{owner}/{repo}/issues/{number}",
             owner = self.owner,
             repo = self.repo,
             number = number,
@@ -145,7 +145,7 @@ impl<'octo> IssueHandler<'octo> {
         reason: impl Into<Option<params::LockReason>>,
     ) -> Result<bool> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}/lock",
+            "repos/{owner}/{repo}/issues/{number}/lock",
             owner = self.owner,
             repo = self.repo,
             number = number,
@@ -182,7 +182,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn unlock(&self, number: u64) -> Result<bool> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}/lock",
+            "repos/{owner}/{repo}/issues/{number}/lock",
             owner = self.owner,
             repo = self.repo,
             number = number,
@@ -214,7 +214,7 @@ impl<'octo> IssueHandler<'octo> {
         assignees: &[u64],
     ) -> Result<models::issues::Issue> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/assignees",
+            "repos/{owner}/{repo}/issues/{issue}/assignees",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -236,7 +236,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn check_assignee(&self, assignee: impl AsRef<str>) -> Result<bool> {
         let route = format!(
-            "/repos/{owner}/{repo}/assignees/{assignee}",
+            "repos/{owner}/{repo}/assignees/{assignee}",
             owner = self.owner,
             repo = self.repo,
             assignee = assignee.as_ref()
@@ -309,7 +309,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::User>> {
         let route = format!(
-            "/repos/{owner}/{repo}/assignees",
+            "repos/{owner}/{repo}/assignees",
             owner = self.handler.owner,
             repo = self.handler.repo,
         );
@@ -332,7 +332,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn add_labels(&self, number: u64, labels: &[String]) -> Result<Vec<models::Label>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/labels",
+            "repos/{owner}/{repo}/issues/{issue}/labels",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -359,7 +359,7 @@ impl<'octo> IssueHandler<'octo> {
         label: impl AsRef<str>,
     ) -> Result<Vec<models::Label>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
+            "repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             issue_number = number,
@@ -385,7 +385,7 @@ impl<'octo> IssueHandler<'octo> {
         labels: &[String],
     ) -> Result<Vec<models::Label>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/labels",
+            "repos/{owner}/{repo}/issues/{issue}/labels",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -413,7 +413,7 @@ impl<'octo> IssueHandler<'octo> {
         description: impl AsRef<str>,
     ) -> Result<models::Label> {
         let route = format!(
-            "/repos/{owner}/{repo}/labels",
+            "repos/{owner}/{repo}/labels",
             owner = self.owner,
             repo = self.repo,
         );
@@ -442,7 +442,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
         let route = format!(
-            "/repos/{owner}/{repo}/labels/{name}",
+            "repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             name = name.as_ref(),
@@ -463,7 +463,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
         let route = format!(
-            "/repos/{owner}/{repo}/labels/{name}",
+            "repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             name = name.as_ref(),
@@ -527,7 +527,7 @@ impl<'octo> IssueHandler<'octo> {
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/comments",
+            "repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -550,7 +550,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get_comment(&self, comment_id: u64) -> Result<models::issues::Comment> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
             comment_id = comment_id
@@ -575,7 +575,7 @@ impl<'octo> IssueHandler<'octo> {
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
             comment_id = comment_id
@@ -595,7 +595,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn delete_comment(&self, comment_id: u64) -> Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
             comment_id = comment_id
@@ -678,7 +678,7 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/comments",
+            "repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
             issue = self.issue_number,

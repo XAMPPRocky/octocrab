@@ -46,7 +46,7 @@ impl<'octo> OrgHandler<'octo> {
         role: Option<crate::params::orgs::Role>,
     ) -> crate::Result<crate::models::orgs::MembershipInvitation> {
         let url = format!(
-            "/orgs/{org}/memberships/{username}",
+            "orgs/{org}/memberships/{username}",
             org = self.owner,
             username = username.as_ref(),
         );
@@ -67,7 +67,7 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub async fn check_membership(&self, username: impl AsRef<str>) -> crate::Result<bool> {
         let url = format!(
-            "/orgs/{org}/members/{username}",
+            "orgs/{org}/members/{username}",
             org = self.owner,
             username = username.as_ref(),
         );
@@ -96,7 +96,7 @@ impl<'octo> OrgHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> crate::Result<crate::models::orgs::Organization> {
-        let route = format!("/orgs/{org}", org = self.owner);
+        let route = format!("orgs/{org}", org = self.owner);
 
         self.crab.get(route, None::<&()>).await
     }

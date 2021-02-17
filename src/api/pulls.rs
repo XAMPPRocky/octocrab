@@ -56,7 +56,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn is_merged(&self, pr: u64) -> crate::Result<bool> {
         let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}/merge",
+            "repos/{owner}/{repo}/pulls/{pr}/merge",
             owner = self.owner,
             repo = self.repo,
             pr = pr
@@ -78,7 +78,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn get(&self, pr: u64) -> crate::Result<crate::models::pulls::PullRequest> {
         let url = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}",
+            "repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
@@ -96,7 +96,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn get_diff(&self, pr: u64) -> crate::Result<String> {
         let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}",
+            "repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
@@ -122,7 +122,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn get_patch(&self, pr: u64) -> crate::Result<String> {
         let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}",
+            "repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
@@ -205,7 +205,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
         let url = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}/reviews",
+            "repos/{owner}/{repo}/pulls/{pr}/reviews",
             owner = self.owner,
             repo = self.repo,
             pr = pr

@@ -69,7 +69,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     pub async fn get_asset(&self, asset_id: usize) -> crate::Result<models::repos::Asset> {
         let url = format!(
-            "/repos/{owner}/{repo}/assets/{asset_id}",
+            "repos/{owner}/{repo}/assets/{asset_id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
@@ -91,7 +91,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     pub async fn get_latest(&self) -> crate::Result<models::repos::Release> {
         let url = format!(
-            "/repos/{owner}/{repo}/releases/latest",
+            "repos/{owner}/{repo}/releases/latest",
             owner = self.parent.owner,
             repo = self.parent.repo,
         );
@@ -112,7 +112,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     pub async fn get_by_tag(&self, tag: &str) -> crate::Result<models::repos::Release> {
         let url = format!(
-            "/repos/{owner}/{repo}/releases/tags/{tag}",
+            "repos/{owner}/{repo}/releases/tags/{tag}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             tag = tag,
@@ -145,7 +145,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         use snafu::GenerateBacktrace;
 
         let url = format!(
-            "/repos/{owner}/{repo}/assets/{asset_id}",
+            "repos/{owner}/{repo}/assets/{asset_id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
@@ -198,7 +198,7 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Release>> {
         let url = format!(
-            "/repos/{owner}/{repo}/releases",
+            "repos/{owner}/{repo}/releases",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo
         );
@@ -275,7 +275,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> Create
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
         let url = format!(
-            "/repos/{owner}/{repo}/releases",
+            "repos/{owner}/{repo}/releases",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo
         );

@@ -63,7 +63,7 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let url = format!(
-            "/repos/{owner}/{repo}/statuses/{sha}",
+            "repos/{owner}/{repo}/statuses/{sha}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             sha = self.sha

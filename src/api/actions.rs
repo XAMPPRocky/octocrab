@@ -36,7 +36,7 @@ impl<'octo> ActionsHandler<'octo> {
         repository_id: u64,
     ) -> crate::Result<()> {
         let route = format!(
-            "/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
+            "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
             org = org.as_ref(),
             secret_name = secret_name.as_ref(),
             repository_id = repository_id,
@@ -68,7 +68,7 @@ impl<'octo> ActionsHandler<'octo> {
         repository_id: u64,
     ) -> crate::Result<()> {
         let route = format!(
-            "/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
+            "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
             org = org.as_ref(),
             secret_name = secret_name.as_ref(),
             repository_id = repository_id,
@@ -98,7 +98,7 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: u64,
     ) -> crate::Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
+            "repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
@@ -146,7 +146,7 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: u64,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/runs/{run_id}/logs",
+            "repos/{owner}/{repo}/actions/runs/{run_id}/logs",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
@@ -177,7 +177,7 @@ impl<'octo> ActionsHandler<'octo> {
         archive_format: params::actions::ArchiveFormat,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
+            "repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             artifact_id = artifact_id,
@@ -207,7 +207,7 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: u64,
     ) -> crate::Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/runs/{run_id}/logs",
+            "repos/{owner}/{repo}/actions/runs/{run_id}/logs",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
@@ -235,7 +235,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         org: impl AsRef<str>,
     ) -> crate::Result<crate::models::PublicKey> {
-        let route = format!("/orgs/{org}/actions/secrets/public-key", org = org.as_ref());
+        let route = format!("orgs/{org}/actions/secrets/public-key", org = org.as_ref());
 
         self.crab.get(route, None::<&()>).await
     }
@@ -278,7 +278,7 @@ impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
     pub async fn send(self) -> crate::Result<String> {
         self.handler
             .crab
-            ._post(self.handler.crab.absolute_url("/markdown")?, Some(&self))
+            ._post(self.handler.crab.absolute_url("markdown")?, Some(&self))
             .await?
             .text()
             .await
