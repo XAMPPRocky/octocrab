@@ -37,7 +37,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_name: impl Into<String>,
     ) -> Result<models::Repository> {
         let url = format!(
-            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),
@@ -72,7 +72,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         permission: impl Into<Option<params::teams::Permission>>,
     ) -> Result<()> {
         let url = format!(
-            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),
@@ -100,7 +100,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_name: impl Into<String>,
     ) -> Result<()> {
         let url = format!(
-            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),

@@ -38,7 +38,7 @@ impl<'octo, 'r> ListChildTeamsBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::teams::RequestedTeam>> {
         let url = format!(
-            "/orgs/{org}/teams/{team}/teams",
+            "orgs/{org}/teams/{team}/teams",
             org = self.handler.owner,
             team = self.slug,
         );

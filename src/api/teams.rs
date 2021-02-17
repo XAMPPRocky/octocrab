@@ -55,7 +55,7 @@ impl<'octo> TeamHandler<'octo> {
     /// ```
     pub async fn get(&self, team_slug: impl Into<String>) -> Result<models::teams::Team> {
         let url = format!(
-            "/orgs/{org}/teams/{team}",
+            "orgs/{org}/teams/{team}",
             org = self.owner,
             team = team_slug.into(),
         );
@@ -113,7 +113,7 @@ impl<'octo> TeamHandler<'octo> {
     /// ```
     pub async fn delete(&self, team_slug: impl Into<String>) -> Result<()> {
         let url = format!(
-            "/orgs/{org}/teams/{team}",
+            "orgs/{org}/teams/{team}",
             org = self.owner,
             team = team_slug.into(),
         );

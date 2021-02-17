@@ -36,7 +36,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, id: impl Into<u64>) -> crate::Result<Notification> {
-        let url = format!("/notifications/threads/{}", id.into());
+        let url = format!("notifications/threads/{}", id.into());
         self.crab.get(url, None::<&()>).await
     }
 
@@ -53,7 +53,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn mark_as_read(&self, id: impl Into<u64>) -> crate::Result<()> {
-        let url = format!("/notifications/threads/{}", id.into());
+        let url = format!("notifications/threads/{}", id.into());
         let url = self.crab.absolute_url(url)?;
 
         let response = self.crab._patch(url, None::<&()>).await?;
@@ -87,7 +87,7 @@ impl<'octo> NotificationsHandler<'octo> {
             .into()
             .map(|last_read_at| Inner { last_read_at });
 
-        let url = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        let url = format!("repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
         let url = self.crab.absolute_url(url)?;
 
         let response = self.crab._put(url, body.as_ref()).await?;
@@ -121,7 +121,7 @@ impl<'octo> NotificationsHandler<'octo> {
         let body = last_read_at
             .into()
             .map(|last_read_at| Inner { last_read_at });
-        let url = self.crab.absolute_url("/notifications")?;
+        let url = self.crab.absolute_url("notifications")?;
 
         let response = self.crab._put(url, body.as_ref()).await?;
         crate::map_github_error(response).await.map(drop)
@@ -143,7 +143,7 @@ impl<'octo> NotificationsHandler<'octo> {
         &self,
         thread: impl Into<u64>,
     ) -> crate::Result<ThreadSubscription> {
-        let url = format!("/notifications/threads/{}/subscription", thread.into());
+        let url = format!("notifications/threads/{}/subscription", thread.into());
 
         self.crab.get(url, None::<&()>).await
     }
@@ -170,7 +170,7 @@ impl<'octo> NotificationsHandler<'octo> {
             ignored: bool,
         }
 
-        let url = format!("/notifications/threads/{}/subscription", thread.into());
+        let url = format!("notifications/threads/{}/subscription", thread.into());
         let body = Inner { ignored };
 
         self.crab.get(url, Some(&body)).await
@@ -189,7 +189,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// ```
     pub async fn delete_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<()> {
         let url = self.crab.absolute_url(format!(
-            "/notifications/threads/{}/subscription",
+            "notifications/threads/{}/subscription",
             thread.into()
         ))?;
 
@@ -217,7 +217,7 @@ impl<'octo> NotificationsHandler<'octo> {
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
     ) -> ListNotificationsBuilder<'octo> {
-        let url = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        let url = format!("repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
         ListNotificationsBuilder::new(self.crab, url)
     }
 
@@ -235,7 +235,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub fn list(&self) -> ListNotificationsBuilder<'octo> {
-        ListNotificationsBuilder::new(self.crab, "/notifications".to_string())
+        ListNotificationsBuilder::new(self.crab, "notifications".to_string())
     }
 }
 

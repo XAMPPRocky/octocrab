@@ -36,7 +36,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn license(&self) -> Result<models::repos::Content> {
         let url = format!(
-            "/repos/{owner}/{repo}/license",
+            "repos/{owner}/{repo}/license",
             owner = self.owner,
             repo = self.repo,
         );
@@ -61,7 +61,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
     ) -> Result<models::repos::Ref> {
         let url = format!(
-            "/repos/{owner}/{repo}/git/ref/{reference}",
+            "repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
@@ -89,7 +89,7 @@ impl<'octo> RepoHandler<'octo> {
         sha: impl Into<String>,
     ) -> Result<models::repos::Ref> {
         let url = format!(
-            "/repos/{owner}/{repo}/git/refs",
+            "repos/{owner}/{repo}/git/refs",
             owner = self.owner,
             repo = self.repo,
         );
@@ -259,7 +259,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
     ) -> Result<models::CombinedStatus> {
         let url = format!(
-            "/repos/{owner}/{repo}/commits/{reference}/status",
+            "repos/{owner}/{repo}/commits/{reference}/status",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
@@ -274,7 +274,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete(self) -> Result<()> {
-        let url = format!("/repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
+        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
         crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
             .await
             .map(drop)

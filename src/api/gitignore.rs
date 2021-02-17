@@ -25,7 +25,7 @@ impl<'octo> GitignoreHandler<'octo> {
     /// # }
     /// ```
     pub async fn list(&self) -> crate::Result<Vec<String>> {
-        self.crab.get("/gitignore/templates", None::<&()>).await
+        self.crab.get("gitignore/templates", None::<&()>).await
     }
 
     /// Get the source of a single template.
@@ -36,7 +36,7 @@ impl<'octo> GitignoreHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, name: impl AsRef<str>) -> crate::Result<String> {
-        let route = format!("/gitignore/templates/{name}", name = name.as_ref());
+        let route = format!("gitignore/templates/{name}", name = name.as_ref());
         let request = self
             .crab
             .client

@@ -26,7 +26,7 @@ impl<'octo> GistHandler<'octo> {
     /// # }
     /// ```
     pub async fn check_is_starred(&self, id: &str) -> crate::Result<bool> {
-        let url = self.crab.absolute_url(format!("/gists/{}/star", id))?;
+        let url = self.crab.absolute_url(format!("gists/{}/star", id))?;
 
         let resp = self.crab._get(url, None::<&()>).await?;
 
@@ -70,7 +70,7 @@ impl<'octo> GistHandler<'octo> {
     /// # }
     /// ```
     pub async fn star(&self, id: &str) -> crate::Result<bool> {
-        let url = self.crab.absolute_url(format!("/gists/{}/star", id))?;
+        let url = self.crab.absolute_url(format!("gists/{}/star", id))?;
 
         let resp = self.crab._put(url, None::<&()>).await?;
 
@@ -92,7 +92,7 @@ impl<'octo> GistHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, name: impl AsRef<str>) -> crate::Result<String> {
-        let route = format!("/gitignore/templates/{name}", name = name.as_ref());
+        let route = format!("gitignore/templates/{name}", name = name.as_ref());
         let request = self
             .crab
             .client

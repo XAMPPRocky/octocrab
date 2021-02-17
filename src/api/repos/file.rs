@@ -59,7 +59,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let url = format!(
-            "/repos/{owner}/{repo}/contents/{path}",
+            "repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,

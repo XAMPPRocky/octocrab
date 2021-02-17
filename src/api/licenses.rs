@@ -23,7 +23,7 @@ impl<'octo> LicenseHandler<'octo> {
     /// # }
     /// ```
     pub async fn list_commonly_used(&self) -> crate::Result<Vec<models::License>> {
-        self.crab.get("/licenses", None::<&()>).await
+        self.crab.get("licenses", None::<&()>).await
     }
 
     /// Get an individual license.
@@ -35,7 +35,7 @@ impl<'octo> LicenseHandler<'octo> {
     /// ```
     pub async fn get(&self, key: impl AsRef<str>) -> crate::Result<models::License> {
         self.crab
-            .get(format!("/licenses/{}", key.as_ref()), None::<&()>)
+            .get(format!("licenses/{}", key.as_ref()), None::<&()>)
             .await
     }
 }
