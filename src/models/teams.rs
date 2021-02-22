@@ -9,7 +9,7 @@ pub struct Team {
     pub html_url: Url,
     pub name: String,
     pub slug: String,
-    pub description: String,
+    pub description: Option<String>,
     pub privacy: String,
     pub permission: String,
     pub members_url: Url,
