@@ -713,6 +713,12 @@ pub struct ListIssueCommentsBuilder<'octo, 'r> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sort: Option<params::issues::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direction: Option<params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
@@ -721,6 +727,9 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
             handler,
             per_page: None,
             page: None,
+            sort: None,
+            direction: None,
+            since: None,
         }
     }
 
@@ -733,6 +742,24 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Specify sort results by. Can be either `created`, `updated`,
+    pub fn sort(mut self, sort: impl Into<params::issues::Sort>) -> Self {
+        self.sort = Some(sort.into());
+        self
+    }
+
+    /// The direction of the sort. Can be either ascending or descending.
+    pub fn direction(mut self, direction: impl Into<params::Direction>) -> Self {
+        self.direction = Some(direction.into());
+        self
+    }
+
+    /// Only show comments updated after the given time.
+    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+        self.since = Some(since.into());
         self
     }
 
