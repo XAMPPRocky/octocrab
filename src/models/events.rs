@@ -2,10 +2,11 @@ pub mod payload;
 
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
-    IssueCommentEventPayload, IssuesEventPayload, PullRequestEventPayload,
-    PullRequestReviewCommentEventPayload, PushEventPayload,
+    ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
+    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
 };
 use chrono::{DateTime, Utc};
+use payload::MemberEventPayload;
 use reqwest::Url;
 use serde::{de::Error, Deserialize, Serialize};
 
@@ -34,6 +35,9 @@ pub enum EventType {
     IssuesEvent,
     IssueCommentEvent,
     CommitCommentEvent,
+    ForkEvent,
+    GollumEvent,
+    MemberEvent,
     PullRequestEvent,
     PullRequestReviewCommentEvent,
     UnknownEvent(String),
@@ -115,6 +119,9 @@ fn deserialize_event_type(event_type: &str) -> EventType {
         "IssuesEvent" => EventType::IssuesEvent,
         "IssueCommentEvent" => EventType::IssueCommentEvent,
         "CommitCommentEvent" => EventType::CommitCommentEvent,
+        "ForkEvent" => EventType::ForkEvent,
+        "GollumEvent" => EventType::GollumEvent,
+        "MemberEvent" => EventType::MemberEvent,
         "PullRequestEvent" => EventType::PullRequestEvent,
         "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
@@ -142,6 +149,15 @@ fn deserialize_payload(
             .map(EventPayload::IssueCommentEvent)?,
         EventType::CommitCommentEvent => serde_json::from_value::<CommitCommentEventPayload>(data)
             .map(EventPayload::CommitCommentEvent)?,
+        EventType::ForkEvent => {
+            serde_json::from_value::<ForkEventPayload>(data).map(EventPayload::ForkEvent)?
+        }
+        EventType::GollumEvent => {
+            serde_json::from_value::<GollumEventPayload>(data).map(EventPayload::GollumEvent)?
+        }
+        EventType::MemberEvent => {
+            serde_json::from_value::<MemberEventPayload>(data).map(EventPayload::MemberEvent)?
+        }
         EventType::PullRequestEvent => serde_json::from_value::<PullRequestEventPayload>(data)
             .map(|payload| EventPayload::PullRequestEvent(Box::new(payload)))?,
         EventType::PullRequestReviewCommentEvent => {
@@ -212,6 +228,27 @@ mod test {
         let json = include_str!("../../tests/resources/delete_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::DeleteEvent);
+    }
+
+    #[test]
+    fn should_deserialize_fork_event() {
+        let json = include_str!("../../tests/resources/fork_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::ForkEvent);
+    }
+
+    #[test]
+    fn should_deserialize_gollum_event() {
+        let json = include_str!("../../tests/resources/gollum_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::GollumEvent);
+    }
+
+    #[test]
+    fn should_deserialize_member_event() {
+        let json = include_str!("../../tests/resources/member_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::MemberEvent);
     }
 
     #[test]
