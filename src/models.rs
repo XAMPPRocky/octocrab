@@ -10,6 +10,7 @@ pub mod orgs;
 pub mod pulls;
 pub mod repos;
 pub mod teams;
+pub mod workflows;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
