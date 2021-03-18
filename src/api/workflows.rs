@@ -10,7 +10,7 @@ pub struct WorkflowsHandler<'octo> {
 ///
 /// Created with [`Octocrab::workflows`].
 impl<'octo> WorkflowsHandler<'octo> {
-    pub fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
         Self {
             crab,
             owner: owner,
@@ -178,6 +178,7 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
         self
     }
 
+    /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::workflows::Run>> {
         let url = format!(
             "repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
