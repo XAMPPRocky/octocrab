@@ -33,8 +33,28 @@ pub struct Run {
     pub updated_at: chrono::DateTime<chrono::Utc>,
     pub url: Url,
     pub html_url: Url,
+    pub jobs_url: Url,
+    pub logs_url: Url,
+    pub check_suite_url: Url,
+    pub artifacts_url: Url,
+    pub cancel_url: Url,
+    pub rerun_url: Url,
+    pub workflow_url: Url,
+    pub pull_requests: Vec<super::pulls::PullRequest>,
     // TODO: other attrs
     // ref: https://docs.github.com/en/rest/reference/actions#list-workflow-runs
+    pub head_commit: HeadCommit,
+    pub repository: Repository,
+    pub head_repository: Repository,
+}
+
+pub struct HeadCommit {
+    pub id: String,
+    pub tree_id: String,
+    pub message: String,
+    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub author: super::repos::GitUser,
+    pub committer: super::repos::GitUser,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
