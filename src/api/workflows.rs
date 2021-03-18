@@ -62,6 +62,28 @@ impl<'octo> WorkflowsHandler<'octo> {
     pub fn list_runs(&self, workflow_file_or_id: impl Into<String>) -> ListRunsBuilder<'_, '_> {
         ListRunsBuilder::new(self, workflow_file_or_id.into())
     }
+
+    /// List job results in the specified run.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params::workflows::Filter;
+    ///
+    /// let issue = octocrab.workflows("owner", "repo")
+    ///     .list_jobs(1234)
+    ///     // Optional Parameters
+    ///     .per_page(100)
+    ///     .page(1u8)
+    ///     .filter(Filter::All)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_jobs(&self, run_id: impl Into<u64>) -> ListJobsBuilder<'_, '_> {
+        ListJobsBuilder::new(self, run_id.into())
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -185,6 +207,61 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
             owner = self.handler.owner,
             repo = self.handler.repo,
             workflow_id = self.workflow_id
+        );
+        self.handler.crab.get(url, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListJobsBuilder<'octo, 'b> {
+    #[serde(skip)]
+    handler: &'b WorkflowsHandler<'octo>,
+    #[serde(skip)]
+    run_id: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<crate::params::workflows::Filter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'b> ListJobsBuilder<'octo, 'b> {
+    pub(crate) fn new(handler: &'b WorkflowsHandler<'octo>, run_id: u64) -> Self {
+        Self {
+            handler,
+            run_id,
+            per_page: None,
+            page: None,
+            filter: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Filters jobs by their completed_at timestamp. Choose latest or all.
+    pub fn filter(mut self, filter: impl Into<crate::params::workflows::Filter>) -> Self {
+        self.filter = Some(filter.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<Page<models::workflows::Job>> {
+        let url = format!(
+            "repos/{owner}/{repo}/actions/runs/{run_id}/jobs",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            run_id = self.run_id,
         );
         self.handler.crab.get(url, Some(&self)).await
     }
