@@ -70,7 +70,7 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// use octocrab::params::workflows::Filter;
     ///
     /// let issue = octocrab.workflows("owner", "repo")
-    ///     .list_jobs(1234)
+    ///     .list_jobs(1234u32)
     ///     // Optional Parameters
     ///     .per_page(100)
     ///     .page(1u8)
@@ -264,5 +264,30 @@ impl<'octo, 'b> ListJobsBuilder<'octo, 'b> {
             run_id = self.run_id,
         );
         self.handler.crab.get(url, Some(&self)).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[tokio::test]
+    async fn serialize() {
+        use crate::params::workflows::Filter;
+
+        let octocrab = crate::Octocrab::default();
+        let handler = octocrab.workflows("rust-lang", "rust");
+        let list_jobs = handler
+            .list_jobs(1234u32)
+            .filter(Filter::All)
+            .per_page(100)
+            .page(1u8);
+
+        assert_eq!(
+            serde_json::to_value(list_jobs).unwrap(),
+            serde_json::json!({
+                "filter": "all",
+                "per_page": 100,
+                "page": 1,
+            })
+        )
     }
 }
