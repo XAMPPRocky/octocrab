@@ -48,6 +48,8 @@ pub struct Run {
     pub head_repository: Repository,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct HeadCommit {
     pub id: String,
     pub tree_id: String,
