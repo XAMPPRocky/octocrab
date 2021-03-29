@@ -220,6 +220,17 @@ pub mod pulls {
         Squash,
         Rebase,
     }
+
+    pub mod comments {
+        /// What to sort results by. Can be either `created` or `updated`.
+        #[derive(Debug, Clone, Copy, serde::Serialize)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+        pub enum Sort {
+            Created,
+            Updated,
+        }
+    }
 }
 
 pub mod repos {

@@ -1,5 +1,6 @@
 //! The pull request API.
 
+mod comment;
 mod create;
 mod list;
 mod merge;
@@ -212,6 +213,31 @@ impl<'octo> PullRequestHandler<'octo> {
         );
 
         self.http_get(url, None::<&()>).await
+    }
+
+    /// Creates a new `ListCommentsBuilder` that can be configured to list and
+    /// filter `Comments` for a particular pull request. If no pull request is
+    /// specified, lists comments for the whole repo.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let page = octocrab.pulls("owner", "repo").list_comments(Some(5))
+    ///     // Optional Parameters
+    ///     .sort(params::pulls::comments::Sort::Created)
+    ///     .direction(params::Direction::Ascending)
+    ///     .per_page(100)
+    ///     .page(5u32)
+    ///     .since(chrono::Utc::now() - chrono::Duration::days(1))
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_comments(&self, pr: Option<u64>) -> comment::ListCommentsBuilder {
+        comment::ListCommentsBuilder::new(self, pr)
     }
 
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
