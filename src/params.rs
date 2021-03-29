@@ -319,3 +319,13 @@ pub mod teams {
         Triage,
     }
 }
+
+pub mod workflows {
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Filter {
+        Latest,
+        All,
+    }
+}

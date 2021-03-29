@@ -10,3 +10,4 @@ pub mod pulls;
 pub mod repos;
 pub mod search;
 pub mod teams;
+pub mod workflows;

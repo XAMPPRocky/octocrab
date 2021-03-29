@@ -169,7 +169,7 @@ use auth::Auth;
 pub use self::{
     api::{
         actions, activity, current, gitignore, issues, licenses, markdown, orgs, pulls, repos,
-        search, teams,
+        search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -429,6 +429,16 @@ impl Octocrab {
     /// you to access GitHub's teams API.
     pub fn teams(&self, owner: impl Into<String>) -> teams::TeamHandler {
         teams::TeamHandler::new(self, owner.into())
+    }
+
+    /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows
+    /// you to access GitHub's workflows API.
+    pub fn workflows(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> workflows::WorkflowsHandler {
+        workflows::WorkflowsHandler::new(self, owner.into(), repo.into())
     }
 }
 

@@ -90,8 +90,13 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 last,
             })
         } else {
+            let attr = vec!["items", "workflows", "workflow_runs", "jobs"]
+                .into_iter()
+                .find(|v| !json.get(v).is_none())
+                .unwrap();
+
             Ok(Self {
-                items: serde_json::from_value(json.get("items").cloned().unwrap())
+                items: serde_json::from_value(json.get(attr).cloned().unwrap())
                     .context(crate::error::Serde)?,
                 incomplete_results: json
                     .get("incomplete_results")
