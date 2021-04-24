@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct WorkFlow {
-    pub id: i64,
+    pub id: WorkflowId,
     pub node_id: String,
     pub name: String,
     pub path: String,
@@ -18,8 +18,8 @@ pub struct WorkFlow {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Run {
-    pub id: i64,
-    pub workflow_id: i64,
+    pub id: RunId,
+    pub workflow_id: WorkflowId,
     pub node_id: String,
     pub name: String,
     pub head_branch: String,
@@ -62,8 +62,8 @@ pub struct HeadCommit {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Job {
-    pub id: i64,
-    pub run_id: i64,
+    pub id: JobId,
+    pub run_id: RunId,
     pub node_id: String,
     pub head_sha: String,
     pub status: String,

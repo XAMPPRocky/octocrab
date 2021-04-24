@@ -6,6 +6,7 @@ mod list_labels;
 mod update;
 
 use crate::{models, params, Octocrab, Result};
+use crate::models::CommentId;
 
 pub use self::{
     create::CreateIssueBuilder,
@@ -543,12 +544,12 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .get_comment(101)
+    ///     .get_comment(101u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_comment(&self, comment_id: u64) -> Result<models::issues::Comment> {
+    pub async fn get_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
         let route = format!(
             "repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
@@ -564,14 +565,14 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .update_comment(101, "Beep Boop")
+    ///     .update_comment(101u64.into(), "Beep Boop")
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn update_comment(
         &self,
-        comment_id: u64,
+        comment_id: CommentId,
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
         let route = format!(
@@ -589,11 +590,11 @@ impl<'octo> IssueHandler<'octo> {
     /// Deletes a comment in an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// octocrab::instance().issues("owner", "repo").delete_comment(101).await?;
+    /// octocrab::instance().issues("owner", "repo").delete_comment(101u64.into()).await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn delete_comment(&self, comment_id: u64) -> Result<()> {
+    pub async fn delete_comment(&self, comment_id: CommentId) -> Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
@@ -618,7 +619,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .list_comments(101)
+    ///     .list_comments(101u64.into())
     ///     .since(chrono::Utc::now())
     ///     .per_page(100)
     ///     .page(2u32)

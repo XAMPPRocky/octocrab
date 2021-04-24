@@ -4,7 +4,7 @@ use super::*;
 #[non_exhaustive]
 pub struct Organization {
     pub login: String,
-    pub id: u64,
+    pub id: OrgId,
     pub node_id: String,
     pub url: Url,
     pub repos_url: Url,

@@ -107,7 +107,7 @@ pub struct Release {
     pub upload_url: Url,
     pub tarball_url: Url,
     pub zipball_url: Url,
-    pub id: i64,
+    pub id: ReleaseId,
     pub node_id: String,
     pub tag_name: String,
     pub target_commitish: String,
@@ -126,7 +126,7 @@ pub struct Release {
 pub struct Asset {
     pub url: Url,
     pub browser_download_url: Url,
-    pub id: i64,
+    pub id: AssetId,
     pub node_id: String,
     pub name: String,
     pub label: Option<String>,

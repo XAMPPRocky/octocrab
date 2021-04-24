@@ -18,7 +18,7 @@ mod test {
         let json = include_str!("../../../../tests/resources/fork_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::ForkEvent(payload)) = event.payload {
-            assert_eq!(payload.forkee.id, 334843423);
+            assert_eq!(payload.forkee.id.0, 334843423);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

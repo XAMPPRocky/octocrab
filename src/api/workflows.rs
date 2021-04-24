@@ -1,4 +1,5 @@
 use crate::{models, Octocrab, Page, Result};
+use crate::models::RunId;
 
 pub struct WorkflowsHandler<'octo> {
     crab: &'octo Octocrab,
@@ -70,7 +71,7 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// use octocrab::params::workflows::Filter;
     ///
     /// let issue = octocrab.workflows("owner", "repo")
-    ///     .list_jobs(1234u32)
+    ///     .list_jobs(1234u64.into())
     ///     // Optional Parameters
     ///     .per_page(100)
     ///     .page(1u8)
@@ -81,8 +82,8 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_jobs(&self, run_id: impl Into<u64>) -> ListJobsBuilder<'_, '_> {
-        ListJobsBuilder::new(self, run_id.into())
+    pub fn list_jobs(&self, run_id: RunId) -> ListJobsBuilder<'_, '_> {
+        ListJobsBuilder::new(self, run_id)
     }
 }
 
@@ -217,7 +218,7 @@ pub struct ListJobsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b WorkflowsHandler<'octo>,
     #[serde(skip)]
-    run_id: u64,
+    run_id: RunId,
     #[serde(skip_serializing_if = "Option::is_none")]
     filter: Option<crate::params::workflows::Filter>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -227,7 +228,7 @@ pub struct ListJobsBuilder<'octo, 'b> {
 }
 
 impl<'octo, 'b> ListJobsBuilder<'octo, 'b> {
-    pub(crate) fn new(handler: &'b WorkflowsHandler<'octo>, run_id: u64) -> Self {
+    pub(crate) fn new(handler: &'b WorkflowsHandler<'octo>, run_id: RunId) -> Self {
         Self {
             handler,
             run_id,
@@ -276,7 +277,7 @@ mod tests {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.workflows("rust-lang", "rust");
         let list_jobs = handler
-            .list_jobs(1234u32)
+            .list_jobs(1234u64.into())
             .filter(Filter::All)
             .per_page(100)
             .page(1u8);

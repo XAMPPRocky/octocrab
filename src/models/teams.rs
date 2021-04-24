@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Team {
-    pub id: i64,
+    pub id: TeamId,
     pub node_id: String,
     pub url: Url,
     pub html_url: Url,
@@ -36,7 +36,7 @@ pub struct RequestedReviewers {
 #[non_exhaustive]
 pub struct RequestedTeam {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<TeamId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

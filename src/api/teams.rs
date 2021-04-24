@@ -74,7 +74,7 @@ impl<'octo> TeamHandler<'octo> {
     ///     .maintainers(&vec![String::from("ferris")])
     ///     .repo_names(&vec![String::from("crab-stuff")])
     ///     .privacy(params::teams::Privacy::Closed)
-    ///     .parent_team_id(1u64)
+    ///     .parent_team_id(1u64.into())
     ///     .send()
     ///     .await?;
     /// # Ok(())
@@ -94,7 +94,7 @@ impl<'octo> TeamHandler<'octo> {
     ///     .edit("some-team", "Some Team")
     ///     .description("I edited from Octocrab!")
     ///     .privacy(params::teams::Privacy::Secret)
-    ///     .parent_team_id(2u64)
+    ///     .parent_team_id(2u64.into())
     ///     .send()
     ///     .await?;
     /// # Ok(())

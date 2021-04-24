@@ -1,3 +1,5 @@
+use crate::models::AssetId;
+
 use super::*;
 
 /// Handler for GitHub's releases API.
@@ -62,12 +64,12 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// let asset = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .releases()
-    ///     .get_asset(42)
+    ///     .get_asset(42u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_asset(&self, asset_id: usize) -> crate::Result<models::repos::Asset> {
+    pub async fn get_asset(&self, asset_id: AssetId) -> crate::Result<models::repos::Asset> {
         let url = format!(
             "repos/{owner}/{repo}/assets/{asset_id}",
             owner = self.parent.owner,
@@ -140,7 +142,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     #[cfg(feature = "stream")]
     #[cfg_attr(docsrs, doc(cfg(feature = "stream")))]
-    pub async fn stream_asset(&self, asset_id: usize) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
+    pub async fn stream_asset(&self, asset_id: AssetId) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
         use snafu::GenerateBacktrace;
 
