@@ -22,7 +22,7 @@ macro_rules! id_type {
     // This macro takes an argument of designator `ident` and
     // creates a function named `$func_name`.
     // The `ident` designator is used for variable/function names.
-    ($name:ident) => {
+    ($($name:ident),+) => {$(
         #[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
         pub struct $name(pub BaseIdType);
         impl fmt::Display for $name {
@@ -51,54 +51,59 @@ macro_rules! id_type {
                 Self(value)
             }
         }
-    };
+        impl AsRef<BaseIdType> for $name {
+            fn as_ref(&self) -> &BaseIdType {
+                &self.0
+            }
+        }
+    )+};
 }
 
-id_type!(ActorId); // A Bot, EnterpriseUserAccount, Mannequin, Orangization or User
-id_type!(AppId);
-id_type!(ArtifactId);
-id_type!(AssetId);
-id_type!(CardId);
-id_type!(CheckRunId);
-id_type!(CommentId);
-id_type!(InstallationId);
-id_type!(IssueEventId);
-id_type!(IssueId);
-id_type!(JobId);
-id_type!(LabelId);
-id_type!(MilestoneId);
-id_type!(NotificationId);
-id_type!(OrgId);
-id_type!(ProjectId);
-id_type!(ProjectColumnId);
-id_type!(PullRequestId);
-id_type!(PushId);
-id_type!(ReleaseId);
-id_type!(RepositoryId);
-id_type!(ReviewId);
-id_type!(RunId);
-id_type!(StatusId);
-id_type!(TeamId);
-id_type!(ThreadId);
-id_type!(UserId);
-id_type!(UserOrOrgId);
-id_type!(WorkflowId);
+id_type!(ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
+         AppId,
+         ArtifactId,
+         AssetId,
+         CardId,
+         CheckRunId,
+         CommentId,
+         InstallationId,
+         IssueEventId,
+         IssueId,
+         JobId,
+         LabelId,
+         MilestoneId,
+         NotificationId,
+         OrgId,
+         ProjectId,
+         ProjectColumnId,
+         PullRequestId,
+         PushId,
+         ReleaseId,
+         RepositoryId,
+         ReviewId,
+         RunId,
+         StatusId,
+         TeamId,
+         ThreadId,
+         UserId,
+         UserOrOrgId,
+         WorkflowId);
 
 macro_rules! convert_into {
-    ($from:ident, $to:ident) => {
+    ($($from:ident -> $to:ident),+) => {$(
         impl From<$from> for $to {
             fn from(v: $from) -> $to {
                 $to(v.0)
             }
         }
-    };
+    )+};
 }
 
-convert_into!(OrgId, ActorId);
-convert_into!(UserId, ActorId);
-convert_into!(OrgId, UserOrOrgId);
-convert_into!(UserId, UserOrOrgId);
-convert_into!(PullRequestId, IssueId);
+convert_into!(OrgId -> ActorId,
+              UserId -> ActorId,
+              OrgId -> UserOrOrgId,
+              UserId -> UserOrOrgId,
+              PullRequestId -> IssueId);
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
