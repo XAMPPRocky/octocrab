@@ -160,7 +160,7 @@ pub mod params;
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
-use reqwest::Url;
+use reqwest::{header::HeaderName, Url};
 use serde::Serialize;
 use snafu::*;
 
@@ -262,6 +262,7 @@ pub fn instance() -> Arc<Octocrab> {
 pub struct OctocrabBuilder {
     auth: Auth,
     previews: Vec<&'static str>,
+    extra_headers: Vec<(HeaderName, String)>,
     base_url: Option<Url>,
 }
 
@@ -273,6 +274,12 @@ impl OctocrabBuilder {
     /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
         self.previews.push(preview);
+        self
+    }
+
+    /// Add an additional header to include with every request.
+    pub fn add_header(mut self, key: HeaderName, value: String) -> Self {
+        self.extra_headers.push((key, value));
         self
     }
 
@@ -304,6 +311,10 @@ impl OctocrabBuilder {
                 reqwest::header::AUTHORIZATION,
                 format!("Bearer {}", token).parse().unwrap(),
             );
+        }
+
+        for (key, value) in self.extra_headers.into_iter() {
+            hmap.append(key, value.parse().unwrap());
         }
 
         let client = reqwest::Client::builder()
