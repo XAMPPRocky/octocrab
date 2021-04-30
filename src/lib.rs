@@ -160,7 +160,7 @@ pub mod params;
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
-use reqwest::Url;
+use reqwest::{header::HeaderName, Url};
 use serde::Serialize;
 use snafu::*;
 
@@ -262,6 +262,7 @@ pub fn instance() -> Arc<Octocrab> {
 pub struct OctocrabBuilder {
     auth: Auth,
     previews: Vec<&'static str>,
+    extra_headers: Vec<(HeaderName, String)>,
     base_url: Option<Url>,
 }
 
@@ -273,6 +274,12 @@ impl OctocrabBuilder {
     /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
         self.previews.push(preview);
+        self
+    }
+
+    /// Add an additional header to include with every request.
+    pub fn add_header(mut self, key: HeaderName, value: String) -> Self {
+        self.extra_headers.push((key, value));
         self
     }
 
@@ -304,6 +311,10 @@ impl OctocrabBuilder {
                 reqwest::header::AUTHORIZATION,
                 format!("Bearer {}", token).parse().unwrap(),
             );
+        }
+
+        for (key, value) in self.extra_headers.into_iter() {
+            hmap.append(key, value.parse().unwrap());
         }
 
         let client = reqwest::Client::builder()
@@ -713,5 +724,33 @@ mod tests {
                 .as_str(),
             String::from("https://git.example.com/api/v3/my/api")
         );
+    }
+
+    #[tokio::test]
+    async fn extra_headers() {
+        use reqwest::header::HeaderName;
+        use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
+        let response = ResponseTemplate::new(304).append_header("etag", "\"abcd\"");
+        let mock_server = MockServer::start().await;
+        Mock::given(matchers::method("GET"))
+            .and(matchers::path_regex(".*"))
+            .and(matchers::header("x-test1", "hello"))
+            .and(matchers::header("x-test2", "goodbye"))
+            .respond_with(response)
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+        crate::OctocrabBuilder::new()
+            .base_url(mock_server.uri())
+            .unwrap()
+            .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
+            .add_header(HeaderName::from_static("x-test2"), "goodbye".to_string())
+            .build()
+            .unwrap()
+            .repos("XAMPPRocky", "octocrab")
+            .events()
+            .send()
+            .await
+            .unwrap();
     }
 }
