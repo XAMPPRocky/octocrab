@@ -1,5 +1,6 @@
 //! Github Notifications API
 
+use crate::models::{NotificationId, ThreadId};
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
 use crate::Octocrab;
@@ -30,13 +31,13 @@ impl<'octo> NotificationsHandler<'octo> {
     /// let thread = octocrab::instance()
     ///     .activity()
     ///     .notifications()
-    ///     .get(123u32)
+    ///     .get(123u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(&self, id: impl Into<u64>) -> crate::Result<Notification> {
-        let url = format!("notifications/threads/{}", id.into());
+    pub async fn get(&self, id: NotificationId) -> crate::Result<Notification> {
+        let url = format!("notifications/threads/{}", id);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -47,13 +48,13 @@ impl<'octo> NotificationsHandler<'octo> {
     /// octocrab::instance()
     ///     .activity()
     ///     .notifications()
-    ///     .mark_as_read(123u32)
+    ///     .mark_as_read(123u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn mark_as_read(&self, id: impl Into<u64>) -> crate::Result<()> {
-        let url = format!("notifications/threads/{}", id.into());
+    pub async fn mark_as_read(&self, id: NotificationId) -> crate::Result<()> {
+        let url = format!("notifications/threads/{}", id);
         let url = self.crab.absolute_url(url)?;
 
         let response = self.crab._patch(url, None::<&()>).await?;
@@ -134,16 +135,16 @@ impl<'octo> NotificationsHandler<'octo> {
     /// let subscription = octocrab::instance()
     ///     .activity()
     ///     .notifications()
-    ///     .get_thread_subscription(123u32)
+    ///     .get_thread_subscription(123u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn get_thread_subscription(
         &self,
-        thread: impl Into<u64>,
+        thread: ThreadId
     ) -> crate::Result<ThreadSubscription> {
-        let url = format!("notifications/threads/{}/subscription", thread.into());
+        let url = format!("notifications/threads/{}/subscription", thread);
 
         self.crab.get(url, None::<&()>).await
     }
@@ -155,14 +156,14 @@ impl<'octo> NotificationsHandler<'octo> {
     /// let subscription = octocrab::instance()
     ///     .activity()
     ///     .notifications()
-    ///     .set_thread_subscription(123u32, true)
+    ///     .set_thread_subscription(123u64.into(), true)
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn set_thread_subscription(
         &self,
-        thread: impl Into<u64>,
+        thread: ThreadId,
         ignored: bool,
     ) -> crate::Result<ThreadSubscription> {
         #[derive(serde::Serialize)]
@@ -170,7 +171,7 @@ impl<'octo> NotificationsHandler<'octo> {
             ignored: bool,
         }
 
-        let url = format!("notifications/threads/{}/subscription", thread.into());
+        let url = format!("notifications/threads/{}/subscription", thread);
         let body = Inner { ignored };
 
         self.crab.get(url, Some(&body)).await
@@ -182,15 +183,15 @@ impl<'octo> NotificationsHandler<'octo> {
     /// octocrab::instance()
     ///     .activity()
     ///     .notifications()
-    ///     .delete_thread_subscription(123u32)
+    ///     .delete_thread_subscription(123u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn delete_thread_subscription(&self, thread: impl Into<u64>) -> crate::Result<()> {
+    pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
         let url = self.crab.absolute_url(format!(
             "notifications/threads/{}/subscription",
-            thread.into()
+            thread
         ))?;
 
         let response = self.crab._delete(url, None::<&()>).await?;

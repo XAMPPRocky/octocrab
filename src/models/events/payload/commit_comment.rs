@@ -18,7 +18,7 @@ mod test {
         let json = include_str!("../../../../tests/resources/commit_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::CommitCommentEvent(payload)) = event.payload {
-            assert_eq!(payload.comment.id, 46377107);
+            assert_eq!(payload.comment.id.0, 46377107);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

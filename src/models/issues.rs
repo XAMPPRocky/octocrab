@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Issue {
-    pub id: i64,
+    pub id: IssueId,
     pub node_id: String,
     pub url: Url,
     pub repository_url: Url,
@@ -42,7 +42,7 @@ pub struct Issue {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Comment {
-    pub id: u64,
+    pub id: CommentId,
     pub node_id: String,
     pub url: Url,
     pub html_url: Url,

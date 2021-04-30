@@ -1,4 +1,8 @@
 //! Serde mappings from GitHub's JSON to structs.
+
+use std::fmt;
+use std::ops::{Deref, DerefMut};
+
 use chrono::{DateTime, Utc};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
@@ -11,6 +15,95 @@ pub mod pulls;
 pub mod repos;
 pub mod teams;
 pub mod workflows;
+
+type BaseIdType = u64;
+
+macro_rules! id_type {
+    // This macro takes an argument of designator `ident` and
+    // creates a function named `$func_name`.
+    // The `ident` designator is used for variable/function names.
+    ($($name:ident),+) => {$(
+        #[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+        pub struct $name(pub BaseIdType);
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+        impl Deref for $name {
+            type Target = BaseIdType;
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+        impl DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+        impl $name {
+            pub fn into_inner(self) -> BaseIdType {
+                self.0
+            }
+        }
+        impl From<BaseIdType> for $name {
+            fn from(value: BaseIdType) -> Self {
+                Self(value)
+            }
+        }
+        impl AsRef<BaseIdType> for $name {
+            fn as_ref(&self) -> &BaseIdType {
+                &self.0
+            }
+        }
+    )+};
+}
+
+id_type!(ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
+         AppId,
+         ArtifactId,
+         AssetId,
+         CardId,
+         CheckRunId,
+         CommentId,
+         InstallationId,
+         IssueEventId,
+         IssueId,
+         JobId,
+         LabelId,
+         MilestoneId,
+         NotificationId,
+         OrgId,
+         ProjectId,
+         ProjectColumnId,
+         PullRequestId,
+         PushId,
+         ReleaseId,
+         RepositoryId,
+         ReviewId,
+         RunId,
+         StatusId,
+         TeamId,
+         ThreadId,
+         UserId,
+         UserOrOrgId,
+         WorkflowId);
+
+macro_rules! convert_into {
+    ($($from:ident -> $to:ident),+) => {$(
+        impl From<$from> for $to {
+            fn from(v: $from) -> $to {
+                $to(v.0)
+            }
+        }
+    )+};
+}
+
+convert_into!(OrgId -> ActorId,
+              UserId -> ActorId,
+              OrgId -> UserOrOrgId,
+              UserId -> UserOrOrgId,
+              PullRequestId -> IssueId);
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -76,7 +169,7 @@ pub enum IssueState {
 #[non_exhaustive]
 pub struct IssueEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<IssueEventId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -106,9 +199,9 @@ pub struct IssueEvent {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ProjectCard {
-    pub id: u64,
+    pub id: CardId,
     pub url: Url,
-    pub project_id: i64,
+    pub project_id: ProjectId,
     pub project_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub column_name: Option<String>,
@@ -124,7 +217,7 @@ pub struct Project {
     pub url: Url,
     pub html_url: Url,
     pub columns_url: Url,
-    pub id: u64,
+    pub id: ProjectId,
     pub node_id: String,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -151,7 +244,7 @@ pub struct ProjectColumn {
     pub url: Url,
     pub project_url: Url,
     pub cards_url: Url,
-    pub id: i64,
+    pub id: ProjectColumnId,
     pub node_id: String,
     pub name: String,
     pub created_at: DateTime<Utc>,
@@ -176,7 +269,7 @@ pub struct IssuePullRequest {
 #[non_exhaustive]
 pub struct User {
     pub login: String,
-    pub id: i64,
+    pub id: UserId,
     pub node_id: String,
     pub avatar_url: Url,
     pub gravatar_id: String,
@@ -198,7 +291,7 @@ pub struct User {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Label {
-    pub id: i64,
+    pub id: LabelId,
     pub node_id: String,
     pub url: Url,
     pub name: String,
@@ -215,7 +308,7 @@ pub struct Milestone {
     pub html_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels_url: Option<Url>,
-    pub id: i64,
+    pub id: MilestoneId,
     pub node_id: String,
     pub number: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -241,7 +334,7 @@ pub struct Milestone {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Repository {
-    pub id: u64,
+    pub id: RepositoryId,
     pub node_id: String,
     pub name: String,
     pub full_name: String,
@@ -409,7 +502,7 @@ pub struct CheckRuns {
 #[non_exhaustive]
 pub struct CheckRun {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<CheckRunId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub head_sha: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -460,7 +553,7 @@ pub struct CombinedStatus {
 #[non_exhaustive]
 pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<StatusId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -499,7 +592,7 @@ pub struct InstallationRepositories {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct Installation {
-    pub id: i64,
+    pub id: InstallationId,
     pub account: User,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub access_tokens_url: Option<String>,
@@ -508,9 +601,9 @@ pub struct Installation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub html_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub app_id: Option<i64>,
+    pub app_id: Option<AppId>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub target_id: Option<i64>,
+    pub target_id: Option<UserOrOrgId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub target_type: Option<String>,
     pub permissions: InstallationPermissions,

@@ -1,5 +1,6 @@
 use super::*;
 use crate::params;
+use crate::models::TeamId;
 
 #[derive(serde::Serialize)]
 pub struct EditTeamBuilder<'octo, 'r> {
@@ -15,7 +16,7 @@ pub struct EditTeamBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     permission: Option<params::teams::Permission>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    parent_team_id: Option<u64>,
+    parent_team_id: Option<TeamId>,
 }
 
 impl<'octo, 'r> EditTeamBuilder<'octo, 'r> {
@@ -46,8 +47,8 @@ impl<'octo, 'r> EditTeamBuilder<'octo, 'r> {
     }
 
     /// The ID of the team to set as the parent team.
-    pub fn parent_team_id(mut self, parent_team_id: impl Into<u64>) -> Self {
-        self.parent_team_id = Some(parent_team_id.into());
+    pub fn parent_team_id(mut self, parent_team_id: TeamId) -> Self {
+        self.parent_team_id = Some(parent_team_id);
         self
     }
 

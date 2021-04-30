@@ -2,6 +2,7 @@
 use snafu::ResultExt;
 
 use crate::{params, Octocrab};
+use crate::models::{ArtifactId, RepositoryId, RunId};
 
 /// Handler for GitHub's actions API.
 ///
@@ -24,7 +25,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .actions()
-    ///     .add_selected_repo_to_org_secret("org", "secret_name", 1234)
+    ///     .add_selected_repo_to_org_secret("org", "secret_name", 1234u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -33,7 +34,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         org: impl AsRef<str>,
         secret_name: impl AsRef<str>,
-        repository_id: u64,
+        repository_id: RepositoryId,
     ) -> crate::Result<()> {
         let route = format!(
             "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
@@ -56,7 +57,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .actions()
-    ///     .remove_selected_repo_from_org_secret("org", "secret_name", 1234)
+    ///     .remove_selected_repo_from_org_secret("org", "secret_name", 1234u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -65,7 +66,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         org: impl AsRef<str>,
         secret_name: impl AsRef<str>,
-        repository_id: u64,
+        repository_id: RepositoryId,
     ) -> crate::Result<()> {
         let route = format!(
             "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
@@ -86,7 +87,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .actions()
-    ///     .cancel_workflow_run("owner", "repo", 1234)
+    ///     .cancel_workflow_run("owner", "repo", 1234u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -95,7 +96,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-        run_id: u64,
+        run_id: RunId,
     ) -> crate::Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
@@ -134,7 +135,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .actions()
-    ///     .download_workflow_run_logs("owner", "repo", 1234)
+    ///     .download_workflow_run_logs("owner", "repo", 1234u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -143,7 +144,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-        run_id: u64,
+        run_id: RunId,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
             "repos/{owner}/{repo}/actions/runs/{run_id}/logs",
@@ -164,7 +165,7 @@ impl<'octo> ActionsHandler<'octo> {
     ///
     /// octocrab::instance()
     ///     .actions()
-    ///     .download_artifact("owner", "repo", 1234, ArchiveFormat::Zip)
+    ///     .download_artifact("owner", "repo", 1234u64.into(), ArchiveFormat::Zip)
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -173,7 +174,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-        artifact_id: u64,
+        artifact_id: ArtifactId,
         archive_format: params::actions::ArchiveFormat,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
@@ -195,7 +196,7 @@ impl<'octo> ActionsHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .actions()
-    ///     .delete_workflow_run_logs("owner", "repo", 1234)
+    ///     .delete_workflow_run_logs("owner", "repo", 1234u64.into())
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -204,7 +205,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-        run_id: u64,
+        run_id: RunId,
     ) -> crate::Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/actions/runs/{run_id}/logs",

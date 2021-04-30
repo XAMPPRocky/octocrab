@@ -4,7 +4,7 @@ use super::*;
 #[non_exhaustive]
 pub struct PullRequest {
     pub url: String,
-    pub id: u64,
+    pub id: PullRequestId,
     pub node_id: String,
     pub html_url: Url,
     pub diff_url: Url,
@@ -173,7 +173,7 @@ pub struct PullRequestLink {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Review {
-    pub id: u64,
+    pub id: ReviewId,
     pub node_id: String,
     pub html_url: Url,
     pub user: User,
@@ -206,8 +206,8 @@ pub enum ReviewState {
 #[non_exhaustive]
 pub struct Comment {
     pub url: Url,
-    pub pull_request_review_id: u64,
-    pub id: u64,
+    pub pull_request_review_id: ReviewId,
+    pub id: CommentId,
     pub node_id: String,
     pub diff_hunk: String,
     pub path: String,

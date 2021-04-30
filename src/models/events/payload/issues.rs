@@ -122,7 +122,7 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::IssuesEvent(payload)) = event.payload {
             assert_eq!(payload.action, IssuesEventAction::Opened);
-            assert_eq!(payload.issue.id, 786747990);
+            assert_eq!(payload.issue.id.0, 786747990);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

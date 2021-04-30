@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 use super::Commit;
+use crate::models::PushId;
 
 /// The payload in a [`super::EventPayload::PushEvent`] type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PushEventPayload {
-    pub push_id: u64,
+    pub push_id: PushId,
     pub size: u64,
     pub distinct_size: u64,
     pub r#ref: String,
@@ -31,7 +32,7 @@ mod test {
         let payload = event.payload.unwrap();
         match payload {
             EventPayload::PushEvent(payload) => {
-                assert_eq!(payload.push_id, 6080608029);
+                assert_eq!(payload.push_id.0, 6080608029);
                 assert_eq!(payload.size, 1);
                 assert_eq!(payload.distinct_size, 1);
                 assert_eq!(payload.r#ref, "refs/heads/master");

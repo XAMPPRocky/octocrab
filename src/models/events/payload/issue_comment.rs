@@ -85,8 +85,8 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::IssueCommentEvent(payload)) = event.payload {
             assert_eq!(payload.action, IssueCommentEventAction::Created);
-            assert_eq!(payload.issue.id, 785981862);
-            assert_eq!(payload.comment.id, 760203693);
+            assert_eq!(payload.issue.id.0, 785981862);
+            assert_eq!(payload.comment.id.0, 760203693);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

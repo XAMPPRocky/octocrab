@@ -133,7 +133,7 @@ mod test {
         if let Some(EventPayload::PullRequestEvent(payload)) = event.payload {
             assert_eq!(payload.action, PullRequestEventAction::Opened);
             assert_eq!(payload.number, 8);
-            assert_eq!(payload.pull_request.id, 558121796);
+            assert_eq!(payload.pull_request.id.0, 558121796);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

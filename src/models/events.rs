@@ -5,6 +5,7 @@ use self::payload::{
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
 };
+use super::{ActorId, RepositoryId, OrgId};
 use chrono::{DateTime, Utc};
 use payload::MemberEventPayload;
 use reqwest::Url;
@@ -47,7 +48,7 @@ pub enum EventType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Repository {
-    pub id: u64,
+    pub id: RepositoryId,
     pub name: String,
     pub url: Url,
 }
@@ -56,7 +57,7 @@ pub struct Repository {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Org {
-    pub id: u64,
+    pub id: OrgId,
     pub login: String,
     pub gravatar_id: String,
     pub url: Url,
@@ -67,7 +68,7 @@ pub struct Org {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Actor {
-    pub id: u64,
+    pub id: ActorId,
     pub login: String,
     pub display_login: String,
     pub gravatar_id: String,
@@ -257,7 +258,7 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.org.is_some());
         let org = event.org.unwrap();
-        assert_eq!(org.id, 1243215);
+        assert_eq!(org.id.0, 1243215);
         assert_eq!(org.login, "hypothesis");
         assert_eq!(org.gravatar_id, "");
         assert_eq!(

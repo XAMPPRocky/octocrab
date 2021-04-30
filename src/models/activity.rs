@@ -3,8 +3,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Notification {
-    #[serde(deserialize_with = "parse_u64")]
-    pub id: u64,
+    pub id: NotificationId,
     pub repository: Repository,
     pub subject: Subject,
     pub reason: String,
@@ -53,17 +52,4 @@ pub struct ThreadSubscription {
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub url: Url,
     pub thread_url: Url,
-}
-
-fn parse_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    use serde::de::Error;
-
-    let raw = String::deserialize(deserializer)?;
-    match raw.parse() {
-        Ok(val) => Ok(val),
-        Err(_) => Err(D::Error::custom("expected `id` to be a number")),
-    }
 }
