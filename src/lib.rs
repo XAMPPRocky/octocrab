@@ -725,4 +725,32 @@ mod tests {
             String::from("https://git.example.com/api/v3/my/api")
         );
     }
+
+    #[tokio::test]
+    async fn extra_headers() {
+        use reqwest::header::HeaderName;
+        use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
+        let response = ResponseTemplate::new(304).append_header("etag", "\"abcd\"");
+        let mock_server = MockServer::start().await;
+        Mock::given(matchers::method("GET"))
+            .and(matchers::path_regex(".*"))
+            .and(matchers::header("x-test1", "hello"))
+            .and(matchers::header("x-test2", "goodbye"))
+            .respond_with(response)
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+        crate::OctocrabBuilder::new()
+            .base_url(mock_server.uri())
+            .unwrap()
+            .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
+            .add_header(HeaderName::from_static("x-test2"), "goodbye".to_string())
+            .build()
+            .unwrap()
+            .repos("XAMPPRocky", "octocrab")
+            .events()
+            .send()
+            .await
+            .unwrap();
+    }
 }
