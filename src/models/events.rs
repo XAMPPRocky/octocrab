@@ -4,6 +4,7 @@ use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
+    WorkflowRunEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -41,6 +42,7 @@ pub enum EventType {
     MemberEvent,
     PullRequestEvent,
     PullRequestReviewCommentEvent,
+    WorkflowRunEvent,
     UnknownEvent(String),
 }
 
@@ -125,6 +127,7 @@ fn deserialize_event_type(event_type: &str) -> EventType {
         "MemberEvent" => EventType::MemberEvent,
         "PullRequestEvent" => EventType::PullRequestEvent,
         "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
+        "WorkflowRunEvent" => EventType::WorkflowRunEvent,
         unknown => EventType::UnknownEvent(unknown.to_owned()),
     }
 }
@@ -163,6 +166,10 @@ fn deserialize_payload(
         EventType::PullRequestReviewCommentEvent => {
             serde_json::from_value::<Box<PullRequestReviewCommentEventPayload>>(data)
                 .map(|payload| EventPayload::PullRequestReviewCommentEvent(payload))?
+        }
+        EventType::WorkflowRunEvent => {
+            serde_json::from_value::<Box<WorkflowRunEventPayload>>(data)
+                .map(|payload| EventPayload::WorkflowRunEvent(payload))?
         }
         _ => EventPayload::UnknownEvent(Box::new(data)),
     };
@@ -214,6 +221,13 @@ mod test {
         let json = include_str!("../../tests/resources/pull_request_review_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::PullRequestReviewCommentEvent);
+    }
+
+    #[test]
+    fn should_deserialize_workflow_run_event() {
+        let json = include_str!("../../tests/resources/workflow_run_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::WorkflowRunEvent);
     }
 
     #[test]
