@@ -1,3 +1,5 @@
+use std::slice::Iter;
+
 use hyperx::header::TypedHeaders;
 use snafu::ResultExt;
 use url::Url;
@@ -69,6 +71,15 @@ impl<T> IntoIterator for Page<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.items.into_iter()
+    }
+}
+
+impl<'iter, T> IntoIterator for &'iter Page<T> {
+    type Item = &'iter T;
+    type IntoIter = Iter<'iter, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.items.iter()
     }
 }
 
