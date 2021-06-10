@@ -6,15 +6,12 @@ use crate::Octocrab;
 /// Handler for GitHub's markdown API.
 ///
 /// Created with [`Octocrab::markdown`].
+#[derive(octocrab_derive::Builder)]
 pub struct MarkdownHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> MarkdownHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// Render an arbitrary Markdown document.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -66,40 +63,20 @@ impl<'octo> MarkdownHandler<'octo> {
     }
 }
 
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct RenderMarkdownBuilder<'octo, 'r, 'text> {
     #[serde(skip)]
     handler: &'r MarkdownHandler<'octo>,
     text: &'text str,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The rendering mode.
     mode: Option<crate::params::markdown::Mode>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The repository context to use when creating references in `Mode::Gfm`. Omit this parameter
+    /// when using markdown mode.
     context: Option<String>,
 }
 
 impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
-    pub(crate) fn new(handler: &'r MarkdownHandler<'octo>, text: &'text str) -> Self {
-        Self {
-            handler,
-            text,
-            mode: None,
-            context: None,
-        }
-    }
-
-    /// The repository context to use when creating references in `Mode::Gfm`.
-    /// Omit this parameter when using markdown mode.
-    pub fn context<A: Into<String>>(mut self, context: impl Into<Option<A>>) -> Self {
-        self.context = context.into().map(A::into);
-        self
-    }
-
-    /// The rendering mode.
-    pub fn mode(mut self, mode: impl Into<Option<crate::params::markdown::Mode>>) -> Self {
-        self.mode = mode.into();
-        self
-    }
-
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<String> {
         self.handler

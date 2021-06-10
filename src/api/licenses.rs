@@ -6,15 +6,12 @@ use crate::{models, Octocrab};
 /// Handler for GitHub's license API.
 ///
 /// Created with [`Octocrab::licenses`].
+#[derive(octocrab_derive::Builder)]
 pub struct LicenseHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> LicenseHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// List commonly used licenses.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

@@ -16,6 +16,7 @@ pub use tags::ListTagsBuilder;
 /// Handler for GitHub's repository API.
 ///
 /// Created with [`Octocrab::repos`].
+#[derive(octocrab_derive::Builder)]
 pub struct RepoHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -23,10 +24,6 @@ pub struct RepoHandler<'octo> {
 }
 
 impl<'octo> RepoHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self { crab, owner, repo }
-    }
-
     /// Get's a repository's license.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -142,7 +139,6 @@ impl<'octo> RepoHandler<'octo> {
             path.into(),
             message.into(),
             base64::encode(content),
-            None,
         )
     }
 
@@ -186,8 +182,7 @@ impl<'octo> RepoHandler<'octo> {
             path.into(),
             message.into(),
             base64::encode(content),
-            Some(sha.into()),
-        )
+        ).sha(sha)
     }
 
     /// List tags from a repository.

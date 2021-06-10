@@ -1,46 +1,20 @@
 use super::params::repos::forks::Sort;
 use super::*;
 
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct ListForksBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r RepoHandler<'octo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Sort order of the results.
     sort: Option<Sort>,
 }
 
 impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
-    pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
-        Self {
-            handler,
-            per_page: None,
-            page: None,
-            sort: None,
-        }
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
-    /// Sort order of the results.
-    pub fn sort(mut self, sort: Sort) -> Self {
-        self.sort = Some(sort);
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Repository>> {
         let url = format!(
@@ -51,27 +25,16 @@ impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
         self.handler.crab.get(url, Some(&self)).await
     }
 }
-#[derive(serde::Serialize)]
+
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct CreateForkBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r RepoHandler<'octo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The organization name, if forking into an organization.
     organization: Option<String>,
 }
 impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
-    pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
-        Self {
-            handler,
-            organization: None,
-        }
-    }
-
-    /// The organization name, if forking into an organization.
-    pub fn organization(mut self, organization: impl Into<String>) -> Self {
-        self.organization = Some(organization.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::Repository> {
         let url = format!(

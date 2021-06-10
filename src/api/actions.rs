@@ -7,15 +7,12 @@ use crate::models::{ArtifactId, RepositoryId, RunId};
 /// Handler for GitHub's actions API.
 ///
 /// Created with [`Octocrab::actions`].
+#[derive(octocrab_derive::Builder)]
 pub struct ActionsHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> ActionsHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// Adds a repository to an organization secret when the visibility for
     /// repository access is set to selected. The visibility is set when you
     /// create or update an organization secret. You must authenticate using an

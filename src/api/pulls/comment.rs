@@ -5,69 +5,28 @@ use super::*;
 /// created by [`PullRequestHandler::list_comments`]
 ///
 /// [`PullRequestHandler::list_comments`]: ./struct.PullRequestHandler.html#method.list_comments
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct ListCommentsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
+    #[builder(skip)]
     #[serde(skip)]
     pr: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// What to sort results by. Can be either `created` or `updated`.
     sort: Option<crate::params::pulls::comments::Sort>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The direction of the sort. Can be either ascending or descending.  Default: descending when
+    /// sort is `created` or sort is not specified, otherwise ascending sort.
     direction: Option<crate::params::Direction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Only show notifications updated after the given time.
     since: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
-    pub(crate) fn new(handler: &'b PullRequestHandler<'octo>, pr: Option<u64>) -> Self {
-        Self {
-            handler,
-            pr,
-            sort: None,
-            direction: None,
-            per_page: None,
-            page: None,
-            since: None,
-        }
-    }
-
-    /// What to sort results by. Can be either `created` or `updated`,
-    pub fn sort(mut self, sort: impl Into<crate::params::pulls::comments::Sort>) -> Self {
-        self.sort = Some(sort.into());
-        self
-    }
-
-    /// The direction of the sort. Can be either ascending or descending.
-    /// Default: descending when sort is `created` or sort is not specified,
-    /// otherwise ascending sort.
-    pub fn direction(mut self, direction: impl Into<crate::params::Direction>) -> Self {
-        self.direction = Some(direction.into());
-        self
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
-    /// Only show notifications updated after the given time.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
-        self.since = Some(since.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::pulls::Comment>> {
         let url = format!(

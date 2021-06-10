@@ -8,7 +8,7 @@ async fn main() -> octocrab::Result<()> {
         .orgs("rust-lang")
         .list_repos()
         .repo_type(params::repos::Type::Sources)
-        .per_page(100)
+        .per_page(100_u8)
         .send()
         .await?;
     let mut prs = current_page.take_items();

@@ -14,23 +14,11 @@ pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
 /// A client to GitHub's pull request API.
 ///
 /// Created with [`Octocrab::pulls`].
+#[derive(octocrab_derive::Builder)]
 pub struct PullRequestHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
     repo: String,
-    media_type: Option<crate::params::pulls::MediaType>,
-}
-
-impl<'octo> PullRequestHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self {
-            crab,
-            owner,
-            repo,
-            media_type: None,
-        }
-    }
-
     /// Set the media type for this request.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -42,11 +30,10 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn media_type(mut self, media_type: crate::params::pulls::MediaType) -> Self {
-        self.media_type = Some(media_type);
-        self
-    }
+    media_type: Option<crate::params::pulls::MediaType>,
+}
 
+impl<'octo> PullRequestHandler<'octo> {
     /// Checks if a given pull request has been merged.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -168,7 +155,7 @@ impl<'octo> PullRequestHandler<'octo> {
         head: impl Into<String>,
         base: impl Into<String>,
     ) -> create::CreatePullRequestBuilder<'octo, '_> {
-        create::CreatePullRequestBuilder::new(self, title, head, base)
+        create::CreatePullRequestBuilder::new(self, title.into(), head.into(), base.into())
     }
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter

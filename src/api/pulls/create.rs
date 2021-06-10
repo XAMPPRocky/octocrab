@@ -1,56 +1,22 @@
 /// A builder pattern struct for constructing an Octocrab request to create a
 /// pull request.
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct CreatePullRequestBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b super::PullRequestHandler<'octo>,
     title: String,
     head: String,
     base: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The contents of the pull request.
     body: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Indicates whether the pull request is a draft.
     draft: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Indicates whether `maintainers` can modify the pull request.
     maintainer_can_modify: Option<bool>,
 }
 
 impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
-    pub(crate) fn new(
-        handler: &'b super::PullRequestHandler<'octo>,
-        title: impl Into<String>,
-        head: impl Into<String>,
-        base: impl Into<String>,
-    ) -> Self {
-        Self {
-            handler,
-            title: title.into(),
-            head: head.into(),
-            base: base.into(),
-            body: None,
-            draft: None,
-            maintainer_can_modify: None,
-        }
-    }
-
-    /// The contents of the pull request.
-    pub fn body<A: Into<String>>(mut self, body: impl Into<Option<A>>) -> Self {
-        self.body = body.into().map(A::into);
-        self
-    }
-
-    /// Indicates whether the pull request is a draft.
-    pub fn draft(mut self, draft: impl Into<Option<bool>>) -> Self {
-        self.draft = draft.into();
-        self
-    }
-
-    /// Indicates whether `maintainers` can modify the pull request.
-    pub fn maintainer_can_modify(mut self, maintainer_can_modify: impl Into<Option<bool>>) -> Self {
-        self.maintainer_can_modify = maintainer_can_modify.into();
-        self
-    }
-
     /// Sends the request to create the pull request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::PullRequest> {
         let url = format!(

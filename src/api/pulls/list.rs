@@ -5,88 +5,32 @@ use super::*;
 /// created by [`PullRequestHandler::list`]
 ///
 /// [`PullRequestHandler::list`]: ./struct.PullRequestHandler.html#method.list
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct ListPullRequestsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter pull requests by `state`.
     state: Option<crate::params::State>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter pull requests by head user or head organization and branch name in the format of
+    /// `user:ref-name` or `organization:ref-name`. For example: `github:new-script-format` or
+    /// `octocrab:test-branch`.
     head: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter pulls by base branch name. Example: `gh-pages`.
     base: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// What to sort results by. Can be either `created`, `updated`, `popularity` (comment count) or
+    /// `long-running` (age, filtering by pulls updated in the last month).
     sort: Option<crate::params::pulls::Sort>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The direction of the sort. Can be either ascending or descending. Default: descending when
+    /// sort is `created` or sort is not specified, otherwise ascending sort.
     direction: Option<crate::params::Direction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u32>,
 }
 
 impl<'octo, 'b> ListPullRequestsBuilder<'octo, 'b> {
-    pub(crate) fn new(handler: &'b PullRequestHandler<'octo>) -> Self {
-        Self {
-            handler,
-            state: None,
-            head: None,
-            base: None,
-            sort: None,
-            direction: None,
-            per_page: None,
-            page: None,
-        }
-    }
-
-    /// Filter pull requests by `state`.
-    pub fn state(mut self, state: crate::params::State) -> Self {
-        self.state = Some(state);
-        self
-    }
-
-    /// Filter pull requests by head user or head organization and branch name
-    /// in the format of `user:ref-name` or `organization:ref-name`. For
-    /// example: `github:new-script-format` or `octocrab:test-branch`.
-    pub fn head(mut self, head: impl Into<String>) -> Self {
-        self.head = Some(head.into());
-        self
-    }
-
-    /// Filter pulls by base branch name. Example: `gh-pages`.
-    pub fn base(mut self, base: impl Into<String>) -> Self {
-        self.base = Some(base.into());
-        self
-    }
-
-    /// What to sort results by. Can be either `created`, `updated`,
-    /// `popularity` (comment count) or `long-running` (age, filtering by pulls
-    /// updated in the last month).
-    pub fn sort(mut self, sort: impl Into<crate::params::pulls::Sort>) -> Self {
-        self.sort = Some(sort.into());
-        self
-    }
-
-    /// The direction of the sort. Can be either ascending or descending.
-    /// Default: descending when sort is `created` or sort is not specified,
-    /// otherwise ascending sort.
-    pub fn direction(mut self, direction: impl Into<crate::params::Direction>) -> Self {
-        self.direction = Some(direction.into());
-        self
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::pulls::PullRequest>> {
         let url = format!(

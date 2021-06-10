@@ -8,6 +8,7 @@ use reqwest::header::ACCEPT;
 /// Created with [`TeamHandler::repos`]
 ///
 /// [`TeamHandler::repos`]: ./struct.TeamHandler.html#method.repos
+#[derive(octocrab_derive::Builder)]
 pub struct TeamRepoHandler<'octo> {
     crab: &'octo Octocrab,
     org: String,
@@ -15,10 +16,6 @@ pub struct TeamRepoHandler<'octo> {
 }
 
 impl<'octo> TeamRepoHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, org: String, team: String) -> Self {
-        Self { crab, org, team }
-    }
-
     /// Checks if a team manages a repository, returning the repository if it does.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

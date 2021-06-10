@@ -1,0 +1,5 @@
+error: only structs supported
+ --> $DIR/02-no-struct.rs:4:1
+  |
+4 | enum Test {}
+  | ^^^^^^^^^^^^

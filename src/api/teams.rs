@@ -16,16 +16,13 @@ use crate::{models, Octocrab, Result};
 /// Handler for GitHub's teams API.
 ///
 /// Created with [`Octocrab::teams`].
+#[derive(octocrab_derive::Builder)]
 pub struct TeamHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
 }
 
 impl<'octo> TeamHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String) -> Self {
-        Self { crab, owner }
-    }
-
     /// Lists teams in the organization.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -74,7 +71,7 @@ impl<'octo> TeamHandler<'octo> {
     ///     .maintainers(&vec![String::from("ferris")])
     ///     .repo_names(&vec![String::from("crab-stuff")])
     ///     .privacy(params::teams::Privacy::Closed)
-    ///     .parent_team_id(1u64.into())
+    ///     .parent_team_id(1u64)
     ///     .send()
     ///     .await?;
     /// # Ok(())
@@ -94,7 +91,7 @@ impl<'octo> TeamHandler<'octo> {
     ///     .edit("some-team", "Some Team")
     ///     .description("I edited from Octocrab!")
     ///     .privacy(params::teams::Privacy::Secret)
-    ///     .parent_team_id(2u64.into())
+    ///     .parent_team_id(2u64)
     ///     .send()
     ///     .await?;
     /// # Ok(())
