@@ -1,8 +1,10 @@
 //! Github Notifications API
 
-use crate::models::{NotificationId, ThreadId};
+use std::borrow::Cow;
+
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
+use crate::models::{NotificationId, ThreadId};
 use crate::Octocrab;
 use crate::Page;
 
@@ -15,15 +17,12 @@ type DateTime = chrono::DateTime<chrono::Utc>;
 /// your GitHub Access Token with the right privileges.
 ///
 /// [`ActivityHandler::notifications`]: ../struct.ActivityHandler.html#method.notifications
+#[derive(octocrab_derive::Builder)]
 pub struct NotificationsHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> NotificationsHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// Gets a notification by their id.
     ///
     /// ```no_run
@@ -142,7 +141,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// ```
     pub async fn get_thread_subscription(
         &self,
-        thread: ThreadId
+        thread: ThreadId,
     ) -> crate::Result<ThreadSubscription> {
         let url = format!("notifications/threads/{}/subscription", thread);
 
@@ -217,9 +216,9 @@ impl<'octo> NotificationsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-    ) -> ListNotificationsBuilder<'octo> {
+    ) -> ListNotificationsBuilder<'octo, '_> {
         let url = format!("repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
-        ListNotificationsBuilder::new(self.crab, url)
+        ListNotificationsBuilder::new(self.crab, Cow::from(url))
     }
 
     /// List all notifications for the current user.
@@ -235,8 +234,8 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list(&self) -> ListNotificationsBuilder<'octo> {
-        ListNotificationsBuilder::new(self.crab, "notifications".to_string())
+    pub fn list(&self) -> ListNotificationsBuilder<'octo, '_> {
+        ListNotificationsBuilder::new(self.crab, Cow::from("notifications"))
     }
 }
 
@@ -245,76 +244,28 @@ impl<'octo> NotificationsHandler<'octo> {
 /// Created by [`NotificationsHandler::list`].
 ///
 /// [`NotificationsHandler::list`]: ./struct.NotificationsHandler.html#method.list
-#[derive(serde::Serialize)]
-pub struct ListNotificationsBuilder<'octo> {
-    #[serde(skip)]
-    url: String,
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
+pub struct ListNotificationsBuilder<'octo, 'url> {
     #[serde(skip)]
     crab: &'octo Octocrab,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip)]
+    url: Cow<'url, str>,
+    /// If set, show notifications marked as read.
     all: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// If set, only shows notifications in which the user is directly participating or mentioned.
     participating: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Only show notifications updated after the given time.
     since: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Only show notifications updated before the given time.
     before: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u8>,
 }
 
-impl<'octo> ListNotificationsBuilder<'octo> {
-    fn new(crab: &'octo Octocrab, url: String) -> Self {
-        Self {
-            url,
-            crab,
-            all: None,
-            participating: None,
-            since: None,
-            before: None,
-            per_page: None,
-            page: None,
-        }
-    }
-
-    /// If set, show notifications marked as read.
-    pub fn all(mut self, v: bool) -> Self {
-        self.all = Some(v);
-        self
-    }
-
-    /// If set, only shows notifications in which the user is directly participating or mentioned.
-    pub fn participating(mut self, v: bool) -> Self {
-        self.participating = Some(v);
-        self
-    }
-
-    /// Only show notifications updated after the given time.
-    pub fn since(mut self, since: chrono::DateTime<chrono::Utc>) -> Self {
-        self.since = Some(since);
-        self
-    }
-
-    /// Only show notifications updated before the given time.
-    pub fn before(mut self, before: chrono::DateTime<chrono::Utc>) -> Self {
-        self.before = Some(before);
-        self
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u8>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
+impl<'octo, 'url> ListNotificationsBuilder<'octo, 'url> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Notification>> {
         self.crab.get(&self.url, Some(&self)).await

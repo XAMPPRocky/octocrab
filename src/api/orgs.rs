@@ -9,16 +9,13 @@ pub use self::list_repos::ListReposBuilder;
 /// A client to GitHub's organization API.
 ///
 /// Created with [`Octocrab::orgs`].
+#[derive(octocrab_derive::Builder)]
 pub struct OrgHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
 }
 
 impl<'octo> OrgHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String) -> Self {
-        Self { crab, owner }
-    }
-
     /// Add or update organization membership
     ///
     /// **Note**

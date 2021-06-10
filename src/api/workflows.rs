@@ -1,6 +1,7 @@
 use crate::{models, Octocrab, Page, Result};
 use crate::models::RunId;
 
+#[derive(octocrab_derive::Builder)]
 pub struct WorkflowsHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -11,14 +12,6 @@ pub struct WorkflowsHandler<'octo> {
 ///
 /// Created with [`Octocrab::workflows`].
 impl<'octo> WorkflowsHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self {
-            crab,
-            owner: owner,
-            repo: repo,
-        }
-    }
-
     /// List workflow definitions in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

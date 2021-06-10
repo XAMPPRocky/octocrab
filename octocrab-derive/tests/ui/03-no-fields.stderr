@@ -1,0 +1,5 @@
+error: only named fields supported
+ --> $DIR/03-no-fields.rs:4:16
+  |
+4 | struct Test<'a>(&'a str);
+  |                ^^^^^^^^^

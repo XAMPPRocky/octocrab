@@ -1,0 +1,22 @@
+[package]
+name = "octocrab-derive"
+version = "0.0.0"
+authors = ["Dominik Nakamura <dnaka91@gmail.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[[test]]
+name = "tests"
+path = "tests/test.rs"
+
+[dependencies]
+proc-macro-error = "1.0.4"
+proc-macro2 = "1.0.27"
+quote = "1.0.9"
+syn = { version = "1.0.73", features = ["full", "visit-mut"] }
+
+[dev-dependencies]
+serde = { version = "1.0.126", features = ["derive"] }
+trybuild = "1.0.42"

@@ -18,11 +18,10 @@ struct Headers {
     etag: Option<EntityTag>,
 }
 
+#[octocrab_derive::serde_skip_none]
 #[derive(serde::Serialize)]
 struct Params {
-    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
 }
 

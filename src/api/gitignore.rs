@@ -7,15 +7,12 @@ use crate::Octocrab;
 /// Handler for GitHub's gitignore API.
 ///
 /// Created with [`Octocrab::gitignore`].
+#[derive(octocrab_derive::Builder)]
 pub struct GitignoreHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> GitignoreHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// List all templates available to pass as an option when creating a
     /// repository.
     /// ```no_run

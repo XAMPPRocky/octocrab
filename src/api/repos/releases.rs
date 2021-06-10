@@ -166,37 +166,18 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 /// A builder pattern struct for listing releases.
 ///
 /// created by [`ReleasesHandler::list`]
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct ListReleasesBuilder<'octo, 'r1, 'r2> {
     #[serde(skip)]
     handler: &'r2 ReleasesHandler<'octo, 'r1>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u32>,
 }
 
 impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
-    pub(crate) fn new(handler: &'r2 ReleasesHandler<'octo, 'r1>) -> Self {
-        Self {
-            handler,
-            per_page: None,
-            page: None,
-        }
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Release>> {
         let url = format!(
@@ -211,69 +192,30 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
 /// A builder pattern struct for listing releases.
 ///
 /// created by [`ReleasesHandler::create`].
-#[derive(serde::Serialize)]
-pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
+pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
     #[serde(skip)]
     handler: &'handler ReleasesHandler<'octo, 'repos>,
     tag_name: &'tag_name str,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Specifies the commitish value that determines where the Git tag is created from. Can be any
+    /// branch or commit SHA. Unused if the Git tag already exists. Default: the repository's
+    /// default branch (usually `main`).
     target_commitish: Option<&'target_commitish str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The name of the release.
     name: Option<&'name str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Text describing the contents of the tag.
     body: Option<&'body str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Whether to set the release as a "draft" release or not.
     draft: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Whether to set the release as a "prerelease" or not.
     prerelease: Option<bool>,
 }
 
-impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
-    pub(crate) fn new(handler: &'handler ReleasesHandler<'octo, 'repos>, tag_name: &'tag_name str) -> Self {
-        Self {
-            handler,
-            tag_name,
-            target_commitish: None,
-            name: None,
-            body: None,
-            draft: None,
-            prerelease: None,
-        }
-    }
-
-    /// Specifies the commitish value that determines where the Git tag is
-    /// created from. Can be any branch or commit SHA. Unused if the Git tag
-    /// already exists. Default: the repository's default branch
-    /// (usually `main`).
-    pub fn target_commitish(mut self, target_commitish: &'target_commitish (impl AsRef<str> + ?Sized)) -> Self {
-        self.target_commitish = Some(target_commitish.as_ref());
-        self
-    }
-
-    /// The name of the release.
-    pub fn name(mut self, name: &'name (impl AsRef<str> + ?Sized)) -> Self {
-        self.name = Some(name.as_ref());
-        self
-    }
-
-    /// Text describing the contents of the tag.
-    pub fn body(mut self, body: &'body (impl AsRef<str> + ?Sized)) -> Self {
-        self.body = Some(body.as_ref());
-        self
-    }
-
-    /// Whether to set the release as a "draft" release or not.
-    pub fn draft(mut self, draft: impl Into<bool>) -> Self {
-        self.draft = Some(draft.into());
-        self
-    }
-
-    /// Whether to set the release as a "prerelease" or not.
-    pub fn prerelease(mut self, prerelease: impl Into<bool>) -> Self {
-        self.prerelease = Some(prerelease.into());
-        self
-    }
-
+impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+    CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
         let url = format!(

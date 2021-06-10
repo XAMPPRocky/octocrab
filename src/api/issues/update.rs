@@ -1,75 +1,29 @@
 use super::*;
 
-#[derive(serde::Serialize)]
-pub struct UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
+pub struct UpdateIssueBuilder<'octo, 'handler, 'title, 'body, 'assignee, 'labels> {
     #[serde(skip)]
-    handler: &'a IssueHandler<'octo>,
+    handler: &'handler IssueHandler<'octo>,
     #[serde(skip)]
     number: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    title: Option<&'b str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    body: Option<&'c str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    assignees: Option<&'d [String]>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The title of the issue.
+    title: Option<&'title str>,
+    /// The body of the issue.
+    body: Option<&'body str>,
+    /// The assignees of the issue.
+    assignees: Option<&'assignee [String]>,
+    /// The state of the issue.
     state: Option<models::IssueState>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The milestone of the issue.
     milestone: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    labels: Option<&'e [String]>,
+    /// The labels of the issue.
+    labels: Option<&'labels [String]>,
 }
 
-impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
-    pub(crate) fn new(handler: &'a IssueHandler<'octo>, number: u64) -> Self {
-        Self {
-            handler,
-            number,
-            title: None,
-            body: None,
-            assignees: None,
-            state: None,
-            milestone: None,
-            labels: None,
-        }
-    }
-
-    /// The title of the issue.
-    pub fn title(mut self, title: &'b (impl AsRef<str> + ?Sized)) -> Self {
-        self.title = Some(title.as_ref());
-        self
-    }
-
-    /// The body of the issue.
-    pub fn body(mut self, body: &'c (impl AsRef<str> + ?Sized)) -> Self {
-        self.body = Some(body.as_ref());
-        self
-    }
-
-    /// The assignees of the issue.
-    pub fn assignees(mut self, assignees: &'d (impl AsRef<[String]> + ?Sized)) -> Self {
-        self.assignees = Some(assignees.as_ref());
-        self
-    }
-
-    /// The state of the issue.
-    pub fn state(mut self, state: impl Into<models::IssueState>) -> Self {
-        self.state = Some(state.into());
-        self
-    }
-
-    /// The milestone of the issue.
-    pub fn milestone(mut self, milestone: impl Into<u64>) -> Self {
-        self.milestone = Some(milestone.into());
-        self
-    }
-
-    /// The labels of the issue.
-    pub fn labels(mut self, labels: &'e (impl AsRef<[String]> + ?Sized)) -> Self {
-        self.labels = Some(labels.as_ref());
-        self
-    }
-
+impl<'octo, 'handler, 'title, 'body, 'assignee, 'labels>
+    UpdateIssueBuilder<'octo, 'handler, 'title, 'body, 'assignee, 'labels>
+{
     /// Send the actual request.
     pub async fn send(self) -> Result<models::issues::Issue> {
         let route = format!(

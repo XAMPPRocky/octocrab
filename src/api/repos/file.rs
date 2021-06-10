@@ -1,6 +1,7 @@
 use super::*;
 
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct UpdateFileBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r RepoHandler<'octo>,
@@ -8,54 +9,16 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     path: String,
     message: String,
     content: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     sha: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The branch to commit to.
     branch: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The person that commited the file.
     commiter: Option<models::repos::GitUser>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The author of the file.
     author: Option<models::repos::GitUser>,
 }
 
 impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
-    pub(crate) fn new(
-        handler: &'r RepoHandler<'octo>,
-        path: String,
-        message: String,
-        content: String,
-        sha: Option<String>,
-    ) -> Self {
-        Self {
-            handler,
-            path,
-            message,
-            content,
-            sha,
-            branch: None,
-            commiter: None,
-            author: None,
-        }
-    }
-
-    /// The branch to commit to.
-    pub fn branch(mut self, branch: impl Into<String>) -> Self {
-        self.branch = Some(branch.into());
-        self
-    }
-
-    /// The person that commited the file.
-    pub fn commiter(mut self, commiter: impl Into<models::repos::GitUser>) -> Self {
-        self.commiter = Some(commiter.into());
-        self
-    }
-
-    /// The author of the file.
-    pub fn author(mut self, author: impl Into<models::repos::GitUser>) -> Self {
-        self.author = Some(author.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let url = format!(

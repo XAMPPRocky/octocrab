@@ -1,118 +1,39 @@
 use super::*;
 
-#[derive(serde::Serialize)]
-pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
+pub struct ListIssuesBuilder<'octo, 'handler, 'assignee, 'labels> {
     #[serde(skip)]
-    handler: &'b IssueHandler<'octo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    handler: &'handler IssueHandler<'octo>,
+    /// Filter pull requests by `state`.
     state: Option<params::State>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// If an integer is passed, it should refer to a milestone by its number field. If the string
+    /// `"*"` is passed, issues with any milestone are accepted. If the string none is passed,
+    /// issues without milestones are returned.
     milestone: Option<params::issues::Filter<u64>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    assignee: Option<params::issues::Filter<&'c str>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter by assignee, can be the name of a user. Pass in the string `"none"` for issues with
+    /// no assigned user, and `"*"` for issues assigned to any user.
+    assignee: Option<params::issues::Filter<&'assignee str>>,
+    /// Filter by the creator of the issue.
     creator: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter by the creator of the issue.
     mentioned: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Filter issues by label.
     #[serde(serialize_with = "comma_separated")]
-    labels: Option<&'d [String]>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    labels: Option<&'labels [String]>,
+    /// What to sort results by. Can be either `created`, `updated`, `popularity` (comment count) or
+    /// `long-running` (age, filtering by pulls updated in the last month).
     sort: Option<params::issues::Sort>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The direction of the sort. Can be either ascending or descending. Default: descending when
+    /// sort is `created` or sort is not specified, otherwise ascending sort.
     direction: Option<params::Direction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Results per page (max 100).
     per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Page number of the results to fetch.
     page: Option<u32>,
 }
 
-impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
-    pub(crate) fn new(handler: &'b IssueHandler<'octo>) -> Self {
-        Self {
-            handler,
-            state: None,
-            milestone: None,
-            assignee: None,
-            creator: None,
-            mentioned: None,
-            labels: None,
-            sort: None,
-            direction: None,
-            per_page: None,
-            page: None,
-        }
-    }
-
-    /// If an integer is passed, it should refer to a milestone by its number
-    /// field. If the string `"*"` is passed, issues with any milestone are
-    /// accepted. If the string none is passed, issues without milestones
-    /// are returned.
-    pub fn milestone(mut self, milestone: impl Into<params::issues::Filter<u64>>) -> Self {
-        self.milestone = Some(milestone.into());
-        self
-    }
-
-    /// Filter by assignee, can be the name of a user. Pass in the string
-    /// `"none"` for issues with no assigned user, and `"*"` for issues assigned
-    /// to any user.
-    pub fn assignee(mut self, assignee: impl Into<params::issues::Filter<&'c str>>) -> Self {
-        self.assignee = Some(assignee.into());
-        self
-    }
-
-    /// Filter by the creator of the issue.
-    pub fn creator(mut self, creator: impl Into<String>) -> Self {
-        self.creator = Some(creator.into());
-        self
-    }
-
-    /// Filter by the creator of the issue.
-    pub fn mentioned(mut self, mentioned: impl Into<String>) -> Self {
-        self.mentioned = Some(mentioned.into());
-        self
-    }
-
-    /// Filter pull requests by `state`.
-    pub fn state(mut self, state: params::State) -> Self {
-        self.state = Some(state);
-        self
-    }
-
-    /// Filter issues by label.
-    pub fn labels(mut self, labels: &'d (impl AsRef<[String]> + ?Sized)) -> Self {
-        self.labels = Some(labels.as_ref());
-        self
-    }
-
-    /// What to sort results by. Can be either `created`, `updated`,
-    /// `popularity` (comment count) or `long-running` (age, filtering by pulls
-    /// updated in the last month).
-    pub fn sort(mut self, sort: impl Into<params::issues::Sort>) -> Self {
-        self.sort = Some(sort.into());
-        self
-    }
-
-    /// The direction of the sort. Can be either ascending or descending.
-    /// Default: descending when sort is `created` or sort is not specified,
-    /// otherwise ascending sort.
-    pub fn direction(mut self, direction: impl Into<params::Direction>) -> Self {
-        self.direction = Some(direction.into());
-        self
-    }
-
-    /// Results per page (max 100).
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
+impl<'octo, 'handler, 'assignee, 'labels> ListIssuesBuilder<'octo, 'handler, 'assignee, 'labels> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<models::issues::Issue>> {
         let url = format!(

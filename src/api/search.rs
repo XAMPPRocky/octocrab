@@ -5,15 +5,12 @@ use crate::{models, Octocrab};
 /// Handler for the search API.
 ///
 /// Created with [`Octocrab::search`].
+#[derive(octocrab_derive::Builder)]
 pub struct SearchHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> SearchHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// Searches for all the repositories matching the search query.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {

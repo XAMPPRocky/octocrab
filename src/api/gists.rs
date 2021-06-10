@@ -9,15 +9,12 @@ use crate::params::gists::File;
 /// Handler for GitHub's gist API.
 ///
 /// Created with [`Octocrab::gists`].
+#[derive(octocrab_derive::Builder)]
 pub struct GistHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
 impl<'octo> GistHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
-        Self { crab }
-    }
-
     /// Check if a gist has been starred by the currently authenticated user.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -107,4 +104,3 @@ impl<'octo> GistHandler<'octo> {
             .context(crate::error::Http)
     }
 }
-

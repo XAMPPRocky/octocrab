@@ -5,58 +5,27 @@ use super::*;
 /// created by [`PullRequestHandler::merge`]
 ///
 /// [`PullRequestHandler::merge`]: ./struct.PullRequestHandler.html#method.merge
-#[derive(serde::Serialize)]
+#[octocrab_derive::serde_skip_none]
+#[derive(serde::Serialize, octocrab_derive::Builder)]
 pub struct MergePullRequestsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
     #[serde(skip)]
     pr_number: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Title for the automatic commit message.
+    #[builder(rename = "title")]
     commit_title: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Extra detail to append to automatic commit message.
+    #[builder(rename = "message")]
     commit_message: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// SHA that pull request head must match to allow merge.
     sha: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Merge method to use. Default is `Merge`.
+    #[builder(rename = "method")]
     merge_method: Option<crate::params::pulls::MergeMethod>,
 }
 
 impl<'octo, 'b> MergePullRequestsBuilder<'octo, 'b> {
-    pub(crate) fn new(handler: &'b PullRequestHandler<'octo>, pr_number: u64) -> Self {
-        Self {
-            handler,
-            pr_number,
-            commit_title: None,
-            commit_message: None,
-            sha: None,
-            merge_method: None,
-        }
-    }
-
-    /// Title for the automatic commit message.
-    pub fn title(mut self, title: impl Into<String>) -> Self {
-        self.commit_title = Some(title.into());
-        self
-    }
-
-    /// Extra detail to append to automatic commit message.
-    pub fn message(mut self, msg: impl Into<String>) -> Self {
-        self.commit_message = Some(msg.into());
-        self
-    }
-
-    /// SHA that pull request head must match to allow merge.
-    pub fn sha(mut self, sha: impl Into<String>) -> Self {
-        self.sha = Some(sha.into());
-        self
-    }
-
-    /// Merge method to use. Default is `Merge`.
-    pub fn method(mut self, method: impl Into<crate::params::pulls::MergeMethod>) -> Self {
-        self.merge_method = Some(method.into());
-        self
-    }
-
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::Merge> {
         let url = format!(
