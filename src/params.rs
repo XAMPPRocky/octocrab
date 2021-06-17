@@ -312,6 +312,34 @@ pub mod repos {
             f.write_str(&self.full_ref_url())
         }
     }
+
+    /// A Git reference of unknown type.
+    /// In some cases clients may have a string identifying a commit, but not
+    /// know whether it's a branch or a tag or commit hash.
+    /// Many Github APIs accept such strings. These APIs also accept `heads/` or `tags/`.
+    #[derive(Debug, Clone)]
+    pub struct Commitish(pub String);
+
+    impl From<Reference> for Commitish {
+        fn from(r: Reference) -> Commitish {
+            // Convert to `heads/` or `tags/` to avoid
+            // ambiguity since we know the type of the ref.
+            Commitish(r.ref_url())
+        }
+    }
+
+    impl From<String> for Commitish {
+        fn from(s: String) -> Commitish {
+            Commitish(s)
+        }
+    }
+
+    impl std::fmt::Display for Commitish {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str(&self.0)
+        }
+    }
+
     pub mod forks {
         /// The available methods to sort repository forks by.
         #[derive(Debug, Clone, Copy, serde::Serialize)]
