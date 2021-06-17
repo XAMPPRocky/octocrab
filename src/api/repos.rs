@@ -1,5 +1,7 @@
 //! The repositories API.
 
+use reqwest::header::ACCEPT;
+
 pub mod events;
 mod file;
 pub mod forks;
@@ -284,6 +286,20 @@ impl<'octo> RepoHandler<'octo> {
             reference = reference.ref_url(),
         );
         self.crab.get(url, None::<&()>).await
+    }
+
+    /// Retrieve the contents of a file in raw format
+    pub async fn raw_file(self, reference: impl Into<params::repos::Commitish>, path: impl AsRef<str>) -> Result<reqwest::Response> {
+        let url = self.crab.absolute_url(format!(
+            "repos/{owner}/{repo}/contents/{path}",
+            owner = self.owner,
+            repo = self.repo,
+            path = path.as_ref(),
+        ))?;
+        let mut request = self.crab.request_builder(url, reqwest::Method::GET);
+        request = request.query(&[("ref", &reference.into().0)]);
+        request = request.header(ACCEPT, "application/vnd.github.v3.raw");
+        self.crab.execute(request).await
     }
 
     /// Deletes this repository.
