@@ -5,8 +5,8 @@ mod list;
 mod list_labels;
 mod update;
 
-use crate::{models, params, Octocrab, Result};
 use crate::models::CommentId;
+use crate::{models, params, Octocrab, Result};
 
 pub use self::{
     create::CreateIssueBuilder,
@@ -205,14 +205,14 @@ impl<'octo> IssueHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let issue = octocrab.issues("owner", "repo").add_assignees(101, &[56982]).await?;
+    /// let issue = octocrab.issues("owner", "repo").add_assignees(101, &["username1", "username2"]).await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn add_assignees(
         &self,
         number: u64,
-        assignees: &[u64],
+        assignees: &[&str],
     ) -> Result<models::issues::Issue> {
         let route = format!(
             "repos/{owner}/{repo}/issues/{issue}/assignees",
