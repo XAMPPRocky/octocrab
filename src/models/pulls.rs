@@ -200,6 +200,7 @@ pub enum ReviewState {
     Pending,
     ChangesRequested,
     Commented,
+    Dismissed,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -260,6 +261,7 @@ impl<'de> Deserialize<'de> for ReviewState {
                     "PENDING" | "pending" => ReviewState::Pending,
                     "CHANGES_REQUESTED" | "changes_requested" => ReviewState::ChangesRequested,
                     "COMMENTED" | "commented" => ReviewState::Commented,
+                    "DISMISSED" | "dismissed" => ReviewState::Dismissed,
                     unknown => return Err(E::custom(format!("unknown variant `{}`, expected one of `approved`, `pending`, `changes_requested`, `commented`", unknown))),
                 })
             }
@@ -338,9 +340,10 @@ mod test {
     fn deserializes_review_state() {
         use super::ReviewState;
 
-        let states: Vec<ReviewState> =
-            serde_json::from_str(r#"["APPROVED","pending","CHANGES_REQUESTED","commented"]"#)
-                .unwrap();
+        let states: Vec<ReviewState> = serde_json::from_str(
+            r#"["APPROVED","pending","CHANGES_REQUESTED","commented", "dismissed"]"#,
+        )
+        .unwrap();
 
         assert_eq!(
             states,
@@ -348,7 +351,8 @@ mod test {
                 ReviewState::Approved,
                 ReviewState::Pending,
                 ReviewState::ChangesRequested,
-                ReviewState::Commented
+                ReviewState::Commented,
+                ReviewState::Dismissed,
             ]
         );
     }
