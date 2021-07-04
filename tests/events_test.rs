@@ -19,28 +19,19 @@ struct FakePage<T> {
 }
 
 async fn setup_api(template: ResponseTemplate) -> MockServer {
-    let owner = "owner";
-    let repo = "repo";
     let mock_server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path(format!("/repos/{}/{}/events", owner, repo)))
+        .and(path("/events"))
         .respond_with(template)
         .mount(&mock_server)
         .await;
-    setup_error_handler(
-        &mock_server,
-        &format!("GET on /repo/{}/{}/events was not received", owner, repo),
-    )
-    .await;
+    setup_error_handler(&mock_server, &"GET on /events was not received").await;
     mock_server
 }
 
 fn setup_octocrab(uri: &str) -> Octocrab {
     Octocrab::builder().base_url(uri).unwrap().build().unwrap()
 }
-
-const OWNER: &str = "owner";
-const REPO: &str = "repo";
 
 #[tokio::test]
 async fn should_return_page_with_events_and_etag() {
@@ -53,8 +44,7 @@ async fn should_return_page_with_events_and_etag() {
         .insert_header("etag", expected_etag);
     let mock_server = setup_api(template).await;
     let octo = setup_octocrab(&mock_server.uri());
-    let repos = octo.repos(OWNER.to_owned(), REPO.to_owned());
-    let result = repos.events().send().await;
+    let result = octo.events().send().await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -78,8 +68,7 @@ async fn should_return_no_page_with_events_and_etag_when_response_is_304() {
     let template = ResponseTemplate::new(304).append_header("etag", expected_etag);
     let mock_server = setup_api(template).await;
     let octo = setup_octocrab(&mock_server.uri());
-    let repos = octo.repos(OWNER.to_owned(), REPO.to_owned());
-    let result = repos.events().send().await;
+    let result = octo.events().send().await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -104,8 +93,7 @@ async fn should_return_no_etag_if_response_contains_none() {
     let template = ResponseTemplate::new(200).set_body_json(&page_response);
     let mock_server = setup_api(template).await;
     let octo = setup_octocrab(&mock_server.uri());
-    let repos = octo.repos(OWNER.to_owned(), REPO.to_owned());
-    let result = repos.events().send().await;
+    let result = octo.events().send().await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
