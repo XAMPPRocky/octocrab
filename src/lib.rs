@@ -168,8 +168,8 @@ use auth::Auth;
 
 pub use self::{
     api::{
-        actions, activity, current, gitignore, issues, licenses, markdown, orgs, pulls, repos,
-        search, teams, workflows,
+        actions, activity, current, events, gitignore, issues, licenses, markdown, orgs, pulls,
+        repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -450,6 +450,12 @@ impl Octocrab {
         repo: impl Into<String>,
     ) -> workflows::WorkflowsHandler {
         workflows::WorkflowsHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates an [`events::EventsBuilder`] that allows you to access
+    /// GitHub's events API.
+    pub fn events(&self) -> events::EventsBuilder {
+        events::EventsBuilder::new(self)
     }
 }
 
