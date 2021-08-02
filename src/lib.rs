@@ -168,8 +168,8 @@ use auth::Auth;
 
 pub use self::{
     api::{
-        actions, activity, current, events, gitignore, issues, licenses, markdown, orgs, pulls,
-        repos, search, teams, workflows,
+        actions, activity, current, events, gists, gitignore, issues, licenses, markdown, orgs,
+        pulls, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -456,6 +456,12 @@ impl Octocrab {
     /// GitHub's events API.
     pub fn events(&self) -> events::EventsBuilder {
         events::EventsBuilder::new(self)
+    }
+
+    /// Creates a [`gists::GistsHandler`] that allows you to access
+    /// GitHub's Gists API.
+    pub fn gists(&self) -> gists::GistsHandler {
+        gists::GistsHandler::new(self)
     }
 }
 

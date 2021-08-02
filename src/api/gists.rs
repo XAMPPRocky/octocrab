@@ -1,54 +1,29 @@
 //! The gist API
 
-use snafu::ResultExt;
-use http::StatusCode;
+use serde::Serialize;
+use std::collections::BTreeMap;
 
-use crate::Octocrab;
-use crate::params::gists::File;
+use crate::{models::gists::Gist, Octocrab, Result};
 
 /// Handler for GitHub's gist API.
 ///
 /// Created with [`Octocrab::gists`].
-pub struct GistHandler<'octo> {
+pub struct GistsHandler<'octo> {
     crab: &'octo Octocrab,
 }
 
-impl<'octo> GistHandler<'octo> {
+impl<'octo> GistsHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
         Self { crab }
-    }
-
-    /// Check if a gist has been starred by the currently authenticated user.
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// assert!(octocrab::instance().gists().check_is_starred("id").await?);
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn check_is_starred(&self, id: &str) -> crate::Result<bool> {
-        let url = self.crab.absolute_url(format!("gists/{}/star", id))?;
-
-        let resp = self.crab._get(url, None::<&()>).await?;
-
-        match resp.status() {
-            StatusCode::NO_CONTENT => Ok(true),
-            StatusCode::NOT_FOUND => Ok(false),
-            _ => {
-                crate::map_github_error(resp).await?;
-                unreachable!()
-            }
-        }
     }
 
     /// Create a new gist.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::params::gists::File;
     /// let gitignore = octocrab::instance()
     ///     .gists()
-    ///     .create(&[
-    ///         File::new("hello_world.rs", "fn main() {\n println!(\"Hello World!\");\n}")
-    ///     ])
+    ///     .create()
+    ///     .file("hello_world.rs", "fn main() {\n println!(\"Hello World!\");\n}")
     ///     // Optional Parameters
     ///     .description("Hello World in Rust")
     ///     .public(false)
@@ -57,54 +32,73 @@ impl<'octo> GistHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn create<'files>(&self, files: &'files [File]) -> CreateGistBuilder<'octo, 'files> {
-        CreateGistBuilder::new(files)
-    }
-
-
-    /// Star a gist.
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// assert!(octocrab::instance().gists().star("id").await?);
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn star(&self, id: &str) -> crate::Result<bool> {
-        let url = self.crab.absolute_url(format!("gists/{}/star", id))?;
-
-        let resp = self.crab._put(url, None::<&()>).await?;
-
-        match resp.status() {
-            StatusCode::NO_CONTENT => Ok(true),
-            StatusCode::NOT_FOUND => Ok(false),
-            _ => {
-                crate::map_github_error(resp).await?;
-                unreachable!()
-            }
-        }
+    pub fn create(&self) -> CreateGistBuilder<'octo> {
+        CreateGistBuilder::new(self.crab)
     }
 
     /// Get a single gist.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let gitignore = octocrab::instance().gitignore().get("C").await?;
+    /// let gist = octocrab::instance().gists().get("00000000000000000000000000000000").await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get(&self, name: impl AsRef<str>) -> crate::Result<String> {
-        let route = format!("gitignore/templates/{name}", name = name.as_ref());
-        let request = self
-            .crab
-            .client
-            .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("raw"));
-
-        self.crab
-            .execute(request)
-            .await?
-            .text()
-            .await
-            .context(crate::error::Http)
+    pub async fn get(&self, id: impl AsRef<str>) -> Result<Gist> {
+        let id = id.as_ref();
+        self.crab.get(format!("/gists/{}", id), None::<&()>).await
     }
 }
 
+#[derive(Debug)]
+pub struct CreateGistBuilder<'octo> {
+    crab: &'octo Octocrab,
+    data: CreateGist,
+}
+
+impl<'octo> CreateGistBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            data: Default::default(),
+        }
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.data.description = Some(description.into());
+        self
+    }
+
+    pub fn public(mut self, public: bool) -> Self {
+        self.data.public = Some(public);
+        self
+    }
+
+    pub fn file(mut self, filename: impl Into<String>, content: impl Into<String>) -> Self {
+        let file = CreateGistFile {
+            filename: Default::default(),
+            content: content.into(),
+        };
+        self.data.files.insert(filename.into(), file);
+        self
+    }
+
+    pub async fn send(self) -> Result<Gist> {
+        self.crab.post("gists", Some(&self.data)).await
+    }
+}
+
+#[derive(Debug, Default, Serialize)]
+struct CreateGist {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    public: Option<bool>,
+    files: BTreeMap<String, CreateGistFile>,
+}
+
+#[derive(Debug, Serialize)]
+struct CreateGistFile {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filename: Option<String>,
+    content: String,
+}
