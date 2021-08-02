@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod activity;
 pub mod events;
+pub mod gists;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;

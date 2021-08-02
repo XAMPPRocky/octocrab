@@ -2,6 +2,7 @@ pub mod actions;
 pub mod activity;
 pub mod current;
 pub mod events;
+pub mod gists;
 pub mod gitignore;
 pub mod issues;
 pub mod licenses;
