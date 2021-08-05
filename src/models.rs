@@ -713,7 +713,7 @@ pub struct InstallationToken {
     pub token: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<String>,
-    pub permissions: Permissions,
+    pub permissions: InstallationPermissions,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repositories: Option<Vec<Repository>>,
 }
