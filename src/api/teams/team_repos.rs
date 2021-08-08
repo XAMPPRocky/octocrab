@@ -1,6 +1,12 @@
 use crate::params;
 use crate::{models, FromResponse, Octocrab, Result};
 use reqwest::header::ACCEPT;
+use reqwest::StatusCode;
+
+#[derive(Debug, serde::Serialize)]
+struct PermissionUpdateBody {
+    permission: params::teams::Permission,
+}
 
 /// Handler for managing a team's repositories through
 /// GitHub's teams API.
@@ -35,7 +41,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         &self,
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
-    ) -> Result<models::Repository> {
+    ) -> Result<Option<models::Repository>> {
         let url = format!(
             "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
@@ -46,10 +52,13 @@ impl<'octo> TeamRepoHandler<'octo> {
         let req = self
             .crab
             .client
-            .get(&url)
+            .get(self.crab.absolute_url(&url)?)
             .header(ACCEPT, "application/vnd.github.v3.repository+json");
         let res = self.crab.execute(req).await?;
-        models::Repository::from_response(res).await
+        if res.status() == StatusCode::NOT_FOUND {
+            return Ok(None);
+        }
+        Ok(Some(models::Repository::from_response(res).await?))
     }
 
     /// Updates a team's permissions for a repository.
@@ -78,9 +87,16 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        crate::map_github_error(self.crab._put(&url, permission.into().as_ref()).await?)
-            .await
-            .map(drop)
+        let perm_body = permission
+            .into()
+            .map(|p| PermissionUpdateBody { permission: p });
+        crate::map_github_error(
+            self.crab
+                ._put(self.crab.absolute_url(&url)?, perm_body.as_ref())
+                .await?,
+        )
+        .await
+        .map(drop)
     }
 
     /// Removes a repository from a team.

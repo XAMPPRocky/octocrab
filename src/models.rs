@@ -60,35 +60,37 @@ macro_rules! id_type {
     )+};
 }
 
-id_type!(ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
-         AppId,
-         ArtifactId,
-         AssetId,
-         CardId,
-         CheckRunId,
-         CommentId,
-         InstallationId,
-         IssueEventId,
-         IssueId,
-         JobId,
-         LabelId,
-         MilestoneId,
-         NotificationId,
-         OrgId,
-         ProjectId,
-         ProjectColumnId,
-         PullRequestId,
-         PushId,
-         ReleaseId,
-         RepositoryId,
-         ReviewId,
-         RunId,
-         StatusId,
-         TeamId,
-         ThreadId,
-         UserId,
-         UserOrOrgId,
-         WorkflowId);
+id_type!(
+    ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
+    AppId,
+    ArtifactId,
+    AssetId,
+    CardId,
+    CheckRunId,
+    CommentId,
+    InstallationId,
+    IssueEventId,
+    IssueId,
+    JobId,
+    LabelId,
+    MilestoneId,
+    NotificationId,
+    OrgId,
+    ProjectId,
+    ProjectColumnId,
+    PullRequestId,
+    PushId,
+    ReleaseId,
+    RepositoryId,
+    ReviewId,
+    RunId,
+    StatusId,
+    TeamId,
+    ThreadId,
+    UserId,
+    UserOrOrgId,
+    WorkflowId
+);
 
 macro_rules! convert_into {
     ($($from:ident -> $to:ident),+) => {$(
@@ -487,9 +489,13 @@ pub struct Code {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Permissions {
-    admin: bool,
-    push: bool,
-    pull: bool,
+    pub admin: bool,
+    pub push: bool,
+    pub pull: bool,
+    #[serde(default)]
+    pub triage: bool,
+    #[serde(default)]
+    pub maintain: bool,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
