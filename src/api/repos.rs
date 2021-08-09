@@ -13,7 +13,7 @@ mod generate;
 use crate::{models, params, Octocrab, Result};
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
-pub use status::CreateStatusBuilder;
+pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use generate::GenerateRepositoryBuilder;
 
@@ -250,6 +250,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Create a status for a specified commit in the specified repository.
     pub fn create_status(&self, sha: String, state: models::StatusState) -> CreateStatusBuilder {
         CreateStatusBuilder::new(self, sha, state)
+    }
+
+    /// List statuses for a reference.
+    pub fn list_statuses(&self, sha: String) -> ListStatusesBuilder<'_, '_> {
+        ListStatusesBuilder::new(self, sha)
     }
 
     /// List events on this repository.
