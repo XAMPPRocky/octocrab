@@ -38,18 +38,20 @@ pub enum Error {
 #[derive(serde::Deserialize, Debug, Clone)]
 #[non_exhaustive]
 pub struct GitHubError {
-    pub documentation_url: String,
+    pub documentation_url: Option<String>,
     pub errors: Option<Vec<serde_json::Value>>,
     pub message: String,
 }
 
 impl fmt::Display for GitHubError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Error: {}\nDocumentation URL: {}",
-            self.message, self.documentation_url
-        )
+        write!(f, "Error: {}", self.message)?;
+
+        if self.documentation_url.is_some() {
+            write!(f, "\nDocumentation URL: {}", self.documentation_url.as_ref().unwrap())?;
+        }
+
+        Ok(())
     }
 }
 
