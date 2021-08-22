@@ -41,7 +41,9 @@ pub struct Run {
     pub cancel_url: Url,
     pub rerun_url: Url,
     pub workflow_url: Url,
-    pub pull_requests: Vec<super::pulls::PullRequest>,
+    // This is not correct! E.g. I see stuff that is only a subset of PullRequest, e.g.
+    // "pull_requests":[{"url":"https://api.github.com/repos/artichoke/artichoke/pulls/1346","id":717179206,"number":1346,"head":{"ref":"pernosco-integration","sha":"9ee4335ecfc3e7abe44bddadb117a23d0d63e4ee","repo":{"id":199196552,"url":"https://api.github.com/repos/artichoke/artichoke","name":"artichoke"}},"base":{"ref":"trunk","sha":"abbb7cf0c75ab51b84309ac547c3c3c089dd36eb","repo":{"id":199196552,"url":"https://api.github.com/repos/artichoke/artichoke","name":"artichoke"}}}]
+    // pub pull_requests: Vec<super::pulls::PullRequest>,
     // TODO: other attrs
     // ref: https://docs.github.com/en/rest/reference/actions#list-workflow-runs
     pub head_commit: HeadCommit,
