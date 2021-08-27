@@ -71,7 +71,8 @@ pub struct Job {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<String>,
-    pub started_at: chrono::DateTime<chrono::Utc>,
+    // Github has been seen to set null here during Job startup
+    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub name: String,
@@ -90,7 +91,8 @@ pub struct Step {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<String>,
     pub number: i64,
-    pub started_at: chrono::DateTime<chrono::Utc>,
+    // Github might set null here during Step startup...
+    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
