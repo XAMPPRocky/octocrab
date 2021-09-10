@@ -171,6 +171,7 @@ pub use self::{
         actions, activity, current, events, gists, gitignore, issues, licenses, markdown, orgs,
         pulls, repos, search, teams, workflows,
     },
+    auth::create_authenticate_as_app_jwt,
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,

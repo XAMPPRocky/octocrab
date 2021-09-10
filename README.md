@@ -17,9 +17,10 @@ octocrab = "0.9"
 ```
 
 ## Semantic API
-The semantic API provides strong typing around GitHub's API, as well as a
-set of [`models`] that maps to GitHub's types. Currently the following 
-modules are available.
+The semantic API provides strong typing around GitHub's API, a set of
+[`models`] that maps to GitHub's types, and [`auth`] functions that are useful
+for GitHub apps.
+Currently, the following modules are available.
 
 - [`actions`] GitHub Actions.
 - [`current`] Information about the current user.
@@ -36,6 +37,7 @@ modules are available.
 - [`teams`] Teams.
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
+[`models`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
 
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
