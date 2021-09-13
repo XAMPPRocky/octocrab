@@ -5,7 +5,7 @@ use self::payload::{
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
 };
-use super::{ActorId, RepositoryId, OrgId};
+use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
 use payload::MemberEventPayload;
 use reqwest::Url;
@@ -135,37 +135,36 @@ fn deserialize_payload(
 ) -> Result<Option<EventPayload>, serde_json::Error> {
     let maybe_payload = match event_type {
         EventType::PushEvent => {
-            serde_json::from_value::<PushEventPayload>(data).map(EventPayload::PushEvent)?
+            serde_json::from_value::<Box<PushEventPayload>>(data).map(EventPayload::PushEvent)?
         }
-        EventType::CreateEvent => {
-            serde_json::from_value::<CreateEventPayload>(data).map(EventPayload::CreateEvent)?
+        EventType::CreateEvent => serde_json::from_value::<Box<CreateEventPayload>>(data)
+            .map(EventPayload::CreateEvent)?,
+        EventType::DeleteEvent => serde_json::from_value::<Box<DeleteEventPayload>>(data)
+            .map(EventPayload::DeleteEvent)?,
+        EventType::IssuesEvent => serde_json::from_value::<Box<IssuesEventPayload>>(data)
+            .map(EventPayload::IssuesEvent)?,
+        EventType::IssueCommentEvent => {
+            serde_json::from_value::<Box<IssueCommentEventPayload>>(data)
+                .map(EventPayload::IssueCommentEvent)?
         }
-        EventType::DeleteEvent => {
-            serde_json::from_value::<DeleteEventPayload>(data).map(EventPayload::DeleteEvent)?
+        EventType::CommitCommentEvent => {
+            serde_json::from_value::<Box<CommitCommentEventPayload>>(data)
+                .map(EventPayload::CommitCommentEvent)?
         }
-        EventType::IssuesEvent => {
-            serde_json::from_value::<IssuesEventPayload>(data).map(EventPayload::IssuesEvent)?
-        }
-        EventType::IssueCommentEvent => serde_json::from_value::<IssueCommentEventPayload>(data)
-            .map(EventPayload::IssueCommentEvent)?,
-        EventType::CommitCommentEvent => serde_json::from_value::<CommitCommentEventPayload>(data)
-            .map(EventPayload::CommitCommentEvent)?,
         EventType::ForkEvent => {
-            serde_json::from_value::<ForkEventPayload>(data).map(EventPayload::ForkEvent)?
+            serde_json::from_value::<Box<ForkEventPayload>>(data).map(EventPayload::ForkEvent)?
         }
-        EventType::GollumEvent => {
-            serde_json::from_value::<GollumEventPayload>(data).map(EventPayload::GollumEvent)?
-        }
-        EventType::MemberEvent => {
-            serde_json::from_value::<MemberEventPayload>(data).map(EventPayload::MemberEvent)?
-        }
-        EventType::PullRequestEvent => serde_json::from_value::<PullRequestEventPayload>(data)
-            .map(|payload| EventPayload::PullRequestEvent(Box::new(payload)))?,
+        EventType::GollumEvent => serde_json::from_value::<Box<GollumEventPayload>>(data)
+            .map(EventPayload::GollumEvent)?,
+        EventType::MemberEvent => serde_json::from_value::<Box<MemberEventPayload>>(data)
+            .map(EventPayload::MemberEvent)?,
+        EventType::PullRequestEvent => serde_json::from_value::<Box<PullRequestEventPayload>>(data)
+            .map(|payload| EventPayload::PullRequestEvent(payload))?,
         EventType::PullRequestReviewCommentEvent => {
-            serde_json::from_value::<PullRequestReviewCommentEventPayload>(data)
-                .map(|payload| EventPayload::PullRequestReviewCommentEvent(Box::new(payload)))?
+            serde_json::from_value::<Box<PullRequestReviewCommentEventPayload>>(data)
+                .map(|payload| EventPayload::PullRequestReviewCommentEvent(payload))?
         }
-        _ => EventPayload::UnknownEvent(data),
+        _ => EventPayload::UnknownEvent(Box::new(data)),
     };
     Ok(Some(maybe_payload))
 }

@@ -34,18 +34,18 @@ use serde::{Deserialize, Serialize};
 #[non_exhaustive]
 #[serde(untagged)]
 pub enum EventPayload {
-    PushEvent(PushEventPayload),
-    CreateEvent(CreateEventPayload),
-    DeleteEvent(DeleteEventPayload),
-    IssuesEvent(IssuesEventPayload),
-    IssueCommentEvent(IssueCommentEventPayload),
-    CommitCommentEvent(CommitCommentEventPayload),
-    ForkEvent(ForkEventPayload),
-    GollumEvent(GollumEventPayload),
-    MemberEvent(MemberEventPayload),
+    PushEvent(Box<PushEventPayload>),
+    CreateEvent(Box<CreateEventPayload>),
+    DeleteEvent(Box<DeleteEventPayload>),
+    IssuesEvent(Box<IssuesEventPayload>),
+    IssueCommentEvent(Box<IssueCommentEventPayload>),
+    CommitCommentEvent(Box<CommitCommentEventPayload>),
+    ForkEvent(Box<ForkEventPayload>),
+    GollumEvent(Box<GollumEventPayload>),
+    MemberEvent(Box<MemberEventPayload>),
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
-    UnknownEvent(serde_json::Value),
+    UnknownEvent(Box<serde_json::Value>),
 }
 
 /// A git commit in specific payload types.
