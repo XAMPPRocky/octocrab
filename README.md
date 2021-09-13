@@ -23,6 +23,7 @@ for GitHub apps.
 Currently, the following modules are available.
 
 - [`actions`] GitHub Actions.
+- [`apps`] GitHub Apps.
 - [`current`] Information about the current user.
 - [`gitignore`] Gitignore templates.
 - [`graphql`] GraphQL.

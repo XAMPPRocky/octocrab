@@ -1,19 +1,23 @@
-use octocrab::models::{CreateInstallationAccessToken, Installation, InstallationToken};
-use octocrab::{create_authenticate_as_app_jwt, Octocrab};
+use octocrab::models::{InstallationToken, Repository};
+use octocrab::params::apps::CreateInstallationAccessToken;
+use octocrab::{create_jwt, Octocrab};
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let app_id = read_env_var("GITHUB_APP_ID");
     let app_private_key = read_env_var("GITHUB_APP_PRIVATE_KEY");
 
-    let octocrab = Octocrab::builder()
-        .personal_token(create_authenticate_as_app_jwt(&app_id, &app_private_key).unwrap())
-        .build()?;
+    let token = create_jwt(app_id.parse::<u64>().unwrap().into(), app_private_key).unwrap();
 
-    let installations: Vec<Installation> = octocrab
-        .get("/app/installations", None::<&()>)
+    let octocrab = Octocrab::builder().personal_token(token).build()?;
+
+    let installations = octocrab
+        .apps()
+        .installations()
+        .send()
         .await
-        .unwrap();
+        .unwrap()
+        .take_items();
 
     let mut create_access_token = CreateInstallationAccessToken::default();
     create_access_token.repositories = vec!["octocrab".to_string()];
@@ -31,13 +35,10 @@ async fn main() -> octocrab::Result<()> {
         .build()
         .unwrap();
 
-    let comment = octocrab
-        .issues("XAMPPRocky", "octocrab")
-        .create_comment(0, "Created programmatically!")
+    let _repos: Vec<Repository> = octocrab
+        .get("/installation/repositories", None::<&()>)
         .await
         .unwrap();
-
-    dbg!(comment);
 
     Ok(())
 }

@@ -11,6 +11,7 @@
 //!
 //! - [`activity`] GitHub Activity
 //! - [`actions`] GitHub Actions
+//! - [`apps`] GitHub Apps
 //! - [`current`] Information about the current user.
 //! - [`gitignore`] Gitignore templates
 //! - [`Octocrab::graphql`] GraphQL.
@@ -168,10 +169,10 @@ use auth::Auth;
 
 pub use self::{
     api::{
-        actions, activity, current, events, gists, gitignore, issues, licenses, markdown, orgs,
-        pulls, repos, search, teams, workflows,
+        actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
+        orgs, pulls, repos, search, teams, workflows,
     },
-    auth::create_authenticate_as_app_jwt,
+    auth::create_jwt,
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
@@ -381,6 +382,11 @@ impl Octocrab {
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
     pub fn activity(&self) -> activity::ActivityHandler {
         activity::ActivityHandler::new(self)
+    }
+
+    /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
+    pub fn apps(&self) -> apps::AppsRequestHandler {
+        apps::AppsRequestHandler::new(self)
     }
 
     /// Creates a [`gitignore::GitignoreHandler`] for accessing information

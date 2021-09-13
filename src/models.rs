@@ -652,12 +652,3 @@ pub struct PublicKey {
     pub key_id: String,
     pub key: String,
 }
-
-/// https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub struct CreateInstallationAccessToken {
-    pub repositories: Vec<String>,
-    pub repository_ids: Vec<RepositoryId>,
-}
