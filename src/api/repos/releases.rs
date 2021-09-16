@@ -58,6 +58,30 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         CreateReleaseBuilder::new(self, tag_name.as_ref())
     }
 
+    /// Creates a new [`UpdateReleaseBuilder`] with `release_id`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let release = octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .update(1)
+    ///     // Optional Parameters
+    ///     .tag_name("v1.0.0")
+    ///     .target_commitish("main")
+    ///     .name("Version 1.0.0")
+    ///     .body("Announcing 1.0.0!")
+    ///     .draft(false)
+    ///     .prerelease(false)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn update<'t>(&self, release_id: u64) -> UpdateReleaseBuilder<'_, '_, '_, '_, '_, '_, '_> {
+        UpdateReleaseBuilder::new(self, release_id)
+    }
+
     /// Fetches a single asset by its ID.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -282,5 +306,92 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> Create
             repo = self.handler.parent.repo
         );
         self.handler.parent.crab.post(url, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for updating releases.
+///
+/// created by [`ReleasesHandler::update`].
+#[derive(serde::Serialize)]
+pub struct UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+    #[serde(skip)]
+    handler: &'handler ReleasesHandler<'octo, 'repos>,
+    release_id: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tag_name: Option<&'tag_name str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    target_commitish: Option<&'target_commitish str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<&'name str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    body: Option<&'body str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    draft: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    prerelease: Option<bool>,
+}
+
+impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+    pub(crate) fn new(handler: &'handler ReleasesHandler<'octo, 'repos>, release_id: u64) -> Self {
+        Self {
+            handler,
+            release_id,
+            tag_name: None,
+            target_commitish: None,
+            name: None,
+            body: None,
+            draft: None,
+            prerelease: None,
+        }
+    }
+
+    /// The release tag name.
+    pub fn tag_name(mut self, tag_name: &'tag_name (impl AsRef<str> + ?Sized)) -> Self {
+        self.tag_name = Some(tag_name.as_ref());
+        self
+    }
+
+    /// Specifies the commitish value that determines where the Git tag is
+    /// created from. Can be any branch or commit SHA. Unused if the Git tag
+    /// already exists. Default: the repository's default branch
+    /// (usually `main`).
+    pub fn target_commitish(mut self, target_commitish: &'target_commitish (impl AsRef<str> + ?Sized)) -> Self {
+        self.target_commitish = Some(target_commitish.as_ref());
+        self
+    }
+
+    /// The name of the release.
+    pub fn name(mut self, name: &'name (impl AsRef<str> + ?Sized)) -> Self {
+        self.name = Some(name.as_ref());
+        self
+    }
+
+    /// Text describing the contents of the tag.
+    pub fn body(mut self, body: &'body (impl AsRef<str> + ?Sized)) -> Self {
+        self.body = Some(body.as_ref());
+        self
+    }
+
+    /// Whether to set the release as a "draft" release or not.
+    pub fn draft(mut self, draft: impl Into<bool>) -> Self {
+        self.draft = Some(draft.into());
+        self
+    }
+
+    /// Whether to set the release as a "prerelease" or not.
+    pub fn prerelease(mut self, prerelease: impl Into<bool>) -> Self {
+        self.prerelease = Some(prerelease.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
+        let url = format!(
+            "repos/{owner}/{repo}/releases/{release_id}",
+            owner = self.handler.parent.owner,
+            repo = self.handler.parent.repo,
+            release_id = self.release_id,
+        );
+        self.handler.parent.crab.patch(url, Some(&self)).await
     }
 }
