@@ -232,7 +232,7 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
     }
 }
 
-/// A builder pattern struct for listing releases.
+/// A builder pattern struct for creating releases.
 ///
 /// created by [`ReleasesHandler::create`].
 #[derive(serde::Serialize)]
