@@ -8,11 +8,11 @@ mod status;
 mod tags;
 
 use crate::{models, params, Octocrab, Result};
+pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
-pub use file::GetContentBuilder;
 
 /// Handler for GitHub's repository API.
 ///
