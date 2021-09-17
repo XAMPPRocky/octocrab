@@ -13,6 +13,8 @@ pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
 
+use self::file::GetContentBuilder;
+
 /// Handler for GitHub's repository API.
 ///
 /// Created with [`Octocrab::repos`].
@@ -55,11 +57,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!(
-            "repos/{owner}/{repo}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -121,6 +119,24 @@ impl<'octo> RepoHandler<'octo> {
                 })),
             )
             .await
+    }
+
+    /// Get repository content.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_content()
+    ///     .path("path/to/file")
+    ///     .r#ref("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_content(&self) -> GetContentBuilder<'_, '_> {
+        GetContentBuilder::new(self)
     }
 
     /// Creates a new file in the repository.
@@ -294,8 +310,12 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn delete(self) -> Result<()> {
         let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
-            .await
-            .map(drop)
+        crate::map_github_error(
+            self.crab
+                ._delete(self.crab.absolute_url(url)?, None::<&()>)
+                .await?,
+        )
+        .await
+        .map(drop)
     }
 }

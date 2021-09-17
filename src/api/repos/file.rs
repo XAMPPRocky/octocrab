@@ -1,6 +1,51 @@
 use super::*;
 
 #[derive(serde::Serialize)]
+pub struct GetContentBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r RepoHandler<'octo>,
+    #[serde(skip)]
+    path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    r#ref: Option<String>,
+}
+
+impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
+        Self {
+            handler,
+            path: None,
+            r#ref: None,
+        }
+    }
+
+    /// The content path.
+    pub fn path(mut self, path: impl Into<String>) -> Self {
+        self.path = Some(path.into());
+        self
+    }
+
+    /// The name of the commit/branch/tag.
+    /// Default: the repository’s default branch (usually `master)
+    pub fn r#ref(mut self, r#ref: impl Into<String>) -> Self {
+        self.r#ref = Some(r#ref.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<models::repos::Content> {
+        let path = self.path.clone().unwrap_or(String::from(""));
+        let url = format!(
+            "repos/{owner}/{repo}/contents/{path}",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            path = path,
+        );
+        self.handler.crab.get(url, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
 pub struct UpdateFileBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r RepoHandler<'octo>,
