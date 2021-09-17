@@ -69,6 +69,21 @@ pub mod actions {
     }
 }
 
+pub mod apps {
+    //! Parameter types for the apps API.
+
+    use crate::models::RepositoryId;
+
+    /// https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app
+    #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub struct CreateInstallationAccessToken {
+        pub repositories: Vec<String>,
+        pub repository_ids: Vec<RepositoryId>,
+    }
+}
+
 pub mod issues {
     //! Parameter types for the issues API.
 

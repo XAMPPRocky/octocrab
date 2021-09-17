@@ -489,6 +489,7 @@ pub struct Code {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Permissions {
+    #[serde(default)]
     pub admin: bool,
     pub push: bool,
     pub pull: bool,
