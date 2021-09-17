@@ -149,11 +149,11 @@
 #![cfg_attr(test, recursion_limit = "512")]
 
 mod api;
-mod auth;
 mod error;
 mod from_response;
 mod page;
 
+pub mod auth;
 pub mod etag;
 pub mod models;
 pub mod params;
