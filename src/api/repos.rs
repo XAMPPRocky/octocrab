@@ -44,6 +44,25 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
+    /// Fetches a single repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let repo = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get(&self) -> Result<models::Repository> {
+        let url = format!(
+            "repos/{owner}/{repo}",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        self.crab.get(url, None::<&()>).await
+    }
+
     /// Fetches a single reference in the Git database.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
