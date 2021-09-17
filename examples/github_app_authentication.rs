@@ -1,13 +1,13 @@
 use octocrab::models::{InstallationToken, Repository};
 use octocrab::params::apps::CreateInstallationAccessToken;
-use octocrab::{create_jwt, Octocrab};
+use octocrab::Octocrab;
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let app_id = read_env_var("GITHUB_APP_ID");
     let app_private_key = read_env_var("GITHUB_APP_PRIVATE_KEY");
 
-    let token = create_jwt(app_id.parse::<u64>().unwrap().into(), app_private_key).unwrap();
+    let token = octocrab::auth::create_jwt(app_id.parse::<u64>().unwrap().into(), app_private_key).unwrap();
 
     let octocrab = Octocrab::builder().personal_token(token).build()?;
 
