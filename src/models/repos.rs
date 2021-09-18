@@ -64,7 +64,7 @@ pub struct Content {
     pub url: String,
     pub html_url: String,
     pub git_url: String,
-    pub download_url: String,
+    pub download_url: Option<String>,
     pub r#type: String,
     #[serde(rename = "_links")]
     pub links: ContentLinks,
