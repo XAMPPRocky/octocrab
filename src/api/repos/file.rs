@@ -33,7 +33,7 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<models::repos::Content> {
+    pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
         let url = format!(
             "repos/{owner}/{repo}/contents/{path}",

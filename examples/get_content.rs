@@ -9,12 +9,13 @@ async fn main() -> octocrab::Result<()> {
     let content = octocrab
         .repos("rust-lang", "rust")
         .get_content()
-        .path(String::from("CONTRIBUTING.md"))
-        .r#ref("master")
         .send()
         .await?;
 
-    println!("{} has SHA {}", content.name, content.sha);
+    println!(
+        "{} files/dirs in the repo root",
+        content.items.into_iter().count()
+    );
 
     Ok(())
 }
