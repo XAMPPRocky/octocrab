@@ -39,7 +39,7 @@ Currently, the following modules are available.
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
-[`apps`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
+[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
