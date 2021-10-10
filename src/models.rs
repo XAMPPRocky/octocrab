@@ -338,61 +338,102 @@ pub struct Milestone {
 #[non_exhaustive]
 pub struct Repository {
     pub id: RepositoryId,
-    pub node_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
     pub name: String,
-    pub full_name: String,
-    pub owner: User,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub full_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub private: Option<bool>,
-    pub html_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub fork: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fork: Option<bool>,
     pub url: Url,
-    pub archive_url: Url,
-    pub assignees_url: Url,
-    pub blobs_url: Url,
-    pub branches_url: Url,
-    pub collaborators_url: Url,
-    pub comments_url: Url,
-    pub commits_url: Url,
-    pub compare_url: Url,
-    pub contents_url: Url,
-    pub contributors_url: Url,
-    pub deployments_url: Url,
-    pub downloads_url: Url,
-    pub events_url: Url,
-    pub forks_url: Url,
-    pub git_commits_url: Url,
-    pub git_refs_url: Url,
-    pub git_tags_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub archive_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignees_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blobs_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branches_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub collaborators_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comments_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commits_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compare_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contents_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contributors_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deployments_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub downloads_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub events_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forks_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub git_commits_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub git_refs_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub git_tags_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub git_url: Option<Url>,
-    pub issue_comment_url: Url,
-    pub issue_events_url: Url,
-    pub issues_url: Url,
-    pub keys_url: Url,
-    pub labels_url: Url,
-    pub languages_url: Url,
-    pub merges_url: Url,
-    pub milestones_url: Url,
-    pub notifications_url: Url,
-    pub pulls_url: Url,
-    pub releases_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issue_comment_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issue_events_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issues_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keys_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub labels_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merges_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub milestones_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notifications_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pulls_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub releases_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssh_url: Option<String>,
-    pub stargazers_url: Url,
-    pub statuses_url: Url,
-    pub subscribers_url: Url,
-    pub subscription_url: Url,
-    pub tags_url: Url,
-    pub teams_url: Url,
-    pub trees_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stargazers_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statuses_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscribers_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscription_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub teams_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub trees_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clone_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mirror_url: Option<Url>,
-    pub hooks_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hooks_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub svn_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]

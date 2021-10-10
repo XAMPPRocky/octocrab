@@ -5,24 +5,37 @@ use super::*;
 pub struct PullRequest {
     pub url: String,
     pub id: PullRequestId,
-    pub node_id: String,
-    pub html_url: Url,
-    pub diff_url: Url,
-    pub patch_url: Url,
-    pub issue_url: Url,
-    pub commits_url: Url,
-    pub review_comments_url: Url,
-    pub review_comment_url: Url,
-    pub comments_url: Url,
-    pub statuses_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diff_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub patch_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issue_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commits_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub review_comments_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub review_comment_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comments_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statuses_url: Option<Url>,
     pub number: u64,
-    pub state: IssueState,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<IssueState>,
     #[serde(default)]
     pub locked: bool,
     #[serde(default)]
     pub maintainer_can_modify: bool,
-    pub title: String,
-    pub user: User,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -35,7 +48,8 @@ pub struct PullRequest {
     pub milestone: Option<Milestone>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_lock_reason: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,9 +64,13 @@ pub struct PullRequest {
     pub merge_commit_sha: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignee: Option<User>,
-    pub assignees: Vec<User>,
-    pub requested_reviewers: Vec<User>,
-    pub requested_teams: Vec<teams::RequestedTeam>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignees: Option<Vec<User>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested_reviewers: Option<Vec<User>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested_teams: Option<Vec<teams::RequestedTeam>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub rebaseable: Option<bool>,
     pub head: Head,
     pub base: Base,
@@ -61,7 +79,8 @@ pub struct PullRequest {
     pub links: Option<Links>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_association: Option<String>,
-    pub draft: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
 }
@@ -83,11 +102,13 @@ pub struct Head {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Base {
-    pub label: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
     #[serde(rename = "ref")]
     pub ref_field: String,
     pub sha: String,
-    pub user: User,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
 }
