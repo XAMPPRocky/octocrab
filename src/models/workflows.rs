@@ -45,7 +45,8 @@ pub struct Run {
     // ref: https://docs.github.com/en/rest/reference/actions#list-workflow-runs
     pub head_commit: HeadCommit,
     pub repository: Repository,
-    pub head_repository: Repository,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub head_repository: Option<Repository>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
