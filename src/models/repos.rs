@@ -142,8 +142,10 @@ pub struct Asset {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct TagInfo {
+/// Metadata for a Git tag
+pub struct GitTag {
     pub node_id: String,
+    /// Name of the tag. Example: v0.0.1
     pub tag: String,
     pub sha: String,
     pub url: Url,

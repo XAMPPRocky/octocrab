@@ -84,7 +84,7 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
-    pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::TagInfo> {
+    pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
         let url = format!(
             "repos/{owner}/{repo}/git/tags/{tag_sha}",
             owner = self.owner,
