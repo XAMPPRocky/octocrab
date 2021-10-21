@@ -55,11 +55,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!(
-            "repos/{owner}/{repo}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -84,6 +80,16 @@ impl<'octo> RepoHandler<'octo> {
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
+        );
+        self.crab.get(url, None::<&()>).await
+    }
+
+    pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::TagInfo> {
+        let url = format!(
+            "repos/{owner}/{repo}/git/tags/{tag_sha}",
+            owner = self.owner,
+            repo = self.repo,
+            tag_sha = tag_sha.into(),
         );
         self.crab.get(url, None::<&()>).await
     }
@@ -294,8 +300,12 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn delete(self) -> Result<()> {
         let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
-            .await
-            .map(drop)
+        crate::map_github_error(
+            self.crab
+                ._delete(self.crab.absolute_url(url)?, None::<&()>)
+                .await?,
+        )
+        .await
+        .map(drop)
     }
 }

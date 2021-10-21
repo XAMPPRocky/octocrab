@@ -139,3 +139,13 @@ pub struct Asset {
     pub updated_at: DateTime<Utc>,
     pub uploader: User,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TagInfo {
+    pub node_id: String,
+    pub tag: String,
+    pub sha: String,
+    pub url: Url,
+    pub message: String,
+}
