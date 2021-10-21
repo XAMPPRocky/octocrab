@@ -17,6 +17,7 @@ pub struct Ref {
 #[non_exhaustive]
 pub enum Object {
     Commit { sha: String, url: Url },
+    Tag { sha: String, url: Url },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
