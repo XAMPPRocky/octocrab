@@ -84,6 +84,18 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
+    /// Fetches information about a git tag with the given `tag_sha`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let master = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_tag("402b2026a41b26b691c429ddb0b9c27a31b27a6b")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
         let url = format!(
             "repos/{owner}/{repo}/git/tags/{tag_sha}",
