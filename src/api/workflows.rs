@@ -175,7 +175,7 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
         self
     }
 
-    /// An event associated with workflows. Can be e.g. pusu, pull_request, issue,
+    /// An event associated with workflows. Can be e.g. push, pull_request, issue,
     /// ... and many variations. See official "Events that trigger workflows." doc.
     pub fn event(mut self, event: impl Into<String>) -> Self {
         self.event = Some(event.into());
