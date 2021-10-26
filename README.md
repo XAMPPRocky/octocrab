@@ -13,7 +13,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
 ```toml
-octocrab = "0.9"
+octocrab = "0.12"
 ```
 
 ## Semantic API
@@ -38,8 +38,8 @@ Currently, the following modules are available.
 - [`teams`] Teams.
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
-[`models`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
-
+[`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
+[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html

@@ -147,6 +147,8 @@ pub struct ListRunsBuilder<'octo, 'b> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exclude_pull_requests: Option<bool>,
 }
 
 impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
@@ -160,6 +162,7 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
             status: None,
             per_page: None,
             page: None,
+            exclude_pull_requests: None,
         }
     }
 
@@ -175,7 +178,7 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
         self
     }
 
-    /// An event associated with workflows. Can be e.g. pusu, pull_request, issue,
+    /// An event associated with workflows. Can be e.g. push, pull_request, issue,
     /// ... and many variations. See official "Events that trigger workflows." doc.
     pub fn event(mut self, event: impl Into<String>) -> Self {
         self.event = Some(event.into());
@@ -198,6 +201,12 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Whether to exclude the pull requests or not.
+    pub fn exclude_pull_requests(mut self, exclude_pull_requests: impl Into<bool>) -> Self {
+        self.exclude_pull_requests = Some(exclude_pull_requests.into());
         self
     }
 

@@ -16,7 +16,7 @@ async fn main() -> octocrab::Result<()> {
         .await?;
 
     for f in forks {
-        println!("fork: {}", f.owner.login);
+        println!("fork: {}", f.owner.unwrap().login);
     }
 
     Ok(())

@@ -10,7 +10,7 @@ async fn main() -> octocrab::Result<()> {
 
     println!(
         "{} has {} stars",
-        repo.full_name,
+        repo.full_name.unwrap(),
         repo.stargazers_count.unwrap_or(0)
     );
 
