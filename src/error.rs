@@ -45,10 +45,19 @@ pub struct GitHubError {
 
 impl fmt::Display for GitHubError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Error: {}", self.message)?;
+        write!(f, "{}", self.message)?;
 
-        if self.documentation_url.is_some() {
-            write!(f, "\nDocumentation URL: {}", self.documentation_url.as_ref().unwrap())?;
+        if let Some(documentation_url) = &self.documentation_url {
+            write!(f, "\nDocumentation URL: {}", documentation_url)?;
+        }
+
+        if let Some(errors) = &self.errors {
+            if !errors.is_empty() {
+                write!(f, "\nErrors:")?;
+                for error in errors {
+                    write!(f, "\n- {}", error)?;
+                }
+            }
         }
 
         Ok(())
