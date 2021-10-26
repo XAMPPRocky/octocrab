@@ -51,12 +51,10 @@ impl fmt::Display for GitHubError {
             write!(f, "\nDocumentation URL: {}", documentation_url)?;
         }
 
-        if let Some(errors) = &self.errors {
-            if !errors.is_empty() {
-                write!(f, "\nErrors:")?;
-                for error in errors {
-                    write!(f, "\n- {}", error)?;
-                }
+        if let Some(errors) = &self.errors.filter(|errors| !errors.is_empty()) {
+            write!(f, "\nErrors:")?;
+            for error in errors {
+                write!(f, "\n- {}", error)?;
             }
         }
 
