@@ -27,7 +27,7 @@
 //! - [`teams`] Teams
 //!
 //! #### Getting a Pull Request
-//! ```no_run
+//! ```no_runCachedToken
 //! # async fn run() -> octocrab::Result<()> {
 //! // Get pull request #404 from `octocrab/repo`.
 //! let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
@@ -148,6 +148,8 @@
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
 
+const MAX_RETRIES: u32 = 3;
+
 mod api;
 mod error;
 mod from_response;
@@ -158,14 +160,16 @@ pub mod etag;
 pub mod models;
 pub mod params;
 
-use std::sync::Arc;
+use std::fmt;
+use std::sync::{Arc, RwLock};
 
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, Url};
+use reqwest::{header::HeaderName, Url, StatusCode};
 use serde::Serialize;
 use snafu::*;
 
-use auth::Auth;
+use auth::{AppAuth, Auth};
+use models::{InstallationId, InstallationToken, AppId};
 
 pub use self::{
     api::{
@@ -290,6 +294,13 @@ impl OctocrabBuilder {
         self
     }
 
+    /// Authenticate as a Github App.
+    /// `key`: RSA private key in DER or PEM formats.
+    pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
+        self.auth = Auth::App(AppAuth { app_id, key });
+        self
+    }
+
     /// Set the base url for `Octocrab`.
     pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
         self.base_url = Some(base_url.into_url().context(crate::error::Http)?);
@@ -307,12 +318,17 @@ impl OctocrabBuilder {
             );
         }
 
-        if let Auth::PersonalToken(token) = self.auth {
-            hmap.append(
-                reqwest::header::AUTHORIZATION,
-                format!("Bearer {}", token).parse().unwrap(),
-            );
-        }
+        let auth_state = match self.auth {
+            Auth::None => AuthState::None,
+            Auth::PersonalToken(token) => {
+                hmap.append(
+                    reqwest::header::AUTHORIZATION,
+                    format!("Bearer {}", token).parse().unwrap(),
+                );
+                AuthState::None
+            },
+            Auth::App(app_auth) => AuthState::App(app_auth),
+        };
 
         for (key, value) in self.extra_headers.into_iter() {
             hmap.append(key, value.parse().unwrap());
@@ -329,8 +345,68 @@ impl OctocrabBuilder {
             base_url: self
                 .base_url
                 .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
+            auth_state: auth_state,
         })
     }
+}
+
+/// A cached API access token (which may be None)
+struct CachedToken(RwLock<Option<String>>);
+
+impl CachedToken {
+    fn clear(&self) {
+        *self.0.write().unwrap() = None;
+    }
+    fn get(&self) -> Option<String> {
+        self.0.read().unwrap().clone()
+    }
+    fn set(&self, value: String) {
+        *self.0.write().unwrap() = Some(value);
+    }
+}
+
+impl fmt::Debug for CachedToken {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.read().unwrap().fmt(f)
+    }
+}
+
+impl fmt::Display for CachedToken {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let option = self.0.read().unwrap();
+        option.as_ref().map(|s| s.fmt(f)).unwrap_or(write!(f, "<none>"))
+    }
+}
+
+impl Clone for CachedToken {
+    fn clone(&self) -> CachedToken {
+        CachedToken(RwLock::new(self.0.read().unwrap().clone()))
+    }
+}
+
+impl Default for CachedToken {
+    fn default() -> CachedToken {
+        CachedToken(RwLock::new(None))
+    }
+}
+
+/// State used for authenticate to Github
+#[derive(Debug, Clone)]
+enum AuthState {
+    /// No state, although Auth::PersonalToken may have caused
+    /// an Authorization HTTP header to be set to provide authentication.
+    None,
+    /// Github App authentication with the given app data
+    App(AppAuth),
+    /// Authentication via a Github App repo-specific installation
+    Installation {
+        /// The app authentication data (app ID and private key)
+        app: AppAuth,
+        /// The installation ID
+        installation: InstallationId,
+        /// The cached access token, if any
+        token: CachedToken,
+    },
 }
 
 /// The GitHub API client.
@@ -338,6 +414,7 @@ impl OctocrabBuilder {
 pub struct Octocrab {
     client: reqwest::Client,
     pub base_url: Url,
+    auth_state: AuthState,
 }
 
 /// Defaults for Octocrab:
@@ -352,6 +429,7 @@ impl Default for Octocrab {
                 .user_agent("octocrab")
                 .build()
                 .unwrap(),
+            auth_state: AuthState::None,
         }
     }
 }
@@ -361,6 +439,30 @@ impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
     pub fn builder() -> OctocrabBuilder {
         OctocrabBuilder::default()
+    }
+
+    /// Returns a new `Octocrab` based on the current builder but
+    /// authorizing via a specific installation ID.
+    /// Typically you will first construct an `Octocrab` using
+    /// `OctocrabBuilder::app` to authenticate as your Github App,
+    /// then obtain an installation ID, and then pass that here to
+    /// obtain a new `Octocrab` with which you can make API calls
+    /// with the permissions of that installation.
+    pub fn installation(&self, id: InstallationId) -> Octocrab {
+        let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
+            app_auth.clone()
+        } else {
+            panic!("Github App authorization is required to target an installation");
+        };
+        Octocrab {
+            client: self.client.clone(),
+            base_url: self.base_url.clone(),
+            auth_state: AuthState::Installation {
+                app: app_auth,
+                installation: id,
+                token: CachedToken::default(),
+            },
+        }
     }
 }
 
@@ -664,9 +766,73 @@ impl Octocrab {
         self.client.request(method, url)
     }
 
-    /// Execute the given `request` octocrab's Client.
-    pub async fn execute(&self, request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
-        request.send().await.context(error::Http)
+    /// Requests a fresh installation auth token and caches it. Returns the token.
+    async fn request_installation_auth_token(&self) -> Result<String> {
+        let (app, installation, token) = if let AuthState::Installation { ref app, installation, ref token } = self.auth_state {
+            (app, installation, token)
+        } else {
+            panic!("Installation not configured");
+        };
+        let mut retries = 0;
+        loop {
+            let result = self.client.post(self.absolute_url(format!("/app/installations/{}/access_tokens", installation))?)
+                .bearer_auth(app.generate_bearer_token()?)
+                .send().await;
+            if let Err(ref e) = result {
+                if let Some(StatusCode::UNAUTHORIZED) = e.status() {
+                    if retries < MAX_RETRIES {
+                        retries += 1;
+                        continue;
+                    }
+                }
+            }
+            let response = result.context(error::Http)?;
+            let token_object = InstallationToken::from_response(crate::map_github_error(response).await?).await?;
+            token.set(token_object.token.clone());
+            return Ok(token_object.token);
+        }
+    }
+
+    /// Execute the given `request` using octocrab's Client.
+    pub async fn execute(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
+        let mut retries = 0;
+        loop {
+            // Saved request that we can retry later if necessary
+            let mut retry_request = None;
+            match self.auth_state {
+                AuthState::None => (),
+                AuthState::App(ref app) => {
+                    retry_request = Some(request.try_clone().unwrap());
+                    request = request.bearer_auth(app.generate_bearer_token()?);
+                },
+                AuthState::Installation { ref token, .. } => {
+                    retry_request = Some(request.try_clone().unwrap());
+                    let token = if let Some(token) = token.get() {
+                        token
+                    } else {
+                        self.request_installation_auth_token().await?
+                    };
+                    request = request.bearer_auth(token);
+                },
+            };
+
+            let result = request.send().await;
+            if let Err(ref e) = result {
+                if let Some(StatusCode::UNAUTHORIZED) = e.status() {
+                    if let AuthState::Installation { ref token, .. } = self.auth_state {
+                        token.clear();
+                    }
+                    if let Some(retry) = retry_request {
+                        if retries < MAX_RETRIES {
+                            retries += 1;
+                            request = retry;
+                            continue;
+                        }
+                    }
+                }
+            }
+            return result.context(error::Http);
+        }
     }
 }
 

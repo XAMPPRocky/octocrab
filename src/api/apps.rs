@@ -40,9 +40,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     pub fn installations(&self) -> installations::InstallationsRequestBuilder {
         installations::InstallationsRequestBuilder::new(self)
     }
-}
 
-impl<'octo> AppsRequestHandler<'octo> {
     pub(crate) async fn http_get<R, A, P>(
         &self,
         route: A,
@@ -60,5 +58,20 @@ impl<'octo> AppsRequestHandler<'octo> {
         }
 
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    /// Get a repository installation for the authenticated app.
+    pub async fn get_repository_installation(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> crate::Result<crate::models::Installation> {
+        let route = format!(
+            "repos/{owner}/{repo}/installation",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+        );
+
+        self.crab.get(&route, None::<&()>).await
     }
 }
