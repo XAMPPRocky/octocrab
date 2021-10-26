@@ -53,7 +53,7 @@ impl fmt::Display for GitHubError {
 
         if let Some(errors) = &self.errors.as_ref().filter(|errors| !errors.is_empty()) {
             write!(f, "\nErrors:")?;
-            for error in errors {
+            for error in errors.iter() {
                 write!(f, "\n- {}", error)?;
             }
         }
