@@ -27,7 +27,7 @@
 //! - [`teams`] Teams
 //!
 //! #### Getting a Pull Request
-//! ```no_runCachedToken
+//! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
 //! // Get pull request #404 from `octocrab/repo`.
 //! let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
