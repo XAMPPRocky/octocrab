@@ -6,12 +6,14 @@ pub mod forks;
 pub mod releases;
 mod status;
 mod tags;
+mod generate;
 
 use crate::{models, params, Octocrab, Result};
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
+pub use generate::GenerateRepositoryBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -288,53 +290,24 @@ impl<'octo> RepoHandler<'octo> {
 
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// octocrab::instance().repos("owner", "repo").generate("rust", None,None, None, None).await
+    /// # use reqwest::Response;
+    ///  async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .generate("rust")
+    ///     .owner("new_owner")
+    ///     .description("Description")
+    ///     .include_all_branches(true)
+    ///     .private(true)
+    ///     .send()
+    ///     .await
     /// # }
     /// ```
-    pub async fn generate(
+    pub fn generate(
         &self,
-        name: impl Into<&str>,
-        owner: impl Into<Option<&str>>,
-        description: impl Into<Option<&str>>,
-        include_all_branches: impl Into<Option<bool>>,
-        private: impl Into<Option<bool>>
-    ) -> Result<()> {
-
-        #[derive(serde::Serialize, serde::Deserialize)]
-        struct Inner<'octo> {
-            owner: &'octo str,
-            name: &'octo str,
-            description: &'octo str,
-            include_all_branches: bool,
-            private: bool
-        }
-        let repository_owner = self.owner.clone();
-
-        let body = Inner {
-            name: name.into(),
-            owner: owner.into().unwrap_or(&*repository_owner),
-            description: description.into().unwrap_or(""),
-            include_all_branches: include_all_branches.into().unwrap_or(false),
-            private: private.into().unwrap_or(false),
-        };
-
-        let url = format!(
-            "repos/{owner}/{repo}/generate",
-            owner = self.owner,
-            repo = self.repo
-        );
-
-        let request = self
-            .crab
-            .client
-            .post(self.crab.absolute_url(url)?)
-            .body(serde_json::to_string(&body).unwrap())
-            .header(reqwest::header::ACCEPT, "application/vnd.github.baptiste-preview+json");
-
-        crate::map_github_error(self.crab.execute(request).await?)
-            .await
-            .map(drop)
+        name: &str,
+    ) -> GenerateRepositoryBuilder<'_, '_> {
+        GenerateRepositoryBuilder::new(self, name)
     }
 
     /// Deletes this repository.
