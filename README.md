@@ -65,14 +65,13 @@ structs, allowing you to easily specify parameters.
 
 #### Listing issues
 ```rust
-use octocrab::{models, params};
-
 let octocrab = octocrab::instance();
 // Returns the first page of all issues.
-let page = octocrab.issues("octocrab", "repo")
+let mut page = octocrab
+    .issues("XAMPPRocky", "octocrab")
     .list()
     // Optional Parameters
-    .creator("octocrab")
+    .creator("XAMPPRocky")
     .state(params::State::All)
     .per_page(50)
     .send()
@@ -80,11 +79,16 @@ let page = octocrab.issues("octocrab", "repo")
 
 // Go through every page of issues. Warning: There's no rate limiting so
 // be careful.
-let mut next_page = page.next;
-while let Some(page) = octocrab.get_page::<models::Issue>(&next_page).await? {
-    next_page = page.next;
-    for issue in page {
+loop {
+    for issue in &page {
         println!("{}", issue.title);
+    }
+    page = match octocrab
+        .get_page::<models::issues::Issue>(&page.next)
+        .await?
+    {
+        Some(next_page) => next_page,
+        None => break,
     }
 }
 ```
