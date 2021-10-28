@@ -298,4 +298,15 @@ impl<'octo> RepoHandler<'octo> {
             .await
             .map(drop)
     }
+
+    /// Stream the repository contents as a .tar.gz
+    pub async fn download_tarball(&self, reference: impl Into<params::repos::Commitish>) -> Result<reqwest::Response> {
+        let url = self.crab.absolute_url(format!(
+            "repos/{owner}/{repo}/tarball/{reference}",
+            owner = self.owner,
+            repo = self.repo,
+            reference = reference.into(),
+        ))?;
+        self.crab._get(url, None::<&()>).await
+    }
 }
