@@ -26,10 +26,8 @@ pub struct Event {
     pub org: Option<Org>,
 }
 
-/// Generate the enum for event types, it's serialize instance, and a function to
-/// deserialize the type of the event.
 macro_rules! event_type {
-    ( $( $name:ident ),+ $(,)? ) => {
+    ( $( ($name:ident, $payload:ident)),+ $(,)? ) => {
         /// The type of an event.
         #[derive(Debug, Clone, PartialEq, Deserialize)]
         #[non_exhaustive]
@@ -56,23 +54,36 @@ macro_rules! event_type {
                 unknown => EventType::UnknownEvent(unknown.to_owned()),
             }
         }
+
+        fn deserialize_payload(
+            event_type: &EventType,
+            data: serde_json::Value,
+        ) -> Result<Option<EventPayload>, serde_json::Error> {
+            let maybe_payload = match event_type {
+                $(EventType::$name=> {
+                    serde_json::from_value::<Box<$payload>>(data).map(EventPayload::$name)?
+                }),+,
+                _ => EventPayload::UnknownEvent(Box::new(data)),
+            };
+            Ok(Some(maybe_payload))
+        }
     };
 }
 
-event_type!(
-    PushEvent,
-    CreateEvent,
-    DeleteEvent,
-    IssuesEvent,
-    IssueCommentEvent,
-    CommitCommentEvent,
-    ForkEvent,
-    GollumEvent,
-    MemberEvent,
-    PullRequestEvent,
-    PullRequestReviewCommentEvent,
-    WorkflowRunEvent,
-);
+event_type! {
+    (PushEvent, PushEventPayload),
+    (CreateEvent, CreateEventPayload),
+    (DeleteEvent, DeleteEventPayload),
+    (IssuesEvent, IssuesEventPayload),
+    (IssueCommentEvent, IssueCommentEventPayload),
+    (CommitCommentEvent, CommitCommentEventPayload),
+    (ForkEvent, ForkEventPayload),
+    (GollumEvent, GollumEventPayload),
+    (MemberEvent, MemberEventPayload),
+    (PullRequestEvent, PullRequestEventPayload),
+    (PullRequestReviewCommentEvent, PullRequestReviewCommentEventPayload),
+    (WorkflowRunEvent, WorkflowRunEventPayload)
+}
 
 /// The repository an [`Event`] belongs to.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -140,48 +151,6 @@ impl<'de> Deserialize<'de> for Event {
         };
         Ok(event)
     }
-}
-
-fn deserialize_payload(
-    event_type: &EventType,
-    data: serde_json::Value,
-) -> Result<Option<EventPayload>, serde_json::Error> {
-    let maybe_payload = match event_type {
-        EventType::PushEvent => {
-            serde_json::from_value::<Box<PushEventPayload>>(data).map(EventPayload::PushEvent)?
-        }
-        EventType::CreateEvent => serde_json::from_value::<Box<CreateEventPayload>>(data)
-            .map(EventPayload::CreateEvent)?,
-        EventType::DeleteEvent => serde_json::from_value::<Box<DeleteEventPayload>>(data)
-            .map(EventPayload::DeleteEvent)?,
-        EventType::IssuesEvent => serde_json::from_value::<Box<IssuesEventPayload>>(data)
-            .map(EventPayload::IssuesEvent)?,
-        EventType::IssueCommentEvent => {
-            serde_json::from_value::<Box<IssueCommentEventPayload>>(data)
-                .map(EventPayload::IssueCommentEvent)?
-        }
-        EventType::CommitCommentEvent => {
-            serde_json::from_value::<Box<CommitCommentEventPayload>>(data)
-                .map(EventPayload::CommitCommentEvent)?
-        }
-        EventType::ForkEvent => {
-            serde_json::from_value::<Box<ForkEventPayload>>(data).map(EventPayload::ForkEvent)?
-        }
-        EventType::GollumEvent => serde_json::from_value::<Box<GollumEventPayload>>(data)
-            .map(EventPayload::GollumEvent)?,
-        EventType::MemberEvent => serde_json::from_value::<Box<MemberEventPayload>>(data)
-            .map(EventPayload::MemberEvent)?,
-        EventType::PullRequestEvent => serde_json::from_value::<Box<PullRequestEventPayload>>(data)
-            .map(|payload| EventPayload::PullRequestEvent(payload))?,
-        EventType::PullRequestReviewCommentEvent => {
-            serde_json::from_value::<Box<PullRequestReviewCommentEventPayload>>(data)
-                .map(|payload| EventPayload::PullRequestReviewCommentEvent(payload))?
-        }
-        EventType::WorkflowRunEvent => serde_json::from_value::<Box<WorkflowRunEventPayload>>(data)
-            .map(|payload| EventPayload::WorkflowRunEvent(payload))?,
-        _ => EventPayload::UnknownEvent(Box::new(data)),
-    };
-    Ok(Some(maybe_payload))
 }
 
 #[cfg(test)]
