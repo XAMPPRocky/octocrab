@@ -26,11 +26,40 @@ pub struct Event {
     pub org: Option<Org>,
 }
 
-/// The type of an event.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-#[non_exhaustive]
-pub enum EventType {
+/// Generate the enum for event types, it's serialize instance, and a function to
+/// deserialize the type of the event.
+macro_rules! event_type {
+    ( $( $name:ident ),+ $(,)? ) => {
+        /// The type of an event.
+        #[derive(Debug, Clone, PartialEq, Deserialize)]
+        #[non_exhaustive]
+        pub enum EventType {
+            $($name),+,
+            UnknownEvent(String),
+        }
+
+        impl Serialize for EventType {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                match self {
+                    $(EventType::$name => serializer.serialize_str(stringify!($name))),+,
+                    EventType::UnknownEvent(typ) => serializer.serialize_str(typ),
+                }
+            }
+        }
+
+        fn deserialize_event_type(event_type: &str) -> EventType {
+            match event_type {
+                $(stringify!($name) => EventType::$name),+,
+                unknown => EventType::UnknownEvent(unknown.to_owned()),
+            }
+        }
+    };
+}
+
+event_type!(
     PushEvent,
     CreateEvent,
     DeleteEvent,
@@ -43,8 +72,7 @@ pub enum EventType {
     PullRequestEvent,
     PullRequestReviewCommentEvent,
     WorkflowRunEvent,
-    UnknownEvent(String),
-}
+);
 
 /// The repository an [`Event`] belongs to.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -114,24 +142,6 @@ impl<'de> Deserialize<'de> for Event {
     }
 }
 
-fn deserialize_event_type(event_type: &str) -> EventType {
-    match event_type {
-        "CreateEvent" => EventType::CreateEvent,
-        "PushEvent" => EventType::PushEvent,
-        "DeleteEvent" => EventType::DeleteEvent,
-        "IssuesEvent" => EventType::IssuesEvent,
-        "IssueCommentEvent" => EventType::IssueCommentEvent,
-        "CommitCommentEvent" => EventType::CommitCommentEvent,
-        "ForkEvent" => EventType::ForkEvent,
-        "GollumEvent" => EventType::GollumEvent,
-        "MemberEvent" => EventType::MemberEvent,
-        "PullRequestEvent" => EventType::PullRequestEvent,
-        "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
-        "WorkflowRunEvent" => EventType::WorkflowRunEvent,
-        unknown => EventType::UnknownEvent(unknown.to_owned()),
-    }
-}
-
 fn deserialize_payload(
     event_type: &EventType,
     data: serde_json::Value,
@@ -167,10 +177,8 @@ fn deserialize_payload(
             serde_json::from_value::<Box<PullRequestReviewCommentEventPayload>>(data)
                 .map(|payload| EventPayload::PullRequestReviewCommentEvent(payload))?
         }
-        EventType::WorkflowRunEvent => {
-            serde_json::from_value::<Box<WorkflowRunEventPayload>>(data)
-                .map(|payload| EventPayload::WorkflowRunEvent(payload))?
-        }
+        EventType::WorkflowRunEvent => serde_json::from_value::<Box<WorkflowRunEventPayload>>(data)
+            .map(|payload| EventPayload::WorkflowRunEvent(payload))?,
         _ => EventPayload::UnknownEvent(Box::new(data)),
     };
     Ok(Some(maybe_payload))
@@ -313,10 +321,17 @@ mod test {
     }
 
     #[test]
-    fn event_deserialize_and_serialize_should_be_isomorphic() {
+    fn event_deserialize_and_serialize_should_be_isomorphic_for_create_event() {
+        let typ = EventType::UnknownEvent("test".to_string());
+        eprintln!("{:#?}", serde_json::to_string(&typ).unwrap());
         let json = include_str!("../../tests/resources/create_event.json");
+        deserialize_and_serialize(json);
+    }
+
+    fn deserialize_and_serialize(json: &str) {
         let event: Event = serde_json::from_str(json).unwrap();
         let serialized = serde_json::to_string(&event).unwrap();
+        println!("{:#?}", serialized);
         // do it again so we can compare Events, otherwise we are comparing strings which may have
         // different whitespace characteristics.
         let deserialized = serde_json::from_str::<Event>(&serialized);
@@ -327,5 +342,6 @@ mod test {
         );
         let deserialized = deserialized.unwrap();
         assert_eq!(deserialized, event);
+        assert!(false)
     }
 }
