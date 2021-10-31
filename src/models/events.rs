@@ -311,27 +311,69 @@ mod test {
     }
 
     #[test]
-    fn should_capture_event_name_if_we_dont_currently_handle_this_event() {
-        let json = include_str!("../../tests/resources/unknown_event.json");
-        let event: Event = serde_json::from_str(json).unwrap();
-        match event.r#type {
-            EventType::UnknownEvent(typ) => assert_eq!(typ, "AmazingEvent"),
-            _ => panic!("unexpected event deserialized"),
+    fn events_should_serialize_and_deserialize_correctly() {
+        let event_types = [
+            (
+                "CreateEvent",
+                include_str!("../../tests/resources/create_event.json"),
+            ),
+            (
+                "PushEvent",
+                include_str!("../../tests/resources/push_event.json"),
+            ),
+            (
+                "ForkEvent",
+                include_str!("../../tests/resources/fork_event.json"),
+            ),
+            (
+                "DeleteEvent",
+                include_str!("../../tests/resources/delete_event.json"),
+            ),
+            (
+                "GollumEvent",
+                include_str!("../../tests/resources/gollum_event.json"),
+            ),
+            (
+                "IssuesEvent",
+                include_str!("../../tests/resources/issues_event.json"),
+            ),
+            (
+                "IssueCommentEvent",
+                include_str!("../../tests/resources/issue_comment_event.json"),
+            ),
+            (
+                "MemberEvent",
+                include_str!("../../tests/resources/member_event.json"),
+            ),
+            (
+                "PullRequestEvent",
+                include_str!("../../tests/resources/pull_request_event.json"),
+            ),
+            (
+                "PullRequestReviewCommentEvent",
+                include_str!("../../tests/resources/pull_request_review_comment_event.json"),
+            ),
+            (
+                "CommitCommentEvent",
+                include_str!("../../tests/resources/commit_comment_event.json"),
+            ),
+            (
+                "WorkflowRunEvent",
+                include_str!("../../tests/resources/workflow_run_event.json"),
+            ),
+            (
+                "UnknownEvent",
+                include_str!("../../tests/resources/unknown_event.json"),
+            ),
+        ];
+        for (event_type, json) in event_types {
+            serialize_and_deserialize(event_type, json);
         }
     }
 
-    #[test]
-    fn event_deserialize_and_serialize_should_be_isomorphic_for_create_event() {
-        let typ = EventType::UnknownEvent("test".to_string());
-        eprintln!("{:#?}", serde_json::to_string(&typ).unwrap());
-        let json = include_str!("../../tests/resources/create_event.json");
-        deserialize_and_serialize(json);
-    }
-
-    fn deserialize_and_serialize(json: &str) {
+    fn serialize_and_deserialize(event_type: &str, json: &str) {
         let event: Event = serde_json::from_str(json).unwrap();
         let serialized = serde_json::to_string(&event).unwrap();
-        println!("{:#?}", serialized);
         // do it again so we can compare Events, otherwise we are comparing strings which may have
         // different whitespace characteristics.
         let deserialized = serde_json::from_str::<Event>(&serialized);
@@ -341,7 +383,10 @@ mod test {
             deserialized
         );
         let deserialized = deserialized.unwrap();
-        assert_eq!(deserialized, event);
-        assert!(false)
+        assert_eq!(
+            deserialized, event,
+            "unexpected event deserialized for {}",
+            event_type
+        );
     }
 }
