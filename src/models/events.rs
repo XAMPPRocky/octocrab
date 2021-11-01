@@ -348,7 +348,8 @@ mod test {
         let deserialized = serde_json::from_str::<Event>(&serialized);
         assert!(
             deserialized.is_ok(),
-            "expected deserialized result to be ok, got error instead {:?}",
+            "expected deserialized result for {} to be ok, got error instead {:?}",
+            event_type,
             deserialized
         );
         let deserialized = deserialized.unwrap();
