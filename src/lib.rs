@@ -847,7 +847,7 @@ impl Octocrab {
             .context(crate::error::Url)?)
     }
 
-    /// A convience method to get the a page of results (if present).
+    /// A convenience method to get a page of results (if present).
     pub async fn get_page<R: serde::de::DeserializeOwned>(
         &self,
         url: &Option<Url>,
@@ -856,6 +856,20 @@ impl Octocrab {
             Some(url) => self.get(url, None::<&()>).await.map(Some),
             None => Ok(None),
         }
+    }
+
+    /// A convenience method to get all the results starting at a given
+    /// page.
+    pub async fn all_pages<R: serde::de::DeserializeOwned>(
+        &self,
+        mut page: Page<R>,
+    ) -> crate::Result<Vec<R>> {
+        let mut ret = page.take_items();
+        while let Some(mut next_page) = self.get_page(&page.next).await? {
+            ret.append(&mut next_page.take_items());
+            page = next_page;
+        }
+        Ok(ret)
     }
 }
 

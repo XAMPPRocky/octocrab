@@ -1,5 +1,7 @@
 //! The repositories API.
 
+use reqwest::header::ACCEPT;
+
 pub mod events;
 mod file;
 pub mod forks;
@@ -57,11 +59,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!(
-            "repos/{owner}/{repo}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -86,6 +84,28 @@ impl<'octo> RepoHandler<'octo> {
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
+        );
+        self.crab.get(url, None::<&()>).await
+    }
+
+    /// Fetches information about a git tag with the given `tag_sha`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let master = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_tag("402b2026a41b26b691c429ddb0b9c27a31b27a6b")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
+        let url = format!(
+            "repos/{owner}/{repo}/git/tags/{tag_sha}",
+            owner = self.owner,
+            repo = self.repo,
+            tag_sha = tag_sha.into(),
         );
         self.crab.get(url, None::<&()>).await
     }
@@ -310,6 +330,20 @@ impl<'octo> RepoHandler<'octo> {
         GenerateRepositoryBuilder::new(self, name)
     }
 
+    /// Retrieve the contents of a file in raw format
+    pub async fn raw_file(self, reference: impl Into<params::repos::Commitish>, path: impl AsRef<str>) -> Result<reqwest::Response> {
+        let url = self.crab.absolute_url(format!(
+            "repos/{owner}/{repo}/contents/{path}",
+            owner = self.owner,
+            repo = self.repo,
+            path = path.as_ref(),
+        ))?;
+        let mut request = self.crab.request_builder(url, reqwest::Method::GET);
+        request = request.query(&[("ref", &reference.into().0)]);
+        request = request.header(ACCEPT, "application/vnd.github.v3.raw");
+        self.crab.execute(request).await
+    }
+
     /// Deletes this repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -318,8 +352,23 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn delete(self) -> Result<()> {
         let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
-            .await
-            .map(drop)
+        crate::map_github_error(
+            self.crab
+                ._delete(self.crab.absolute_url(url)?, None::<&()>)
+                .await?,
+        )
+        .await
+        .map(drop)
+    }
+
+    /// Stream the repository contents as a .tar.gz
+    pub async fn download_tarball(&self, reference: impl Into<params::repos::Commitish>) -> Result<reqwest::Response> {
+        let url = self.crab.absolute_url(format!(
+            "repos/{owner}/{repo}/tarball/{reference}",
+            owner = self.owner,
+            repo = self.repo,
+            reference = reference.into(),
+        ))?;
+        self.crab._get(url, None::<&()>).await
     }
 }

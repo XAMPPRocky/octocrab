@@ -1,4 +1,8 @@
-use crate::models::{Repository, workflows::{WorkFlow, Run}, orgs::Organization, User};
+use crate::models::{
+    orgs::Organization,
+    workflows::{Run, WorkFlow},
+    Repository, User,
+};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::WorkflowRunEvent`] type.
@@ -8,7 +12,7 @@ pub struct WorkflowRunEventPayload {
     pub action: WorkflowRunEventAction,
     pub workflow_run: Run,
     pub workflow: WorkFlow,
-    pub organization: Organization,
+    pub organization: Option<Organization>,
     pub repository: Repository,
     pub sender: User,
 }
@@ -32,6 +36,19 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::WorkflowRunEvent(payload)) = event.payload {
             assert_eq!(payload.workflow_run.run_number, 1185);
+        } else {
+            panic!("unexpected event payload encountered: {:#?}", event.payload);
+        }
+    }
+
+    #[test]
+    fn should_deserialize_with_correct_payload_with_no_org_present() {
+        let json =
+            include_str!("../../../../tests/resources/workflow_run_event_no_organization.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        if let Some(EventPayload::WorkflowRunEvent(payload)) = event.payload {
+            assert_eq!(payload.workflow_run.run_number, 1185);
+            assert_eq!(payload.organization, None);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }
