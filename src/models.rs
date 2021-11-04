@@ -690,11 +690,20 @@ pub struct Installation {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub struct InstallationPermissions {
-    pub metadata: String,
-    pub contents: String,
-    pub issues: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actions: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checks: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contents: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issues: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub single_file: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statuses: Option<String>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -704,7 +713,7 @@ pub struct InstallationToken {
     pub token: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<String>,
-    pub permissions: Permissions,
+    pub permissions: InstallationPermissions,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repositories: Option<Vec<Repository>>,
 }
