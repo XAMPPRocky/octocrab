@@ -90,7 +90,6 @@ impl crate::FromResponse for ContentItems {
         let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
 
         if json.is_array() {
-            println!("x: {:?}", json);
 
             Ok(ContentItems {
                 items: serde_json::from_value(json).context(crate::error::Serde)?,
