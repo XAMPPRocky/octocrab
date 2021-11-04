@@ -4,6 +4,7 @@ use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
+    WorkflowRunEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -25,23 +26,63 @@ pub struct Event {
     pub org: Option<Org>,
 }
 
-/// The type of an event.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-#[non_exhaustive]
-pub enum EventType {
-    PushEvent,
-    CreateEvent,
-    DeleteEvent,
-    IssuesEvent,
-    IssueCommentEvent,
-    CommitCommentEvent,
-    ForkEvent,
-    GollumEvent,
-    MemberEvent,
-    PullRequestEvent,
-    PullRequestReviewCommentEvent,
-    UnknownEvent(String),
+macro_rules! event_type {
+    ( $( ($name:ident, $payload:ident)),+ $(,)? ) => {
+        /// The type of an event.
+        #[derive(Debug, Clone, PartialEq, Deserialize)]
+        #[non_exhaustive]
+        pub enum EventType {
+            $($name),+,
+            UnknownEvent(String),
+        }
+
+        impl Serialize for EventType {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                match self {
+                    $(EventType::$name => serializer.serialize_str(stringify!($name))),+,
+                    EventType::UnknownEvent(typ) => serializer.serialize_str(typ),
+                }
+            }
+        }
+
+        fn deserialize_event_type(event_type: &str) -> EventType {
+            match event_type {
+                $(stringify!($name) => EventType::$name),+,
+                unknown => EventType::UnknownEvent(unknown.to_owned()),
+            }
+        }
+
+        fn deserialize_payload(
+            event_type: &EventType,
+            data: serde_json::Value,
+        ) -> Result<Option<EventPayload>, serde_json::Error> {
+            let maybe_payload = match event_type {
+                $(EventType::$name=> {
+                    serde_json::from_value::<Box<$payload>>(data).map(EventPayload::$name)?
+                }),+,
+                _ => EventPayload::UnknownEvent(Box::new(data)),
+            };
+            Ok(Some(maybe_payload))
+        }
+    };
+}
+
+event_type! {
+    (PushEvent, PushEventPayload),
+    (CreateEvent, CreateEventPayload),
+    (DeleteEvent, DeleteEventPayload),
+    (IssuesEvent, IssuesEventPayload),
+    (IssueCommentEvent, IssueCommentEventPayload),
+    (CommitCommentEvent, CommitCommentEventPayload),
+    (ForkEvent, ForkEventPayload),
+    (GollumEvent, GollumEventPayload),
+    (MemberEvent, MemberEventPayload),
+    (PullRequestEvent, PullRequestEventPayload),
+    (PullRequestReviewCommentEvent, PullRequestReviewCommentEventPayload),
+    (WorkflowRunEvent, WorkflowRunEventPayload)
 }
 
 /// The repository an [`Event`] belongs to.
@@ -112,63 +153,6 @@ impl<'de> Deserialize<'de> for Event {
     }
 }
 
-fn deserialize_event_type(event_type: &str) -> EventType {
-    match event_type {
-        "CreateEvent" => EventType::CreateEvent,
-        "PushEvent" => EventType::PushEvent,
-        "DeleteEvent" => EventType::DeleteEvent,
-        "IssuesEvent" => EventType::IssuesEvent,
-        "IssueCommentEvent" => EventType::IssueCommentEvent,
-        "CommitCommentEvent" => EventType::CommitCommentEvent,
-        "ForkEvent" => EventType::ForkEvent,
-        "GollumEvent" => EventType::GollumEvent,
-        "MemberEvent" => EventType::MemberEvent,
-        "PullRequestEvent" => EventType::PullRequestEvent,
-        "PullRequestReviewCommentEvent" => EventType::PullRequestReviewCommentEvent,
-        unknown => EventType::UnknownEvent(unknown.to_owned()),
-    }
-}
-
-fn deserialize_payload(
-    event_type: &EventType,
-    data: serde_json::Value,
-) -> Result<Option<EventPayload>, serde_json::Error> {
-    let maybe_payload = match event_type {
-        EventType::PushEvent => {
-            serde_json::from_value::<Box<PushEventPayload>>(data).map(EventPayload::PushEvent)?
-        }
-        EventType::CreateEvent => serde_json::from_value::<Box<CreateEventPayload>>(data)
-            .map(EventPayload::CreateEvent)?,
-        EventType::DeleteEvent => serde_json::from_value::<Box<DeleteEventPayload>>(data)
-            .map(EventPayload::DeleteEvent)?,
-        EventType::IssuesEvent => serde_json::from_value::<Box<IssuesEventPayload>>(data)
-            .map(EventPayload::IssuesEvent)?,
-        EventType::IssueCommentEvent => {
-            serde_json::from_value::<Box<IssueCommentEventPayload>>(data)
-                .map(EventPayload::IssueCommentEvent)?
-        }
-        EventType::CommitCommentEvent => {
-            serde_json::from_value::<Box<CommitCommentEventPayload>>(data)
-                .map(EventPayload::CommitCommentEvent)?
-        }
-        EventType::ForkEvent => {
-            serde_json::from_value::<Box<ForkEventPayload>>(data).map(EventPayload::ForkEvent)?
-        }
-        EventType::GollumEvent => serde_json::from_value::<Box<GollumEventPayload>>(data)
-            .map(EventPayload::GollumEvent)?,
-        EventType::MemberEvent => serde_json::from_value::<Box<MemberEventPayload>>(data)
-            .map(EventPayload::MemberEvent)?,
-        EventType::PullRequestEvent => serde_json::from_value::<Box<PullRequestEventPayload>>(data)
-            .map(|payload| EventPayload::PullRequestEvent(payload))?,
-        EventType::PullRequestReviewCommentEvent => {
-            serde_json::from_value::<Box<PullRequestReviewCommentEventPayload>>(data)
-                .map(|payload| EventPayload::PullRequestReviewCommentEvent(payload))?
-        }
-        _ => EventPayload::UnknownEvent(Box::new(data)),
-    };
-    Ok(Some(maybe_payload))
-}
-
 #[cfg(test)]
 mod test {
     use super::{Event, EventPayload, EventType};
@@ -214,6 +198,13 @@ mod test {
         let json = include_str!("../../tests/resources/pull_request_review_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::PullRequestReviewCommentEvent);
+    }
+
+    #[test]
+    fn should_deserialize_workflow_run_event() {
+        let json = include_str!("../../tests/resources/workflow_run_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::WorkflowRunEvent);
     }
 
     #[test]
@@ -289,18 +280,67 @@ mod test {
     }
 
     #[test]
-    fn should_capture_event_name_if_we_dont_currently_handle_this_event() {
-        let json = include_str!("../../tests/resources/unknown_event.json");
-        let event: Event = serde_json::from_str(json).unwrap();
-        match event.r#type {
-            EventType::UnknownEvent(typ) => assert_eq!(typ, "AmazingEvent"),
-            _ => panic!("unexpected event deserialized"),
+    fn events_should_serialize_and_deserialize_correctly() {
+        let event_types = [
+            (
+                "CreateEvent",
+                include_str!("../../tests/resources/create_event.json"),
+            ),
+            (
+                "PushEvent",
+                include_str!("../../tests/resources/push_event.json"),
+            ),
+            (
+                "ForkEvent",
+                include_str!("../../tests/resources/fork_event.json"),
+            ),
+            (
+                "DeleteEvent",
+                include_str!("../../tests/resources/delete_event.json"),
+            ),
+            (
+                "GollumEvent",
+                include_str!("../../tests/resources/gollum_event.json"),
+            ),
+            (
+                "IssuesEvent",
+                include_str!("../../tests/resources/issues_event.json"),
+            ),
+            (
+                "IssueCommentEvent",
+                include_str!("../../tests/resources/issue_comment_event.json"),
+            ),
+            (
+                "MemberEvent",
+                include_str!("../../tests/resources/member_event.json"),
+            ),
+            (
+                "PullRequestEvent",
+                include_str!("../../tests/resources/pull_request_event.json"),
+            ),
+            (
+                "PullRequestReviewCommentEvent",
+                include_str!("../../tests/resources/pull_request_review_comment_event.json"),
+            ),
+            (
+                "CommitCommentEvent",
+                include_str!("../../tests/resources/commit_comment_event.json"),
+            ),
+            (
+                "WorkflowRunEvent",
+                include_str!("../../tests/resources/workflow_run_event.json"),
+            ),
+            (
+                "UnknownEvent",
+                include_str!("../../tests/resources/unknown_event.json"),
+            ),
+        ];
+        for (event_type, json) in event_types {
+            serialize_and_deserialize(event_type, json);
         }
     }
 
-    #[test]
-    fn event_deserialize_and_serialize_should_be_isomorphic() {
-        let json = include_str!("../../tests/resources/create_event.json");
+    fn serialize_and_deserialize(event_type: &str, json: &str) {
         let event: Event = serde_json::from_str(json).unwrap();
         let serialized = serde_json::to_string(&event).unwrap();
         // do it again so we can compare Events, otherwise we are comparing strings which may have
@@ -308,10 +348,15 @@ mod test {
         let deserialized = serde_json::from_str::<Event>(&serialized);
         assert!(
             deserialized.is_ok(),
-            "expected deserialized result to be ok, got error instead {:?}",
+            "expected deserialized result for {} to be ok, got error instead {:?}",
+            event_type,
             deserialized
         );
         let deserialized = deserialized.unwrap();
-        assert_eq!(deserialized, event);
+        assert_eq!(
+            deserialized, event,
+            "unexpected event deserialized for {}",
+            event_type
+        );
     }
 }

@@ -28,6 +28,11 @@ pub enum Error {
         source: serde_path_to_error::Error<serde_json::Error>,
         backtrace: Backtrace,
     },
+    #[snafu(display("JWT Error in {}\nFound at {}", source, backtrace))]
+    JWT {
+        source: jsonwebtoken::errors::Error,
+        backtrace: Backtrace,
+    },
     Other {
         source: Box<dyn std::error::Error + Send + Sync>,
         backtrace: Backtrace,
@@ -45,10 +50,17 @@ pub struct GitHubError {
 
 impl fmt::Display for GitHubError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Error: {}", self.message)?;
+        write!(f, "{}", self.message)?;
 
-        if self.documentation_url.is_some() {
-            write!(f, "\nDocumentation URL: {}", self.documentation_url.as_ref().unwrap())?;
+        if let Some(documentation_url) = &self.documentation_url {
+            write!(f, "\nDocumentation URL: {}", documentation_url)?;
+        }
+
+        if let Some(errors) = &self.errors.as_ref().filter(|errors| !errors.is_empty()) {
+            write!(f, "\nErrors:")?;
+            for error in errors.iter() {
+                write!(f, "\n- {}", error)?;
+            }
         }
 
         Ok(())

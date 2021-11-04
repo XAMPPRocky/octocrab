@@ -1,0 +1,77 @@
+use crate::Octocrab;
+
+mod installations;
+
+/// A client to [GitHub's apps API][apps-api].
+///
+/// Created with [`Octocrab::apps`].
+///
+/// [apps-api]: https://docs.github.com/en/rest/reference/apps
+pub struct AppsRequestHandler<'octo> {
+    crab: &'octo Octocrab,
+}
+
+impl<'octo> AppsRequestHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self { crab }
+    }
+
+    /// Creates a new `InstallationsBuilder` that can be configured to filter
+    /// listing installations.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let page = octocrab
+    ///     .apps()
+    ///     .installations()
+    ///     // Optional Parameters
+    ///     .since(chrono::Utc::now() - chrono::Duration::days(1))
+    ///     .per_page(100)
+    ///     .page(5u32)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn installations(&self) -> installations::InstallationsRequestBuilder {
+        installations::InstallationsRequestBuilder::new(self)
+    }
+
+    pub(crate) async fn http_get<R, A, P>(
+        &self,
+        route: A,
+        parameters: Option<&P>,
+    ) -> crate::Result<R>
+    where
+        A: AsRef<str>,
+        P: serde::Serialize + ?Sized,
+        R: crate::FromResponse,
+    {
+        let mut request = self.crab.client.get(self.crab.absolute_url(route)?);
+
+        if let Some(parameters) = parameters {
+            request = request.query(parameters);
+        }
+
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    /// Get a repository installation for the authenticated app.
+    pub async fn get_repository_installation(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> crate::Result<crate::models::Installation> {
+        let route = format!(
+            "repos/{owner}/{repo}/installation",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+        );
+
+        self.crab.get(&route, None::<&()>).await
+    }
+}

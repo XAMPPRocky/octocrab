@@ -13,15 +13,17 @@ semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
 ```toml
-octocrab = "0.9"
+octocrab = "0.12"
 ```
 
 ## Semantic API
-The semantic API provides strong typing around GitHub's API, as well as a
-set of [`models`] that maps to GitHub's types. Currently the following 
-modules are available.
+The semantic API provides strong typing around GitHub's API, a set of
+[`models`] that maps to GitHub's types, and [`auth`] functions that are useful
+for GitHub apps.
+Currently, the following modules are available.
 
 - [`actions`] GitHub Actions.
+- [`apps`] GitHub Apps.
 - [`current`] Information about the current user.
 - [`gitignore`] Gitignore templates.
 - [`graphql`] GraphQL.
@@ -36,7 +38,8 @@ modules are available.
 - [`teams`] Teams.
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
-
+[`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
+[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
@@ -62,14 +65,13 @@ structs, allowing you to easily specify parameters.
 
 #### Listing issues
 ```rust
-use octocrab::{models, params};
-
 let octocrab = octocrab::instance();
 // Returns the first page of all issues.
-let page = octocrab.issues("octocrab", "repo")
+let mut page = octocrab
+    .issues("XAMPPRocky", "octocrab")
     .list()
     // Optional Parameters
-    .creator("octocrab")
+    .creator("XAMPPRocky")
     .state(params::State::All)
     .per_page(50)
     .send()
@@ -77,11 +79,16 @@ let page = octocrab.issues("octocrab", "repo")
 
 // Go through every page of issues. Warning: There's no rate limiting so
 // be careful.
-let mut next_page = page.next;
-while let Some(page) = octocrab.get_page::<models::Issue>(&next_page).await? {
-    next_page = page.next;
-    for issue in page {
+loop {
+    for issue in &page {
         println!("{}", issue.title);
+    }
+    page = match octocrab
+        .get_page::<models::issues::Issue>(&page.next)
+        .await?
+    {
+        Some(next_page) => next_page,
+        None => break,
     }
 }
 ```

@@ -9,6 +9,7 @@ mod member;
 mod pull_request;
 mod pull_request_review_comment;
 mod push;
+mod workflow_run;
 
 use crate::models::repos::GitUser;
 pub use commit_comment::*;
@@ -22,6 +23,7 @@ pub use member::*;
 pub use pull_request::*;
 pub use pull_request_review_comment::*;
 pub use push::*;
+pub use workflow_run::*;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
@@ -45,6 +47,7 @@ pub enum EventPayload {
     MemberEvent(Box<MemberEventPayload>),
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
+    WorkflowRunEvent(Box<WorkflowRunEventPayload>),
     UnknownEvent(Box<serde_json::Value>),
 }
 

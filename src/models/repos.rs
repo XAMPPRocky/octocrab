@@ -18,6 +18,7 @@ pub struct Ref {
 #[non_exhaustive]
 pub enum Object {
     Commit { sha: String, url: Url },
+    Tag { sha: String, url: Url },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -171,4 +172,16 @@ pub struct Asset {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub uploader: User,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+/// Metadata for a Git tag
+pub struct GitTag {
+    pub node_id: String,
+    /// Name of the tag. Example: v0.0.1
+    pub tag: String,
+    pub sha: String,
+    pub url: Url,
+    pub message: String,
 }
