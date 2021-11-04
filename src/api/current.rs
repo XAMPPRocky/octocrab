@@ -20,4 +20,23 @@ impl<'octo> CurrentAuthHandler<'octo> {
     pub async fn user(&self) -> Result<models::User> {
         self.crab.get("user", None::<&()>).await
     }
+
+    /// Fetches information about the currently authenticated app.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    ///
+    /// let app = octocrab
+    ///     .current()
+    ///     .app()
+    ///     .await?;
+    ///
+    /// println!("{}", app.name);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn app(&self) -> Result<models::App> {
+        self.crab.get("app", None::<&()>).await
+    }
 }
