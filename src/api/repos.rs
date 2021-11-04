@@ -55,11 +55,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!(
-            "repos/{owner}/{repo}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -84,6 +80,28 @@ impl<'octo> RepoHandler<'octo> {
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
+        );
+        self.crab.get(url, None::<&()>).await
+    }
+
+    /// Fetches information about a git tag with the given `tag_sha`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let master = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_tag("402b2026a41b26b691c429ddb0b9c27a31b27a6b")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
+        let url = format!(
+            "repos/{owner}/{repo}/git/tags/{tag_sha}",
+            owner = self.owner,
+            repo = self.repo,
+            tag_sha = tag_sha.into(),
         );
         self.crab.get(url, None::<&()>).await
     }
@@ -294,9 +312,13 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn delete(self) -> Result<()> {
         let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(self.crab._delete(self.crab.absolute_url(url)?, None::<&()>).await?)
-            .await
-            .map(drop)
+        crate::map_github_error(
+            self.crab
+                ._delete(self.crab.absolute_url(url)?, None::<&()>)
+                .await?,
+        )
+        .await
+        .map(drop)
     }
 
     /// Stream the repository contents as a .tar.gz
