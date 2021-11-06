@@ -32,7 +32,7 @@ pub struct Page<T> {
 impl<T> Page<T> {
     /// Returns the current set of items, replacing it with an empty Vec.
     pub fn take_items(&mut self) -> Vec<T> {
-        std::mem::replace(&mut self.items, Vec::new())
+        std::mem::take(&mut self.items)
     }
 
     /// If `last` is present, return the number of pages for this navigation.
@@ -86,7 +86,12 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
-        let (first, prev, next, last) = get_links(&response)?;
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&response)?;
 
         let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
 
@@ -103,7 +108,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
         } else {
             let attr = vec!["items", "workflows", "workflow_runs", "jobs"]
                 .into_iter()
-                .find(|v| !json.get(v).is_none())
+                .find(|v| json.get(v).is_some())
                 .unwrap();
 
             Ok(Self {
@@ -122,9 +127,14 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     }
 }
 
-fn get_links(
-    response: &reqwest::Response,
-) -> crate::Result<(Option<Url>, Option<Url>, Option<Url>, Option<Url>)> {
+struct HeaderLinks {
+    next: Option<Url>,
+    prev: Option<Url>,
+    first: Option<Url>,
+    last: Option<Url>,
+}
+
+fn get_links(response: &reqwest::Response) -> crate::Result<HeaderLinks> {
     let mut first = None;
     let mut prev = None;
     let mut next = None;
@@ -152,5 +162,10 @@ fn get_links(
         }
     }
 
-    Ok((first, prev, next, last))
+    Ok(HeaderLinks {
+        first,
+        prev,
+        next,
+        last,
+    })
 }

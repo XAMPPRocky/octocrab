@@ -54,7 +54,10 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn create<'t>(&self, tag_name: &'t (impl AsRef<str> + ?Sized)) -> CreateReleaseBuilder<'_, '_, '_, 't, '_, '_, '_> {
+    pub fn create<'t>(
+        &self,
+        tag_name: &'t (impl AsRef<str> + ?Sized),
+    ) -> CreateReleaseBuilder<'_, '_, '_, 't, '_, '_, '_> {
         CreateReleaseBuilder::new(self, tag_name.as_ref())
     }
 
@@ -78,7 +81,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn update<'t>(&self, release_id: u64) -> UpdateReleaseBuilder<'_, '_, '_, '_, '_, '_, '_> {
+    pub fn update(&self, release_id: u64) -> UpdateReleaseBuilder<'_, '_, '_, '_, '_, '_, '_> {
         UpdateReleaseBuilder::new(self, release_id)
     }
 
@@ -166,7 +169,10 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     #[cfg(feature = "stream")]
     #[cfg_attr(docsrs, doc(cfg(feature = "stream")))]
-    pub async fn stream_asset(&self, asset_id: AssetId) -> crate::Result<impl futures_core::Stream<Item=crate::Result<bytes::Bytes>>> {
+    pub async fn stream_asset(
+        &self,
+        asset_id: AssetId,
+    ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
         use snafu::GenerateBacktrace;
 
@@ -177,14 +183,22 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
             asset_id = asset_id,
         );
 
-        Ok(self.parent.crab.execute(
-                self.parent.crab.request_builder(&url, reqwest::Method::GET)
-                    .header(reqwest::header::ACCEPT, "application/octet-stream"))
-                    .await?
-                    .bytes_stream()
-                    .map_err(|source| crate::error::Error::Http { source, backtrace: snafu::Backtrace::generate() }))
+        Ok(self
+            .parent
+            .crab
+            .execute(
+                self.parent
+                    .crab
+                    .request_builder(&url, reqwest::Method::GET)
+                    .header(reqwest::header::ACCEPT, "application/octet-stream"),
+            )
+            .await?
+            .bytes_stream()
+            .map_err(|source| crate::error::Error::Http {
+                source,
+                backtrace: snafu::Backtrace::generate(),
+            }))
     }
-
 }
 
 /// A builder pattern struct for listing releases.
@@ -236,7 +250,8 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
 ///
 /// created by [`ReleasesHandler::create`].
 #[derive(serde::Serialize)]
-pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
     #[serde(skip)]
     handler: &'handler ReleasesHandler<'octo, 'repos>,
     tag_name: &'tag_name str,
@@ -252,8 +267,13 @@ pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_comm
     prerelease: Option<bool>,
 }
 
-impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
-    pub(crate) fn new(handler: &'handler ReleasesHandler<'octo, 'repos>, tag_name: &'tag_name str) -> Self {
+impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+    CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
+    pub(crate) fn new(
+        handler: &'handler ReleasesHandler<'octo, 'repos>,
+        tag_name: &'tag_name str,
+    ) -> Self {
         Self {
             handler,
             tag_name,
@@ -269,7 +289,10 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> Create
     /// created from. Can be any branch or commit SHA. Unused if the Git tag
     /// already exists. Default: the repository's default branch
     /// (usually `main`).
-    pub fn target_commitish(mut self, target_commitish: &'target_commitish (impl AsRef<str> + ?Sized)) -> Self {
+    pub fn target_commitish(
+        mut self,
+        target_commitish: &'target_commitish (impl AsRef<str> + ?Sized),
+    ) -> Self {
         self.target_commitish = Some(target_commitish.as_ref());
         self
     }
@@ -313,7 +336,8 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> Create
 ///
 /// created by [`ReleasesHandler::update`].
 #[derive(serde::Serialize)]
-pub struct UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+pub struct UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
     #[serde(skip)]
     handler: &'handler ReleasesHandler<'octo, 'repos>,
     release_id: u64,
@@ -331,7 +355,9 @@ pub struct UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_comm
     prerelease: Option<bool>,
 }
 
-impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> {
+impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+    UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
+{
     pub(crate) fn new(handler: &'handler ReleasesHandler<'octo, 'repos>, release_id: u64) -> Self {
         Self {
             handler,
@@ -355,7 +381,10 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body> Update
     /// created from. Can be any branch or commit SHA. Unused if the Git tag
     /// already exists. Default: the repository's default branch
     /// (usually `main`).
-    pub fn target_commitish(mut self, target_commitish: &'target_commitish (impl AsRef<str> + ?Sized)) -> Self {
+    pub fn target_commitish(
+        mut self,
+        target_commitish: &'target_commitish (impl AsRef<str> + ?Sized),
+    ) -> Self {
         self.target_commitish = Some(target_commitish.as_ref());
         self
     }

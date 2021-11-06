@@ -73,7 +73,7 @@ macro_rules! id_type {
                     }
                     fn visit_str<E>(self, id: &str) -> Result<Self::Value, E>
                         where E: de::Error {
-                        id.parse::<u64>().map(|x|$name(x)).map_err(de::Error::custom)
+                        id.parse::<u64>().map($name).map_err(de::Error::custom)
                     }
                     fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
                         write!(f, "expected {} as number or string", stringify!($name)) // TODO: $name
