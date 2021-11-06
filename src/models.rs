@@ -5,9 +5,10 @@ use std::ops::{Deref, DerefMut};
 
 use chrono::{DateTime, Utc};
 use reqwest::Url;
-use serde::{Deserialize, Serialize, de, Deserializer};
+use serde::{de, Deserialize, Deserializer, Serialize};
 
 pub mod activity;
+pub mod apps;
 pub mod events;
 pub mod gists;
 pub mod issues;
@@ -16,6 +17,8 @@ pub mod pulls;
 pub mod repos;
 pub mod teams;
 pub mod workflows;
+
+pub use apps::App;
 
 type BaseIdType = u64;
 
