@@ -164,12 +164,12 @@ use std::fmt;
 use std::sync::{Arc, RwLock};
 
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, Url, StatusCode};
+use reqwest::{header::HeaderName, StatusCode, Url};
 use serde::Serialize;
 use snafu::*;
 
 use auth::{AppAuth, Auth};
-use models::{InstallationId, InstallationToken, AppId};
+use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
@@ -326,7 +326,7 @@ impl OctocrabBuilder {
                     format!("Bearer {}", token).parse().unwrap(),
                 );
                 AuthState::None
-            },
+            }
             Auth::App(app_auth) => AuthState::App(app_auth),
         };
 
@@ -345,7 +345,7 @@ impl OctocrabBuilder {
             base_url: self
                 .base_url
                 .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
-            auth_state: auth_state,
+            auth_state,
         })
     }
 }
@@ -374,7 +374,10 @@ impl fmt::Debug for CachedToken {
 impl fmt::Display for CachedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let option = self.0.read().unwrap();
-        option.as_ref().map(|s| s.fmt(f)).unwrap_or(write!(f, "<none>"))
+        option
+            .as_ref()
+            .map(|s| s.fmt(f))
+            .unwrap_or_else(|| write!(f, "<none>"))
     }
 }
 
@@ -768,16 +771,27 @@ impl Octocrab {
 
     /// Requests a fresh installation auth token and caches it. Returns the token.
     async fn request_installation_auth_token(&self) -> Result<String> {
-        let (app, installation, token) = if let AuthState::Installation { ref app, installation, ref token } = self.auth_state {
+        let (app, installation, token) = if let AuthState::Installation {
+            ref app,
+            installation,
+            ref token,
+        } = self.auth_state
+        {
             (app, installation, token)
         } else {
             panic!("Installation not configured");
         };
         let mut retries = 0;
         loop {
-            let result = self.client.post(self.absolute_url(format!("/app/installations/{}/access_tokens", installation))?)
-                .bearer_auth(app.generate_bearer_token()?)
-                .send().await;
+            let result =
+                self.client
+                    .post(self.absolute_url(format!(
+                        "/app/installations/{}/access_tokens",
+                        installation
+                    ))?)
+                    .bearer_auth(app.generate_bearer_token()?)
+                    .send()
+                    .await;
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if retries < MAX_RETRIES {
@@ -787,7 +801,8 @@ impl Octocrab {
                 }
             }
             let response = result.context(error::Http)?;
-            let token_object = InstallationToken::from_response(crate::map_github_error(response).await?).await?;
+            let token_object =
+                InstallationToken::from_response(crate::map_github_error(response).await?).await?;
             token.set(token_object.token.clone());
             return Ok(token_object.token);
         }
@@ -804,7 +819,7 @@ impl Octocrab {
                 AuthState::App(ref app) => {
                     retry_request = Some(request.try_clone().unwrap());
                     request = request.bearer_auth(app.generate_bearer_token()?);
-                },
+                }
                 AuthState::Installation { ref token, .. } => {
                     retry_request = Some(request.try_clone().unwrap());
                     let token = if let Some(token) = token.get() {
@@ -813,7 +828,7 @@ impl Octocrab {
                         self.request_installation_auth_token().await?
                     };
                     request = request.bearer_auth(token);
-                },
+                }
             };
 
             let result = request.send().await;
@@ -841,10 +856,7 @@ impl Octocrab {
     /// Returns an absolute url version of `url` using the `base_url` (default:
     /// `https://api.github.com`)
     pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
-        Ok(self
-            .base_url
-            .join(url.as_ref())
-            .context(crate::error::Url)?)
+        self.base_url.join(url.as_ref()).context(crate::error::Url)
     }
 
     /// A convenience method to get a page of results (if present).
