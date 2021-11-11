@@ -57,7 +57,34 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// # }
     /// ```
     pub fn list_runs(&self, workflow_file_or_id: impl Into<String>) -> ListRunsBuilder<'_, '_> {
-        ListRunsBuilder::new(self, workflow_file_or_id.into())
+        ListRunsBuilder::new(
+            self,
+            ListRunsRequestType::ByWorkflow(workflow_file_or_id.into()),
+        )
+    }
+
+    /// List runs for the specified owner and repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::Octocrab::default();
+    ///
+    /// let runs = octocrab.workflows("owner", "repo")
+    ///     .list_all_runs()
+    ///     // Optional Parameters
+    ///     .actor("octocat")
+    ///     .branch("master")
+    ///     .event("pull_request")
+    ///     .status("success")
+    ///     .per_page(100)
+    ///     .page(1u8)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_all_runs(&self) -> ListRunsBuilder<'_, '_> {
+        ListRunsBuilder::new(self, ListRunsRequestType::ByRepo)
     }
 
     /// List job results in the specified run.
@@ -125,12 +152,18 @@ impl<'octo, 'b> ListWorkflowsBuilder<'octo, 'b> {
     }
 }
 
+/// The type of list workflow runs request.
+pub(crate) enum ListRunsRequestType {
+    ByRepo,
+    ByWorkflow(String),
+}
+
 #[derive(serde::Serialize)]
 pub struct ListRunsBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b WorkflowsHandler<'octo>,
     #[serde(skip)]
-    workflow_id: String,
+    r#type: ListRunsRequestType,
     #[serde(skip_serializing_if = "Option::is_none")]
     actor: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -148,10 +181,10 @@ pub struct ListRunsBuilder<'octo, 'b> {
 }
 
 impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
-    pub(crate) fn new(handler: &'b WorkflowsHandler<'octo>, workflow_id: String) -> Self {
+    pub(crate) fn new(handler: &'b WorkflowsHandler<'octo>, r#type: ListRunsRequestType) -> Self {
         Self {
             handler,
-            workflow_id,
+            r#type,
             actor: None,
             branch: None,
             event: None,
@@ -208,12 +241,19 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::workflows::Run>> {
-        let url = format!(
-            "repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-            workflow_id = self.workflow_id
-        );
+        let url = match self.r#type {
+            ListRunsRequestType::ByRepo => format!(
+                "/repos/{owner}/{repo}/actions/runs",
+                owner = self.handler.owner,
+                repo = self.handler.repo
+            ),
+            ListRunsRequestType::ByWorkflow(ref workflow_id) => format!(
+                "repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
+                owner = self.handler.owner,
+                repo = self.handler.repo,
+                workflow_id = workflow_id
+            ),
+        };
         self.handler.crab.get(url, Some(&self)).await
     }
 }
