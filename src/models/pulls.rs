@@ -35,7 +35,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<User>,
+    pub user: Option<Box<User>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -45,7 +45,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Vec<Label>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub milestone: Option<Milestone>,
+    pub milestone: Option<Box<Milestone>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_lock_reason: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -63,7 +63,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<User>,
+    pub assignee: Option<Box<User>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignees: Option<Vec<User>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,17 +72,17 @@ pub struct PullRequest {
     pub requested_teams: Option<Vec<teams::RequestedTeam>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rebaseable: Option<bool>,
-    pub head: Head,
-    pub base: Base,
+    pub head: Box<Head>,
+    pub base: Box<Base>,
     #[serde(rename = "_links")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub links: Option<Links>,
+    pub links: Option<Box<Links>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_association: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub repo: Option<Repository>,
+    pub repo: Option<Box<Repository>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
