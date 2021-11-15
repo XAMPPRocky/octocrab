@@ -11,6 +11,7 @@ pub mod activity;
 pub mod apps;
 pub mod events;
 pub mod gists;
+pub mod hooks;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;
