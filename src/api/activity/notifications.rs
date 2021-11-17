@@ -1,8 +1,8 @@
 //! Github Notifications API
 
-use crate::models::{NotificationId, ThreadId};
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
+use crate::models::{NotificationId, ThreadId};
 use crate::Octocrab;
 use crate::Page;
 
@@ -142,7 +142,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// ```
     pub async fn get_thread_subscription(
         &self,
-        thread: ThreadId
+        thread: ThreadId,
     ) -> crate::Result<ThreadSubscription> {
         let url = format!("notifications/threads/{}/subscription", thread);
 
@@ -189,10 +189,9 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
-        let url = self.crab.absolute_url(format!(
-            "notifications/threads/{}/subscription",
-            thread
-        ))?;
+        let url = self
+            .crab
+            .absolute_url(format!("notifications/threads/{}/subscription", thread))?;
 
         let response = self.crab._delete(url, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)

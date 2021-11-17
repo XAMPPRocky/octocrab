@@ -23,9 +23,9 @@ pub use member::*;
 pub use pull_request::*;
 pub use pull_request_review_comment::*;
 pub use push::*;
-pub use workflow_run::*;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
+pub use workflow_run::*;
 
 /// The payload in an event type.
 ///

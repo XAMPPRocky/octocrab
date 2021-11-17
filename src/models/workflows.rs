@@ -93,3 +93,11 @@ pub struct Step {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
+pub struct WorkflowDispatch {
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub inputs: serde_json::Value,
+}

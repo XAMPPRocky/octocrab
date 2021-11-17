@@ -63,9 +63,9 @@ pub struct PullRequestEventChangesFrom {
 
 #[cfg(test)]
 mod test {
-    use serde_json::json;
     use super::{PullRequestChanges, PullRequestEventAction, PullRequestEventChangesFrom};
     use crate::models::events::{payload::EventPayload, Event};
+    use serde_json::json;
 
     #[test]
     fn should_deserialize_action_from_snake_case() {

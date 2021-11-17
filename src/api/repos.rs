@@ -5,17 +5,17 @@ use reqwest::header::ACCEPT;
 pub mod events;
 mod file;
 pub mod forks;
+mod generate;
 pub mod releases;
 mod status;
 mod tags;
-mod generate;
 
 use crate::{models, params, Octocrab, Result};
 pub use file::UpdateFileBuilder;
+pub use generate::GenerateRepositoryBuilder;
 pub use releases::ReleasesHandler;
 pub use status::CreateStatusBuilder;
 pub use tags::ListTagsBuilder;
-pub use generate::GenerateRepositoryBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -323,15 +323,16 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await
     /// # }
     /// ```
-    pub fn generate(
-        &self,
-        name: &str,
-    ) -> GenerateRepositoryBuilder<'_, '_> {
+    pub fn generate(&self, name: &str) -> GenerateRepositoryBuilder<'_, '_> {
         GenerateRepositoryBuilder::new(self, name)
     }
 
     /// Retrieve the contents of a file in raw format
-    pub async fn raw_file(self, reference: impl Into<params::repos::Commitish>, path: impl AsRef<str>) -> Result<reqwest::Response> {
+    pub async fn raw_file(
+        self,
+        reference: impl Into<params::repos::Commitish>,
+        path: impl AsRef<str>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
@@ -362,7 +363,10 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
-    pub async fn download_tarball(&self, reference: impl Into<params::repos::Commitish>) -> Result<reqwest::Response> {
+    pub async fn download_tarball(
+        &self,
+        reference: impl Into<params::repos::Commitish>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,
