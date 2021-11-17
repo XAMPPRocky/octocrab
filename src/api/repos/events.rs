@@ -5,8 +5,6 @@ use crate::{
     repos::RepoHandler,
     FromResponse, Page,
 };
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
     handler: &'handler RepoHandler<'octo>,
@@ -64,32 +62,11 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        let mut headers = HeaderMap::new();
-        if let Some(etag) = self.headers.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
-        }
-        let builder = self
+        let response = self
             .handler
             .crab
-            .client
-            .request(Method::GET, &url)
-            .headers(headers)
-            .query(&self.params);
-        let response = self.handler.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
-        if response.status() == StatusCode::NOT_MODIFIED {
-            Ok(Etagged { etag, value: None })
-        } else {
-            <Page<events::Event>>::from_response(crate::map_github_error(response).await?)
-                .await
-                .map(|page| Etagged {
-                    etag,
-                    value: Some(page),
-                })
-        }
+            ._get_with_etag(url, None::<&()>, self.headers.etag)
+            .await?;
+        Etagged::<Page<events::Event>>::from_response(response).await
     }
 }

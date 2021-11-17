@@ -1,7 +1,10 @@
-use std::slice::Iter;
+use crate::etag::Etagged;
 
+use hyperx::header::ETag;
 use hyperx::header::TypedHeaders;
+use reqwest::StatusCode;
 use snafu::ResultExt;
+use std::slice::Iter;
 use url::Url;
 
 /// A Page of GitHub results, with links to the next and previous page.
@@ -123,6 +126,27 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 first,
                 last,
             })
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl<T: serde::de::DeserializeOwned> crate::FromResponse for Etagged<Page<T>> {
+    async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
+        let etag = response
+            .headers()
+            .decode::<ETag>()
+            .ok()
+            .map(|ETag(tag)| tag);
+        if response.status() == StatusCode::NOT_MODIFIED {
+            Ok(Etagged { etag, value: None })
+        } else {
+            <Page<T>>::from_response(crate::map_github_error(response).await?)
+                .await
+                .map(|page| Etagged {
+                    etag,
+                    value: Some(page),
+                })
         }
     }
 }

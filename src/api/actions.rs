@@ -1,13 +1,11 @@
 //! GitHub Actions
-use snafu::ResultExt;
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
     workflows::{WorkflowDispatch, WorkflowListArtifact},
     ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use snafu::ResultExt;
 
 pub struct WorkflowDispatchBuilder<'octo> {
     crab: &'octo Octocrab,
@@ -18,8 +16,20 @@ pub struct WorkflowDispatchBuilder<'octo> {
 }
 
 impl<'octo> WorkflowDispatchBuilder<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
-        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+    pub(crate) fn new(
+        crab: &'octo Octocrab,
+        owner: String,
+        repo: String,
+        workflow_id: String,
+        r#ref: String,
+    ) -> Self {
+        let mut this = Self {
+            crab,
+            owner,
+            repo,
+            workflow_id,
+            data: Default::default(),
+        };
         this.data.r#ref = r#ref;
         this
     }
@@ -44,11 +54,9 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
         );
 
         // this entry point doesn't actually return anything sensible
-        self.crab._post(
-            self.crab.absolute_url(route)?,
-            Some(&self.data),
-        )
-        .await?;
+        self.crab
+            ._post(self.crab.absolute_url(route)?, Some(&self.data))
+            .await?;
 
         Ok(())
     }
@@ -103,27 +111,12 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
             repo = self.repo,
             run_id = self.run_id
         );
-        let mut headers = HeaderMap::new();
-        if let Some(etag) = self.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
-        }
-        let builder = self.crab.client.request(Method::GET, &url).headers(headers);
-        let response = self.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
-        if response.status() == StatusCode::NOT_MODIFIED {
-            Ok(Etagged { etag, value: None })
-        } else {
-            <Page<WorkflowListArtifact>>::from_response(crate::map_github_error(response).await?)
-                .await
-                .map(|page| Etagged {
-                    etag,
-                    value: Some(page),
-                })
-        }
+
+        let response = self
+            .crab
+            ._get_with_etag(url, None::<&()>, self.etag)
+            .await?;
+        Etagged::<Page<WorkflowListArtifact>>::from_response(response).await
     }
 }
 
@@ -369,9 +362,9 @@ impl<'octo> ActionsHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
-    /// Lists artifacts for a workflow run. Anyone with read access to the 
-    /// repository can use this endpoint. If the repository is private you 
-    /// must use an access token with the `repo` scope. GitHub Apps must have 
+    /// Lists artifacts for a workflow run. Anyone with read access to the
+    /// repository can use this endpoint. If the repository is private you
+    /// must use an access token with the `repo` scope. GitHub Apps must have
     /// the `actions:read` permission to use this endpoint.
     ///
     /// ```no_run
@@ -391,11 +384,12 @@ impl<'octo> ActionsHandler<'octo> {
         workflow_id: impl Into<String>,
         r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
-        WorkflowDispatchBuilder::new(self.crab,
+        WorkflowDispatchBuilder::new(
+            self.crab,
             repo.into(),
             owner.into(),
             workflow_id.into(),
-            r#ref.into()
+            r#ref.into(),
         )
     }
 

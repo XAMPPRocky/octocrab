@@ -164,11 +164,15 @@ use std::fmt;
 use std::sync::{Arc, RwLock};
 
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, StatusCode, Url};
+use reqwest::{
+    header::{HeaderMap, HeaderName},
+    StatusCode, Url,
+};
 use serde::Serialize;
 use snafu::*;
 
 use auth::{AppAuth, Auth};
+use hyperx::header::{EntityTag, IfNoneMatch, TypedHeaders};
 use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
@@ -663,6 +667,29 @@ impl Octocrab {
         if let Some(parameters) = parameters {
             request = request.query(parameters);
         }
+
+        self.execute(request).await
+    }
+
+    /// Send a `GET` request with no additional post-processing, but add an etag header
+    pub async fn _get_with_etag<P: Serialize + ?Sized>(
+        &self,
+        url: impl reqwest::IntoUrl,
+        parameters: Option<&P>,
+        etag: Option<EntityTag>,
+    ) -> Result<reqwest::Response> {
+        let mut request = self.client.get(url);
+
+        if let Some(parameters) = parameters {
+            request = request.query(parameters);
+        }
+
+        let mut headers = HeaderMap::new();
+        if let Some(etag) = etag {
+            headers.encode(&IfNoneMatch::Items(vec![etag]));
+        }
+
+        request = request.headers(headers);
 
         self.execute(request).await
     }

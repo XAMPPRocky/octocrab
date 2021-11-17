@@ -4,8 +4,6 @@ use crate::{
     models::events,
     FromResponse, Octocrab, Page,
 };
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
@@ -58,31 +56,11 @@ impl<'octo> EventsBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
         let url = format!("{base_url}events", base_url = self.crab.base_url);
-        let mut headers = HeaderMap::new();
-        if let Some(etag) = self.headers.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
-        }
-        let builder = self
+
+        let response = self
             .crab
-            .client
-            .request(Method::GET, &url)
-            .headers(headers)
-            .query(&self.params);
-        let response = self.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
-        if response.status() == StatusCode::NOT_MODIFIED {
-            Ok(Etagged { etag, value: None })
-        } else {
-            <Page<events::Event>>::from_response(crate::map_github_error(response).await?)
-                .await
-                .map(|page| Etagged {
-                    etag,
-                    value: Some(page),
-                })
-        }
+            ._get_with_etag(url, None::<&()>, self.headers.etag)
+            .await?;
+        Etagged::<Page<events::Event>>::from_response(response).await
     }
 }
