@@ -23,7 +23,11 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
         self
     }
 
-    /// Optional
+    /// Input keys and values configured in the workflow file. The maximum number of properties is 10.
+    /// Any default properties configured in the workflow file will be used when inputs are omitted.
+    ///
+    /// # Panics
+    /// If `inputs` is not `Value::Object`.
     pub fn inputs(mut self, inputs: serde_json::Value) -> Self {
         assert!(inputs.is_object(), "Inputs should be a JSON object");
         self.data.inputs = inputs;
