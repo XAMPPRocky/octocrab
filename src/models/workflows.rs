@@ -97,7 +97,6 @@ pub struct Step {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[non_exhaustive]
 pub struct WorkflowDispatch {
-    #[serde(rename = "ref")]
-    pub ref_field: String,
+    pub r#ref: String,
     pub inputs: serde_json::Value,
 }
