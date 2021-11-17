@@ -13,14 +13,10 @@ pub struct WorkflowDispatchBuilder<'octo> {
 }
 
 impl<'octo> WorkflowDispatchBuilder<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String) -> Self {
-        Self { crab, owner, repo, workflow_id, data: Default::default() }
-    }
-
-    /// Required
-    pub fn ref_field(mut self, ref_attr: impl Into<String>) -> Self {
-        self.data.ref_field = ref_attr.into();
-        self
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
+        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+        this.data.r#ref = r#ref;
+        this
     }
 
     /// Input keys and values configured in the workflow file. The maximum number of properties is 10.
