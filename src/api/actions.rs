@@ -1,8 +1,87 @@
 //! GitHub Actions
 use snafu::ResultExt;
 
-use crate::{params, Octocrab};
-use crate::models::{ArtifactId, RepositoryId, RunId};
+use crate::etag::{EntityTag, Etagged};
+use crate::models::{
+    workflows::WorkflowListArtifact,
+    ArtifactId, RepositoryId, RunId,
+};
+use crate::{params, FromResponse, Octocrab, Page};
+use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
+use reqwest::{header::HeaderMap, Method, StatusCode};
+
+pub struct ListWorkflowRunArtifacts<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+    run_id: RunId,
+    per_page: Option<u8>,
+    page: Option<u32>,
+    etag: Option<EntityTag>,
+}
+
+impl<'octo> ListWorkflowRunArtifacts<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, run_id: RunId) -> Self {
+        Self {
+            crab,
+            owner,
+            repo,
+            run_id,
+            per_page: None,
+            page: None,
+            etag: None,
+        }
+    }
+
+    /// Etag for this request.
+    pub fn etag(mut self, etag: Option<EntityTag>) -> Self {
+        self.etag = etag;
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Etagged<Page<WorkflowListArtifact>>> {
+        let url = format!(
+            "{base_url}repos/{owner}/{repo}/actions/runs/{run_id}/artifacts",
+            base_url = self.crab.base_url,
+            owner = self.owner,
+            repo = self.repo,
+            run_id = self.run_id
+        );
+        let mut headers = HeaderMap::new();
+        if let Some(etag) = self.etag {
+            headers.encode(&IfNoneMatch::Items(vec![etag]));
+        }
+        let builder = self.crab.client.request(Method::GET, &url).headers(headers);
+        let response = self.crab.execute(builder).await?;
+        let etag = response
+            .headers()
+            .decode::<ETag>()
+            .ok()
+            .map(|ETag(tag)| tag);
+        if response.status() == StatusCode::NOT_MODIFIED {
+            Ok(Etagged { etag, value: None })
+        } else {
+            <Page<WorkflowListArtifact>>::from_response(crate::map_github_error(response).await?)
+                .await
+                .map(|page| Etagged {
+                    etag,
+                    value: Some(page),
+                })
+        }
+    }
+}
 
 /// Handler for GitHub's actions API.
 ///
@@ -239,6 +318,15 @@ impl<'octo> ActionsHandler<'octo> {
         let route = format!("orgs/{org}/actions/secrets/public-key", org = org.as_ref());
 
         self.crab.get(route, None::<&()>).await
+    }
+
+    pub fn list_workflow_run_artifacts(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+        run_id: RunId,
+    ) -> ListWorkflowRunArtifacts<'_> {
+        ListWorkflowRunArtifacts::new(self.crab, owner.into(), repo.into(), run_id)
     }
 }
 

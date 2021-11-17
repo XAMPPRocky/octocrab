@@ -1,4 +1,5 @@
 use super::*;
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -92,4 +93,19 @@ pub struct Step {
     pub started_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct WorkflowListArtifact {
+    pub id: crate::models::ArtifactId,
+    pub node_id: String,
+    pub name: String,
+    pub size_in_bytes: usize,
+    pub url: Url,
+    pub archive_download_url: Url,
+    pub expired: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
 }
