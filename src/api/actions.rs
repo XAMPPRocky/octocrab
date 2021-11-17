@@ -291,6 +291,21 @@ impl<'octo> ActionsHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Lists artifacts for a workflow run. Anyone with read access to the 
+    /// repository can use this endpoint. If the repository is private you 
+    /// must use an access token with the `repo` scope. GitHub Apps must have 
+    /// the `actions:read` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// octo.actions()
+    ///    .create_workflow_dispatch("org", "repo", "workflow.yaml")
+    ///    // required
+    ///    .ref_field(&ref)
+    ///    // optional
+    ///    .inputs(serde_json::json!({"my-key": "my-value"}))
+    ///    .send()
+    ///    .await?;
+    /// ```
     pub fn create_workflow_dispatch(
         &self,
         owner: impl Into<String>,
