@@ -311,11 +311,13 @@ impl<'octo> ActionsHandler<'octo> {
         owner: impl Into<String>,
         repo: impl Into<String>,
         workflow_id: impl Into<String>,
+        r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
         WorkflowDispatchBuilder::new(self.crab,
             repo.into(),
             owner.into(),
-            workflow_id.into()
+            workflow_id.into(),
+            r#ref.into()
         )
     }
 }
