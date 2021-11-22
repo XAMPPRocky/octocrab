@@ -126,4 +126,45 @@ impl<'octo> OrgHandler<'octo> {
     pub fn list_repos(&self) -> list_repos::ListReposBuilder {
         list_repos::ListReposBuilder::new(self)
     }
+
+    /// Creates a new webhook for the specified organization.
+    ///
+    /// # Notes
+    /// Only authorized users or apps can modify organization webhooks.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models::hooks::{Hook, Config as HookConfig};
+    ///
+    /// let config = HookConfig {
+    ///   url: "https://example.com".to_string(),
+    ///   content_type: Some("json".to_string()),
+    ///   insecure_ssl: None,
+    ///   secret: None
+    /// };
+    ///
+    /// let hook = Hook {
+    ///   name: "web".to_string(),
+    ///   config,
+    ///   ..Hook::default()
+    /// };
+    ///
+    /// let hook = octocrab.orgs("owner").create_hook(hook).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_hook(
+        &self,
+        hook: crate::models::hooks::Hook,
+    ) -> crate::Result<crate::models::hooks::Hook> {
+        let route = format!("orgs/{org}/hooks", org = self.owner);
+        let res = self
+            .crab
+            .post(self.crab.absolute_url(route)?, Some(&hook))
+            .await?;
+
+        Ok(res)
+    }
 }
