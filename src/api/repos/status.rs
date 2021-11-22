@@ -1,5 +1,5 @@
 use super::*;
-use crate::models::StatusState;
+use crate::models::{Status, StatusState};
 
 #[derive(serde::Serialize)]
 pub struct CreateStatusBuilder<'octo, 'r> {
@@ -61,14 +61,14 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<models::repos::FileUpdate> {
+    pub async fn send(self) -> Result<Status> {
         let url = format!(
             "repos/{owner}/{repo}/statuses/{sha}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             sha = self.sha
         );
-        self.handler.crab.put(url, Some(&self)).await
+        self.handler.crab.post(url, Some(&self)).await
     }
 }
 
