@@ -5,6 +5,7 @@ use reqwest::header::ACCEPT;
 pub mod events;
 mod file;
 pub mod forks;
+mod pulls;
 pub mod releases;
 mod status;
 mod tags;
@@ -13,6 +14,7 @@ mod generate;
 use crate::{models, params, Octocrab, Result};
 pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
+pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
@@ -274,6 +276,11 @@ impl<'octo> RepoHandler<'octo> {
     /// List statuses for a reference.
     pub fn list_statuses(&self, sha: String) -> ListStatusesBuilder<'_, '_> {
         ListStatusesBuilder::new(self, sha)
+    }
+
+    /// List pull requests for a reference.
+    pub fn list_pulls(&self, sha: String) -> ListPullsBuilder<'_, '_> {
+        ListPullsBuilder::new(self, sha)
     }
 
     /// List events on this repository.
