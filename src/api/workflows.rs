@@ -35,6 +35,17 @@ impl<'octo> WorkflowsHandler<'octo> {
         ListWorkflowsBuilder::new(self)
     }
 
+    pub async fn get(&self, run_id: RunId) -> Result<models::workflows::Run> {
+        let route = format!(
+            "repos/{owner}/{repo}/actions/runs/{run_id}",
+            owner = self.owner,
+            repo = self.repo,
+            run_id = run_id,
+        );
+
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// List runs in the specified workflow.
     /// workflow_file_or_id can be either file name or numeric expression.
     /// ```no_run
