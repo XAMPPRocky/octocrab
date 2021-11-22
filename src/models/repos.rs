@@ -1,4 +1,5 @@
 use super::*;
+use snafu::ResultExt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -64,11 +65,43 @@ pub struct Content {
     pub url: String,
     pub html_url: String,
     pub git_url: String,
-    pub download_url: String,
+    pub download_url: Option<String>,
     pub r#type: String,
     #[serde(rename = "_links")]
     pub links: ContentLinks,
     pub license: Option<License>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ContentItems {
+    pub items: Vec<Content>,
+}
+
+impl ContentItems {
+    /// Returns the current set of items, replacing it with an empty Vec.
+    pub fn take_items(&mut self) -> Vec<Content> {
+        std::mem::replace(&mut self.items, Vec::new())
+    }
+}
+
+#[async_trait::async_trait]
+impl crate::FromResponse for ContentItems {
+    async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
+        let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
+
+        if json.is_array() {
+
+            Ok(ContentItems {
+                items: serde_json::from_value(json).context(crate::error::Serde)?,
+            })
+        } else {
+            let mut items = Vec::new();
+
+            items.push(serde_json::from_value(json).context(crate::error::Serde)?);
+
+            Ok(ContentItems { items })
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

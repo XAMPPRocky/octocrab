@@ -11,6 +11,7 @@ mod tags;
 mod generate;
 
 use crate::{models, params, Octocrab, Result};
+pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
 pub use releases::ReleasesHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
@@ -143,6 +144,24 @@ impl<'octo> RepoHandler<'octo> {
                 })),
             )
             .await
+    }
+
+    /// Get repository content.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_content()
+    ///     .path("path/to/file")
+    ///     .r#ref("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_content(&self) -> GetContentBuilder<'_, '_> {
+        GetContentBuilder::new(self)
     }
 
     /// Creates a new file in the repository.
