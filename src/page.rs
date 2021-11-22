@@ -106,7 +106,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 last,
             })
         } else {
-            let attr = vec!["items", "workflows", "workflow_runs", "jobs"]
+            let attr = vec!["items", "workflows", "workflow_runs", "jobs", "artifacts"]
                 .into_iter()
                 .find(|v| json.get(v).is_some())
                 .unwrap();
