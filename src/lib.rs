@@ -30,7 +30,7 @@
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
 //! // Get pull request #404 from `octocrab/repo`.
-//! let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
+//! let pr = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
 //! # Ok(())
 //! # }
 //! ```
