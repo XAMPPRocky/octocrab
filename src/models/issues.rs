@@ -47,6 +47,8 @@ pub struct Comment {
     pub url: Url,
     pub html_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub issue_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_text: Option<String>,
