@@ -45,7 +45,7 @@
 //!
 //! let octocrab = octocrab::instance();
 //! // Returns the first page of all issues.
-//! let page = octocrab.issues("octocrab", "repo")
+//! let mut page = octocrab.issues("octocrab", "repo")
 //!     .list()
 //!     // Optional Parameters
 //!     .creator("octocrab")
@@ -56,11 +56,8 @@
 //!
 //! // Go through every page of issues. Warning: There's no rate limiting so
 //! // be careful.
-//! while let Some(page) = octocrab.get_page::<models::issues::Issue>(&page.next).await? {
-//!     for issue in page {
-//!         println!("{}", issue.title);
-//!     }
-//! }
+//! let results = octocrab.all_pages::<models::issues::Issue>(page).await?;
+//!
 //! # Ok(())
 //! # }
 //! ```
