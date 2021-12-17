@@ -783,7 +783,7 @@ impl Octocrab {
             let result =
                 self.client
                     .post(self.absolute_url(format!(
-                        "/app/installations/{}/access_tokens",
+                        "app/installations/{}/access_tokens",
                         installation
                     ))?)
                     .bearer_auth(app.generate_bearer_token()?)
