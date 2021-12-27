@@ -8,7 +8,7 @@ async fn main() -> octocrab::Result<()> {
 
     let repo = octocrab.repos("rust-lang", "rust").get().await?;
 
-    let repo_metrics = octocrab.repos("rust-lang", "rust").get_metrics().await?;
+    let repo_metrics = octocrab.repos("rust-lang", "rust").get_community_profile_metrics().await?;
 
     println!(
         "{} has {} stars and {}% health percentage",
