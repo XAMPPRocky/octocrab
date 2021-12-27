@@ -72,7 +72,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let repo = octocrab::instance()
     ///     .repos("owner", "repo")
-    ///     .get_metrics()
+    ///     .get_community_profile_metrics()
     ///     .await?;
     /// # Ok(())
     /// # }
