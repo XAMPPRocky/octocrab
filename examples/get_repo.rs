@@ -8,10 +8,13 @@ async fn main() -> octocrab::Result<()> {
 
     let repo = octocrab.repos("rust-lang", "rust").get().await?;
 
+    let repo_metrics = octocrab.repos("rust-lang", "rust").get_metrics().await?;
+
     println!(
-        "{} has {} stars",
+        "{} has {} stars and {}% health percentage",
         repo.full_name.unwrap(),
-        repo.stargazers_count.unwrap_or(0)
+        repo.stargazers_count.unwrap_or(0),
+        repo_metrics.health_percentage
     );
 
     Ok(())

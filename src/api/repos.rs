@@ -66,6 +66,22 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
+
+    /// Fetches a repository's metrics.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let repo = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_metrics()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_metrics(&self) -> Result<models::RepositoryMetrics> {
+        let url = format!("repos/{owner}/{repo}/community/profile", owner = self.owner, repo = self.repo,);
+        self.crab.get(url, None::<&()>).await
+    }
+
     /// Fetches a single reference in the Git database.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

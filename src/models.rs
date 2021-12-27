@@ -1,5 +1,6 @@
 //! Serde mappings from GitHub's JSON to structs.
 
+use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 
@@ -521,6 +522,25 @@ pub struct Repository {
     pub network_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub license: Option<License>,
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub struct RepositoryFile {
+    pub name : Option<String>,
+    pub key: Option<String>,
+    pub url : Option<Url>,
+    pub html_url : Option<Url>,
+}
+
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct RepositoryMetrics {
+    pub health_percentage : u64,
+    pub description: Option<String>,
+    pub documentation : Option<String>,
+    pub files: HashMap<String, Option<RepositoryFile>>,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub content_reports_enabled: Option<bool>
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
