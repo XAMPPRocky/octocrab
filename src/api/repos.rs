@@ -77,7 +77,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_metrics(&self) -> Result<models::RepositoryMetrics> {
+    pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
         let url = format!("repos/{owner}/{repo}/community/profile", owner = self.owner, repo = self.repo,);
         self.crab.get(url, None::<&()>).await
     }
