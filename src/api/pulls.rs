@@ -111,7 +111,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
-        response.text().await.context(crate::error::Http)
+        response.text().await.context(crate::error::HttpSnafu)
     }
 
     /// Get's a given pull request's patch.
@@ -137,7 +137,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
-        response.text().await.context(crate::error::Http)
+        response.text().await.context(crate::error::HttpSnafu)
     }
 
     /// Create a new pull request.

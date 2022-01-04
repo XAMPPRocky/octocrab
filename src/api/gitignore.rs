@@ -48,6 +48,6 @@ impl<'octo> GitignoreHandler<'octo> {
             .await?
             .text()
             .await
-            .context(crate::error::Http)
+            .context(crate::error::HttpSnafu)
     }
 }

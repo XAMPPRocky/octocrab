@@ -62,7 +62,7 @@ impl<'octo> MarkdownHandler<'octo> {
             .await?
             .text()
             .await
-            .context(crate::error::Http)
+            .context(crate::error::HttpSnafu)
     }
 }
 
@@ -108,7 +108,7 @@ impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
             .await?
             .text()
             .await
-            .context(crate::error::Http)
+            .context(crate::error::HttpSnafu)
     }
 }
 
