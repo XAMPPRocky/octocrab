@@ -87,17 +87,17 @@ impl ContentItems {
 #[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
-        let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
+        let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
         if json.is_array() {
 
             Ok(ContentItems {
-                items: serde_json::from_value(json).context(crate::error::Serde)?,
+                items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
             })
         } else {
             let mut items = Vec::new();
 
-            items.push(serde_json::from_value(json).context(crate::error::Serde)?);
+            items.push(serde_json::from_value(json).context(crate::error::SerdeSnafu)?);
 
             Ok(ContentItems { items })
         }

@@ -205,7 +205,7 @@ impl<'octo> ActionsHandler<'octo> {
             .await?
             .bytes()
             .await
-            .context(crate::error::Http)
+            .context(crate::error::HttpSnafu)
     }
 
     /// Downloads and returns the raw data representing a zip of the logs from

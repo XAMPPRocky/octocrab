@@ -93,11 +93,11 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
             last,
         } = get_links(&response)?;
 
-        let json: serde_json::Value = response.json().await.context(crate::error::Http)?;
+        let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
         if json.is_array() {
             Ok(Self {
-                items: serde_json::from_value(json).context(crate::error::Serde)?,
+                items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
                 incomplete_results: None,
                 total_count: None,
                 next,
@@ -113,7 +113,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
 
             Ok(Self {
                 items: serde_json::from_value(json.get(attr).cloned().unwrap())
-                    .context(crate::error::Serde)?,
+                    .context(crate::error::SerdeSnafu)?,
                 incomplete_results: json
                     .get("incomplete_results")
                     .and_then(serde_json::Value::as_bool),
@@ -144,19 +144,19 @@ fn get_links(response: &reqwest::Response) -> crate::Result<HeaderLinks> {
         for value in link_header.values() {
             if let Some(relations) = value.rel() {
                 if relations.contains(&hyperx::header::RelationType::Next) {
-                    next = Some(Url::parse(value.link()).context(crate::error::Url)?);
+                    next = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?);
                 }
 
                 if relations.contains(&hyperx::header::RelationType::Prev) {
-                    prev = Some(Url::parse(value.link()).context(crate::error::Url)?);
+                    prev = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?);
                 }
 
                 if relations.contains(&hyperx::header::RelationType::First) {
-                    first = Some(Url::parse(value.link()).context(crate::error::Url)?)
+                    first = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?)
                 }
 
                 if relations.contains(&hyperx::header::RelationType::Last) {
-                    last = Some(Url::parse(value.link()).context(crate::error::Url)?)
+                    last = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?)
                 }
             }
         }

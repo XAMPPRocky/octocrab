@@ -222,7 +222,7 @@ pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Re
             source: response
                 .json::<error::GitHubError>()
                 .await
-                .context(error::Http)?,
+                .context(error::HttpSnafu)?,
             backtrace: Backtrace::generate(),
         })
     }
@@ -300,7 +300,7 @@ impl OctocrabBuilder {
 
     /// Set the base url for `Octocrab`.
     pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
-        self.base_url = Some(base_url.into_url().context(crate::error::Http)?);
+        self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
         Ok(self)
     }
 
@@ -335,7 +335,7 @@ impl OctocrabBuilder {
             .user_agent("octocrab")
             .default_headers(hmap)
             .build()
-            .context(crate::error::Http)?;
+            .context(crate::error::HttpSnafu)?;
 
         Ok(Octocrab {
             client,
@@ -797,7 +797,7 @@ impl Octocrab {
                     }
                 }
             }
-            let response = result.context(error::Http)?;
+            let response = result.context(error::HttpSnafu)?;
             let token_object =
                 InstallationToken::from_response(crate::map_github_error(response).await?).await?;
             token.set(token_object.token.clone());
@@ -843,7 +843,7 @@ impl Octocrab {
                     }
                 }
             }
-            return result.context(error::Http);
+            return result.context(error::HttpSnafu);
         }
     }
 }
@@ -853,7 +853,7 @@ impl Octocrab {
     /// Returns an absolute url version of `url` using the `base_url` (default:
     /// `https://api.github.com`)
     pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
-        self.base_url.join(url.as_ref()).context(crate::error::Url)
+        self.base_url.join(url.as_ref()).context(crate::error::UrlSnafu)
     }
 
     /// A convenience method to get a page of results (if present).
