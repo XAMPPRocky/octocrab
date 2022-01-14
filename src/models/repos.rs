@@ -61,6 +61,8 @@ pub struct Content {
     pub name: String,
     pub path: String,
     pub sha: String,
+    /// File content, Base64 encoded
+    pub content: Option<String>,
     pub size: i64,
     pub url: String,
     pub html_url: String,
@@ -84,13 +86,23 @@ impl ContentItems {
     }
 }
 
+impl Content {
+    pub fn decoded_content(&self) -> Option<String> {
+        self.content.as_ref().and_then(|c| {
+            let mut content = c.as_bytes().to_owned();
+            content.retain(|b| !b" \n\t\r\x0b\x0c".contains(b));
+            let c = base64::decode(&content).unwrap();
+            Some(String::from_utf8_lossy(&c).into_owned())
+        })
+    }
+}
+
 #[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
     async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
         let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
         if json.is_array() {
-
             Ok(ContentItems {
                 items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
             })
