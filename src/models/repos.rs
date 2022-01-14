@@ -87,6 +87,23 @@ impl ContentItems {
 }
 
 impl Content {
+    /// Get content of a file from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// let mut content = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_content()
+    ///     .path("path/to/file")
+    ///     .r#ref("main")
+    ///     .send()
+    ///     .await?;
+    /// let contents = content.take_items();
+    /// let c = &contents[0];
+    /// let decoded_content = c.decoded_content().unwrap();
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn decoded_content(&self) -> Option<String> {
         self.content.as_ref().and_then(|c| {
             let mut content = c.as_bytes().to_owned();
