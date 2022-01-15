@@ -113,3 +113,10 @@ pub struct WorkflowListArtifact {
     pub updated_at: DateTime<Utc>,
     pub expires_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
+pub struct WorkflowDispatch {
+    pub r#ref: String,
+    pub inputs: serde_json::Value,
+}

@@ -5,6 +5,7 @@ use crate::etag::{EntityTag, Etagged};
 use crate::models::{
     workflows::WorkflowListArtifact,
     ArtifactId, RepositoryId, RunId,
+    workflows::WorkflowDispatch
 };
 use crate::{params, FromResponse, Octocrab, Page};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
@@ -80,6 +81,51 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
                     value: Some(page),
                 })
         }
+    }
+}
+
+pub struct WorkflowDispatchBuilder<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+    workflow_id: String,
+    data: WorkflowDispatch,
+}
+
+impl<'octo> WorkflowDispatchBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
+        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+        this.data.r#ref = r#ref;
+        this
+    }
+
+    /// Input keys and values configured in the workflow file. The maximum number of properties is 10.
+    /// Any default properties configured in the workflow file will be used when inputs are omitted.
+    ///
+    /// # Panics
+    /// If `inputs` is not `Value::Object`.
+    pub fn inputs(mut self, inputs: serde_json::Value) -> Self {
+        assert!(inputs.is_object(), "Inputs should be a JSON object");
+        self.data.inputs = inputs;
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<()> {
+        let route = format!(
+            "repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+            owner = self.owner,
+            repo = self.repo,
+            workflow_id = self.workflow_id
+        );
+
+        // this entry point doesn't actually return anything sensible
+        self.crab._post(
+            self.crab.absolute_url(route)?,
+            Some(&self.data),
+        )
+        .await?;
+
+        Ok(())
     }
 }
 
@@ -193,19 +239,16 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         response: reqwest::Response,
     ) -> crate::Result<bytes::Bytes> {
-        let location = response
-            .headers()
-            .get(reqwest::header::LOCATION)
-            .expect("No Location header found in download_workflow_run_logs")
-            .to_str()
-            .expect("Location URL not valid str");
+        let data_response =
+            if let Some(redirect) = response.headers().get(reqwest::header::LOCATION) {
+                let location = redirect.to_str().expect("Location URL not valid str");
 
-        self.crab
-            ._get(location, None::<&()>)
-            .await?
-            .bytes()
-            .await
-            .context(crate::error::HttpSnafu)
+                self.crab._get(location, None::<&()>).await?
+            } else {
+                response
+            };
+
+        data_response.bytes().await.context(crate::error::HttpSnafu)
     }
 
     /// Downloads and returns the raw data representing a zip of the logs from
@@ -232,8 +275,12 @@ impl<'octo> ActionsHandler<'octo> {
             run_id = run_id,
         );
 
-        self.follow_location_to_data(self.crab._get(&route, None::<&()>).await?)
-            .await
+        self.follow_location_to_data(
+            self.crab
+                ._get(self.crab.absolute_url(route)?, None::<&()>)
+                .await?,
+        )
+        .await
     }
 
     /// Downloads and returns the raw data representing an artifact from a
@@ -264,8 +311,12 @@ impl<'octo> ActionsHandler<'octo> {
             archive_format = archive_format,
         );
 
-        self.follow_location_to_data(self.crab._get(&route, None::<&()>).await?)
-            .await
+        self.follow_location_to_data(
+            self.crab
+                ._get(self.crab.absolute_url(route)?, None::<&()>)
+                .await?,
+        )
+        .await
     }
 
     /// Deletes all logs for a workflow run. You must authenticate using an
@@ -320,6 +371,10 @@ impl<'octo> ActionsHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Lists artifacts for a workflow run. Anyone with read access to the
+    /// repository can use this endpoint. If the repository is private you
+    /// must use an access token with the `repo` scope. GitHub Apps must have
+    /// the `actions:read` permission to use this endpoint.
     pub fn list_workflow_run_artifacts(
         &self,
         owner: impl Into<String>,
@@ -327,6 +382,37 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: RunId,
     ) -> ListWorkflowRunArtifacts<'_> {
         ListWorkflowRunArtifacts::new(self.crab, owner.into(), repo.into(), run_id)
+    }
+
+    /// Dispatch a workflow run. You must authenticate using an
+    /// access token with the `repo` scope to use this endpoint. GitHub Apps
+    /// must have the `actions:write` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.actions()
+    ///    .create_workflow_dispatch("org", "repo", "workflow.yaml", "ref")
+    ///    // optional
+    ///    .inputs(serde_json::json!({"my-key": "my-value"}))
+    ///    .send()
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub fn create_workflow_dispatch(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+        workflow_id: impl Into<String>,
+        r#ref: impl Into<String>,
+    ) -> WorkflowDispatchBuilder<'_> {
+        WorkflowDispatchBuilder::new(self.crab,
+            repo.into(),
+            owner.into(),
+            workflow_id.into(),
+            r#ref.into()
+        )
     }
 }
 
