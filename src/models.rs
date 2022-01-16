@@ -522,6 +522,14 @@ pub struct Repository {
     pub network_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub license: Option<License>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_auto_merge: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delete_branch_on_merge: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent: Option<Box<Repository>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<Box<Repository>>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
