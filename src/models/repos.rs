@@ -1,4 +1,5 @@
 use super::*;
+use base64;
 use snafu::ResultExt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -70,6 +71,8 @@ pub struct Content {
     #[serde(rename = "_links")]
     pub links: ContentLinks,
     pub license: Option<License>,
+    pub encoding: Option<String>,
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +85,31 @@ impl ContentItems {
     pub fn take_items(&mut self) -> Vec<Content> {
         std::mem::replace(&mut self.items, Vec::new())
     }
+
+    /// If the current set of items is just a file and GitHub provided its content,
+    /// return it, otherwise return None
+    pub fn file_data(self) -> crate::Result<Option<Vec<u8>>> {
+        if self.items.iter().count() != 1 {
+            return Ok(None);
+        }
+        let item = &self.items[0];
+
+        if let Some(data) = item.content.as_deref() {
+            match item.encoding.as_deref() {
+                Some("base64") => {
+                    let decoded = base64::decode(data.split("\n").collect::<Vec<&str>>().concat())
+                        .map_err(|e| e.into())
+                        .context(crate::error::OtherSnafu)?;
+                    Ok(Some(decoded))
+                }
+                e => Err(format!("Unknown encoding {:?}", e))
+                    .map_err(|e| e.into())
+                    .context(crate::error::OtherSnafu),
+            }
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -90,7 +118,6 @@ impl crate::FromResponse for ContentItems {
         let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
         if json.is_array() {
-
             Ok(ContentItems {
                 items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
             })
