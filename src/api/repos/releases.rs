@@ -174,7 +174,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         asset_id: AssetId,
     ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
-        use snafu::GenerateBacktrace;
+        use snafu::GenerateImplicitData;
 
         let url = format!(
             "repos/{owner}/{repo}/assets/{asset_id}",
