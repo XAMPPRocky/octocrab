@@ -4,17 +4,26 @@ use crate::models::AppId;
 use crate::Result;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use serde::Serialize;
+use std::fmt;
 use std::time::SystemTime;
 
 use snafu::*;
 
 /// The data necessary to authenticate as a Github App
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AppAuth {
     /// Github's app ID
     pub app_id: AppId,
     /// The app's RSA private key
     pub key: EncodingKey,
+}
+
+impl fmt::Debug for AppAuth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AppAuth")
+            .field("app_id", &self.app_id)
+            .finish_non_exhaustive()
+    }
 }
 
 /// The forms of authentication we support
