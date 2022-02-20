@@ -3,8 +3,7 @@ use super::*;
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Hook {
-    #[serde(rename = "type")]
-    pub typ: String,
+    pub r#type: String,
     pub id: u64,
     pub name: String,
     pub events: Vec<String>,

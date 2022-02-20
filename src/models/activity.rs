@@ -40,8 +40,7 @@ pub struct Subject {
     pub title: String,
     pub url: Option<Url>,
     pub latest_comment_url: Option<Url>,
-    #[serde(rename = "type")]
-    pub type_: String,
+    pub r#type: String,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
