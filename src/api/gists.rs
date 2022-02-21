@@ -18,6 +18,7 @@ impl<'octo> GistsHandler<'octo> {
     }
 
     /// Create a new gist.
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let gitignore = octocrab::instance()
@@ -37,6 +38,7 @@ impl<'octo> GistsHandler<'octo> {
     }
 
     /// Update an existing gist.
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let gitignore = octocrab::instance()
@@ -59,6 +61,7 @@ impl<'octo> GistsHandler<'octo> {
     }
 
     /// Get a single gist.
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let gist = octocrab::instance().gists().get("00000000000000000000000000000000").await?;
@@ -85,16 +88,19 @@ impl<'octo> CreateGistBuilder<'octo> {
         }
     }
 
+    /// Set a description for the gist to be created.
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.data.description = Some(description.into());
         self
     }
 
+    /// Set the `public` flag of the gist to be created.
     pub fn public(mut self, public: bool) -> Self {
         self.data.public = Some(public);
         self
     }
 
+    /// Add a file to the gist with `filename` and `content`.
     pub fn file(mut self, filename: impl Into<String>, content: impl Into<String>) -> Self {
         let file = CreateGistFile {
             filename: Default::default(),
@@ -104,6 +110,7 @@ impl<'octo> CreateGistBuilder<'octo> {
         self
     }
 
+    /// Send the `CreateGist` request to Github for execution.
     pub async fn send(self) -> Result<Gist> {
         self.crab.post("gists", Some(&self.data)).await
     }
@@ -140,15 +147,21 @@ impl<'octo> UpdateGistBuilder<'octo> {
             data: Default::default()
         }
     }
-   
+
+    /// Update the description of the the gist with the content provided by `description`.
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.data.description = Some(description.into());
         self
     }
 
+    /// Update the file with the `filename`. 
+    ///
+    /// The update operation is chosen in further calls to the returned builder.
     pub fn file(self, filename: impl Into<String>) -> UpdateGistFileBuilder<'octo> {
         UpdateGistFileBuilder::new(self, filename)
     }
+
+    /// Send the `UpdateGist` command to Github for execution.
     pub async fn send(self) -> Result<Gist> {
         self.crab.patch(self.gist_path, Some(&self.data)).await
     }
@@ -187,29 +200,41 @@ impl<'octo> UpdateGistFileBuilder<'octo> {
         self.builder
     }
 
+    /// Delete the file from the gist.
     pub fn delete(mut self) -> UpdateGistBuilder<'octo> {
         self.file = None;
         self.build()
     }
 
+    /// Rename the file to `filename`.
     pub fn rename_to(mut self, filename: impl Into<String>) -> Self {
         self.file.get_or_insert_with(Default::default).filename = Some(filename.into());
         self
     }
 
+    /// Update the content of the file and overwrite it with `content`.
     pub fn with_content(mut self, content: impl Into<String>) -> Self {
         self.file.get_or_insert_with(Default::default).content = Some(content.into());
         self
     }
 
+    /// Overwrite the Description of the gist with `description`.
+    ///
+    /// This will finalize the update operation and will continue to operate on the gist itself.
     pub fn description(self, description: impl Into<String>) -> UpdateGistBuilder<'octo> {
         self.build().description(description)
     }
 
+    /// Update the next file identified by `filename`.
+    ///
+    /// This will finalize the update operation and will continue to operate on the gist itself.
     pub fn file(self, filename: impl Into<String>) -> UpdateGistFileBuilder<'octo> {
         self.build().file(filename)
     }
 
+    /// Send the `UpdateGist` command to Github for execution.
+    /// 
+    /// This will finalize the update operation before sending.
     pub async fn send(self) -> Result<Gist> {
         self.build().send().await
     }
