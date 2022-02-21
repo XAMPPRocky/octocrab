@@ -184,36 +184,44 @@ pub struct UpdateGistFile {
 pub struct UpdateGistFileBuilder<'octo> {
     builder: UpdateGistBuilder<'octo>,
     filename: String,
-    file: Option<UpdateGistFile>
+    file: Option<UpdateGistFile>,
+    ready: bool
 }
+
 impl<'octo> UpdateGistFileBuilder<'octo> {
     fn new(builder: UpdateGistBuilder<'octo>, filename: impl Into<String>) -> Self {
         Self {
             builder,
             filename: filename.into(),
-            file: None
+            file: None,
+            ready: false
         }
     }
 
     fn build(mut self) -> UpdateGistBuilder<'octo> {
-        self.builder.data.files.get_or_insert_with(BTreeMap::new).insert(self.filename, self.file);
+        if self.ready {
+            self.builder.data.files.get_or_insert_with(BTreeMap::new).insert(self.filename, self.file);
+        }
         self.builder
     }
 
     /// Delete the file from the gist.
     pub fn delete(mut self) -> UpdateGistBuilder<'octo> {
+        self.ready = true;
         self.file = None;
         self.build()
     }
 
     /// Rename the file to `filename`.
     pub fn rename_to(mut self, filename: impl Into<String>) -> Self {
+        self.ready = true;
         self.file.get_or_insert_with(Default::default).filename = Some(filename.into());
         self
     }
 
     /// Update the content of the file and overwrite it with `content`.
     pub fn with_content(mut self, content: impl Into<String>) -> Self {
+        self.ready = true;
         self.file.get_or_insert_with(Default::default).content = Some(content.into());
         self
     }
