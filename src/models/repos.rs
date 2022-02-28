@@ -167,7 +167,7 @@ pub struct Release {
     pub url: Url,
     pub html_url: Url,
     pub assets_url: Url,
-    pub upload_url: Url,
+    pub upload_url: String,
     pub tarball_url: Option<Url>,
     pub zipball_url: Option<Url>,
     pub id: ReleaseId,
