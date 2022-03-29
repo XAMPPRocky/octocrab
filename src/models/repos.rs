@@ -305,7 +305,7 @@ pub struct Release {
     pub prerelease: bool,
     pub created_at: Option<DateTime<Utc>>,
     pub published_at: Option<DateTime<Utc>>,
-    pub author: crate::models::Author,
+    pub author: Option<crate::models::Author>,
     pub assets: Vec<Asset>,
 }
 
