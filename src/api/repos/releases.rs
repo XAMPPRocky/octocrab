@@ -158,7 +158,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// let mut stream = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .releases()
-    ///     .stream_asset(42usize)
+    ///     .stream_asset(42u64.into())
     ///     .await?;
     ///
     /// while let Some(chunk) = stream.next().await {
@@ -174,7 +174,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         asset_id: AssetId,
     ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
-        use snafu::GenerateBacktrace;
+        use snafu::GenerateImplicitData;
 
         let url = format!(
             "repos/{owner}/{repo}/assets/{asset_id}",
