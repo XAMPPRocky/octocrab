@@ -180,7 +180,7 @@ pub struct Release {
     pub prerelease: bool,
     pub created_at: Option<DateTime<Utc>>,
     pub published_at: Option<DateTime<Utc>>,
-    pub author: crate::models::User,
+    pub author: Option<crate::models::User>,
     pub assets: Vec<Asset>,
 }
 
@@ -199,7 +199,7 @@ pub struct Asset {
     pub download_count: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub uploader: User,
+    pub uploader: Option<crate::models::User>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
