@@ -70,6 +70,30 @@ impl<'octo> PullRequestHandler<'octo> {
         Ok(response.status() == 204)
     }
 
+    /// Update the branch of a pull request.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.pulls("owner", "repo").update_branch(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_branch(&self, pr: u64) -> crate::Result<bool> {
+        let route = format!(
+            "repos/{owner}/{repo}/pulls/{pr}/update-branch",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+        let response = self
+            .crab
+            ._put(self.crab.absolute_url(route)?, None::<&()>)
+            .await?;
+
+        Ok(response.status() == 202)
+    }
+
     /// Get's a given pull request with by its `pr` number.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
