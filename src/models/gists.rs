@@ -8,7 +8,7 @@ pub struct Gist {
     pub comments_url: Url,
     pub commits_url: Url,
     pub created_at: DateTime<Utc>,
-    pub description: String,
+    pub description: Option<String>,
     pub files: BTreeMap<String, GistFile>,
     pub forks_url: Url,
     pub git_pull_url: Url,
@@ -25,7 +25,7 @@ pub struct Gist {
 pub struct GistFile {
     pub content: String,
     pub filename: String,
-    pub language: String,
+    pub language: Option<String>,
     pub r#type: String,
     pub raw_url: Url,
     pub size: u64,
