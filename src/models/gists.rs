@@ -25,7 +25,7 @@ pub struct Gist {
 pub struct GistFile {
     pub content: String,
     pub filename: String,
-    pub language: String,
+    pub language: Option<String>,
     pub r#type: String,
     pub raw_url: Url,
     pub size: u64,
