@@ -34,11 +34,11 @@ impl<'octo> IssueHandler<'octo> {
         Self { crab, owner, repo }
     }
 
-    /// Gets a label from the repository.
+    /// Gets an issue from the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let label = octocrab.issues("owner", "repo").get_label("help wanted").await?;
+    /// let issue = octocrab.issues("owner", "repo").get(3).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -53,7 +53,7 @@ impl<'octo> IssueHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
-    /// Create a issue in the repository.
+    /// Create an issue in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
