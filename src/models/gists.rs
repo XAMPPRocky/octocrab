@@ -35,7 +35,7 @@ pub struct GistFile {
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct GistCommit {
-    pub user: User,
+    pub user: Option<User>,
     pub version: String,
     pub committed_at: DateTime<Utc>,
     pub change_status: GistChangeStatus,
