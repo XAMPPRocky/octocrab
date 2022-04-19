@@ -46,9 +46,9 @@ pub struct GistCommit {
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct GistChangeStatus {
-    pub total: u64,
-    pub additions: u64,
-    pub deletions: u64
+    pub total: Option<u64>,
+    pub additions: Option<u64>,
+    pub deletions: Option<u64>
 }
 
 #[non_exhaustive]
