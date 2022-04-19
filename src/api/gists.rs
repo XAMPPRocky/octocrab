@@ -1,9 +1,11 @@
 //! The gist API
+mod list_commits;
 
 use serde::Serialize;
 use std::collections::BTreeMap;
 
-use crate::{models::gists::Gist, Octocrab, Result};
+use crate::{models::gists::{Gist, GistRevision}, Octocrab, Result};
+pub use self::list_commits::ListCommitsBuilder;
 
 /// Handler for GitHub's gist API.
 ///
@@ -47,6 +49,47 @@ impl<'octo> GistsHandler<'octo> {
         let id = id.as_ref();
         self.crab.get(format!("/gists/{}", id), None::<&()>).await
     }
+    
+    /// Get a single gist revision.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let revision = octocrab::instance()
+    ///     .gists()
+    ///     .get_revision("00000000000000000000000000000000", "1111111111111111111111111111111111111111")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_revision(&self, id: impl AsRef<str>, sha1: impl AsRef<str>) -> Result<GistRevision> {
+        let id = id.as_ref();
+        let sha1 = sha1.as_ref();
+        self.crab.get(format!("/gists/{}/{}", id, sha1), None::<&()>).await
+    }
+
+    /// List commits for the specified gist.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params;
+    ///
+    /// // Get the least active repos belonging to `owner`.
+    /// let page = octocrab::instance()
+    ///     .gists()
+    ///     .list_commits("00000000000000000000000000000000")
+    ///     // Optional Parameters
+    ///     .per_page(25)
+    ///     .page(5u32)
+    ///     // Send the request.
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
+        list_commits::ListCommitsBuilder::new(self, gist_id.into())
+    }
+
+
 }
 
 #[derive(Debug)]

@@ -31,3 +31,35 @@ pub struct GistFile {
     pub size: u64,
     pub truncated: bool,
 }
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistCommit {
+    pub user: User,
+    pub version: String,
+    pub committed_at: DateTime<Utc>,
+    pub change_status: GistChangeStatus,
+    pub url: Url
+}
+
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistChangeStatus {
+    pub total: u64,
+    pub additions: u64,
+    pub deletions: u64
+}
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistRevision {
+    pub id: String,
+    pub node_id: String,
+    pub public: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub description: Option<String>,
+    pub files: BTreeMap<String, GistFile>,
+    pub url: Url,
+}
