@@ -51,6 +51,23 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
+    /// Get's a repository's public key.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let public_key = octocrab::instance().repos("owner", "repo").public_key().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn public_key(&self) -> Result<models::PublicKey> {
+        let url = format!(
+            "repos/{owner}/{repo}/actions/secrets/public-key",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        self.crab.get(url, None::<&()>).await
+    }
+
     /// Fetches a single repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
