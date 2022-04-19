@@ -3,6 +3,7 @@
 use crate::models::AppId;
 use crate::Result;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
+use secrecy::SecretString;
 use serde::Serialize;
 use std::fmt;
 use std::time::SystemTime;
@@ -31,7 +32,7 @@ pub enum Auth {
     /// No authentication
     None,
     /// Authenticate using a Github personal access token
-    PersonalToken(String),
+    PersonalToken(SecretString),
     /// Authenticate as a Github App
     App(AppAuth),
 }
