@@ -239,7 +239,7 @@ pub struct Comment {
     pub original_commit_id: String,
     #[serde(default)]
     pub in_reply_to_id: Option<u64>,
-    pub user: User,
+    pub user: Option<User>,
     pub body: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
