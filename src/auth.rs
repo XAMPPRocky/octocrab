@@ -59,10 +59,13 @@ pub fn create_jwt(
 
     let now = SystemTime::UNIX_EPOCH.elapsed().unwrap().as_secs() as usize;
 
+    // Github only allows JWTs that expire in the next 10 minutes.
+    // The token is issued 60 seconds in the past and expires in 9 minutes,
+    // to allow some clock drift.
     let claims = Claims {
         iss: github_app_id,
-        iat: now,
-        exp: now + (10 * 60),
+        iat: now - 60,
+        exp: now + (9 * 60),
     };
 
     let header = Header::new(Algorithm::RS256);
