@@ -759,3 +759,30 @@ pub struct PublicKey {
     pub key_id: String,
     pub key: String,
 }
+
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RateLimit {
+    pub resources: Resources,
+    pub rate:      Rate,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Resources {
+    pub core:                        Rate,
+    pub search:                      Rate,
+    pub graphql:                     Option<Rate>,
+    pub integration_manifest:        Option<Rate>,
+    pub scim:                        Option<Rate>,
+    pub source_import:               Option<Rate>,
+    pub code_scanning_upload:        Option<Rate>,
+    pub actions_runner_registration: Option<Rate>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Rate {
+    pub limit:     usize,
+    pub used:      usize,
+    pub remaining: usize,
+    pub reset:     usize,
+}
