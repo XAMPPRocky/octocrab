@@ -172,7 +172,7 @@ use models::{AppId, InstallationId, InstallationToken};
 pub use self::{
     api::{
         actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
-        orgs, pulls, repos, search, teams, workflows,
+        orgs, pulls, repos, search, teams, workflows, ratelimit,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -573,6 +573,11 @@ impl Octocrab {
     /// GitHub's Gists API.
     pub fn gists(&self) -> gists::GistsHandler {
         gists::GistsHandler::new(self)
+    }
+
+    /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
+    pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
+        ratelimit::RateLimitHandler::new(self)
     }
 }
 
