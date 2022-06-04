@@ -74,7 +74,7 @@ pub struct Content {
     pub license: Option<License>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContentItems {
     pub items: Vec<Content>,
 }
