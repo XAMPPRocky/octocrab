@@ -9,6 +9,8 @@ repository = "https://github.com/XAMPPRocky/octocrab.git"
 description = "A modern, extensible GitHub API client."
 license = "Apache-2.0/MIT"
 documentation = "https://docs.rs/octocrab"
+categories = ["web-programming::http-client"]
+keywords = ["github", "github-api"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]
