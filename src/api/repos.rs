@@ -2,23 +2,25 @@
 
 use reqwest::header::ACCEPT;
 
+mod commits;
 pub mod events;
 mod file;
 pub mod forks;
+mod generate;
 mod pulls;
 pub mod releases;
 mod status;
 mod tags;
-mod generate;
 
 use crate::{models, params, Octocrab, Result};
+pub use commits::ListCommitsBuilder;
 pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
+pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use generate::GenerateRepositoryBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -83,7 +85,6 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
-
     /// Fetches a repository's metrics.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -95,7 +96,11 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
-        let url = format!("repos/{owner}/{repo}/community/profile", owner = self.owner, repo = self.repo,);
+        let url = format!(
+            "repos/{owner}/{repo}/community/profile",
+            owner = self.owner,
+            repo = self.repo,
+        );
         self.crab.get(url, None::<&()>).await
     }
 
@@ -296,6 +301,17 @@ impl<'octo> RepoHandler<'octo> {
         ListTagsBuilder::new(self)
     }
 
+    /// List commits from a repository
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let commits = octocrab::instance().repos("owner", "repo").list_commits().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
+        ListCommitsBuilder::new(self)
+    }
+
     /// Creates a `ReleasesHandler` for the specified repository.
     pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
         releases::ReleasesHandler::new(self)
@@ -387,15 +403,16 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await
     /// # }
     /// ```
-    pub fn generate(
-        &self,
-        name: &str,
-    ) -> GenerateRepositoryBuilder<'_, '_> {
+    pub fn generate(&self, name: &str) -> GenerateRepositoryBuilder<'_, '_> {
         GenerateRepositoryBuilder::new(self, name)
     }
 
     /// Retrieve the contents of a file in raw format
-    pub async fn raw_file(self, reference: impl Into<params::repos::Commitish>, path: impl AsRef<str>) -> Result<reqwest::Response> {
+    pub async fn raw_file(
+        self,
+        reference: impl Into<params::repos::Commitish>,
+        path: impl AsRef<str>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
@@ -426,7 +443,10 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
-    pub async fn download_tarball(&self, reference: impl Into<params::repos::Commitish>) -> Result<reqwest::Response> {
+    pub async fn download_tarball(
+        &self,
+        reference: impl Into<params::repos::Commitish>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,

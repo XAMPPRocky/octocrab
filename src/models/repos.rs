@@ -23,6 +23,90 @@ pub enum Object {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct RepoCommit {
+    pub url: String,
+    pub sha: String,
+    pub node_id: String,
+    pub html_url: String,
+    pub comments_url: String,
+    pub commit: RepoCommitPage,
+    pub author: Option<User>,
+    pub committer: Option<User>,
+    pub parents: Vec<Commit>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats: Option<RepoChangeStatus>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files: Option<Vec<DiffEntry>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoCommitPage {
+    pub url: Url,
+    pub author: Option<GitUserTime>,
+    pub comitter: Option<GitUserTime>,
+    pub message: String,
+    pub comment_count: u64,
+    pub tree: CommitObject,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verification: Option<Verification>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Verification {
+    pub verified: bool,
+    pub reason: String,
+    pub payload: Option<String>,
+    pub signature: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DiffEntry {
+    pub sha: String,
+    pub filename: String,
+    pub status: DiffEntryStatus,
+    pub additions: u64,
+    pub deletions: u64,
+    pub changes: u64,
+    pub blob_url: Url,
+    pub raw_url: Url,
+    pub contents_url: Url,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub patch: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub previous_filename: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum DiffEntryStatus {
+    Added,
+    Removed,
+    Modified,
+    Renamed,
+    Copied,
+    Changed,
+    Unchanged,
+}
+
+#[non_exhaustive]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct RepoChangeStatus {
+    pub total: Option<u64>,
+    pub additions: Option<u64>,
+    pub deletions: Option<u64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Commit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
@@ -38,6 +122,16 @@ pub struct Commit {
     pub author: Option<GitUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub committer: Option<GitUser>,
+}
+
+/// The author of a commit, identified by its name and email, as well as (optionally) a time
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GitUserTime {
+    #[serde(flatten)]
+    pub user: GitUser,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<DateTime<Utc>>,
 }
 
 /// The author of a commit, identified by its name and email.
