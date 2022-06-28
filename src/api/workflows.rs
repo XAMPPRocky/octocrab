@@ -254,7 +254,7 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
     pub async fn send(self) -> Result<Page<models::workflows::Run>> {
         let url = match self.r#type {
             ListRunsRequestType::ByRepo => format!(
-                "/repos/{owner}/{repo}/actions/runs",
+                "repos/{owner}/{repo}/actions/runs",
                 owner = self.handler.owner,
                 repo = self.handler.repo
             ),
