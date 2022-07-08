@@ -1,16 +1,18 @@
-#[cfg(feature = "stream")]
-use futures_core::Stream;
-#[cfg(feature = "stream")]
-use futures_util::stream::try_unfold;
 use std::slice::Iter;
 
-#[cfg(feature = "stream")]
-use crate::Octocrab;
 use hyperx::header::TypedHeaders;
-#[cfg(feature = "stream")]
-use serde::de::DeserializeOwned;
 use snafu::ResultExt;
 use url::Url;
+
+cfg_if::cfg_if! {
+    if #[cfg(feature = "stream")] {
+        use futures_core::Stream;
+        use futures_util::stream::try_unfold;
+        use serde::de::DeserializeOwned;
+
+        use crate::Octocrab;
+    }
+}
 
 /// A Page of GitHub results, with links to the next and previous page.
 /// ```no_run
