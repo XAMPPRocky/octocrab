@@ -321,7 +321,7 @@ impl OctocrabBuilder {
             Auth::PersonalToken(token) => {
                 hmap.append(
                     reqwest::header::AUTHORIZATION,
-                    (String::from("token ") + token.expose_secret())
+                    (String::from("Basic ") + token.expose_secret())
                         .parse()
                         .unwrap(),
                 );
