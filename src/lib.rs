@@ -299,6 +299,13 @@ impl OctocrabBuilder {
         self
     }
 
+    /// Authenticate as a Basic Auth
+    /// username and password
+    pub fn basic_auth(mut self, username: String, password: String) -> Self {
+        self.auth = Auth::Basic{ username, password };
+        self
+    }
+
     /// Set the base url for `Octocrab`.
     pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
         self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
