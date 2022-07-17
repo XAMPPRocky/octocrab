@@ -241,6 +241,10 @@ pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
     Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
 }
 
+pub fn initialise_built(built: Octocrab) -> Result<Arc<Octocrab>> {
+    Ok(STATIC_INSTANCE.swap(Arc::from(built)))
+}
+
 /// Returns a new instance of [`Octocrab`]. If it hasn't been previously
 /// initialised it returns a default instance with no authentication set.
 /// ```
