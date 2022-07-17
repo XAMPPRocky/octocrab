@@ -318,6 +318,7 @@ impl OctocrabBuilder {
 
         let auth_state = match self.auth {
             Auth::None => AuthState::None,
+            Auth::Basic{ username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
                 hmap.append(
                     reqwest::header::AUTHORIZATION,
@@ -399,6 +400,10 @@ enum AuthState {
     /// No state, although Auth::PersonalToken may have caused
     /// an Authorization HTTP header to be set to provide authentication.
     None,
+    BasicAuth {
+        username: String,
+        password: String,
+    },
     /// Github App authentication with the given app data
     App(AppAuth),
     /// Authentication via a Github App repo-specific installation
@@ -823,6 +828,10 @@ impl Octocrab {
                 AuthState::App(ref app) => {
                     retry_request = Some(request.try_clone().unwrap());
                     request = request.bearer_auth(app.generate_bearer_token()?);
+                }
+                AuthState::BasicAuth { ref username, ref password } => {
+                    retry_request = Some(request.try_clone().unwrap());
+                    request = request.basic_auth(username, Some(password));
                 }
                 AuthState::Installation { ref token, .. } => {
                     retry_request = Some(request.try_clone().unwrap());

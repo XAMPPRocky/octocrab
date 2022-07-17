@@ -31,6 +31,13 @@ impl fmt::Debug for AppAuth {
 pub enum Auth {
     /// No authentication
     None,
+    // Basic authentication
+    Basic{
+        /// The username
+        username: String,
+        /// The password
+        password: String,
+    },
     /// Authenticate using a Github personal access token
     PersonalToken(SecretString),
     /// Authenticate as a Github App
