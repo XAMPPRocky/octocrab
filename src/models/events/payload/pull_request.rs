@@ -58,7 +58,7 @@ pub enum PullRequestChanges {
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub struct PullRequestEventChangesFrom {
-    pub from: String,
+    pub from: Option<String>,
 }
 
 #[cfg(test)]
