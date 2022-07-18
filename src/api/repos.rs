@@ -8,7 +8,7 @@ pub mod forks;
 mod generate;
 mod pulls;
 pub mod releases;
-mod stars;
+mod stargazers;
 mod status;
 mod tags;
 
@@ -18,7 +18,7 @@ pub use file::UpdateFileBuilder;
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
-pub use stars::ListStarGazersBuilder;
+pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 

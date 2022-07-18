@@ -43,7 +43,7 @@ const REPO: &str = "repo";
 
 #[tokio::test]
 async fn should_return_page_with_users() {
-  let star_gazers: User = serde_json::from_str(include_str!("resources/users.json")).unwrap();
+  let star_gazers: User = serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
   let login: String = star_gazers.login.clone();
   let page_response = FakePage {
     items: vec![star_gazers],
