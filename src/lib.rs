@@ -241,10 +241,6 @@ pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
     Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
 }
 
-pub fn initialise_built(built: Octocrab) -> Result<Arc<Octocrab>> {
-    Ok(STATIC_INSTANCE.swap(Arc::from(built)))
-}
-
 /// Returns a new instance of [`Octocrab`]. If it hasn't been previously
 /// initialised it returns a default instance with no authentication set.
 /// ```
@@ -411,8 +407,11 @@ enum AuthState {
     /// No state, although Auth::PersonalToken may have caused
     /// an Authorization HTTP header to be set to provide authentication.
     None,
+    /// Basic Auth HTTP. (username:password)
     BasicAuth {
+        /// The username
         username: String,
+        /// The password
         password: String,
     },
     /// Github App authentication with the given app data
