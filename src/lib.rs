@@ -795,7 +795,8 @@ impl Octocrab {
                 )
                 .bearer_auth(app.generate_bearer_token()?)
                 .send()
-                .await;
+                .await
+                .and_then(|r| r.error_for_status());
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if retries < MAX_RETRIES {
@@ -835,7 +836,7 @@ impl Octocrab {
                 }
             };
 
-            let result = request.send().await;
+            let result = request.send().await.and_then(|r| r.error_for_status());
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if let AuthState::Installation { ref token, .. } = self.auth_state {
