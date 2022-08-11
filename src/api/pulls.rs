@@ -70,6 +70,30 @@ impl<'octo> PullRequestHandler<'octo> {
         Ok(response.status() == 204)
     }
 
+    /// Update the branch of a pull request.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.pulls("owner", "repo").update_branch(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_branch(&self, pr: u64) -> crate::Result<bool> {
+        let route = format!(
+            "repos/{owner}/{repo}/pulls/{pr}/update-branch",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+        let response = self
+            .crab
+            ._put(self.crab.absolute_url(route)?, None::<&()>)
+            .await?;
+
+        Ok(response.status() == 202)
+    }
+
     /// Get's a given pull request with by its `pr` number.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -207,6 +231,23 @@ impl<'octo> PullRequestHandler<'octo> {
     pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
         let url = format!(
             "repos/{owner}/{repo}/pulls/{pr}/reviews",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        self.http_get(url, None::<&()>).await
+    }
+
+    /// List all `FileDiff`s associated with the pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
+    /// # Ok(())
+    /// # }
+    pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
+        let url = format!(
+            "repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,
             repo = self.repo,
             pr = pr

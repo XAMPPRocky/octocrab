@@ -8,7 +8,7 @@ pub struct Gist {
     pub comments_url: Url,
     pub commits_url: Url,
     pub created_at: DateTime<Utc>,
-    pub description: String,
+    pub description: Option<String>,
     pub files: BTreeMap<String, GistFile>,
     pub forks_url: Url,
     pub git_pull_url: Url,
@@ -25,9 +25,41 @@ pub struct Gist {
 pub struct GistFile {
     pub content: String,
     pub filename: String,
-    pub language: String,
+    pub language: Option<String>,
     pub r#type: String,
     pub raw_url: Url,
     pub size: u64,
     pub truncated: bool,
+}
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistCommit {
+    pub user: Option<User>,
+    pub version: String,
+    pub committed_at: DateTime<Utc>,
+    pub change_status: GistChangeStatus,
+    pub url: Url
+}
+
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistChangeStatus {
+    pub total: Option<u64>,
+    pub additions: Option<u64>,
+    pub deletions: Option<u64>
+}
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistRevision {
+    pub id: String,
+    pub node_id: String,
+    pub public: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub description: Option<String>,
+    pub files: BTreeMap<String, GistFile>,
+    pub url: Url,
 }

@@ -5,20 +5,22 @@ use reqwest::header::ACCEPT;
 pub mod events;
 mod file;
 pub mod forks;
+mod generate;
 mod pulls;
 pub mod releases;
+mod stargazers;
 mod status;
 mod tags;
-mod generate;
 
 use crate::{models, params, Octocrab, Result};
 pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
+pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
+pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use generate::GenerateRepositoryBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -51,6 +53,23 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
+    /// Get's a repository's public key.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let public_key = octocrab::instance().repos("owner", "repo").public_key().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn public_key(&self) -> Result<models::PublicKey> {
+        let url = format!(
+            "repos/{owner}/{repo}/actions/secrets/public-key",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        self.crab.get(url, None::<&()>).await
+    }
+
     /// Fetches a single repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -66,7 +85,6 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(url, None::<&()>).await
     }
 
-
     /// Fetches a repository's metrics.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -78,7 +96,11 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
-        let url = format!("repos/{owner}/{repo}/community/profile", owner = self.owner, repo = self.repo,);
+        let url = format!(
+            "repos/{owner}/{repo}/community/profile",
+            owner = self.owner,
+            repo = self.repo,
+        );
         self.crab.get(url, None::<&()>).await
     }
 
@@ -279,6 +301,17 @@ impl<'octo> RepoHandler<'octo> {
         ListTagsBuilder::new(self)
     }
 
+    /// List star_gazers from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let stargazers = octocrab::instance().repos("owner", "repo").list_stargazers().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
+        ListStarGazersBuilder::new(self)
+    }
+
     /// Creates a `ReleasesHandler` for the specified repository.
     pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
         releases::ReleasesHandler::new(self)
@@ -370,15 +403,16 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await
     /// # }
     /// ```
-    pub fn generate(
-        &self,
-        name: &str,
-    ) -> GenerateRepositoryBuilder<'_, '_> {
+    pub fn generate(&self, name: &str) -> GenerateRepositoryBuilder<'_, '_> {
         GenerateRepositoryBuilder::new(self, name)
     }
 
     /// Retrieve the contents of a file in raw format
-    pub async fn raw_file(self, reference: impl Into<params::repos::Commitish>, path: impl AsRef<str>) -> Result<reqwest::Response> {
+    pub async fn raw_file(
+        self,
+        reference: impl Into<params::repos::Commitish>,
+        path: impl AsRef<str>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
@@ -409,7 +443,10 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
-    pub async fn download_tarball(&self, reference: impl Into<params::repos::Commitish>) -> Result<reqwest::Response> {
+    pub async fn download_tarball(
+        &self,
+        reference: impl Into<params::repos::Commitish>,
+    ) -> Result<reqwest::Response> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,

@@ -239,7 +239,7 @@ pub struct Comment {
     pub original_commit_id: String,
     #[serde(default)]
     pub in_reply_to_id: Option<u64>,
-    pub user: User,
+    pub user: Option<User>,
     pub body: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
@@ -353,6 +353,35 @@ pub enum MergeableState {
     Unknown,
     /// Mergeable with non-passing commit status.
     Unstable,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct FileDiff {
+    pub sha: String,
+    pub filename: String,
+    pub status: FileDiffStatus,
+    pub additions: u64,
+    pub deletions: u64,
+    pub changes: u64,
+    pub blob_url: Url,
+    pub raw_url: Url,
+    pub contents_url: Url,
+    pub patch: Option<String>,
+    pub previous_filename: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum FileDiffStatus {
+    Added,
+    Removed,
+    Modified,
+    Renamed,
+    Copied,
+    Changed,
+    Unchanged,
 }
 
 #[cfg(test)]

@@ -3,13 +3,15 @@
 use crate::models::AppId;
 use crate::Result;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
+use secrecy::SecretString;
 use serde::Serialize;
+use std::fmt;
 use std::time::SystemTime;
 
 use snafu::*;
 
 /// The data necessary to authenticate as a Github App
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AppAuth {
     /// Github's app ID
     pub app_id: AppId,
@@ -17,12 +19,20 @@ pub struct AppAuth {
     pub key: EncodingKey,
 }
 
+impl fmt::Debug for AppAuth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AppAuth")
+            .field("app_id", &self.app_id)
+            .finish_non_exhaustive()
+    }
+}
+
 /// The forms of authentication we support
 pub enum Auth {
     /// No authentication
     None,
     /// Authenticate using a Github personal access token
-    PersonalToken(String),
+    PersonalToken(SecretString),
     /// Authenticate as a Github App
     App(AppAuth),
 }
@@ -49,10 +59,13 @@ pub fn create_jwt(
 
     let now = SystemTime::UNIX_EPOCH.elapsed().unwrap().as_secs() as usize;
 
+    // Github only allows JWTs that expire in the next 10 minutes.
+    // The token is issued 60 seconds in the past and expires in 9 minutes,
+    // to allow some clock drift.
     let claims = Claims {
         iss: github_app_id,
-        iat: now,
-        exp: now + (10 * 60),
+        iat: now - 60,
+        exp: now + (9 * 60),
     };
 
     let header = Header::new(Algorithm::RS256);

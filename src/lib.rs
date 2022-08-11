@@ -162,6 +162,7 @@ use std::sync::{Arc, RwLock};
 
 use once_cell::sync::Lazy;
 use reqwest::{header::HeaderName, StatusCode, Url};
+use secrecy::{ExposeSecret, SecretString};
 use serde::Serialize;
 use snafu::*;
 
@@ -171,7 +172,7 @@ use models::{AppId, InstallationId, InstallationToken};
 pub use self::{
     api::{
         actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
-        orgs, pulls, repos, search, teams, workflows,
+        orgs, pulls, repos, search, teams, workflows, ratelimit,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -287,7 +288,7 @@ impl OctocrabBuilder {
 
     /// Add a personal token to use for authentication.
     pub fn personal_token(mut self, token: String) -> Self {
-        self.auth = Auth::PersonalToken(token);
+        self.auth = Auth::PersonalToken(SecretString::new(token));
         self
     }
 
@@ -320,7 +321,9 @@ impl OctocrabBuilder {
             Auth::PersonalToken(token) => {
                 hmap.append(
                     reqwest::header::AUTHORIZATION,
-                    format!("Bearer {}", token).parse().unwrap(),
+                    (String::from("Bearer ") + token.expose_secret())
+                        .parse()
+                        .unwrap(),
                 );
                 AuthState::None
             }
@@ -348,17 +351,17 @@ impl OctocrabBuilder {
 }
 
 /// A cached API access token (which may be None)
-struct CachedToken(RwLock<Option<String>>);
+struct CachedToken(RwLock<Option<SecretString>>);
 
 impl CachedToken {
     fn clear(&self) {
         *self.0.write().unwrap() = None;
     }
-    fn get(&self) -> Option<String> {
+    fn get(&self) -> Option<SecretString> {
         self.0.read().unwrap().clone()
     }
     fn set(&self, value: String) {
-        *self.0.write().unwrap() = Some(value);
+        *self.0.write().unwrap() = Some(SecretString::new(value));
     }
 }
 
@@ -373,7 +376,7 @@ impl fmt::Display for CachedToken {
         let option = self.0.read().unwrap();
         option
             .as_ref()
-            .map(|s| s.fmt(f))
+            .map(|s| s.expose_secret().fmt(f))
             .unwrap_or_else(|| write!(f, "<none>"))
     }
 }
@@ -571,6 +574,11 @@ impl Octocrab {
     pub fn gists(&self) -> gists::GistsHandler {
         gists::GistsHandler::new(self)
     }
+
+    /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
+    pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
+        ratelimit::RateLimitHandler::new(self)
+    }
 }
 
 /// # GraphQL API.
@@ -767,7 +775,7 @@ impl Octocrab {
     }
 
     /// Requests a fresh installation auth token and caches it. Returns the token.
-    async fn request_installation_auth_token(&self) -> Result<String> {
+    async fn request_installation_auth_token(&self) -> Result<SecretString> {
         let (app, installation, token) = if let AuthState::Installation {
             ref app,
             installation,
@@ -780,15 +788,14 @@ impl Octocrab {
         };
         let mut retries = 0;
         loop {
-            let result =
-                self.client
-                    .post(self.absolute_url(format!(
-                        "app/installations/{}/access_tokens",
-                        installation
-                    ))?)
-                    .bearer_auth(app.generate_bearer_token()?)
-                    .send()
-                    .await;
+            let result = self
+                .client
+                .post(
+                    self.absolute_url(format!("app/installations/{}/access_tokens", installation))?,
+                )
+                .bearer_auth(app.generate_bearer_token()?)
+                .send()
+                .await;
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if retries < MAX_RETRIES {
@@ -801,7 +808,7 @@ impl Octocrab {
             let token_object =
                 InstallationToken::from_response(crate::map_github_error(response).await?).await?;
             token.set(token_object.token.clone());
-            return Ok(token_object.token);
+            return Ok(SecretString::new(token_object.token));
         }
     }
 
@@ -824,7 +831,7 @@ impl Octocrab {
                     } else {
                         self.request_installation_auth_token().await?
                     };
-                    request = request.bearer_auth(token);
+                    request = request.bearer_auth(token.expose_secret());
                 }
             };
 
@@ -853,7 +860,9 @@ impl Octocrab {
     /// Returns an absolute url version of `url` using the `base_url` (default:
     /// `https://api.github.com`)
     pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
-        self.base_url.join(url.as_ref()).context(crate::error::UrlSnafu)
+        self.base_url
+            .join(url.as_ref())
+            .context(crate::error::UrlSnafu)
     }
 
     /// A convenience method to get a page of results (if present).
