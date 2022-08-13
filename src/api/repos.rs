@@ -2,6 +2,7 @@
 
 use reqwest::header::ACCEPT;
 
+mod commits;
 pub mod events;
 mod file;
 pub mod forks;
@@ -13,6 +14,7 @@ mod status;
 mod tags;
 
 use crate::{models, params, Octocrab, Result};
+pub use commits::ListCommitsBuilder;
 pub use file::GetContentBuilder;
 pub use file::UpdateFileBuilder;
 pub use generate::GenerateRepositoryBuilder;
@@ -299,6 +301,17 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_tags(&self) -> ListTagsBuilder<'_, '_> {
         ListTagsBuilder::new(self)
+    }
+
+    /// List commits from a repository
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let commits = octocrab::instance().repos("owner", "repo").list_commits().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
+        ListCommitsBuilder::new(self)
     }
 
     /// List star_gazers from a repository.
