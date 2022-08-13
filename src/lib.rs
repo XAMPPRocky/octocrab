@@ -482,6 +482,21 @@ impl Octocrab {
             },
         }
     }
+
+    /// Similar to `installation`, but also eagerly caches the installation
+    /// token and returns the token. The returned token can be used to make
+    /// https git requests to e.g. clone repositories that the installation
+    /// has access to.
+    ///
+    /// See also https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation
+    pub async fn installation_and_token(
+        &self,
+        id: InstallationId,
+    ) -> Result<(Octocrab, SecretString)> {
+        let crab = self.installation(id);
+        let token = crab.request_installation_auth_token().await?;
+        Ok((crab, token))
+    }
 }
 
 /// # GitHub API Methods
