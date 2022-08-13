@@ -220,7 +220,9 @@ struct UpdateGist {
 
 #[derive(Debug, Default, Serialize)]
 pub struct UpdateGistFile {
+    #[serde(skip_serializing_if = "Option::is_none")]
     filename: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     content: Option<String>
 }
 
