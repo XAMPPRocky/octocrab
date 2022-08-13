@@ -299,6 +299,13 @@ impl OctocrabBuilder {
         self
     }
 
+    /// Authenticate as a Basic Auth
+    /// username and password
+    pub fn basic_auth(mut self, username: String, password: String) -> Self {
+        self.auth = Auth::Basic{ username, password };
+        self
+    }
+
     /// Set the base url for `Octocrab`.
     pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
         self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
@@ -318,6 +325,7 @@ impl OctocrabBuilder {
 
         let auth_state = match self.auth {
             Auth::None => AuthState::None,
+            Auth::Basic{ username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
                 hmap.append(
                     reqwest::header::AUTHORIZATION,
@@ -399,6 +407,13 @@ enum AuthState {
     /// No state, although Auth::PersonalToken may have caused
     /// an Authorization HTTP header to be set to provide authentication.
     None,
+    /// Basic Auth HTTP. (username:password)
+    BasicAuth {
+        /// The username
+        username: String,
+        /// The password
+        password: String,
+    },
     /// Github App authentication with the given app data
     App(AppAuth),
     /// Authentication via a Github App repo-specific installation
@@ -795,7 +810,8 @@ impl Octocrab {
                 )
                 .bearer_auth(app.generate_bearer_token()?)
                 .send()
-                .await;
+                .await
+                .and_then(|r| r.error_for_status());
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if retries < MAX_RETRIES {
@@ -824,6 +840,10 @@ impl Octocrab {
                     retry_request = Some(request.try_clone().unwrap());
                     request = request.bearer_auth(app.generate_bearer_token()?);
                 }
+                AuthState::BasicAuth { ref username, ref password } => {
+                    retry_request = Some(request.try_clone().unwrap());
+                    request = request.basic_auth(username, Some(password));
+                }
                 AuthState::Installation { ref token, .. } => {
                     retry_request = Some(request.try_clone().unwrap());
                     let token = if let Some(token) = token.get() {
@@ -835,7 +855,7 @@ impl Octocrab {
                 }
             };
 
-            let result = request.send().await;
+            let result = request.send().await.and_then(|r| r.error_for_status());
             if let Err(ref e) = result {
                 if let Some(StatusCode::UNAUTHORIZED) = e.status() {
                     if let AuthState::Installation { ref token, .. } = self.auth_state {

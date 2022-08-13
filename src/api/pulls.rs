@@ -239,6 +239,23 @@ impl<'octo> PullRequestHandler<'octo> {
         self.http_get(url, None::<&()>).await
     }
 
+    /// List all `FileDiff`s associated with the pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
+    /// # Ok(())
+    /// # }
+    pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
+        let url = format!(
+            "repos/{owner}/{repo}/pulls/{pr}/files",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        self.http_get(url, None::<&()>).await
+    }
+
     /// Creates a new `ListCommentsBuilder` that can be configured to list and
     /// filter `Comments` for a particular pull request. If no pull request is
     /// specified, lists comments for the whole repo.

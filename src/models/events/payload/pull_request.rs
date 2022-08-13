@@ -12,7 +12,7 @@ pub struct PullRequestEventPayload {
     /// The pull request this event corresponds to.
     pub pull_request: PullRequest,
     /// The changes to body or title if this event is of type [`PullRequestEventAction::Edited`].
-    pub changes: Option<PullRequestEventChangesFrom>,
+    pub changes: Option<PullRequestChanges>,
 }
 
 /// The action on a pull request this event corresponds to.
@@ -45,11 +45,10 @@ pub enum PullRequestEventAction {
 
 /// The change which occurred in an event of type [`PullRequestEventAction::Edited`].
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 #[non_exhaustive]
-pub enum PullRequestChanges {
-    Title(PullRequestEventChangesFrom),
-    Body(PullRequestEventChangesFrom),
+pub struct PullRequestChanges {
+    title: Option<PullRequestEventChangesFrom>,
+    body: Option<PullRequestEventChangesFrom>,
 }
 
 /// The previous value of the item (either the body or title) of a pull request which has changed. Only
@@ -104,9 +103,12 @@ mod test {
         let deserialized = serde_json::from_value::<PullRequestChanges>(json).unwrap();
         assert_eq!(
             deserialized,
-            PullRequestChanges::Title(PullRequestEventChangesFrom {
-                from: "test".to_owned()
-            })
+            PullRequestChanges {
+                title: Some(PullRequestEventChangesFrom {
+                    from: "test".to_owned()
+                }),
+                body: None,
+            },
         );
     }
 
@@ -120,9 +122,25 @@ mod test {
         let deserialized = serde_json::from_value::<PullRequestChanges>(json).unwrap();
         assert_eq!(
             deserialized,
-            PullRequestChanges::Body(PullRequestEventChangesFrom {
-                from: "test".to_owned()
-            })
+            PullRequestChanges {
+                title: None,
+                body: Some(PullRequestEventChangesFrom {
+                    from: "test".to_owned()
+                }),
+            },
+        );
+    }
+
+    #[test]
+    fn should_deserialize_empty_changes() {
+        let json = json!({});
+        let deserialized = serde_json::from_value::<PullRequestChanges>(json).unwrap();
+        assert_eq!(
+            deserialized,
+            PullRequestChanges {
+                title: None,
+                body: None,
+            },
         );
     }
 

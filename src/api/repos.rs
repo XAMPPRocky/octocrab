@@ -9,6 +9,7 @@ pub mod forks;
 mod generate;
 mod pulls;
 pub mod releases;
+mod stargazers;
 mod status;
 mod tags;
 
@@ -19,6 +20,7 @@ pub use file::UpdateFileBuilder;
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
+pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 
@@ -310,6 +312,17 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
         ListCommitsBuilder::new(self)
+    }
+
+    /// List star_gazers from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let stargazers = octocrab::instance().repos("owner", "repo").list_stargazers().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
+        ListStarGazersBuilder::new(self)
     }
 
     /// Creates a `ReleasesHandler` for the specified repository.
