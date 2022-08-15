@@ -1,9 +1,11 @@
 //! The Organization API.
 
+mod list_members;
 mod list_repos;
 
 use crate::Octocrab;
 
+pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
 
 /// A client to GitHub's organization API.
@@ -166,5 +168,21 @@ impl<'octo> OrgHandler<'octo> {
             .await?;
 
         Ok(res)
+    }
+
+    /// Lists members of the specified organization.
+    ///
+    /// # Notes
+    /// Only authorized users who belong to the organization can list its members.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let org_members = octocrab::instance().orgs("org").list_members().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_members(&self) -> list_members::ListOrgMembersBuilder {
+        list_members::ListOrgMembersBuilder::new(self)
     }
 }
