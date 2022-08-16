@@ -825,14 +825,15 @@ impl Octocrab {
                 )
                 .bearer_auth(app.generate_bearer_token()?)
                 .send()
-                .await
-                .and_then(|r| r.error_for_status());
-            if let Err(ref e) = result {
-                if let Some(StatusCode::UNAUTHORIZED) = e.status() {
-                    if retries < MAX_RETRIES {
-                        retries += 1;
-                        continue;
-                    }
+                .await;
+            let status = match &result {
+                Ok(v) => Some(v.status()),
+                Err(e) => e.status(),
+            };
+            if let Some(StatusCode::UNAUTHORIZED) = status {
+                if retries < MAX_RETRIES {
+                    retries += 1;
+                    continue;
                 }
             }
             let response = result.context(error::HttpSnafu)?;
@@ -870,18 +871,20 @@ impl Octocrab {
                 }
             };
 
-            let result = request.send().await.and_then(|r| r.error_for_status());
-            if let Err(ref e) = result {
-                if let Some(StatusCode::UNAUTHORIZED) = e.status() {
-                    if let AuthState::Installation { ref token, .. } = self.auth_state {
-                        token.clear();
-                    }
-                    if let Some(retry) = retry_request {
-                        if retries < MAX_RETRIES {
-                            retries += 1;
-                            request = retry;
-                            continue;
-                        }
+            let result = request.send().await;
+            let status = match &result {
+                Ok(v) => Some(v.status()),
+                Err(e) => e.status(),
+            };
+            if let Some(StatusCode::UNAUTHORIZED) = status {
+                if let AuthState::Installation { ref token, .. } = self.auth_state {
+                    token.clear();
+                }
+                if let Some(retry) = retry_request {
+                    if retries < MAX_RETRIES {
+                        retries += 1;
+                        request = retry;
+                        continue;
                     }
                 }
             }
