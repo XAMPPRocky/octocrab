@@ -41,6 +41,21 @@ tokio = { version = "1.17.0", default-features = false, features = ["macros", "r
 wiremock = "0.5.3"
 
 [features]
-default = ["reqwest/native-tls"]
-rustls = ["reqwest/rustls-tls"]
+default = ["default-tls"]
+rustls = ["rustls-tls"]   # Leagcy support (<=0.17.0)
+
+# Note: this doesn't enable the 'native-tls' feature, which adds specific
+# functionality for it.
+default-tls = ["reqwest/default-tls"]
+
+# Enables native-tls specific functionality not available by default.
+native-tls = ["reqwest/native-tls"]
+native-tls-alpn = ["reqwest/native-tls-alpn"]
+native-tls-vendored = ["reqwest/native-tls-vendored"]
+
+rustls-tls = ["reqwest/rustls-tls"]
+rustls-tls-manual-roots = ["reqwest/rustls-tls-manual-roots"]
+rustls-tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+rustls-tls-native-roots = ["reqwest/rustls-tls-native-roots"]
+
 stream = ["futures-core", "futures-util", "reqwest/stream"]
