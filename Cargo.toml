@@ -37,16 +37,16 @@ secrecy = "0.8.0"
 cfg-if = "1.0.0"
 
 [dev-dependencies]
-tokio = { version = "1.17.0", default-features = false, features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1.17.0", default-features = false, features = [
+    "macros",
+    "rt-multi-thread",
+    "time",
+] }
 wiremock = "0.5.3"
 
 [features]
-default = ["default-tls"]
-rustls = ["rustls-tls"]   # Leagcy support (<=0.17.0)
-
-# Note: this doesn't enable the 'native-tls' feature, which adds specific
-# functionality for it.
-default-tls = ["reqwest/default-tls"]
+default = ["native-tls"]
+rustls = ["rustls-tls"]  # Leagcy support (<=0.17.0)
 
 # Enables native-tls specific functionality not available by default.
 native-tls = ["reqwest/native-tls"]
