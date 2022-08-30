@@ -37,10 +37,25 @@ secrecy = "0.8.0"
 cfg-if = "1.0.0"
 
 [dev-dependencies]
-tokio = { version = "1.17.0", default-features = false, features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1.17.0", default-features = false, features = [
+    "macros",
+    "rt-multi-thread",
+    "time",
+] }
 wiremock = "0.5.3"
 
 [features]
-default = ["reqwest/native-tls"]
-rustls = ["reqwest/rustls-tls"]
+default = ["native-tls"]
+rustls = ["rustls-tls"]  # Leagcy support (<=0.17.0)
+
+# Enables native-tls specific functionality not available by default.
+native-tls = ["reqwest/native-tls"]
+native-tls-alpn = ["reqwest/native-tls-alpn"]
+native-tls-vendored = ["reqwest/native-tls-vendored"]
+
+rustls-tls = ["reqwest/rustls-tls"]
+rustls-tls-manual-roots = ["reqwest/rustls-tls-manual-roots"]
+rustls-tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+rustls-tls-native-roots = ["reqwest/rustls-tls-native-roots"]
+
 stream = ["futures-core", "futures-util", "reqwest/stream"]
