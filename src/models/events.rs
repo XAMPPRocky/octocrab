@@ -3,8 +3,8 @@ pub mod payload;
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
-    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PushEventPayload,
-    WorkflowRunEventPayload,
+    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PullRequestReviewEventPayload,
+    PushEventPayload, WorkflowRunEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -81,6 +81,7 @@ event_type! {
     (GollumEvent, GollumEventPayload),
     (MemberEvent, MemberEventPayload),
     (PullRequestEvent, PullRequestEventPayload),
+    (PullRequestReviewEvent, PullRequestReviewEventPayload),
     (PullRequestReviewCommentEvent, PullRequestReviewCommentEventPayload),
     (WorkflowRunEvent, WorkflowRunEventPayload)
 }
