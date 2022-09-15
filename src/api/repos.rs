@@ -2,6 +2,7 @@
 
 use reqwest::header::ACCEPT;
 
+mod branches;
 mod commits;
 pub mod events;
 mod file;
@@ -23,6 +24,7 @@ pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
+pub use branches::ListBranchesBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -301,6 +303,21 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_tags(&self) -> ListTagsBuilder<'_, '_> {
         ListTagsBuilder::new(self)
+    }
+
+    /// List branches from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let branches = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .list_branches()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_branches(&self) -> ListBranchesBuilder<'_, '_> {
+        ListBranchesBuilder::new(self)
     }
 
     /// List commits from a repository
