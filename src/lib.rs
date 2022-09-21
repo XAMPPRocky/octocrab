@@ -172,7 +172,7 @@ use models::{AppId, InstallationId, InstallationToken};
 pub use self::{
     api::{
         actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
-        orgs, pulls, repos, search, teams, workflows, ratelimit,
+        orgs, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -302,7 +302,7 @@ impl OctocrabBuilder {
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.auth = Auth::Basic{ username, password };
+        self.auth = Auth::Basic { username, password };
         self
     }
 
@@ -325,7 +325,7 @@ impl OctocrabBuilder {
 
         let auth_state = match self.auth {
             Auth::None => AuthState::None,
-            Auth::Basic{ username, password } => AuthState::BasicAuth { username, password },
+            Auth::Basic { username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
                 hmap.append(
                     reqwest::header::AUTHORIZATION,
@@ -856,7 +856,10 @@ impl Octocrab {
                     retry_request = Some(request.try_clone().unwrap());
                     request = request.bearer_auth(app.generate_bearer_token()?);
                 }
-                AuthState::BasicAuth { ref username, ref password } => {
+                AuthState::BasicAuth {
+                    ref username,
+                    ref password,
+                } => {
                     retry_request = Some(request.try_clone().unwrap());
                     request = request.basic_auth(username, Some(password));
                 }

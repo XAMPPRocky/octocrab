@@ -32,7 +32,7 @@ pub enum Auth {
     /// No authentication
     None,
     // Basic HTTP authentication (username:password)
-    Basic{
+    Basic {
         /// Username
         username: String,
         /// Password

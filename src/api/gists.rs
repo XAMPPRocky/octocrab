@@ -4,8 +4,11 @@ mod list_commits;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
-use crate::{models::gists::{Gist, GistRevision}, Octocrab, Result};
 pub use self::list_commits::ListCommitsBuilder;
+use crate::{
+    models::gists::{Gist, GistRevision},
+    Octocrab, Result,
+};
 
 /// Handler for GitHub's gist API.
 ///
@@ -59,7 +62,7 @@ impl<'octo> GistsHandler<'octo> {
     /// # }
     /// ```
     pub fn update(&self, id: impl AsRef<str>) -> UpdateGistBuilder<'octo> {
-        UpdateGistBuilder::new(self.crab, format!("gists/{id}", id=id.as_ref()))
+        UpdateGistBuilder::new(self.crab, format!("gists/{id}", id = id.as_ref()))
     }
 
     /// Get a single gist.
@@ -74,7 +77,7 @@ impl<'octo> GistsHandler<'octo> {
         let id = id.as_ref();
         self.crab.get(format!("/gists/{}", id), None::<&()>).await
     }
-    
+
     /// Get a single gist revision.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -85,10 +88,16 @@ impl<'octo> GistsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_revision(&self, id: impl AsRef<str>, sha1: impl AsRef<str>) -> Result<GistRevision> {
+    pub async fn get_revision(
+        &self,
+        id: impl AsRef<str>,
+        sha1: impl AsRef<str>,
+    ) -> Result<GistRevision> {
         let id = id.as_ref();
         let sha1 = sha1.as_ref();
-        self.crab.get(format!("/gists/{}/{}", id, sha1), None::<&()>).await
+        self.crab
+            .get(format!("/gists/{}/{}", id, sha1), None::<&()>)
+            .await
     }
 
     /// List commits for the specified gist.
@@ -113,8 +122,6 @@ impl<'octo> GistsHandler<'octo> {
     pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
         list_commits::ListCommitsBuilder::new(self, gist_id.into())
     }
-
-
 }
 
 #[derive(Debug)]
@@ -179,7 +186,7 @@ struct CreateGistFile {
 pub struct UpdateGistBuilder<'octo> {
     crab: &'octo Octocrab,
     gist_path: String,
-    data: UpdateGist
+    data: UpdateGist,
 }
 
 impl<'octo> UpdateGistBuilder<'octo> {
@@ -187,7 +194,7 @@ impl<'octo> UpdateGistBuilder<'octo> {
         Self {
             crab,
             gist_path,
-            data: Default::default()
+            data: Default::default(),
         }
     }
 
@@ -197,7 +204,7 @@ impl<'octo> UpdateGistBuilder<'octo> {
         self
     }
 
-    /// Update the file with the `filename`. 
+    /// Update the file with the `filename`.
     ///
     /// The update operation is chosen in further calls to the returned builder.
     pub fn file(self, filename: impl Into<String>) -> UpdateGistFileBuilder<'octo> {
@@ -215,7 +222,7 @@ struct UpdateGist {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    files: Option<BTreeMap<String, Option<UpdateGistFile>>>
+    files: Option<BTreeMap<String, Option<UpdateGistFile>>>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -223,14 +230,14 @@ pub struct UpdateGistFile {
     #[serde(skip_serializing_if = "Option::is_none")]
     filename: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    content: Option<String>
+    content: Option<String>,
 }
 
 pub struct UpdateGistFileBuilder<'octo> {
     builder: UpdateGistBuilder<'octo>,
     filename: String,
     file: Option<UpdateGistFile>,
-    ready: bool
+    ready: bool,
 }
 
 impl<'octo> UpdateGistFileBuilder<'octo> {
@@ -239,13 +246,17 @@ impl<'octo> UpdateGistFileBuilder<'octo> {
             builder,
             filename: filename.into(),
             file: None,
-            ready: false
+            ready: false,
         }
     }
 
     fn build(mut self) -> UpdateGistBuilder<'octo> {
         if self.ready {
-            self.builder.data.files.get_or_insert_with(BTreeMap::new).insert(self.filename, self.file);
+            self.builder
+                .data
+                .files
+                .get_or_insert_with(BTreeMap::new)
+                .insert(self.filename, self.file);
         }
         self.builder
     }
@@ -286,7 +297,7 @@ impl<'octo> UpdateGistFileBuilder<'octo> {
     }
 
     /// Send the `UpdateGist` command to Github for execution.
-    /// 
+    ///
     /// This will finalize the update operation before sending.
     pub async fn send(self) -> Result<Gist> {
         self.build().send().await

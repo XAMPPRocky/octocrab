@@ -41,7 +41,31 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
             repo = self.handler.repo,
             path = path,
         );
-        self.handler.crab.get(url, Some(&self)).await
+        let contents = self.handler.crab.get(url, Some(&self)).await;
+        if contents.is_err() {
+            return contents;
+        }
+        let mut final_content: Vec<models::repos::Content> = Vec::new();
+        if let Ok(content_results) = contents {
+            for content in content_results.items {
+                if content.content.is_none() && content.download_url.is_some() {
+                    if let Some(download_url) = content.download_url {
+                        let new_contents: Result<models::repos::ContentItems> =
+                            self.handler.crab.get(download_url, Some(&self)).await;
+                        if let Ok(large_contents) = new_contents {
+                            final_content.extend(large_contents.items);
+                        } else {
+                            return new_contents;
+                        }
+                    }
+                } else {
+                    final_content.push(content);
+                }
+            }
+        }
+        Ok(models::repos::ContentItems {
+            items: final_content,
+        })
     }
 }
 

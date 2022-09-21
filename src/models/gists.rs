@@ -39,16 +39,15 @@ pub struct GistCommit {
     pub version: String,
     pub committed_at: DateTime<Utc>,
     pub change_status: GistChangeStatus,
-    pub url: Url
+    pub url: Url,
 }
-
 
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct GistChangeStatus {
     pub total: Option<u64>,
     pub additions: Option<u64>,
-    pub deletions: Option<u64>
+    pub deletions: Option<u64>,
 }
 
 #[non_exhaustive]
