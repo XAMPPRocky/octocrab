@@ -52,24 +52,3 @@ impl<'octo, 'r> ListBranchesBuilder<'octo, 'r> {
         self.handler.crab.get(url, Some(&self)).await
     }
 }
-
-#[cfg(test)]
-#[tokio::test]
-async fn test() {
-    let octocrab = crate::instance();
-    let branches = octocrab
-        .repos("rust-lang", "rust")
-        .list_branches()
-        .send()
-        .await
-        .unwrap();
-    let master_branch = crate::models::repos::Branch {
-        name: "master".to_string(),
-        commit: crate::models::repos::CommitObject {
-            sha: "35a0407814a6b5a04f0929105631e9c69e293e9d".to_string(),
-            url: url::Url::parse("https://api.github.com/repos/rust-lang/rust/commits/35a0407814a6b5a04f0929105631e9c69e293e9d").unwrap(),
-        },
-        protected: true,
-    };
-    assert!(branches.items.contains(&master_branch));
-}
