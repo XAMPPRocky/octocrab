@@ -240,6 +240,15 @@ pub struct ContentLinks {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
+pub struct Branch {
+    pub name: String,
+    pub commit: CommitObject,
+    pub protected: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct Tag {
     pub name: String,
     pub commit: CommitObject,
