@@ -7,6 +7,7 @@ mod issue_comment;
 mod issues;
 mod member;
 mod pull_request;
+mod pull_request_review;
 mod pull_request_review_comment;
 mod push;
 mod workflow_run;
@@ -21,9 +22,11 @@ pub use issue_comment::*;
 pub use issues::*;
 pub use member::*;
 pub use pull_request::*;
+pub use pull_request_review::*;
 pub use pull_request_review_comment::*;
 pub use push::*;
 pub use workflow_run::*;
+
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
@@ -46,6 +49,7 @@ pub enum EventPayload {
     GollumEvent(Box<GollumEventPayload>),
     MemberEvent(Box<MemberEventPayload>),
     PullRequestEvent(Box<PullRequestEventPayload>),
+    PullRequestReviewEvent(Box<PullRequestReviewEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
     WorkflowRunEvent(Box<WorkflowRunEventPayload>),
     UnknownEvent(Box<serde_json::Value>),
