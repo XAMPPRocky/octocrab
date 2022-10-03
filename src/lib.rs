@@ -336,6 +336,15 @@ impl OctocrabBuilder {
                 AuthState::None
             }
             Auth::App(app_auth) => AuthState::App(app_auth),
+            Auth::OAuth(device) => {
+                hmap.append(
+                    reqwest::header::AUTHORIZATION,
+                    (device.token_type + " " + &device.access_token.expose_secret())
+                        .parse()
+                        .unwrap(),
+                );
+                AuthState::None
+            }
         };
 
         for (key, value) in self.extra_headers.into_iter() {
