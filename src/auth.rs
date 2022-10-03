@@ -91,17 +91,17 @@ impl AppAuth {
     }
 }
 
+/// The data necessary to authenticate as a github OAtuh app.
 #[derive(Clone, Deserialize)]
 #[serde(from = "OAuthWire")]
-/// The data necessary to authenticate as a github OAtuh app.
 pub struct OAuth {
     pub access_token: SecretString,
     pub token_type: String,
     pub scope: Vec<String>,
 }
 
-#[derive(Deserialize)]
 /// The wire format of the OAuth struct.
+#[derive(Deserialize)]
 struct OAuthWire {
     access_token: String,
     token_type: String,
@@ -118,6 +118,9 @@ impl From<OAuthWire> for OAuth {
     }
 }
 
+/// Authenticate with Github's device flow. This starts the process to obtain a new `OAuth`.
+///
+/// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow for details.
 pub async fn authenticate_as_device<I, S>(client_id: SecretString, scope: I) -> Result<DeviceCodes>
 where
     I: IntoIterator<Item = S>,
@@ -149,6 +152,8 @@ where
     Ok(r)
 }
 
+/// The device codes as returned from step 1 of Github's device flow.
+///
 /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters
 #[derive(Deserialize, Clone)]
 pub struct DeviceCodes {
