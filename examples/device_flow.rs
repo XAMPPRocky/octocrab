@@ -1,13 +1,18 @@
+use either::Either;
+use reqwest::header::ACCEPT;
 use std::time::Duration;
-const CLIENT_ID: &'static str = "********************";
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
-    let codes = octocrab::auth::authenticate_as_device(
-        secrecy::Secret::from(String::from(CLIENT_ID)),
-        ["public_repo", "read:org"],
-    )
-    .await?;
+    let client_id = secrecy::Secret::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
+    let crab = octocrab::Octocrab::builder()
+        .base_url("https://github.com")?
+        .add_header(ACCEPT, "application/json".to_string())
+        .build()?;
+
+    let codes = crab
+        .authenticate_as_device(&client_id, ["public_repo", "read:org"])
+        .await?;
     println!(
         "Go to {} and enter code {}",
         codes.verification_uri, codes.user_code
@@ -16,9 +21,9 @@ async fn main() -> octocrab::Result<()> {
     let mut clock = tokio::time::interval(interval);
     let auth = loop {
         clock.tick().await;
-        match codes.poll_once().await? {
-            Ok(auth) => break auth,
-            Err(cont) => match cont {
+        match codes.poll_once(&crab, &client_id).await? {
+            Either::Left(auth) => break auth,
+            Either::Right(cont) => match cont {
                 octocrab::auth::Continue::SlowDown => {
                     // We were request to slow down. We add five seconds to the polling
                     // duration.

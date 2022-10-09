@@ -2,8 +2,8 @@
 
 use crate::models::AppId;
 use crate::Result;
+use either::Either;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
-use reqwest::header::ACCEPT;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -118,38 +118,52 @@ impl From<OAuthWire> for OAuth {
     }
 }
 
-/// Authenticate with Github's device flow. This starts the process to obtain a new `OAuth`.
-///
-/// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow for details.
-pub async fn authenticate_as_device<I, S>(client_id: SecretString, scope: I) -> Result<DeviceCodes>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<str>,
-{
-    let crab = crate::OctocrabBuilder::new()
-        .base_url("https://github.com")?
-        .add_header(ACCEPT, "application/json".to_string())
-        .build()?;
-    let scope = {
-        let mut scopes = scope.into_iter();
-        let first = scopes
-            .next()
-            .map(|s| s.as_ref().to_string())
-            .unwrap_or_default();
-        scopes.fold(first, |i: String, n| i + "," + n.as_ref())
-    };
-    let mut r: DeviceCodes = crab
-        .post(
-            "login/device/code",
-            Some(&DeviceFlow {
-                client_id: client_id.expose_secret(),
-                scope: &scope,
-            }),
-        )
-        .await?;
-    r.crab = crab;
-    r.client_id = Some(client_id);
-    Ok(r)
+impl crate::Octocrab {
+    /// Authenticate with Github's device flow. This starts the process to obtain a new `OAuth`.
+    ///
+    /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow for details.
+    ///
+    /// Note: To authenticate against public Github, the `Octocrab` that calls this method
+    /// *must* be constructed with `base_url: "https://github.com"` and extra header
+    /// "ACCEPT: application/json". For example:
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # use reqwest::header::ACCEPT;
+    /// let crab = octocrab::Octocrab::builder()
+    /// .base_url("https://github.com")?
+    /// .add_header(ACCEPT, "application/json".to_string())
+    /// .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn authenticate_as_device<I, S>(
+        &self,
+        client_id: &SecretString,
+        scope: I,
+    ) -> Result<DeviceCodes>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let scope = {
+            let mut scopes = scope.into_iter();
+            let first = scopes
+                .next()
+                .map(|s| s.as_ref().to_string())
+                .unwrap_or_default();
+            scopes.fold(first, |i: String, n| i + "," + n.as_ref())
+        };
+        let codes: DeviceCodes = self
+            .post(
+                "login/device/code",
+                Some(&DeviceFlow {
+                    client_id: client_id.expose_secret(),
+                    scope: &scope,
+                }),
+            )
+            .await?;
+        Ok(codes)
+    }
 }
 
 /// The device codes as returned from step 1 of Github's device flow.
@@ -173,39 +187,30 @@ pub struct DeviceCodes {
     /// new request until 5 seconds pass. If you make more than one request over 5
     /// seconds, then you will hit the rate limit and receive a slow_down error.
     pub interval: u64,
-
-    // Used to poll for the device codes.
-    #[serde(skip)]
-    crab: crate::Octocrab,
-
-    // Used for polling the device. This should be filled in as soon as possible.
-    #[serde(skip)]
-    client_id: Option<SecretString>,
 }
 
 impl DeviceCodes {
     /// Poll Github to see if authentication codes are available.
     ///
     /// See `https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters` for details.
-    pub async fn poll_once(&self) -> Result<Result<OAuth, Continue>> {
-        let poll: TokenResponse = self
-            .crab
+    pub async fn poll_once(
+        &self,
+        crab: &crate::Octocrab,
+        client_id: &SecretString,
+    ) -> Result<Either<OAuth, Continue>> {
+        let poll: TokenResponse = crab
             .post(
                 "login/oauth/access_token",
                 Some(&PollForDevice {
-                    client_id: &self
-                        .client_id
-                        .as_ref()
-                        .expect("should have been equipped shortly after creation")
-                        .expose_secret(),
+                    client_id: client_id.expose_secret(),
                     device_code: &self.device_code,
                     grant_type: "urn:ietf:params:oauth:grant-type:device_code",
                 }),
             )
             .await?;
         Ok(match poll {
-            TokenResponse::Ok(k) => Ok(k),
-            TokenResponse::Contine { error } => Err(error),
+            TokenResponse::Ok(k) => Either::Left(k),
+            TokenResponse::Contine { error } => Either::Right(error),
         })
     }
 }
