@@ -170,6 +170,7 @@ impl crate::Octocrab {
 ///
 /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters
 #[derive(Deserialize, Clone)]
+#[non_exhaustive]
 pub struct DeviceCodes {
     /// The device verification code is 40 characters and used to verify the device.
     pub device_code: String,
