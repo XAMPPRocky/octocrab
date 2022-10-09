@@ -44,7 +44,7 @@ Currently, the following modules are available.
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
 [`graphql`]: https://docs.rs/octocrab/latest/octocrab/struct.Octocrab.html#graphql-api
-[`markdown`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.MarkdownHandler.html
+[`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
 [`issues`]: https://docs.rs/octocrab/latest/octocrab/issues/struct.IssueHandler.html
 [`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
