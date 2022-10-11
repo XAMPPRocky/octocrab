@@ -168,7 +168,8 @@ impl<'octo> ActionsHandler<'octo> {
             repository_id = repository_id,
         );
 
-        crate::map_github_error(self.crab._put(&route, None::<&()>).await?)
+        let url = self.crab.absolute_url(route)?;
+        crate::map_github_error(self.crab._put(url, None::<&()>).await?)
             .await
             .map(drop)
     }
@@ -200,7 +201,8 @@ impl<'octo> ActionsHandler<'octo> {
             repository_id = repository_id,
         );
 
-        crate::map_github_error(self.crab._delete(&route, None::<&()>).await?)
+        let url = self.crab.absolute_url(route)?;
+        crate::map_github_error(self.crab._delete(url, None::<&()>).await?)
             .await
             .map(drop)
     }
@@ -230,7 +232,8 @@ impl<'octo> ActionsHandler<'octo> {
             run_id = run_id,
         );
 
-        crate::map_github_error(self.crab._post(&route, None::<&()>).await?)
+        let url = self.crab.absolute_url(route)?;
+        crate::map_github_error(self.crab._post(url, None::<&()>).await?)
             .await
             .map(drop)
     }
@@ -344,7 +347,8 @@ impl<'octo> ActionsHandler<'octo> {
             run_id = run_id,
         );
 
-        crate::map_github_error(self.crab._delete(&route, None::<&()>).await?)
+        let url = self.crab.absolute_url(route)?;
+        crate::map_github_error(self.crab._delete(url, None::<&()>).await?)
             .await
             .map(drop)
     }
