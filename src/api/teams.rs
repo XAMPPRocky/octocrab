@@ -154,7 +154,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// octocrab::instance()
     ///     .teams("owner")
-    ///     .members("parent-team")
+    ///     .members("team-name-here")
     ///     .per_page(5)
     ///     .page(1u8)
     ///     .send()
