@@ -12,7 +12,7 @@ pub struct Issue {
     pub events_url: Url,
     pub html_url: Url,
     pub number: i64,
-    pub state: String,
+    pub state: IssueState,
     pub title: String,
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
