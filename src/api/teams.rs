@@ -5,10 +5,11 @@ mod create;
 mod edit;
 mod list;
 mod team_repos;
+mod members;
 
 pub use self::{
     children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    list::ListTeamsBuilder, team_repos::TeamRepoHandler,
+    list::ListTeamsBuilder, team_repos::TeamRepoHandler, members::ListTeamMembersBuilder
 };
 
 use crate::{models, Octocrab, Result};
@@ -145,5 +146,23 @@ impl<'octo> TeamHandler<'octo> {
     /// that allows you to manage this team's repositories.
     pub fn repos(&self, team_slug: impl Into<String>) -> TeamRepoHandler {
         TeamRepoHandler::new(self.crab, self.owner.clone(), team_slug.into())
+    }
+
+    /// List the members of a team in the organization.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab::instance()
+    ///     .teams("owner")
+    ///     .members("parent-team")
+    ///     .per_page(5)
+    ///     .page(1u8)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn members(&self, team_slug: impl Into<String>) -> ListTeamMembersBuilder {
+        ListTeamMembersBuilder::new(self, team_slug.into())
     }
 }
