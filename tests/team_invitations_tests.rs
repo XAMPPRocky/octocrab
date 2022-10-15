@@ -1,8 +1,8 @@
-// Tests for calls to the /orgs/{org}/teams/{team}/members API.
+// Tests for calls to the /orgs/{org}/teams/{team}/invitations API.
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::{User}, Octocrab, Page};
+use octocrab::{models::{teams::TeamInvitation}, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
@@ -20,13 +20,13 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/orgs/{}/teams/{}/members", org, team)))
+        .and(path(format!("/orgs/{}/teams/{}/invitations", org, team)))
         .respond_with(template)
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /orgs/{}/teams/{}/members was not received", org, team),
+        &format!("GET on /orgs/{}/teams/{}/invitations was not received", org, team),
     )
     .await;
     mock_server
@@ -40,18 +40,18 @@ const ORG: &str = "org";
 const TEAM: &str = "team-name";
 
 #[tokio::test]
-async fn should_return_page_with_users() {
-    let team_members: User =
-        serde_json::from_str(include_str!("resources/team_members.json")).unwrap();
+async fn should_return_page_with_invitations() {
+    let team_invitations: TeamInvitation =
+        serde_json::from_str(include_str!("resources/team_invitations.json")).unwrap();
     let page_response = FakePage {
-        items: vec![team_members],
+        items: vec![team_invitations],
     };
     let template = ResponseTemplate::new(200).set_body_json(&page_response);
     let mock_server = setup_api(template).await;
     let client = setup_octocrab(&mock_server.uri());
     let teams = client.teams(ORG.to_owned());
 
-    let result = teams.members(TEAM.to_owned()).send().await;
+    let result = teams.invitations(TEAM.to_owned()).send().await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -60,8 +60,9 @@ async fn should_return_page_with_users() {
     match result.unwrap() {
         Page { items, .. } => {
             assert_eq!(items.len(), 1);
-            assert_eq!(items[0].login, String::from("octocat"));
-            assert_eq!(items[0].r#type, String::from("User"));
+            assert_eq!(items[0].login.clone().unwrap(), String::from("monalisa"));
+            assert_eq!(items[0].inviter.r#type, String::from("User"));
+            assert_eq!(items[0].role, String::from("direct_member"));
         }
     }
 }
