@@ -117,7 +117,8 @@ id_type!(
     ThreadId,
     UserId,
     UserOrOrgId,
-    WorkflowId
+    WorkflowId,
+    TeamInvitationId
 );
 
 macro_rules! convert_into {
