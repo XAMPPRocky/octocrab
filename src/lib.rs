@@ -302,7 +302,13 @@ impl OctocrabBuilder {
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.auth = Auth::Basic{ username, password };
+        self.auth = Auth::Basic { username, password };
+        self
+    }
+
+    /// Authenticate with an OAuth token.
+    pub fn oauth(mut self, oauth: auth::OAuth) -> Self {
+        self.auth = Auth::OAuth(oauth);
         self
     }
 
