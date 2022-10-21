@@ -1,6 +1,5 @@
 use std::slice::Iter;
 
-use regex::Regex;
 use snafu::{GenerateImplicitData, ResultExt};
 use url::Url;
 
@@ -210,12 +209,6 @@ struct HeaderLinks {
     last: Option<Url>,
 }
 
-use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref LINKS_EXTRACTOR_REGEX: Regex = Regex::new(r#"(?:<(.*?)>; rel="(.*?)",*)*"#).unwrap();
-}
-
 fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks> {
     let mut first = None;
     let mut prev = None;
@@ -227,18 +220,33 @@ fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks>
             source: Box::new(err),
             backtrace: snafu::Backtrace::generate(),
         })?;
-        for caps in LINKS_EXTRACTOR_REGEX.captures_iter(links) {
-            let url = caps.get(1).expect("url to be present").as_str();
-            let rel = caps.get(2).expect("rel to be present").as_str();
-            match rel {
-                "first" => first = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                "prev" => prev = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                "next" => next = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                "last" => last = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                other => print!(
-                    "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
-                    other
-                ),
+
+        for url_with_params in links.split(",") {
+            let mut url_and_params = url_with_params.split(";");
+            let url = url_and_params
+                .next()
+                .expect("url to be present")
+                .trim()
+                .trim_start_matches('<')
+                .trim_end_matches('>');
+
+            for param in url_and_params {
+                if let Some((name, value)) = param.trim().split_once("=") {
+                    let value = value.trim_matches('\"');
+
+                    if name == "rel" {
+                        match value {
+                            "first" => first = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "prev" => prev = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "next" => next = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "last" => last = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            other => print!(
+                                "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
+                                other
+                            ),
+                        }
+                    }
+                }
             }
         }
     }
