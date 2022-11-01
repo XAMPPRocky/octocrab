@@ -47,8 +47,8 @@ pub enum PullRequestEventAction {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PullRequestChanges {
-    title: Option<PullRequestEventChangesFrom>,
-    body: Option<PullRequestEventChangesFrom>,
+    pub title: Option<PullRequestEventChangesFrom>,
+    pub body: Option<PullRequestEventChangesFrom>,
 }
 
 /// The previous value of the item (either the body or title) of a pull request which has changed. Only
