@@ -279,6 +279,7 @@ pub struct OctocrabBuilder {
     extra_headers: Vec<(HeaderName, String)>,
     base_url: Option<Url>,
     retry_predicate: Option<RetryPredicate>,
+    connection_verbose: bool,
 }
 
 impl OctocrabBuilder {
@@ -336,6 +337,17 @@ impl OctocrabBuilder {
         self
     }
 
+    /// Set whether connections should emit verbose logs.
+    ///
+    /// Enabling this option will emit [log][] messages at the `TRACE` level
+    /// for read and write operations on connections.
+    ///
+    /// [log]: https://crates.io/crates/log
+    pub fn connection_verbose(mut self, verbose: bool) -> Self {
+        self.connection_verbose = verbose;
+        self
+    }
+
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
         let mut hmap = reqwest::header::HeaderMap::new();
@@ -378,6 +390,7 @@ impl OctocrabBuilder {
         let client = reqwest::Client::builder()
             .user_agent("octocrab")
             .default_headers(hmap)
+            .connection_verbose(self.connection_verbose)
             .build()
             .context(crate::error::HttpSnafu)?;
 
