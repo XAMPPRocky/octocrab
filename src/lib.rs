@@ -302,7 +302,13 @@ impl OctocrabBuilder {
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.auth = Auth::Basic{ username, password };
+        self.auth = Auth::Basic { username, password };
+        self
+    }
+
+    /// Authenticate with an OAuth token.
+    pub fn oauth(mut self, oauth: auth::OAuth) -> Self {
+        self.auth = Auth::OAuth(oauth);
         self
     }
 
@@ -336,6 +342,15 @@ impl OctocrabBuilder {
                 AuthState::None
             }
             Auth::App(app_auth) => AuthState::App(app_auth),
+            Auth::OAuth(device) => {
+                hmap.append(
+                    reqwest::header::AUTHORIZATION,
+                    (device.token_type + " " + &device.access_token.expose_secret())
+                        .parse()
+                        .unwrap(),
+                );
+                AuthState::None
+            }
         };
 
         for (key, value) in self.extra_headers.into_iter() {
