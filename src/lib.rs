@@ -698,8 +698,6 @@ impl Octocrab {
         P: Serialize + ?Sized,
         R: FromResponse,
     {
-        // let response = self._get(self.absolute_url(route)?, parameters).await?;
-        // R::from_response(crate::map_github_error(response).await?).await
         self.get_with_headers(route, parameters, None).await
     }
 
