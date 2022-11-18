@@ -322,6 +322,13 @@ pub struct User {
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct StarGazer {
+    pub starred_at: Option<DateTime<Utc>>,
+    pub user: User,
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Label {
     pub id: LabelId,
     pub node_id: String,

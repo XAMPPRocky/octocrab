@@ -698,8 +698,9 @@ impl Octocrab {
         P: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._get(self.absolute_url(route)?, parameters).await?;
-        R::from_response(crate::map_github_error(response).await?).await
+        // let response = self._get(self.absolute_url(route)?, parameters).await?;
+        // R::from_response(crate::map_github_error(response).await?).await
+        self.get_with_headers(route, parameters, None).await
     }
 
     /// Send a `GET` request with no additional post-processing.
@@ -708,14 +709,48 @@ impl Octocrab {
         url: impl reqwest::IntoUrl,
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
+        // let mut request = self.client.get(url);
+
+        // if let Some(parameters) = parameters {
+        //     request = request.query(parameters);
+        // }
+
+        // self.execute(request).await
+        self._get_with_headers(url, parameters, None).await
+    }
+    
+    /// Send a `GET` request to `route` with optional query parameters and headers, returning
+    /// the body of the response.
+    pub async fn get_with_headers<R, A, P>(&self, route: A, parameters: Option<&P>, headers: Option<reqwest::header::HeaderMap>) -> Result<R>
+    where
+        A: AsRef<str>,
+        P: Serialize + ?Sized,
+        R: FromResponse,
+    {
+        let response = self._get_with_headers(self.absolute_url(route)?, parameters, headers).await?;
+        R::from_response(crate::map_github_error(response).await?).await
+    }
+
+    /// Send a `GET` request including option to set headers, with no additional post-processing.
+    pub async fn _get_with_headers<P: Serialize + ?Sized>(
+        &self,
+        url: impl reqwest::IntoUrl,
+        parameters: Option<&P>,
+        headers: Option<reqwest::header::HeaderMap>
+    ) -> Result<reqwest::Response> {
         let mut request = self.client.get(url);
 
         if let Some(parameters) = parameters {
             request = request.query(parameters);
         }
+        
+        if let Some(headers) = headers {
+            request = request.headers(headers)
+        }
 
         self.execute(request).await
     }
+
 
     /// Send a `PATCH` request to `route` with optional query parameters,
     /// returning the body of the response.
