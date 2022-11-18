@@ -707,13 +707,6 @@ impl Octocrab {
         url: impl reqwest::IntoUrl,
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
-        // let mut request = self.client.get(url);
-
-        // if let Some(parameters) = parameters {
-        //     request = request.query(parameters);
-        // }
-
-        // self.execute(request).await
         self._get_with_headers(url, parameters, None).await
     }
     
