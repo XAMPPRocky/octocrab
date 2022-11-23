@@ -13,7 +13,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 
 #### Cargo.toml
 ```toml
-octocrab = "0.16"
+octocrab = "0.17"
 ```
 
 ## Semantic API
@@ -37,27 +37,27 @@ Currently, the following modules are available.
 - [`search`] GitHub's search API.
 - [`teams`] Teams.
 
-[`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
-[`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
-[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
-[`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
-[`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
-[`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
-[`graphql`]: https://docs.rs/octocrab/latest/octocrab/struct.Octocrab.html#graphql-api
-[`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/latest/octocrab/issues/struct.IssueHandler.html
-[`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
-[`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
-[`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
-[`releases`]: https://docs.rs/octocrab/0.8.1/octocrab/repos/struct.ReleasesHandler.html
-[`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
-[`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
+[`models`]: https://docs.rs/octocrab/0.17/octocrab/models/index.html
+[`auth`]: https://docs.rs/octocrab/0.17/octocrab/auth/index.html
+[`apps`]: https://docs.rs/octocrab/0.17/octocrab/apps/index.html
+[`actions`]: https://docs.rs/octocrab/0.17/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/0.17/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/0.17/octocrab/gitignore/struct.GitignoreHandler.html
+[`graphql`]: https://docs.rs/octocrab/0.17/octocrab/struct.Octocrab.html#graphql-api
+[`markdown`]: https://docs.rs/octocrab/0.17/octocrab/markdown/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/0.17/octocrab/issues/struct.IssueHandler.html
+[`licenses`]: https://docs.rs/octocrab/0.17/octocrab/licenses/struct.LicenseHandler.html
+[`pulls`]: https://docs.rs/octocrab/0.17/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/0.17/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/0.17/octocrab/repos/struct.RepoHandler.html
+[`releases`]: https://docs.rs/octocrab/0.17/octocrab/repos/struct.ReleasesHandler.html
+[`search`]: https://docs.rs/octocrab/0.17/octocrab/search/struct.SearchHandler.html
+[`teams`]: https://docs.rs/octocrab/0.17/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
-// Get pull request #404 from `octocrab/repo`.
-let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
+// Get pull request #5 from `XAMPPRocky/octocrab`.
+let issue = octocrab::instance().pulls("XAMPPRocky", "octocrab").get(5).await?;
 ```
 
 All methods with multiple optional parameters are built as `Builder`
