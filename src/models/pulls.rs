@@ -201,6 +201,10 @@ pub struct Review {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub commit_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<ReviewState>,
