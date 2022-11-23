@@ -16,6 +16,7 @@ pub mod hooks;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;
+pub mod reactions;
 pub mod repos;
 pub mod teams;
 pub mod workflows;
@@ -108,6 +109,7 @@ id_type!(
     ProjectColumnId,
     PullRequestId,
     PushId,
+    ReactionId,
     ReleaseId,
     RepositoryId,
     ReviewId,
