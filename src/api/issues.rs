@@ -807,7 +807,10 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_comment_reactions(&self, comment_id: impl Into<CommentId>) -> ListCommentReactionsBuilder<'_, '_> {
+    pub fn list_comment_reactions(
+        &self,
+        comment_id: impl Into<CommentId>,
+    ) -> ListCommentReactionsBuilder<'_, '_> {
         ListCommentReactionsBuilder::new(self, comment_id.into())
     }
 }
@@ -970,7 +973,11 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn delete_reaction(&self, issue_number: u64, reaction_id: impl Into<ReactionId>) -> Result<()> {
+    pub async fn delete_reaction(
+        &self,
+        issue_number: u64,
+        reaction_id: impl Into<ReactionId>,
+    ) -> Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
             owner = self.owner,
