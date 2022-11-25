@@ -799,7 +799,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// let reactions = octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .list_comment_reactions(1.into())
+    ///     .list_comment_reactions(1)
     ///     .per_page(100)
     ///     .page(2u32)
     ///     .send()
@@ -807,8 +807,8 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_comment_reactions(&self, comment_id: CommentId) -> ListCommentReactionsBuilder<'_, '_> {
-        ListCommentReactionsBuilder::new(self, comment_id)
+    pub fn list_comment_reactions(&self, comment_id: impl Into<CommentId>) -> ListCommentReactionsBuilder<'_, '_> {
+        ListCommentReactionsBuilder::new(self, comment_id.into())
     }
 }
 
@@ -936,20 +936,21 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .create_comment_reaction(1.into(), octocrab::models::reactions::ReactionContent::PlusOne)
+    ///     .create_comment_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn create_comment_reaction(
         &self,
-        comment_id: CommentId,
+        comment_id: impl Into<CommentId>,
         content: models::reactions::ReactionContent,
     ) -> Result<models::reactions::Reaction> {
         let route = format!(
             "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions",
             owner = self.owner,
             repo = self.repo,
+            comment_id = comment_id.into(),
         );
 
         self.crab
@@ -964,16 +965,17 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .delete_reaction(1, 1.into())
+    ///     .delete_reaction(1, 1)
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn delete_reaction(&self, issue_number: u64, reaction_id: ReactionId) -> Result<()> {
+    pub async fn delete_reaction(&self, issue_number: u64, reaction_id: impl Into<ReactionId>) -> Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
             owner = self.owner,
             repo = self.repo,
+            reaction_id = reaction_id.into(),
         );
 
         self.crab.delete(route, None::<&()>).await
@@ -984,20 +986,22 @@ impl<'octo> IssueHandler<'octo> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .delete_comment_reaction(1.into(), 1.into())
+    ///     .delete_comment_reaction(1, 1)
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn delete_comment_reaction(
         &self,
-        comment_id: CommentId,
-        reaction_id: ReactionId,
+        comment_id: impl Into<CommentId>,
+        reaction_id: impl Into<ReactionId>,
     ) -> Result<()> {
         let route = format!(
             "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}",
             owner = self.owner,
             repo = self.repo,
+            comment_id = comment_id.into(),
+            reaction_id = reaction_id.into(),
         );
 
         self.crab.delete(route, None::<&()>).await
