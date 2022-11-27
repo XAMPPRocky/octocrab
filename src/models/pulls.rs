@@ -221,6 +221,7 @@ pub struct Review {
 #[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE"))]
 #[non_exhaustive]
 pub enum ReviewState {
+    Open,
     Approved,
     Pending,
     ChangesRequested,
@@ -282,6 +283,7 @@ impl<'de> Deserialize<'de> for ReviewState {
                 E: serde::de::Error,
             {
                 Ok(match value {
+                    "OPEN" | "open" => ReviewState::Open,
                     "APPROVED" | "approved" => ReviewState::Approved,
                     "PENDING" | "pending" => ReviewState::Pending,
                     "CHANGES_REQUESTED" | "changes_requested" => ReviewState::ChangesRequested,
