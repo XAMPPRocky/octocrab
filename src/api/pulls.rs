@@ -239,6 +239,36 @@ impl<'octo> PullRequestHandler<'octo> {
         self.http_get(url, None::<&()>).await
     }
 
+    /// Request a review from users or teams.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params;
+    /// let review = octocrab::instance().pulls("owner", "repo")
+    ///    .request_reviews(101, vec!["user1".to_string(), "user2".to_string()], vec!["team1".to_string(), "team2".to_string()])
+    ///  .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn request_reviews(
+        &self,
+        pr: u64,
+        reviewers: Vec<String>,
+        team_reviewers: Vec<String>,
+    ) -> crate::Result<crate::models::pulls::Review> {
+        let url = format!(
+            "repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        let mut map = serde_json::Map::new();
+        map.insert("reviewers".to_string(), reviewers.into());
+        map.insert("team_reviewers".to_string(), team_reviewers.into());
+
+        self.crab.post(url, Some(&map)).await
+    }
+
     /// List all `FileDiff`s associated with the pull request.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
