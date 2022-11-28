@@ -19,6 +19,7 @@ impl<T: serde::de::DeserializeOwned> FromResponse for T {
             Err(e) => {
                 if env::var("DEBUG_OCTOCRAB").eq(&Ok("1".to_string())) {
                     println!("Error from HTTP response: {:#?}", e);
+                    println!("Response body: {}", text);
                 }
                 Err(e)
             }
