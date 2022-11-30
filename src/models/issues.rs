@@ -11,7 +11,7 @@ pub struct Issue {
     pub comments_url: Url,
     pub events_url: Url,
     pub html_url: Url,
-    pub number: i64,
+    pub number: u64,
     pub state: IssueState,
     pub title: String,
     pub body: Option<String>,

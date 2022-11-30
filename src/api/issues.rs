@@ -5,7 +5,7 @@ mod list;
 mod list_labels;
 mod update;
 
-use crate::models::CommentId;
+use crate::models::{CommentId, ReactionId};
 use crate::{models, params, Octocrab, Result};
 
 pub use self::{
@@ -129,9 +129,7 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can lock an issue or pull request's conversation.
     ///
-    /// *Note* Providing a reason requires the `sailor-v` preview to enabled.
-    ///
-    /// See also: https://developer.github.com/v3/issues/#lock-an-issue
+    /// See also: https://docs.github.com/en/rest/issues/issues#lock-an-issue
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -172,11 +170,9 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can unlock an issue or pull request's conversation.
     ///
-    /// See also: https://developer.github.com/v3/issues/#unlock-an-issue
+    /// See also: https://docs.github.com/en/rest/issues/issues#unlock-an-issue
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::params;
-    ///
     /// assert!(octocrab::instance().issues("owner", "repo").unlock(404).await?);
     /// # Ok(())
     /// # }
@@ -773,5 +769,244 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
         );
 
         self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+impl<'octo> IssueHandler<'octo> {
+    /// Lists reactions for an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let reactions = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_reactions(1)
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_reactions(&self, issue_number: u64) -> ListReactionsBuilder<'_, '_> {
+        ListReactionsBuilder::new(self, issue_number)
+    }
+
+    /// Lists reactions for an issue comment.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let reactions = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_comment_reactions(1)
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_comment_reactions(
+        &self,
+        comment_id: impl Into<CommentId>,
+    ) -> ListCommentReactionsBuilder<'_, '_> {
+        ListCommentReactionsBuilder::new(self, comment_id.into())
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListReactionsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListReactionsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/{issue}/reactions",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListCommentReactionsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    comment_id: CommentId,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListCommentReactionsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, comment_id: CommentId) -> Self {
+        Self {
+            handler,
+            comment_id,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/comments/{comment}/reactions",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            comment = self.comment_id,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+impl<'octo> IssueHandler<'octo> {
+    /// Creates a reaction for an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .create_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_reaction(
+        &self,
+        issue_number: u64,
+        content: models::reactions::ReactionContent,
+    ) -> Result<models::reactions::Reaction> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/{issue_number}/reactions",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        self.crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+
+    /// Creates a reaction for an issue comment.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .create_comment_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_comment_reaction(
+        &self,
+        comment_id: impl Into<CommentId>,
+        content: models::reactions::ReactionContent,
+    ) -> Result<models::reactions::Reaction> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions",
+            owner = self.owner,
+            repo = self.repo,
+            comment_id = comment_id.into(),
+        );
+
+        self.crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+}
+
+impl<'octo> IssueHandler<'octo> {
+    /// Deletes a reaction for an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .delete_reaction(1, 1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_reaction(
+        &self,
+        issue_number: u64,
+        reaction_id: impl Into<ReactionId>,
+    ) -> Result<()> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
+            owner = self.owner,
+            repo = self.repo,
+            reaction_id = reaction_id.into(),
+        );
+
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Deletes a reaction for an issue comment.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .delete_comment_reaction(1, 1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_comment_reaction(
+        &self,
+        comment_id: impl Into<CommentId>,
+        reaction_id: impl Into<ReactionId>,
+    ) -> Result<()> {
+        let route = format!(
+            "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}",
+            owner = self.owner,
+            repo = self.repo,
+            comment_id = comment_id.into(),
+            reaction_id = reaction_id.into(),
+        );
+
+        self.crab.delete(route, None::<&()>).await
     }
 }

@@ -5,10 +5,12 @@ mod create;
 mod edit;
 mod list;
 mod team_repos;
+mod members;
+mod invitations;
 
 pub use self::{
     children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    list::ListTeamsBuilder, team_repos::TeamRepoHandler,
+    list::ListTeamsBuilder, team_repos::TeamRepoHandler, members::ListTeamMembersBuilder, invitations::ListTeamInvitationsBuilder
 };
 
 use crate::{models, Octocrab, Result};
@@ -145,5 +147,41 @@ impl<'octo> TeamHandler<'octo> {
     /// that allows you to manage this team's repositories.
     pub fn repos(&self, team_slug: impl Into<String>) -> TeamRepoHandler {
         TeamRepoHandler::new(self.crab, self.owner.clone(), team_slug.into())
+    }
+
+    /// List the members of a team in the organization.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab::instance()
+    ///     .teams("owner")
+    ///     .members("team-name-here")
+    ///     .per_page(5)
+    ///     .page(1u8)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn members(&self, team_slug: impl Into<String>) -> ListTeamMembersBuilder {
+        ListTeamMembersBuilder::new(self, team_slug.into())
+    }
+
+    /// List the pending invitations for a team in an organization.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab::instance()
+    ///     .teams("owner")
+    ///     .invitations("team-name-here")
+    ///     .per_page(5)
+    ///     .page(1u8)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn invitations(&self, team_slug: impl Into<String>) -> ListTeamInvitationsBuilder {
+        ListTeamInvitationsBuilder::new(self, team_slug.into())
     }
 }

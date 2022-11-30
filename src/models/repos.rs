@@ -151,17 +151,24 @@ pub struct FileUpdate {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+pub struct FileDeletion {
+    pub content: Option<Content>,
+    pub commit: Commit,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct Content {
     pub name: String,
     pub path: String,
     pub sha: String,
-    pub encoding: String,
+    pub encoding: Option<String>,
     /// File content, Base64 encoded
     pub content: Option<String>,
     pub size: i64,
     pub url: String,
-    pub html_url: String,
-    pub git_url: String,
+    pub html_url: Option<String>,
+    pub git_url: Option<String>,
     pub download_url: Option<String>,
     pub r#type: String,
     #[serde(rename = "_links")]
@@ -231,8 +238,8 @@ impl crate::FromResponse for ContentItems {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ContentLinks {
-    pub git: Url,
-    pub html: Url,
+    pub git: Option<Url>,
+    pub html: Option<Url>,
     #[serde(rename = "self")]
     pub _self: Url,
 }

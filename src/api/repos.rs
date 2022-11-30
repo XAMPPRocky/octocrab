@@ -16,8 +16,7 @@ mod tags;
 
 use crate::{models, params, Octocrab, Result};
 pub use commits::ListCommitsBuilder;
-pub use file::GetContentBuilder;
-pub use file::UpdateFileBuilder;
+pub use file::{GetContentBuilder, UpdateFileBuilder, DeleteFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
@@ -292,6 +291,43 @@ impl<'octo> RepoHandler<'octo> {
             base64::encode(content),
             Some(sha.into()),
         )
+    }
+
+    /// Deletes a file in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let blob_sha = "";
+    /// use octocrab::models::repos::GitUser;
+    ///
+    /// // Commit to delete "crabs/ferris.txt"
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .delete_file(
+    ///         "crabs/ferris.txt",
+    ///         "Deleted ferris.txt",
+    ///         blob_sha
+    ///     )
+    ///     .branch("master")
+    ///     .commiter(GitUser {
+    ///         name: "Octocat".to_string(),
+    ///         email: "octocat@github.com".to_string(),
+    ///     })
+    ///     .author(GitUser {
+    ///         name: "Ferris".to_string(),
+    ///         email: "ferris@rust-lang.org".to_string(),
+    ///     })
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn delete_file(
+        &self,
+        path: impl Into<String>,
+        message: impl Into<String>,
+        sha: impl Into<String>,
+    ) -> DeleteFileBuilder<'_, '_> {
+        DeleteFileBuilder::new(self, path.into(), message.into(), sha.into())
     }
 
     /// List tags from a repository.

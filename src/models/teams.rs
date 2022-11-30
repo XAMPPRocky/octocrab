@@ -1,5 +1,7 @@
 use super::*;
 
+use chrono;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Team {
@@ -53,4 +55,24 @@ pub struct RequestedTeam {
     pub repositories_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<Team>,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TeamInvitation {
+    pub id: TeamInvitationId,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub login: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    pub role: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failed_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failed_reason: Option<String>,
+    pub inviter: User,
+    pub team_count: u32,
+    pub node_id: String,
+    pub invitation_teams_url: String,
 }

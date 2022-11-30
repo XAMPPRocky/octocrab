@@ -1,4 +1,4 @@
-use crate::Octocrab;
+use crate::{Octocrab, models::InstallationId};
 
 mod installations;
 
@@ -14,6 +14,32 @@ pub struct AppsRequestHandler<'octo> {
 impl<'octo> AppsRequestHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
         Self { crab }
+    }
+
+    /// Get an installation for the authenticated app
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models::InstallationId;
+    ///
+    /// let installation = octocrab
+    ///     .apps()
+    ///     .installation(InstallationId(1))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn installation(
+        &self,
+        installation_id: InstallationId
+    ) -> crate::Result<crate::models::Installation> {
+        let route = format!(
+            "app/installations/{installation_id}",
+            installation_id = installation_id,
+        );
+
+        self.crab.get(&route, None::<&()>).await
     }
 
     /// Creates a new `InstallationsBuilder` that can be configured to filter
