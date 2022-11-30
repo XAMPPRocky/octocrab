@@ -129,9 +129,7 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can lock an issue or pull request's conversation.
     ///
-    /// *Note* Providing a reason requires the `sailor-v` preview to enabled.
-    ///
-    /// See also: https://developer.github.com/v3/issues/#lock-an-issue
+    /// See also: https://docs.github.com/en/rest/issues/issues#lock-an-issue
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -172,11 +170,9 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can unlock an issue or pull request's conversation.
     ///
-    /// See also: https://developer.github.com/v3/issues/#unlock-an-issue
+    /// See also: https://docs.github.com/en/rest/issues/issues#unlock-an-issue
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::params;
-    ///
     /// assert!(octocrab::instance().issues("owner", "repo").unlock(404).await?);
     /// # Ok(())
     /// # }
