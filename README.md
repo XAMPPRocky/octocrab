@@ -5,6 +5,7 @@
 [![Help Wanted](https://img.shields.io/github/issues/XAMPPRocky/octocrab/help%20wanted?color=green)](https://github.com/XAMPPRocky/octocrab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/octocrab?category=code)](https://github.com/XAMPPRocky/octocrab)
 [![Documentation](https://docs.rs/octocrab/badge.svg)](https://docs.rs/octocrab/)
+[![Crates.io](https://img.shields.io/crates/v/octocrab?logo=rust)](https://crates.io/crates/octocrab/)
 
 Octocrab is a third party GitHub API client, allowing you to easily build
 your own GitHub integrations or bots in Rust. `Octocrab` comes with two primary
