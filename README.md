@@ -23,7 +23,7 @@ $ cargo add octocrab
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
 for GitHub apps.
-Currently, the following modules are available.
+Currently, the following modules are available as of version `0.17`.
 
 - [`actions`] GitHub Actions.
 - [`apps`] GitHub Apps.
@@ -40,22 +40,22 @@ Currently, the following modules are available.
 - [`search`] GitHub's search API.
 - [`teams`] Teams.
 
-[`models`]: https://docs.rs/octocrab/0.17/octocrab/models/index.html
-[`auth`]: https://docs.rs/octocrab/0.17/octocrab/auth/index.html
-[`apps`]: https://docs.rs/octocrab/0.17/octocrab/apps/index.html
-[`actions`]: https://docs.rs/octocrab/0.17/octocrab/actions/struct.ActionsHandler.html
-[`current`]: https://docs.rs/octocrab/0.17/octocrab/current/struct.CurrentAuthHandler.html
-[`gitignore`]: https://docs.rs/octocrab/0.17/octocrab/gitignore/struct.GitignoreHandler.html
-[`graphql`]: https://docs.rs/octocrab/0.17/octocrab/struct.Octocrab.html#graphql-api
-[`markdown`]: https://docs.rs/octocrab/0.17/octocrab/markdown/struct.MarkdownHandler.html
-[`issues`]: https://docs.rs/octocrab/0.17/octocrab/issues/struct.IssueHandler.html
-[`licenses`]: https://docs.rs/octocrab/0.17/octocrab/licenses/struct.LicenseHandler.html
-[`pulls`]: https://docs.rs/octocrab/0.17/octocrab/pulls/struct.PullRequestHandler.html
-[`orgs`]: https://docs.rs/octocrab/0.17/octocrab/orgs/struct.OrgHandler.html
-[`repos`]: https://docs.rs/octocrab/0.17/octocrab/repos/struct.RepoHandler.html
-[`releases`]: https://docs.rs/octocrab/0.17/octocrab/repos/struct.ReleasesHandler.html
-[`search`]: https://docs.rs/octocrab/0.17/octocrab/search/struct.SearchHandler.html
-[`teams`]: https://docs.rs/octocrab/0.17/octocrab/teams/struct.TeamHandler.html
+[`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
+[`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
+[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
+[`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
+[`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
+[`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
+[`graphql`]: https://docs.rs/octocrab/latest/octocrab/struct.Octocrab.html#graphql-api
+[`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
+[`issues`]: https://docs.rs/octocrab/latest/octocrab/issues/struct.IssueHandler.html
+[`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
+[`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
+[`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
+[`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
+[`releases`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.ReleasesHandler.html
+[`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
+[`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
