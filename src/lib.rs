@@ -179,6 +179,10 @@ pub use self::{
     page::Page,
 };
 
+use tracing::{self, field};
+
+const GITHUB_SERVICE: &str = "github.com";
+
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
@@ -893,6 +897,39 @@ impl Octocrab {
         }
     }
 
+    #[tracing::instrument(
+        level="debug",
+        name="github api call",
+        skip(self, request_builder, attempt),
+        fields(err, url=field::Empty, service.name=field::Empty, http.method=field::Empty, http.url=field::Empty, http.status_code=field::Empty, http.resend_count=field::Empty)
+    )]
+    async fn send_call(
+        &self,
+        request_builder: reqwest::RequestBuilder,
+        attempt: u32,
+    ) -> Result<reqwest::Response, reqwest::Error> {
+        let span = tracing::Span::current();
+        let service = self.base_url.host_str().unwrap_or(GITHUB_SERVICE);
+        span.record("service.name", service);
+        if attempt > 1 {
+            span.record("http.resend_count", attempt);
+        }
+        let request = request_builder.build()?;
+        span.record("http.method", request.method().as_str());
+        span.record("http.url", request.url().as_str());
+        let result = self.client.execute(request).await;
+        match &result {
+            Ok(v) => {
+                span.record("http.status_code", v.status().as_u16());
+            }
+            Err(e) => {
+                let status = e.status().and_then(|s| Some(s.as_u16()));
+                span.record("http.status_code", status);
+            }
+        };
+        result
+    }
+
     /// Execute the given `request` using octocrab's Client.
     pub async fn execute(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
         let mut retries = 0;
@@ -920,7 +957,7 @@ impl Octocrab {
                 }
             };
 
-            let result = request.send().await;
+            let result = self.send_call(request, retries).await;
             let status = match &result {
                 Ok(v) => Some(v.status()),
                 Err(e) => e.status(),
