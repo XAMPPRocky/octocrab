@@ -182,10 +182,20 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 last,
             })
         } else {
-            let attr = vec!["items", "workflows", "workflow_runs", "jobs", "artifacts", "repositories"]
-                .into_iter()
-                .find(|v| json.get(v).is_some())
-                .unwrap();
+            let attr = vec![
+                "items",
+                "workflows",
+                "workflow_runs",
+                "jobs",
+                "artifacts",
+                "repositories",
+            ]
+            .into_iter()
+            .find(|v| json.get(v).is_some())
+            .ok_or(Box::from(
+                "error decoding pagination result, top-level attribute unknown",
+            ))
+            .context(crate::error::OtherSnafu)?;
 
             Ok(Self {
                 items: serde_json::from_value(json.get(attr).cloned().unwrap())
