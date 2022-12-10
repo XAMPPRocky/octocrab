@@ -5,22 +5,25 @@
 [![Help Wanted](https://img.shields.io/github/issues/XAMPPRocky/octocrab/help%20wanted?color=green)](https://github.com/XAMPPRocky/octocrab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/octocrab?category=code)](https://github.com/XAMPPRocky/octocrab)
 [![Documentation](https://docs.rs/octocrab/badge.svg)](https://docs.rs/octocrab/)
+[![Crates.io](https://img.shields.io/crates/v/octocrab?logo=rust)](https://crates.io/crates/octocrab/)
 
 Octocrab is a third party GitHub API client, allowing you to easily build
 your own GitHub integrations or bots in Rust. `Octocrab` comes with two primary
 sets of APIs for communicating with GitHub, a high level strongly typed
 semantic API, and a lower level HTTP API for extending behaviour.
 
-#### Cargo.toml
-```toml
-octocrab = "0.16"
+## Adding Octocrab
+Run this command in your terminal to add the latest version of `Octocrab`.
+
+```bash
+$ cargo add octocrab
 ```
 
 ## Semantic API
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
 for GitHub apps.
-Currently, the following modules are available.
+Currently, the following modules are available as of version `0.17`.
 
 - [`actions`] GitHub Actions.
 - [`apps`] GitHub Apps.
@@ -50,14 +53,14 @@ Currently, the following modules are available.
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
-[`releases`]: https://docs.rs/octocrab/0.8.1/octocrab/repos/struct.ReleasesHandler.html
+[`releases`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.ReleasesHandler.html
 [`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
 [`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
 
 #### Getting a Pull Request
 ```rust
-// Get pull request #404 from `octocrab/repo`.
-let issue = octocrab::instance().pulls("octocrab", "repo").get(404).await?;
+// Get pull request #5 from `XAMPPRocky/octocrab`.
+let issue = octocrab::instance().pulls("XAMPPRocky", "octocrab").get(5).await?;
 ```
 
 All methods with multiple optional parameters are built as `Builder`
