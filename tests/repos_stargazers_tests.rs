@@ -2,7 +2,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::{User, StarGazer}, Octocrab, Page};
+use octocrab::{models::StarGazer, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
   matchers::{method, path},

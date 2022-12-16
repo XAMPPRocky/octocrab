@@ -197,7 +197,7 @@ pub struct Review {
     pub id: ReviewId,
     pub node_id: String,
     pub html_url: Url,
-    pub user: User,
+    pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
