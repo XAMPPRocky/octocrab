@@ -1,4 +1,4 @@
-use octocrab::models::{InstallationToken, Repository};
+use octocrab::models::{InstallationToken, InstallationRepositories};
 use octocrab::params::apps::CreateInstallationAccessToken;
 use octocrab::Octocrab;
 
@@ -36,10 +36,11 @@ async fn main() -> octocrab::Result<()> {
         .build()
         .unwrap();
 
-    let _repos: Vec<Repository> = octocrab
+    let installed_repos: InstallationRepositories = octocrab
         .get("/installation/repositories", None::<&()>)
         .await
         .unwrap();
+    let _repos = installed_repos.repositories;
 
     Ok(())
 }

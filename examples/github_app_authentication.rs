@@ -1,4 +1,4 @@
-use octocrab::models::Repository;
+use octocrab::models::InstallationRepositories;
 use octocrab::Octocrab;
 
 #[tokio::main]
@@ -8,10 +8,11 @@ async fn main() -> octocrab::Result<()> {
     let key = jsonwebtoken::EncodingKey::from_rsa_pem(app_private_key.as_bytes()).unwrap();
 
     let octocrab = Octocrab::builder().app(app_id, key).build()?;
-    let _repos: Vec<Repository> = octocrab
+    let installed_repos: InstallationRepositories = octocrab
         .get("/installation/repositories", None::<&()>)
         .await
         .unwrap();
+    let _repos = installed_repos.repositories;
 
     Ok(())
 }
