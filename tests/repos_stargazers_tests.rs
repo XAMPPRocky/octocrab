@@ -2,7 +2,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::User, Octocrab, Page};
+use octocrab::{models::StarGazer, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
   matchers::{method, path},
@@ -43,8 +43,8 @@ const REPO: &str = "repo";
 
 #[tokio::test]
 async fn should_return_page_with_users() {
-  let star_gazers: User = serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
-  let login: String = star_gazers.login.clone();
+  let star_gazers: StarGazer = serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
+  let login: String = star_gazers.user.login.clone();
   let page_response = FakePage {
     items: vec![star_gazers],
   };
@@ -61,7 +61,7 @@ async fn should_return_page_with_users() {
   match result.unwrap() {
     Page { items, .. } => {
       assert_eq!(items.len(), 1);
-      assert_eq!(items[0].login, login);
+      assert_eq!(items[0].user.login, login);
     }
   }
 }

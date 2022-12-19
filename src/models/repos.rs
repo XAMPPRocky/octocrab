@@ -151,6 +151,13 @@ pub struct FileUpdate {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+pub struct FileDeletion {
+    pub content: Option<Content>,
+    pub commit: Commit,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct Content {
     pub name: String,
     pub path: String,

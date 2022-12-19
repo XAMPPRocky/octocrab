@@ -197,7 +197,7 @@ pub struct Review {
     pub id: ReviewId,
     pub node_id: String,
     pub html_url: Url,
-    pub user: User,
+    pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -289,7 +289,7 @@ impl<'de> Deserialize<'de> for ReviewState {
                     "CHANGES_REQUESTED" | "changes_requested" => ReviewState::ChangesRequested,
                     "COMMENTED" | "commented" => ReviewState::Commented,
                     "DISMISSED" | "dismissed" => ReviewState::Dismissed,
-                    unknown => return Err(E::custom(format!("unknown variant `{}`, expected one of `approved`, `pending`, `changes_requested`, `commented`", unknown))),
+                    unknown => return Err(E::custom(format!("unknown variant `{}`, expected one of `open`, `approved`, `pending`, `changes_requested`, `commented`, `dismissed`", unknown))),
                 })
             }
         }

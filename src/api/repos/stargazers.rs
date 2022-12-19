@@ -32,12 +32,16 @@ impl<'octo, 'r> ListStarGazersBuilder<'octo, 'r> {
   }
 
   /// Sends the actual request.
-  pub async fn send(self) -> crate::Result<crate::Page<crate::models::User>> {
+  pub async fn send(self) -> crate::Result<crate::Page<crate::models::StarGazer>> {
     let url = format!(
       "repos/{owner}/{repo}/stargazers",
       owner = self.handler.owner,
       repo = self.handler.repo
     );
-    self.handler.crab.get(url, Some(&self)).await
+
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(ACCEPT, "application/vnd.github.star+json".parse().unwrap());
+
+    self.handler.crab.get_with_headers(url, Some(&self), Some(headers)).await
   }
 }

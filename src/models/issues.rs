@@ -12,7 +12,8 @@ pub struct Issue {
     pub events_url: Url,
     pub html_url: Url,
     pub number: u64,
-    pub state: String,
+    pub state: IssueState,
+    pub state_reason: Option<IssueStateReason>,
     pub title: String,
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -58,6 +59,16 @@ pub struct Comment {
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum IssueStateReason {
+    Completed,
+    NotPlanned,
+    Reopened,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
