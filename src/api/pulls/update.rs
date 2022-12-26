@@ -51,6 +51,12 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
         self
     }
 
+    /// The contents of the pull request.
+    pub fn state<A: Into<crate::params::pulls::Status>>(mut self, state: impl Into<Option<A>>) -> Self {
+        self.state = state.into().map(A::into);
+        self
+    }
+
     /// Indicates whether `maintainers` can modify the pull request.
     pub fn maintainer_can_modify(mut self, maintainer_can_modify: impl Into<Option<bool>>) -> Self {
         self.maintainer_can_modify = maintainer_can_modify.into();
