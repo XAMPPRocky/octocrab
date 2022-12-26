@@ -10,7 +10,7 @@ pub struct UpdatePullRequestBuilder<'octo, 'b> {
     #[serde(skip_serializing_if = "Option::is_none")]
     base: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    state: Option<crate::params::pulls::Status>,
+    state: Option<crate::params::pulls::State>,
     #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -52,7 +52,7 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
     }
 
     /// The contents of the pull request.
-    pub fn state<A: Into<crate::params::pulls::Status>>(mut self, state: impl Into<Option<A>>) -> Self {
+    pub fn state<A: Into<crate::params::pulls::State>>(mut self, state: impl Into<Option<A>>) -> Self {
         self.state = state.into().map(A::into);
         self
     }

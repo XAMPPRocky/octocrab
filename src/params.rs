@@ -239,7 +239,7 @@ pub mod pulls {
     #[derive(Debug, Clone, Copy, serde::Serialize)]
     #[serde(rename_all = "lowercase")]
     #[non_exhaustive]
-    pub enum Status {
+    pub enum State {
         Open,
         Closed,
     }
