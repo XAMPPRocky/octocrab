@@ -85,14 +85,18 @@ mod tests {
         let handler = octocrab.pulls("rust-lang", "rust");
         let list = handler
             .update(1)
+            .title("title")
             .body(String::from("testing..."))
+            .state(crate::params::pulls::State::Open)
             .maintainer_can_modify(true);
 
         assert_eq!(
             serde_json::to_value(list).unwrap(),
             serde_json::json!({
                 "pull_number": 1,
+                "title": "title",
                 "body": "testing...",
+                "state": "open",
                 "maintainer_can_modify": true,
             })
         )
