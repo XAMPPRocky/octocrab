@@ -236,6 +236,14 @@ pub mod pulls {
         Rebase,
     }
 
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "lowercase")]
+    #[non_exhaustive]
+    pub enum State {
+        Open,
+        Closed,
+    }
+
     pub mod comments {
         /// What to sort results by. Can be either `created` or `updated`.
         #[derive(Debug, Clone, Copy, serde::Serialize)]
