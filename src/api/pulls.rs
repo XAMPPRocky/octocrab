@@ -2,6 +2,7 @@
 
 mod comment;
 mod create;
+mod update;
 mod list;
 mod merge;
 
@@ -9,7 +10,7 @@ use snafu::ResultExt;
 
 use crate::{Octocrab, Page};
 
-pub use self::{create::CreatePullRequestBuilder, list::ListPullRequestsBuilder};
+pub use self::{create::CreatePullRequestBuilder, update::UpdatePullRequestBuilder, list::ListPullRequestsBuilder};
 
 /// A client to GitHub's pull request API.
 ///
@@ -193,6 +194,28 @@ impl<'octo> PullRequestHandler<'octo> {
         base: impl Into<String>,
     ) -> create::CreatePullRequestBuilder<'octo, '_> {
         create::CreatePullRequestBuilder::new(self, title, head, base)
+    }
+
+    /// Update a new pull request.
+    ///
+    /// - `pull_number` — pull request number.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let pr = octocrab
+    ///     .pulls("owner", "repo")
+    ///     .update(1)
+    ///     .body("hello world!")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn update(
+        &self,
+        pull_number: u64,
+    ) -> update::UpdatePullRequestBuilder<'octo, '_> {
+        update::UpdatePullRequestBuilder::new(self, pull_number)
     }
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
@@ -383,6 +406,19 @@ impl<'octo> PullRequestHandler<'octo> {
         R: crate::FromResponse,
     {
         let mut request = self.crab.client.put(self.crab.absolute_url(route)?);
+
+        request = self.build_request(request, body);
+
+        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+    }
+
+    pub(crate) async fn http_patch<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
+    where
+        A: AsRef<str>,
+        P: serde::Serialize + ?Sized,
+        R: crate::FromResponse,
+    {
+        let mut request = self.crab.client.patch(self.crab.absolute_url(route)?);
 
         request = self.build_request(request, body);
 
