@@ -326,7 +326,7 @@ pub struct User {
 #[non_exhaustive]
 pub struct StarGazer {
     pub starred_at: Option<DateTime<Utc>>,
-    pub user: User,
+    pub user: Option<User>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]

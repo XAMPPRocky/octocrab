@@ -44,7 +44,7 @@ const REPO: &str = "repo";
 #[tokio::test]
 async fn should_return_page_with_users() {
   let star_gazers: Vec<StarGazer> = serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
-  let login1: String = star_gazers[0].user.login.clone();
+  let login1: String = star_gazers[0].user.as_ref().unwrap().login.clone();
   let page_response = FakePage {
     items: star_gazers,
   };
@@ -60,8 +60,8 @@ async fn should_return_page_with_users() {
   );
   match result.unwrap() {
     Page { items, .. } => {
-      assert_eq!(items.len(), 2);
-      assert_eq!(items[0].user.login, login1);
+      assert_eq!(items.len(), 3);
+      assert_eq!(items[0].user.as_ref().unwrap().login, login1);
     }
   }
 }
@@ -69,8 +69,8 @@ async fn should_return_page_with_users() {
 #[tokio::test]
 async fn should_return_page_with_all_users() {
   let star_gazers: Vec<StarGazer> = serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
-  let login1: String = star_gazers[0].user.login.clone();
-  let login2: String = star_gazers[1].user.login.clone();
+  let login1: String = star_gazers[0].user.as_ref().unwrap().login.clone();
+  let login2: String = star_gazers[1].user.as_ref().unwrap().login.clone();
   let page_response = FakePage {
     items: star_gazers,
   };
@@ -87,7 +87,8 @@ async fn should_return_page_with_all_users() {
     .unwrap();
 
   let result = client.all_pages(page).await.unwrap();
-  assert_eq!(result.len(), 2);
-  assert_eq!(result[0].user.login, login1);
-  assert_eq!(result[1].user.login, login2);
+  assert_eq!(result.len(), 3);
+  assert_eq!(result[0].user.as_ref().unwrap().login, login1);
+  assert_eq!(result[1].user.as_ref().unwrap().login, login2);
+  assert_eq!(result[2].user, None);
 }
