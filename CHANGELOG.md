@@ -2,6 +2,12 @@
 All  Octocrab releases are supported by the community and through
 [GitHub Sponsors][sp].
 
+## Unreleased
+
+### Added Methods
+
+- [`UpdateIssueBuilder::state_reason`] Updates the state reason.
+
 ## 0.4.1
 - Relaxed the `body` argument on `Octocrab::graphql` from `impl AsRef<str>` to
   `&impl serde::Serialize + ?Sized` to allow accepting any valid JSON value.
