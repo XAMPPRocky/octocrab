@@ -15,7 +15,7 @@ pub struct UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     #[serde(skip_serializing_if = "Option::is_none")]
     state: Option<models::IssueState>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    state_reason: Option<models::issues::IssueStateReason>,
+    state_reason: Option<models::IssueStateReason>,
     #[serde(skip_serializing_if = "Option::is_none")]
     milestone: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -62,10 +62,7 @@ impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     }
 
     /// The state reason of the issue.
-    pub fn state_reason(
-        mut self,
-        state_reason: impl Into<models::issues::IssueStateReason>,
-    ) -> Self {
+    pub fn state_reason(mut self, state_reason: impl Into<models::IssueStateReason>) -> Self {
         self.state_reason = Some(state_reason.into());
         self
     }
@@ -111,7 +108,7 @@ mod tests {
             .title("Updated title")
             .body("New body")
             .state(crate::models::IssueState::Closed)
-            .state_reason(crate::models::issues::IssueStateReason::Completed)
+            .state_reason(crate::models::IssueStateReason::Completed)
             .milestone(1234u64)
             .assignees(assignees)
             .labels(labels);

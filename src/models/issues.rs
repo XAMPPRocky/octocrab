@@ -61,16 +61,6 @@ pub struct Comment {
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum IssueStateReason {
-    Completed,
-    NotPlanned,
-    Reopened,
-}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PullRequestLink {
