@@ -317,8 +317,8 @@ impl OctocrabBuilder {
     }
 
     /// Set the base url for `Octocrab`.
-    pub fn base_url(mut self, base_url: &str) -> Result<Self> {
-        self.base_url = Some(Url::from_str(base_url).context(crate::error::UrlSnafu)?);
+    pub fn base_url(mut self, base_url: impl AsRef<str>) -> Result<Self> {
+        self.base_url = Some(Url::from_str(base_url.as_ref()).context(crate::error::UrlSnafu)?);
         Ok(self)
     }
 
@@ -329,7 +329,7 @@ impl OctocrabBuilder {
         for preview in &self.previews {
             hmap.append(
                 http::header::ACCEPT,
-                crate::format_preview(&preview).parse().unwrap(),
+                crate::format_preview(preview).parse().unwrap(),
             );
         }
 
@@ -672,7 +672,7 @@ impl Octocrab {
     /// of the response.
     pub async fn post<P: Serialize + ?Sized, R: FromResponse>(
         &self,
-        route: &str,
+        route: impl AsRef<str>,
         body: Option<&P>,
     ) -> Result<R> {
         let response = self._post(self.absolute_url(route)?, body).await?;
@@ -847,7 +847,11 @@ impl Octocrab {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn request_builder(&self, url: &str, method: reqwest::Method) -> reqwest::RequestBuilder {
+    pub fn request_builder(
+        &self,
+        url: impl AsRef<str>,
+        method: reqwest::Method,
+    ) -> reqwest::RequestBuilder {
         self.client.request(method, url)
     }
 
