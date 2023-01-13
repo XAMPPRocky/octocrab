@@ -1,7 +1,6 @@
 use crate::params;
 use crate::{models, FromResponse, Octocrab, Result};
-use http::header::ACCEPT;
-use reqwest::StatusCode;
+use http::{header::ACCEPT, StatusCode};
 
 #[derive(Debug, serde::Serialize)]
 struct PermissionUpdateBody {

@@ -4,8 +4,8 @@ use crate::{
     models::events,
     FromResponse, Octocrab, Page,
 };
+use http::{header::HeaderMap, Method, StatusCode};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,

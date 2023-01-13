@@ -160,11 +160,12 @@ pub mod params;
 use std::fmt;
 use std::sync::{Arc, RwLock};
 
+use http::{header::HeaderName, StatusCode};
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, StatusCode, Url};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Serialize;
 use snafu::*;
+use url::Url;
 
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
