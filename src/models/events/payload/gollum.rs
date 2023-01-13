@@ -1,5 +1,5 @@
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 /// The payload in a [`super::EventPayload::GollumEvent`] type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
