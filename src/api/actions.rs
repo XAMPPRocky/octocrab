@@ -3,13 +3,11 @@ use snafu::ResultExt;
 
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
-    workflows::WorkflowListArtifact,
-    ArtifactId, RepositoryId, RunId,
-    workflows::WorkflowDispatch
+    workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
+use http::{header::HeaderMap, Method, StatusCode};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -93,8 +91,20 @@ pub struct WorkflowDispatchBuilder<'octo> {
 }
 
 impl<'octo> WorkflowDispatchBuilder<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
-        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+    pub(crate) fn new(
+        crab: &'octo Octocrab,
+        owner: String,
+        repo: String,
+        workflow_id: String,
+        r#ref: String,
+    ) -> Self {
+        let mut this = Self {
+            crab,
+            owner,
+            repo,
+            workflow_id,
+            data: Default::default(),
+        };
         this.data.r#ref = r#ref;
         this
     }
@@ -119,11 +129,9 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
         );
 
         // this entry point doesn't actually return anything sensible
-        self.crab._post(
-            self.crab.absolute_url(route)?,
-            Some(&self.data),
-        )
-        .await?;
+        self.crab
+            ._post(self.crab.absolute_url(route)?, Some(&self.data))
+            .await?;
 
         Ok(())
     }
@@ -242,14 +250,13 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         response: reqwest::Response,
     ) -> crate::Result<bytes::Bytes> {
-        let data_response =
-            if let Some(redirect) = response.headers().get(reqwest::header::LOCATION) {
-                let location = redirect.to_str().expect("Location URL not valid str");
+        let data_response = if let Some(redirect) = response.headers().get(http::header::LOCATION) {
+            let location = redirect.to_str().expect("Location URL not valid str");
 
-                self.crab._get(location, None::<&()>).await?
-            } else {
-                response
-            };
+            self.crab._get(location, None::<&()>).await?
+        } else {
+            response
+        };
 
         data_response.bytes().await.context(crate::error::HttpSnafu)
     }
@@ -411,11 +418,12 @@ impl<'octo> ActionsHandler<'octo> {
         workflow_id: impl Into<String>,
         r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
-        WorkflowDispatchBuilder::new(self.crab,
+        WorkflowDispatchBuilder::new(
+            self.crab,
             owner.into(),
             repo.into(),
             workflow_id.into(),
-            r#ref.into()
+            r#ref.into(),
         )
     }
 }

@@ -1,6 +1,6 @@
 //! The repositories API.
 
-use reqwest::header::ACCEPT;
+use http::header::ACCEPT;
 
 mod branches;
 mod commits;
@@ -15,15 +15,15 @@ mod status;
 mod tags;
 
 use crate::{models, params, Octocrab, Result};
+pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
-pub use file::{GetContentBuilder, UpdateFileBuilder, DeleteFileBuilder};
+pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use branches::ListBranchesBuilder;
 
 /// Handler for GitHub's repository API.
 ///

@@ -1,4 +1,4 @@
-use crate::{Error, repos::RepoHandler};
+use crate::{repos::RepoHandler, Error};
 
 #[derive(serde::Serialize)]
 pub struct GenerateRepositoryBuilder<'octo, 'r> {
@@ -58,16 +58,18 @@ impl<'octo, 'r> GenerateRepositoryBuilder<'octo, 'r> {
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        let request = self.handler
+        let request = self
+            .handler
             .crab
             .client
             .post(self.handler.crab.absolute_url(url)?)
             .body(serde_json::to_string(&self).unwrap())
-            .header(reqwest::header::ACCEPT, "application/vnd.github.baptiste-preview+json");
+            .header(
+                http::header::ACCEPT,
+                "application/vnd.github.baptiste-preview+json",
+            );
 
         let response = self.handler.crab.execute(request).await?;
-        crate::map_github_error(response)
-            .await
-            .map(drop)
+        crate::map_github_error(response).await.map(drop)
     }
 }

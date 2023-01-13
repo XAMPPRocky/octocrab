@@ -2,15 +2,18 @@
 
 mod comment;
 mod create;
-mod update;
 mod list;
 mod merge;
+mod update;
 
 use snafu::ResultExt;
 
 use crate::{Octocrab, Page};
 
-pub use self::{create::CreatePullRequestBuilder, update::UpdatePullRequestBuilder, list::ListPullRequestsBuilder};
+pub use self::{
+    create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
+    update::UpdatePullRequestBuilder,
+};
 
 /// A client to GitHub's pull request API.
 ///
@@ -132,7 +135,7 @@ impl<'octo> PullRequestHandler<'octo> {
             .crab
             .client
             .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
+            .header(http::header::ACCEPT, crate::format_media_type("diff"));
 
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
@@ -158,7 +161,7 @@ impl<'octo> PullRequestHandler<'octo> {
             .crab
             .client
             .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
+            .header(http::header::ACCEPT, crate::format_media_type("patch"));
 
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
@@ -211,10 +214,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn update(
-        &self,
-        pull_number: u64,
-    ) -> update::UpdatePullRequestBuilder<'octo, '_> {
+    pub fn update(&self, pull_number: u64) -> update::UpdatePullRequestBuilder<'octo, '_> {
         update::UpdatePullRequestBuilder::new(self, pull_number)
     }
 
@@ -378,7 +378,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
+                http::header::ACCEPT,
                 crate::format_media_type(&media_type.to_string()),
             );
         }
@@ -439,7 +439,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
+                http::header::ACCEPT,
                 crate::format_media_type(&media_type.to_string()),
             );
         }

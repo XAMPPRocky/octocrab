@@ -1,6 +1,6 @@
 use crate::params;
 use crate::{models, FromResponse, Octocrab, Result};
-use reqwest::header::ACCEPT;
+use http::header::ACCEPT;
 use reqwest::StatusCode;
 
 #[derive(Debug, serde::Serialize)]

@@ -41,7 +41,7 @@ impl<'octo> GitignoreHandler<'octo> {
             .crab
             .client
             .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("raw"));
+            .header(http::header::ACCEPT, crate::format_media_type("raw"));
 
         self.crab
             .execute(request)

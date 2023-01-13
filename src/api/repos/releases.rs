@@ -189,8 +189,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
             .execute(
                 self.parent
                     .crab
-                    .request_builder(&url, reqwest::Method::GET)
-                    .header(reqwest::header::ACCEPT, "application/octet-stream"),
+                    .request_builder(&url, http::Method::GET)
+                    .header(http::header::ACCEPT, "application/octet-stream"),
             )
             .await?
             .bytes_stream()
