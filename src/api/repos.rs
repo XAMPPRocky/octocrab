@@ -180,7 +180,7 @@ impl<'octo> RepoHandler<'octo> {
         );
         self.crab
             .post(
-                url,
+                &url,
                 Some(&serde_json::json!({
                     "ref": reference.full_ref_url(),
                     "sha": sha.into(),
@@ -485,7 +485,7 @@ impl<'octo> RepoHandler<'octo> {
             repo = self.repo,
             path = path.as_ref(),
         ))?;
-        let mut request = self.crab.request_builder(url, http::Method::GET);
+        let mut request = self.crab.request_builder(url.as_str(), http::Method::GET);
         request = request.query(&[("ref", &reference.into().0)]);
         request = request.header(ACCEPT, "application/vnd.github.v3.raw");
         self.crab.execute(request).await

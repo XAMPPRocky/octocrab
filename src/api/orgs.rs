@@ -55,7 +55,7 @@ impl<'octo> OrgHandler<'octo> {
 
         let body = role.map(|role| serde_json::json!({ "role": role }));
 
-        self.crab.post(url, body.as_ref()).await
+        self.crab.post(&url, body.as_ref()).await
     }
 
     /// Check if a user is, publicly or privately, a member of the organization.
@@ -164,7 +164,7 @@ impl<'octo> OrgHandler<'octo> {
         let route = format!("orgs/{org}/hooks", org = self.owner);
         let res = self
             .crab
-            .post(self.crab.absolute_url(route)?, Some(&hook))
+            .post(self.crab.absolute_url(route)?.as_str(), Some(&hook))
             .await?;
 
         Ok(res)

@@ -93,10 +93,12 @@
 //! the request.
 //!
 //! ```no_run
+//! # use std::str::FromStr;
+//! # use url::Url;
 //! # async fn run() -> octocrab::Result<()> {
 //! let octocrab = octocrab::instance();
 //! let response =  octocrab
-//!     ._get("https://api.github.com/organizations", None::<&()>)
+//!     ._get(Url::from_str("https://api.github.com/organizations").unwrap(), None::<&()>)
 //!     .await?;
 //!
 //! // You can also use `Octocrab::absolute_url` if you want to still to go to
@@ -158,6 +160,7 @@ pub mod models;
 pub mod params;
 
 use std::fmt;
+use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
 use http::{header::HeaderName, StatusCode};
@@ -314,8 +317,8 @@ impl OctocrabBuilder {
     }
 
     /// Set the base url for `Octocrab`.
-    pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
-        self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
+    pub fn base_url(mut self, base_url: &str) -> Result<Self> {
+        self.base_url = Some(Url::from_str(base_url).context(crate::error::UrlSnafu)?);
         Ok(self)
     }
 
@@ -669,7 +672,7 @@ impl Octocrab {
     /// of the response.
     pub async fn post<P: Serialize + ?Sized, R: FromResponse>(
         &self,
-        route: impl AsRef<str>,
+        route: &str,
         body: Option<&P>,
     ) -> Result<R> {
         let response = self._post(self.absolute_url(route)?, body).await?;
@@ -679,7 +682,7 @@ impl Octocrab {
     /// Send a `POST` request with no additional pre/post-processing.
     pub async fn _post<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         body: Option<&P>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.post(url);
@@ -705,7 +708,7 @@ impl Octocrab {
     /// Send a `GET` request with no additional post-processing.
     pub async fn _get<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
         self._get_with_headers(url, parameters, None).await
@@ -733,7 +736,7 @@ impl Octocrab {
     /// Send a `GET` request including option to set headers, with no additional post-processing.
     pub async fn _get_with_headers<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         parameters: Option<&P>,
         headers: Option<http::header::HeaderMap>,
     ) -> Result<reqwest::Response> {
@@ -765,7 +768,7 @@ impl Octocrab {
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _patch<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         parameters: Option<&B>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.patch(url);
@@ -792,7 +795,7 @@ impl Octocrab {
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _put<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         body: Option<&B>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.put(url);
@@ -819,7 +822,7 @@ impl Octocrab {
     /// Send a `DELETE` request with no additional post-processing.
     pub async fn _delete<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        url: Url,
         parameters: Option<&P>,
     ) -> Result<reqwest::Response> {
         let mut request = self.client.delete(url);
@@ -844,11 +847,7 @@ impl Octocrab {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn request_builder(
-        &self,
-        url: impl reqwest::IntoUrl,
-        method: reqwest::Method,
-    ) -> reqwest::RequestBuilder {
+    pub fn request_builder(&self, url: &str, method: reqwest::Method) -> reqwest::RequestBuilder {
         self.client.request(method, url)
     }
 
@@ -1046,7 +1045,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         crate::OctocrabBuilder::new()
-            .base_url(mock_server.uri())
+            .base_url(mock_server.uri().as_str())
             .unwrap()
             .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
             .add_header(HeaderName::from_static("x-test2"), "goodbye".to_string())

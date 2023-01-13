@@ -360,7 +360,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo
         );
-        self.handler.parent.crab.post(url, Some(&self)).await
+        self.handler.parent.crab.post(&url, Some(&self)).await
     }
 }
 

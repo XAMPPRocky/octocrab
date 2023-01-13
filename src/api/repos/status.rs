@@ -68,7 +68,7 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
             repo = self.handler.repo,
             sha = self.sha
         );
-        self.handler.crab.post(url, Some(&self)).await
+        self.handler.crab.post(&url, Some(&self)).await
     }
 }
 

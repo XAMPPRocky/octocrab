@@ -1,5 +1,7 @@
 //! GitHub Actions
 use snafu::ResultExt;
+use std::str::FromStr;
+use url::Url;
 
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
@@ -253,7 +255,12 @@ impl<'octo> ActionsHandler<'octo> {
         let data_response = if let Some(redirect) = response.headers().get(http::header::LOCATION) {
             let location = redirect.to_str().expect("Location URL not valid str");
 
-            self.crab._get(location, None::<&()>).await?
+            self.crab
+                ._get(
+                    Url::from_str(location).context(crate::error::UrlSnafu)?,
+                    None::<&()>,
+                )
+                .await?
         } else {
             response
         };

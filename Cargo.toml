@@ -37,6 +37,7 @@ secrecy = "0.8.0"
 cfg-if = "1.0.0"
 either = "1.8.0"
 http = "0.2.8"
+hyper = "0.14.23"
 
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [

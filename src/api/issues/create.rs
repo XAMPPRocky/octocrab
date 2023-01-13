@@ -35,7 +35,7 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
             repo = self.handler.repo,
         );
 
-        self.handler.crab.post(route, Some(&self)).await
+        self.handler.crab.post(&route, Some(&self)).await
     }
 
     /// The contents of the issue.

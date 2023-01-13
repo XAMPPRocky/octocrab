@@ -218,7 +218,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "assignees": assignees })))
+            .post(&route, Some(&serde_json::json!({ "assignees": assignees })))
             .await
     }
 
@@ -336,7 +336,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "labels": labels })))
+            .post(&route, Some(&serde_json::json!({ "labels": labels })))
             .await
     }
 
@@ -417,7 +417,7 @@ impl<'octo> IssueHandler<'octo> {
 
         self.crab
             .post(
-                route,
+                &route,
                 Some(&serde_json::json!({
                     "name": name.as_ref(),
                     "color": color.as_ref(),
@@ -531,7 +531,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
+            .post(&route, Some(&serde_json::json!({ "body": body.as_ref() })))
             .await
     }
 
@@ -579,7 +579,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
+            .post(&route, Some(&serde_json::json!({ "body": body.as_ref() })))
             .await
     }
 
@@ -926,7 +926,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "content": content })))
+            .post(&route, Some(&serde_json::json!({ "content": content })))
             .await
     }
 
@@ -953,7 +953,7 @@ impl<'octo> IssueHandler<'octo> {
         );
 
         self.crab
-            .post(route, Some(&serde_json::json!({ "content": content })))
+            .post(&route, Some(&serde_json::json!({ "content": content })))
             .await
     }
 }

@@ -288,7 +288,7 @@ impl<'octo> PullRequestHandler<'octo> {
         map.insert("reviewers".to_string(), reviewers.into().into());
         map.insert("team_reviewers".to_string(), team_reviewers.into().into());
 
-        self.crab.post(url, Some(&map)).await
+        self.crab.post(&url, Some(&map)).await
     }
 
     /// List all `FileDiff`s associated with the pull request.

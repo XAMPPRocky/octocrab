@@ -79,7 +79,7 @@ impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        self.handler.crab.post(url, Some(&self)).await
+        self.handler.crab.post(&url, Some(&self)).await
     }
 }
 
