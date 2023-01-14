@@ -159,8 +159,8 @@ pub mod etag;
 pub mod models;
 pub mod params;
 
+use std::convert::TryInto;
 use std::fmt;
-use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
 use http::{header::HeaderName, StatusCode};
@@ -317,8 +317,9 @@ impl OctocrabBuilder {
     }
 
     /// Set the base url for `Octocrab`.
-    pub fn base_url(mut self, base_url: impl AsRef<str>) -> Result<Self> {
-        self.base_url = Some(Url::from_str(base_url.as_ref()).context(crate::error::UrlSnafu)?);
+    pub fn base_url(mut self, base_url: impl TryInto<Url>) -> Result<Self> {
+        let url: Url = base_url.try_into().context(crate::error::UrlSnafu)?;
+        self.base_url = Some(url);
         Ok(self)
     }
 
