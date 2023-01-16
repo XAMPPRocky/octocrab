@@ -45,7 +45,7 @@ impl<'octo, 'r> ListBranchesBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<crate::Page<models::repos::Branch>> {
         let url = format!(
-            "repos/{owner}/{repo}/branches",
+            "/repos/{owner}/{repo}/branches",
             owner = self.handler.owner,
             repo = self.handler.repo
         );

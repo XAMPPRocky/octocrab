@@ -71,7 +71,7 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::pulls::Comment>> {
         let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}comments",
+            "/repos/{owner}/{repo}/pulls/{pr}comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
             pr = if let Some(pr) = self.pr {

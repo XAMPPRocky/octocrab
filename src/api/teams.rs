@@ -3,16 +3,20 @@
 mod children;
 mod create;
 mod edit;
-mod list;
-mod team_repos;
-mod members;
 mod invitations;
+mod list;
+mod members;
+mod team_repos;
 
 pub use self::{
     children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    list::ListTeamsBuilder, team_repos::TeamRepoHandler, members::ListTeamMembersBuilder, invitations::ListTeamInvitationsBuilder
+    invitations::ListTeamInvitationsBuilder, list::ListTeamsBuilder,
+    members::ListTeamMembersBuilder, team_repos::TeamRepoHandler,
 };
+use http::Uri;
+use snafu::ResultExt;
 
+use crate::error::HttpSnafu;
 use crate::{models, Octocrab, Result};
 
 /// Handler for GitHub's teams API.
@@ -57,7 +61,7 @@ impl<'octo> TeamHandler<'octo> {
     /// ```
     pub async fn get(&self, team_slug: impl Into<String>) -> Result<models::teams::Team> {
         let url = format!(
-            "orgs/{org}/teams/{team}",
+            "/orgs/{org}/teams/{team}",
             org = self.owner,
             team = team_slug.into(),
         );
@@ -114,13 +118,16 @@ impl<'octo> TeamHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete(&self, team_slug: impl Into<String>) -> Result<()> {
-        let url = format!(
-            "orgs/{org}/teams/{team}",
+        let route = format!(
+            "/orgs/{org}/teams/{team}",
             org = self.owner,
             team = team_slug.into(),
         );
-        let url = self.crab.absolute_url(url)?;
-        crate::map_github_error(self.crab._delete(url, None::<&()>).await?)
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._delete(uri).await?)
             .await
             .map(drop)
     }

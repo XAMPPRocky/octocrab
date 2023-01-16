@@ -52,7 +52,10 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
     }
 
     /// The contents of the pull request.
-    pub fn state<A: Into<crate::params::pulls::State>>(mut self, state: impl Into<Option<A>>) -> Self {
+    pub fn state<A: Into<crate::params::pulls::State>>(
+        mut self,
+        state: impl Into<Option<A>>,
+    ) -> Self {
         self.state = state.into().map(A::into);
         self
     }
@@ -66,7 +69,7 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
     /// Sends the request to update the pull request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::PullRequest> {
         let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}",
+            "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             pr = self.pull_number,

@@ -158,7 +158,6 @@ impl<'de> Deserialize<'de> for Event {
 mod test {
     use super::{Event, EventPayload, EventType};
     use url::Url;
-    use url::Url;
 
     #[test]
     fn should_deserialize_push_event() {
