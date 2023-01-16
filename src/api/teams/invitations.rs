@@ -38,7 +38,7 @@ impl<'octo, 'r> ListTeamInvitationsBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<teams::TeamInvitation>> {
         let url = format!(
-            "orgs/{org}/teams/{team}/invitations",
+            "/orgs/{org}/teams/{team}/invitations",
             org = self.handler.owner,
             team = self.slug,
         );

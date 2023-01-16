@@ -1,5 +1,23 @@
+use http::uri::InvalidUri;
+
 use snafu::{Backtrace, Snafu};
+
 use std::fmt;
+use std::fmt::{Display, Formatter};
+use std::string::FromUtf8Error;
+use tower::BoxError;
+
+//This is workaround until I figure out how to get TryInto errors to work
+#[derive(Debug)]
+pub struct UriParseError;
+
+impl Display for UriParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Failed to parse URI")
+    }
+}
+
+impl std::error::Error for UriParseError {}
 
 /// An error that could have occurred while using [`crate::Octocrab`].
 #[derive(Snafu, Debug)]
@@ -9,8 +27,12 @@ pub enum Error {
         source: GitHubError,
         backtrace: Backtrace,
     },
-    Url {
-        source: url::ParseError,
+    UriParse {
+        source: UriParseError,
+        backtrace: Backtrace,
+    },
+    Uri {
+        source: InvalidUri,
         backtrace: Backtrace,
     },
     InvalidHeaderValue {
@@ -22,6 +44,35 @@ pub enum Error {
         source: http::Error,
         backtrace: Backtrace,
     },
+
+    InvalidUtf8 {
+        source: FromUtf8Error,
+        backtrace: Backtrace,
+    },
+
+    Encoder {
+        source: std::io::Error,
+        backtrace: Backtrace,
+    },
+
+    #[snafu(display("Service Error: {}\n\nFound at {}", source, backtrace))]
+    Service {
+        source: BoxError,
+        backtrace: Backtrace,
+    },
+
+    #[snafu(display("Hyper Error: {}\n\nFound at {}", source, backtrace))]
+    Hyper {
+        source: hyper::Error,
+        backtrace: Backtrace,
+    },
+
+    #[snafu(display("Serde Url Encode Error: {}\nFound at {}", source, backtrace))]
+    SerdeUrlEncoded {
+        source: serde_urlencoded::ser::Error,
+        backtrace: Backtrace,
+    },
+
     #[snafu(display("Serde Error: {}\nFound at {}", source, backtrace))]
     Serde {
         source: serde_json::Error,

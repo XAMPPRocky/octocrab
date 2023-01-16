@@ -1,7 +1,14 @@
-use std::slice::Iter;
 
+use http::Uri;
+use hyper::body;
+use std::slice::Iter;
+use std::str::FromStr;
+
+use crate::error;
+use crate::error::{SerdeSnafu, UriSnafu};
+use hyperx::header::TypedHeaders;
 use snafu::{GenerateImplicitData, ResultExt};
-use url::Url;
+use url::{form_urlencoded};
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "stream")] {
@@ -32,16 +39,16 @@ pub struct Page<T> {
     pub items: Vec<T>,
     pub incomplete_results: Option<bool>,
     pub total_count: Option<u64>,
-    pub next: Option<Url>,
-    pub prev: Option<Url>,
-    pub first: Option<Url>,
-    pub last: Option<Url>,
+    pub next: Option<Uri>,
+    pub prev: Option<Uri>,
+    pub first: Option<Uri>,
+    pub last: Option<Uri>,
 }
 
 #[cfg(feature = "stream")]
 struct PageIterator<'octo, T> {
     crab: &'octo Octocrab,
-    next: Option<Url>,
+    next: Option<Uri>,
     current: std::vec::IntoIter<T>,
 }
 
@@ -53,8 +60,9 @@ impl<T> Page<T> {
 
     /// If `last` is present, return the number of pages for this navigation.
     pub fn number_of_pages(&self) -> Option<u32> {
-        self.last.as_ref().and_then(|url| {
-            url.query_pairs()
+        self.last.as_ref().and_then(|uri| {
+            let query = form_urlencoded::parse(uri.query().unwrap_or("").as_bytes());
+            query
                 .filter_map(|(k, v)| {
                     if k == "page" {
                         Some(v).and_then(|v| v.parse().ok())
@@ -160,7 +168,7 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
 
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
-    async fn from_response(response: hyper::Response<hyper::Body>) -> crate::Result<Self> {
+    async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self> {
         let HeaderLinks {
             first,
             prev,
@@ -168,7 +176,13 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
             last,
         } = get_links(&response.headers())?;
 
-        let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
+        let json: serde_json::Value = serde_json::from_slice(
+            body::to_bytes(response.into_body())
+                .await
+                .context(error::HyperSnafu)?
+                .as_ref(),
+        )
+        .context(SerdeSnafu)?;
 
         if json.is_array() {
             Ok(Self {
@@ -213,13 +227,13 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
 }
 
 struct HeaderLinks {
-    next: Option<Url>,
-    prev: Option<Url>,
-    first: Option<Url>,
-    last: Option<Url>,
+    next: Option<Uri>,
+    prev: Option<Uri>,
+    first: Option<Uri>,
+    last: Option<Uri>,
 }
 
-fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks> {
+fn get_links(headers: &http::header::HeaderMap) -> crate::Result<HeaderLinks> {
     let mut first = None;
     let mut prev = None;
     let mut next = None;
@@ -246,10 +260,10 @@ fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks>
 
                     if name == "rel" {
                         match value {
-                            "first" => first = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                            "prev" => prev = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                            "next" => next = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
-                            "last" => last = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "first" => first = Some(Uri::from_str(url).context(UriSnafu)?),
+                            "prev" => prev = Some(Uri::from_str(url).context(UriSnafu)?),
+                            "next" => next = Some(Uri::from_str(url).context(UriSnafu)?),
+                            "last" => last = Some(Uri::from_str(url).context(UriSnafu)?),
                             other => print!(
                                 "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
                                 other
@@ -271,13 +285,13 @@ fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks>
 
 #[cfg(test)]
 mod test {
-    use reqwest::Url;
-
+    use std::str::FromStr;
+    use http::Uri;
     use super::{get_links, HeaderLinks};
 
     #[test]
     fn get_links_extracts_all_required_links_from_link_header() {
-        let mut headers = reqwest::header::HeaderMap::new();
+        let mut headers = http::header::HeaderMap::new();
         headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=3>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last", <https://api.github.com/repositories/1234/releases?page=1>; rel="first", <https://api.github.com/repositories/1234/releases?page=2>; rel="prev""#.parse().unwrap());
         let HeaderLinks {
             first,
@@ -285,27 +299,28 @@ mod test {
             next,
             last,
         } = get_links(&headers).expect("No error");
+
         assert_eq!(
             first,
-            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=1").unwrap())
+            Some(Uri::from_str("https://api.github.com/repositories/1234/releases?page=1").unwrap())
         );
         assert_eq!(
             prev,
-            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=2").unwrap())
+            Some(Uri::from_str("https://api.github.com/repositories/1234/releases?page=2").unwrap())
         );
         assert_eq!(
             next,
-            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=3").unwrap())
+            Some(Uri::from_str("https://api.github.com/repositories/1234/releases?page=3").unwrap())
         );
         assert_eq!(
             last,
-            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=4").unwrap())
+            Some(Uri::from_str("https://api.github.com/repositories/1234/releases?page=4").unwrap())
         );
     }
 
     #[test]
     fn get_links_extracts_partial_links_from_link_header() {
-        let mut headers = reqwest::header::HeaderMap::new();
+        let mut headers = http::header::HeaderMap::new();
         headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=2>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last""#.parse().unwrap());
         let HeaderLinks {
             first,
@@ -332,7 +347,7 @@ mod test {
             prev,
             next,
             last,
-        } = get_links(&reqwest::header::HeaderMap::new()).expect("No error");
+        } = get_links(&http::header::HeaderMap::new()).expect("No error");
         assert_eq!(first, None);
         assert_eq!(prev, None);
         assert_eq!(next, None);

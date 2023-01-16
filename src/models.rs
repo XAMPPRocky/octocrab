@@ -5,8 +5,8 @@ use std::fmt;
 use std::ops::{Deref, DerefMut};
 
 use chrono::{DateTime, Utc};
-use url::Url;
 use serde::{de, Deserialize, Deserializer, Serialize};
+use url::Url;
 
 pub mod activity;
 pub mod apps;

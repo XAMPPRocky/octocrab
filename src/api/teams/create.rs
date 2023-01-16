@@ -71,7 +71,7 @@ impl<'octo, 'h, 'a, 'b> CreateTeamBuilder<'octo, 'h, 'a, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::teams::Team> {
-        let url = format!("orgs/{org}/teams", org = self.handler.owner,);
+        let url = format!("/orgs/{org}/teams", org = self.handler.owner,);
         self.handler.crab.post(url, Some(&self)).await
     }
 }

@@ -60,7 +60,7 @@ impl<'octo, 'b> MergePullRequestsBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::Merge> {
         let url = format!(
-            "repos/{owner}/{repo}/pulls/{pull_number}/merge",
+            "/repos/{owner}/{repo}/pulls/{pull_number}/merge",
             owner = self.handler.owner,
             repo = self.handler.repo,
             pull_number = self.pr_number,

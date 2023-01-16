@@ -1,6 +1,9 @@
 //! The repositories API.
 
 use http::header::ACCEPT;
+use http::request::Builder;
+use http::Uri;
+use snafu::ResultExt;
 
 mod branches;
 mod commits;
@@ -14,6 +17,7 @@ mod stargazers;
 mod status;
 mod tags;
 
+use crate::error::HttpSnafu;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
@@ -48,7 +52,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn license(&self) -> Result<models::repos::Content> {
         let url = format!(
-            "repos/{owner}/{repo}/license",
+            "/repos/{owner}/{repo}/license",
             owner = self.owner,
             repo = self.repo,
         );
@@ -65,7 +69,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn public_key(&self) -> Result<models::PublicKey> {
         let url = format!(
-            "repos/{owner}/{repo}/actions/secrets/public-key",
+            "/repos/{owner}/{repo}/actions/secrets/public-key",
             owner = self.owner,
             repo = self.repo,
         );
@@ -84,7 +88,11 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
+        let url = format!(
+            "/repos/{owner}/{repo}",
+            owner = self.owner,
+            repo = self.repo,
+        );
         self.crab.get(url, None::<&()>).await
     }
 
@@ -100,7 +108,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
         let url = format!(
-            "repos/{owner}/{repo}/community/profile",
+            "/repos/{owner}/{repo}/community/profile",
             owner = self.owner,
             repo = self.repo,
         );
@@ -124,7 +132,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
     ) -> Result<models::repos::Ref> {
         let url = format!(
-            "repos/{owner}/{repo}/git/ref/{reference}",
+            "/repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
@@ -146,7 +154,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
         let url = format!(
-            "repos/{owner}/{repo}/git/tags/{tag_sha}",
+            "/repos/{owner}/{repo}/git/tags/{tag_sha}",
             owner = self.owner,
             repo = self.repo,
             tag_sha = tag_sha.into(),
@@ -174,7 +182,7 @@ impl<'octo> RepoHandler<'octo> {
         sha: impl Into<String>,
     ) -> Result<models::repos::Ref> {
         let url = format!(
-            "repos/{owner}/{repo}/git/refs",
+            "/repos/{owner}/{repo}/git/refs",
             owner = self.owner,
             repo = self.repo,
         );
@@ -458,7 +466,7 @@ impl<'octo> RepoHandler<'octo> {
 
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
-    /// # use hyper::Response;
+    /// # use http::Response;
     ///  async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .repos("owner", "repo")
@@ -480,17 +488,24 @@ impl<'octo> RepoHandler<'octo> {
         self,
         reference: impl Into<params::repos::Commitish>,
         path: impl AsRef<str>,
-    ) -> Result<hyper::Response<hyper::Body>> {
-        let url = self.crab.absolute_url(format!(
-            "repos/{owner}/{repo}/contents/{path}",
+    ) -> Result<http::Response<hyper::Body>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
             repo = self.repo,
             path = path.as_ref(),
-        ))?;
-        let mut request = self.crab.request_builder(url, http::Method::GET);
-        request = request.query(&[("ref", &reference.into().0)]);
-        request = request.header(ACCEPT, "application/vnd.github.v3.raw");
-        self.crab.execute(request).await
+        );
+
+        let uri = self
+            .crab
+            .parameterized_uri(route, Some(&[("ref", &reference.into().0)]))?;
+        let request = Builder::new()
+            .uri(uri)
+            .method(http::Method::GET)
+            .header(ACCEPT, "application/vnd.github.v3.raw");
+        self.crab
+            .execute(self.crab.build_request(request, None::<&()>)?)
+            .await
     }
 
     /// Deletes this repository.
@@ -500,28 +515,36 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete(self) -> Result<()> {
-        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(
-            self.crab
-                ._delete(self.crab.absolute_url(url)?, None::<&()>)
-                .await?,
-        )
-        .await
-        .map(drop)
+        let route = format!(
+            "/repos/{owner}/{repo}",
+            owner = self.owner,
+            repo = self.repo
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._delete(uri).await?)
+            .await
+            .map(drop)
     }
 
     /// Stream the repository contents as a .tar.gz
     pub async fn download_tarball(
         &self,
         reference: impl Into<params::repos::Commitish>,
-    ) -> Result<hyper::Response<hyper::Body>> {
-        let url = self.crab.absolute_url(format!(
-            "repos/{owner}/{repo}/tarball/{reference}",
+    ) -> Result<http::Response<hyper::Body>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.into(),
-        ))?;
-        self.crab._get(url, None::<&()>).await
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        self.crab._get(uri).await
     }
 
     /// Check if a user is a repository collaborator

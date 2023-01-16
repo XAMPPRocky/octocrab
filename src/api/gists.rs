@@ -62,7 +62,7 @@ impl<'octo> GistsHandler<'octo> {
     /// # }
     /// ```
     pub fn update(&self, id: impl AsRef<str>) -> UpdateGistBuilder<'octo> {
-        UpdateGistBuilder::new(self.crab, format!("gists/{id}", id = id.as_ref()))
+        UpdateGistBuilder::new(self.crab, format!("/gists/{id}", id = id.as_ref()))
     }
 
     /// Get a single gist.

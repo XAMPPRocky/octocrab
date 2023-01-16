@@ -63,7 +63,7 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Status> {
         let url = format!(
-            "repos/{owner}/{repo}/statuses/{sha}",
+            "/repos/{owner}/{repo}/statuses/{sha}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             sha = self.sha
@@ -109,7 +109,7 @@ impl<'octo, 'r> ListStatusesBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Status>> {
         let url = format!(
-            "repos/{owner}/{repo}/commits/{sha}/statuses",
+            "/repos/{owner}/{repo}/commits/{sha}/statuses",
             owner = self.handler.owner,
             repo = self.handler.repo,
             sha = self.sha,

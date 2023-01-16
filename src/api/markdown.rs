@@ -1,4 +1,7 @@
 //! The markdown API
+use crate::error::HttpSnafu;
+use http::request::Builder;
+use http::{Method, Uri};
 use snafu::ResultExt;
 
 use crate::Octocrab;
@@ -50,19 +53,18 @@ impl<'octo> MarkdownHandler<'octo> {
     /// # }
     /// ```
     pub async fn render_raw(&self, text: impl Into<String>) -> crate::Result<String> {
-        let request = self
-            .crab
-            .client
-            .post(self.crab.absolute_url("markdown/raw")?)
-            .header(http::header::CONTENT_TYPE, "text/x-markdown")
-            .body(text.into());
+        let uri = Uri::builder()
+            .path_and_query("/markdown/raw")
+            .build()
+            .context(HttpSnafu)?;
+        let mut request = Builder::new().uri(uri).method(Method::POST);
+        request = request.header(http::header::CONTENT_TYPE, "text/x-markdown");
+
+        let request = self.crab.build_request(request, Some(&text.into()))?;
 
         self.crab
-            .execute(request)
-            .await?
-            .text()
+            .body_to_string(self.crab.execute(request).await?)
             .await
-            .context(crate::error::HttpSnafu)
     }
 }
 
@@ -102,13 +104,14 @@ impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
 
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<String> {
+        let uri = Uri::builder()
+            .path_and_query("/markdown")
+            .build()
+            .context(HttpSnafu)?;
         self.handler
             .crab
-            ._post(self.handler.crab.absolute_url("markdown")?, Some(&self))
-            .await?
-            .text()
+            .body_to_string(self.handler.crab._post(uri, Some(&self)).await?)
             .await
-            .context(crate::error::HttpSnafu)
     }
 }
 
