@@ -9,6 +9,7 @@ use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 
+
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
     headers: Headers,

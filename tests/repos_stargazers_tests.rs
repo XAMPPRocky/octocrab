@@ -25,7 +25,9 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /repo/{owner}/{repo}/stargazers was not received"),
+        &format!(
+            "GET on /repo/{owner}/{repo}/stargazers was not received"
+        ),
     )
     .await;
     mock_server
@@ -55,10 +57,11 @@ async fn should_return_page_with_users() {
         result
     );
     let Page { items, .. } = result.unwrap();
-    {
-        assert_eq!(items.len(), 3);
-        assert_eq!(items[0].user.as_ref().unwrap().login, login1);
-    }
+         {
+            assert_eq!(items.len(), 3);
+            assert_eq!(items[0].user.as_ref().unwrap().login, login1);
+        }
+
 }
 
 #[tokio::test]

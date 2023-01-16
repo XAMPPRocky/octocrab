@@ -1,9 +1,10 @@
 //! Github Notifications API
 
 use crate::error::HttpSnafu;
-use crate::models::{NotificationId, ThreadId};
+use crate::error::HttpSnafu;
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
+use crate::models::{NotificationId, ThreadId};
 use crate::Octocrab;
 use crate::Page;
 use http::Uri;
@@ -201,7 +202,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
-        let route = format!("/notifications/threads/{thread}/subscription");
+        let route = format!("/notifications/threads/{ thread}/subscription");
 
         let uri = Uri::builder()
             .path_and_query(route)

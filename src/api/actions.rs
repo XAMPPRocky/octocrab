@@ -1,6 +1,6 @@
 //! GitHub Actions
-use std::io::Read;
 use snafu::ResultExt;
+
 
 use crate::error::{HttpSnafu, HyperSnafu};
 use crate::etag::{EntityTag, Etagged};
@@ -12,6 +12,7 @@ use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode, Uri};
 use hyper::body;
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
+
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
