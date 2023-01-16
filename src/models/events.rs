@@ -9,8 +9,8 @@ use self::payload::{
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
 use payload::MemberEventPayload;
-use reqwest::Url;
 use serde::{de::Error, Deserialize, Serialize};
+use url::Url;
 
 /// A GitHub event.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -157,7 +157,8 @@ impl<'de> Deserialize<'de> for Event {
 #[cfg(test)]
 mod test {
     use super::{Event, EventPayload, EventType};
-    use reqwest::Url;
+    use url::Url;
+    use url::Url;
 
     #[test]
     fn should_deserialize_push_event() {

@@ -1,4 +1,5 @@
 //! GitHub Actions
+use std::io::Read;
 use snafu::ResultExt;
 
 use crate::etag::{EntityTag, Etagged};
@@ -6,7 +7,8 @@ use crate::models::{
     workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -414,12 +416,11 @@ impl<'octo> ActionsHandler<'octo> {
         workflow_id: impl Into<String>,
         r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
-        WorkflowDispatchBuilder::new(
-            self.crab,
+        WorkflowDispatchBuilder::new(self.crab,
             owner.into(),
             repo.into(),
             workflow_id.into(),
-            r#ref.into(),
+            r#ref.into()
         )
     }
 }

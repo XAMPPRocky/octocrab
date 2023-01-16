@@ -5,7 +5,7 @@ use crate::{
     repos::RepoHandler,
     FromResponse, Page,
 };
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
     handler: &'handler RepoHandler<'octo>,

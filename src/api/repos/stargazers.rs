@@ -39,8 +39,8 @@ impl<'octo, 'r> ListStarGazersBuilder<'octo, 'r> {
             repo = self.handler.repo
         );
 
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert(ACCEPT, "application/vnd.github.star+json".parse().unwrap());
+    let mut headers = http::header::HeaderMap::new();
+    headers.insert(ACCEPT, "application/vnd.github.star+json".parse().unwrap());
 
         self.handler
             .crab
