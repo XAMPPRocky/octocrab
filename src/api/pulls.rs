@@ -9,6 +9,8 @@ mod update;
 use http::request::Builder;
 use http::{Method, Uri};
 
+use http::Request;
+use hyper::Body;
 use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
@@ -392,7 +394,7 @@ impl<'octo> PullRequestHandler<'octo> {
         }
         let request = self.crab.build_request(request, None::<&()>)?;
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, None).await?).await?).await
     }
 
     pub(crate) async fn http_post<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -409,7 +411,7 @@ impl<'octo> PullRequestHandler<'octo> {
         request = self.build_request(request);
         let request = self.crab.build_request(request, body)?;
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, body).await?).await?).await
     }
 
     pub(crate) async fn http_put<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -427,7 +429,7 @@ impl<'octo> PullRequestHandler<'octo> {
         request = self.build_request(request);
         let request = self.crab.build_request(request, body)?;
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, body).await?).await?).await
     }
 
     pub(crate) async fn http_patch<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>

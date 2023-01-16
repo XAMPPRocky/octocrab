@@ -1,4 +1,5 @@
 //! GitHub Actions
+use std::io::Read;
 use snafu::ResultExt;
 
 use crate::error::{HttpSnafu, HyperSnafu};
