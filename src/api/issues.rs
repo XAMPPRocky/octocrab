@@ -5,8 +5,11 @@ mod list;
 mod list_labels;
 mod update;
 
+use crate::error::HttpSnafu;
 use crate::models::{CommentId, ReactionId};
 use crate::{models, params, Octocrab, Result};
+use http::Uri;
+use snafu::ResultExt;
 
 pub use self::{
     create::CreateIssueBuilder,
@@ -44,7 +47,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get(&self, number: u64) -> Result<models::issues::Issue> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{number}",
+            "/repos/{owner}/{repo}/issues/{number}",
             owner = self.owner,
             repo = self.repo,
             number = number,
@@ -144,16 +147,21 @@ impl<'octo> IssueHandler<'octo> {
         reason: impl Into<Option<params::LockReason>>,
     ) -> Result<bool> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{number}/lock",
+            "/repos/{owner}/{repo}/issues/{number}/lock",
             owner = self.owner,
             repo = self.repo,
             number = number,
         );
 
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
         let response = self
             .crab
             ._put(
-                self.crab.absolute_url(route)?,
+                uri,
                 reason
                     .into()
                     .map(|reason| {
@@ -179,16 +187,18 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn unlock(&self, number: u64) -> Result<bool> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{number}/lock",
+            "/repos/{owner}/{repo}/issues/{number}/lock",
             owner = self.owner,
             repo = self.repo,
             number = number,
         );
 
-        let response = self
-            .crab
-            ._delete(self.crab.absolute_url(route)?, None::<&()>)
-            .await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri).await?;
 
         Ok(response.status() == 204)
     }
@@ -211,7 +221,7 @@ impl<'octo> IssueHandler<'octo> {
         assignees: &[&str],
     ) -> Result<models::issues::Issue> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/assignees",
+            "/repos/{owner}/{repo}/issues/{issue}/assignees",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -233,15 +243,18 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn check_assignee(&self, assignee: impl AsRef<str>) -> Result<bool> {
         let route = format!(
-            "repos/{owner}/{repo}/assignees/{assignee}",
+            "/repos/{owner}/{repo}/assignees/{assignee}",
             owner = self.owner,
             repo = self.repo,
             assignee = assignee.as_ref()
         );
-        let response = self
-            .crab
-            ._get(self.crab.absolute_url(route)?, None::<&()>)
-            .await?;
+
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._get(uri).await?;
         let status = response.status();
 
         if status == 204 {
@@ -306,7 +319,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::User>> {
         let route = format!(
-            "repos/{owner}/{repo}/assignees",
+            "/repos/{owner}/{repo}/assignees",
             owner = self.handler.owner,
             repo = self.handler.repo,
         );
@@ -329,7 +342,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn add_labels(&self, number: u64, labels: &[String]) -> Result<Vec<models::Label>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/labels",
+            "/repos/{owner}/{repo}/issues/{issue}/labels",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -598,10 +611,12 @@ impl<'octo> IssueHandler<'octo> {
             comment_id = comment_id
         );
 
-        let response = self
-            .crab
-            ._delete(self.crab.absolute_url(route)?, None::<&()>)
-            .await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri).await?;
 
         if response.status() == 204 {
             Ok(())

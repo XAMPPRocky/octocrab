@@ -13,7 +13,6 @@ pub struct ListTeamInvitationsBuilder<'octo, 'r> {
     page: Option<u32>,
 }
 
-
 impl<'octo, 'r> ListTeamInvitationsBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r TeamHandler<'octo>, slug: String) -> Self {
         Self {
@@ -39,7 +38,7 @@ impl<'octo, 'r> ListTeamInvitationsBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<teams::TeamInvitation>> {
         let url = format!(
-            "orgs/{org}/teams/{team}/invitations",
+            "/orgs/{org}/teams/{team}/invitations",
             org = self.handler.owner,
             team = self.slug,
         );

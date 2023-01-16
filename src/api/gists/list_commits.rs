@@ -36,8 +36,7 @@ impl<'octo, 'b> ListCommitsBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::gists::GistCommit>> {
-        let url = format!("gists/{gist_id}/commits", gist_id = self.gist_id);
+        let url = format!("/gists/{gist_id}/commits", gist_id = self.gist_id);
         self.handler.crab.get(url, Some(&self)).await
     }
 }
-

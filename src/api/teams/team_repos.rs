@@ -1,7 +1,10 @@
+use crate::error::HttpSnafu;
 use crate::params;
 use crate::{models, FromResponse, Octocrab, Result};
 use http::header::ACCEPT;
-use http::StatusCode;
+use http::request::Builder;
+use http::{StatusCode, Uri};
+use snafu::ResultExt;
 
 #[derive(Debug, serde::Serialize)]
 struct PermissionUpdateBody {
@@ -42,19 +45,25 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
     ) -> Result<Option<models::Repository>> {
-        let url = format!(
-            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+        let route = format!(
+            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        let req = self
-            .crab
-            .client
-            .get(self.crab.absolute_url(&url)?)
-            .header(ACCEPT, "application/vnd.github.v3.repository+json");
-        let res = self.crab.execute(req).await?;
+
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let request = Builder::new()
+            .method("GET")
+            .uri(uri)
+            .header(ACCEPT, crate::format_media_type("inertia-preview+json"));
+        let request = self.crab.build_request(request, None::<&()>)?;
+
+        let res = self.crab.execute(request).await?;
         if res.status() == StatusCode::NOT_FOUND {
             return Ok(None);
         }
@@ -80,8 +89,8 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_name: impl Into<String>,
         permission: impl Into<Option<params::teams::Permission>>,
     ) -> Result<()> {
-        let url = format!(
-            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+        let route = format!(
+            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),
@@ -90,13 +99,14 @@ impl<'octo> TeamRepoHandler<'octo> {
         let perm_body = permission
             .into()
             .map(|p| PermissionUpdateBody { permission: p });
-        crate::map_github_error(
-            self.crab
-                ._put(self.crab.absolute_url(&url)?, perm_body.as_ref())
-                .await?,
-        )
-        .await
-        .map(drop)
+
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._put(uri, perm_body.as_ref()).await?)
+            .await
+            .map(drop)
     }
 
     /// Removes a repository from a team.
@@ -116,7 +126,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_name: impl Into<String>,
     ) -> Result<()> {
         let url = format!(
-            "orgs/{org}/teams/{team}/repos/{owner}/{repo}",
+            "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),

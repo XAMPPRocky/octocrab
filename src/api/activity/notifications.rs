@@ -1,10 +1,13 @@
 //! Github Notifications API
 
-use crate::models::{NotificationId, ThreadId};
+use crate::error::HttpSnafu;
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
+use crate::models::{NotificationId, ThreadId};
 use crate::Octocrab;
 use crate::Page;
+use http::Uri;
+use snafu::ResultExt;
 
 type DateTime = chrono::DateTime<chrono::Utc>;
 
@@ -37,7 +40,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, id: NotificationId) -> crate::Result<Notification> {
-        let url = format!("notifications/threads/{}", id);
+        let url = format!("/notifications/threads/{}", id);
         self.crab.get(url, None::<&()>).await
     }
 
@@ -54,10 +57,13 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn mark_as_read(&self, id: NotificationId) -> crate::Result<()> {
-        let url = format!("notifications/threads/{}", id);
-        let url = self.crab.absolute_url(url)?;
+        let route = format!("/notifications/threads/{}", id);
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
 
-        let response = self.crab._patch(url, None::<&()>).await?;
+        let response = self.crab._patch(uri, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
     }
 
@@ -88,10 +94,13 @@ impl<'octo> NotificationsHandler<'octo> {
             .into()
             .map(|last_read_at| Inner { last_read_at });
 
-        let url = format!("repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
-        let url = self.crab.absolute_url(url)?;
+        let route = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
 
-        let response = self.crab._put(url, body.as_ref()).await?;
+        let response = self.crab._put(uri, body.as_ref()).await?;
         crate::map_github_error(response).await.map(drop)
     }
 
@@ -122,9 +131,12 @@ impl<'octo> NotificationsHandler<'octo> {
         let body = last_read_at
             .into()
             .map(|last_read_at| Inner { last_read_at });
-        let url = self.crab.absolute_url("notifications")?;
+        let uri = Uri::builder()
+            .path_and_query("/notifications")
+            .build()
+            .context(HttpSnafu)?;
 
-        let response = self.crab._put(url, body.as_ref()).await?;
+        let response = self.crab._put(uri, body.as_ref()).await?;
         crate::map_github_error(response).await.map(drop)
     }
 
@@ -142,7 +154,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// ```
     pub async fn get_thread_subscription(
         &self,
-        thread: ThreadId
+        thread: ThreadId,
     ) -> crate::Result<ThreadSubscription> {
         let url = format!("notifications/threads/{}/subscription", thread);
 
@@ -189,12 +201,13 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
-        let url = self.crab.absolute_url(format!(
-            "notifications/threads/{}/subscription",
-            thread
-        ))?;
+        let route = format!("/notifications/threads/{}/subscription", thread);
 
-        let response = self.crab._delete(url, None::<&()>).await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let response = self.crab._delete(uri).await?;
         crate::map_github_error(response).await.map(drop)
     }
 

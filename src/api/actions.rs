@@ -1,16 +1,18 @@
 //! GitHub Actions
-use std::io::Read;
 use snafu::ResultExt;
 
+
+use crate::error::{HttpSnafu, HyperSnafu};
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
-    workflows::WorkflowListArtifact,
-    ArtifactId, RepositoryId, RunId,
-    workflows::WorkflowDispatch
+    workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
+use http::request::Builder;
+use http::{header::HeaderMap, Method, StatusCode, Uri};
+use hyper::body;
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use http::{header::HeaderMap, Method, StatusCode};
+
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -54,19 +56,25 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
     }
 
     pub async fn send(self) -> crate::Result<Etagged<Page<WorkflowListArtifact>>> {
-        let url = format!(
-            "{base_url}repos/{owner}/{repo}/actions/runs/{run_id}/artifacts",
-            base_url = self.crab.base_url,
+        let path = format!(
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/artifacts",
             owner = self.owner,
             repo = self.repo,
             run_id = self.run_id
         );
+        let uri = Uri::builder()
+            .path_and_query(path)
+            .build()
+            .context(HttpSnafu)?;
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.etag {
             headers.encode(&IfNoneMatch::Items(vec![etag]));
         }
-        let builder = self.crab.client.request(Method::GET, &url).headers(headers);
-        let response = self.crab.execute(builder).await?;
+
+        let request = self
+            .crab
+            .build_request(Builder::new().method(Method::GET).uri(uri), None::<&()>)?;
+        let response = self.crab.execute(request).await?;
         let etag = response
             .headers()
             .decode::<ETag>()
@@ -94,8 +102,20 @@ pub struct WorkflowDispatchBuilder<'octo> {
 }
 
 impl<'octo> WorkflowDispatchBuilder<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
-        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+    pub(crate) fn new(
+        crab: &'octo Octocrab,
+        owner: String,
+        repo: String,
+        workflow_id: String,
+        r#ref: String,
+    ) -> Self {
+        let mut this = Self {
+            crab,
+            owner,
+            repo,
+            workflow_id,
+            data: Default::default(),
+        };
         this.data.r#ref = r#ref;
         this
     }
@@ -113,18 +133,19 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
 
     pub async fn send(self) -> crate::Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+            "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
             owner = self.owner,
             repo = self.repo,
             workflow_id = self.workflow_id
         );
 
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
         // this entry point doesn't actually return anything sensible
-        self.crab._post(
-            self.crab.absolute_url(route)?,
-            Some(&self.data),
-        )
-        .await?;
+        self.crab._post(uri, Some(&self.data)).await?;
 
         Ok(())
     }
@@ -163,14 +184,16 @@ impl<'octo> ActionsHandler<'octo> {
         repository_id: RepositoryId,
     ) -> crate::Result<()> {
         let route = format!(
-            "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
+            "/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
             org = org.as_ref(),
             secret_name = secret_name.as_ref(),
             repository_id = repository_id,
         );
-
-        let url = self.crab.absolute_url(route)?;
-        crate::map_github_error(self.crab._put(url, None::<&()>).await?)
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._put(uri, None::<&()>).await?)
             .await
             .map(drop)
     }
@@ -196,14 +219,17 @@ impl<'octo> ActionsHandler<'octo> {
         repository_id: RepositoryId,
     ) -> crate::Result<()> {
         let route = format!(
-            "orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
+            "/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}",
             org = org.as_ref(),
             secret_name = secret_name.as_ref(),
             repository_id = repository_id,
         );
 
-        let url = self.crab.absolute_url(route)?;
-        crate::map_github_error(self.crab._delete(url, None::<&()>).await?)
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._delete(uri).await?)
             .await
             .map(drop)
     }
@@ -227,32 +253,35 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: RunId,
     ) -> crate::Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
         );
-
-        let url = self.crab.absolute_url(route)?;
-        crate::map_github_error(self.crab._post(url, None::<&()>).await?)
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._post(uri, None::<&()>).await?)
             .await
             .map(drop)
     }
 
     async fn follow_location_to_data(
         &self,
-        response: hyper::Response<hyper::Body>,
+        response: http::Response<hyper::Body>,
     ) -> crate::Result<bytes::Bytes> {
-        let data_response =
-            if let Some(redirect) = response.headers().get(http::header::LOCATION) {
-                let location = redirect.to_str().expect("Location URL not valid str");
+        let data_response = if let Some(redirect) = response.headers().get(http::header::LOCATION) {
+            let location = redirect.to_str().expect("Location URL not valid str");
 
-                self.crab._get(location, None::<&()>).await?
-            } else {
-                response
-            };
+            self.crab._get(location).await?
+        } else {
+            response
+        };
 
-        data_response.bytes().await.context(crate::error::HttpSnafu)
+        let body = data_response.into_body();
+
+        return body::to_bytes(body).await.context(HyperSnafu);
     }
 
     /// Downloads and returns the raw data representing a zip of the logs from
@@ -273,18 +302,19 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: RunId,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/runs/{run_id}/logs",
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/logs",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
         );
 
-        self.follow_location_to_data(
-            self.crab
-                ._get(self.crab.absolute_url(route)?, None::<&()>)
-                .await?,
-        )
-        .await
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        self.follow_location_to_data(self.crab._get(uri).await?)
+            .await
     }
 
     /// Downloads and returns the raw data representing an artifact from a
@@ -308,19 +338,20 @@ impl<'octo> ActionsHandler<'octo> {
         archive_format: params::actions::ArchiveFormat,
     ) -> crate::Result<bytes::Bytes> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
+            "/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             artifact_id = artifact_id,
             archive_format = archive_format,
         );
 
-        self.follow_location_to_data(
-            self.crab
-                ._get(self.crab.absolute_url(route)?, None::<&()>)
-                .await?,
-        )
-        .await
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        self.follow_location_to_data(self.crab._get(uri).await?)
+            .await
     }
 
     /// Deletes all logs for a workflow run. You must authenticate using an
@@ -342,14 +373,17 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: RunId,
     ) -> crate::Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/runs/{run_id}/logs",
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/logs",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
         );
 
-        let url = self.crab.absolute_url(route)?;
-        crate::map_github_error(self.crab._delete(url, None::<&()>).await?)
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._delete(uri).await?)
             .await
             .map(drop)
     }
@@ -412,11 +446,12 @@ impl<'octo> ActionsHandler<'octo> {
         workflow_id: impl Into<String>,
         r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
-        WorkflowDispatchBuilder::new(self.crab,
+        WorkflowDispatchBuilder::new(
+            self.crab,
             owner.into(),
             repo.into(),
             workflow_id.into(),
-            r#ref.into()
+            r#ref.into(),
         )
     }
 }

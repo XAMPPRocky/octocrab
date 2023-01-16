@@ -36,7 +36,7 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
         let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = path,
@@ -104,7 +104,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
@@ -168,7 +168,7 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileDeletion> {
         let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,

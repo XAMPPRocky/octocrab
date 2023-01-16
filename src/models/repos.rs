@@ -1,7 +1,9 @@
 use super::*;
+use crate::error;
+use crate::error::SerdeSnafu;
+use hyper::{body, Response};
 use snafu::ResultExt;
 use url::Url;
-use hyper::Response;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -221,7 +223,13 @@ impl Content {
 #[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
     async fn from_response(response: Response<hyper::Body>) -> crate::Result<Self> {
-        let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
+        let json: serde_json::Value = serde_json::from_slice(
+            body::to_bytes(response.into_body())
+                .await
+                .context(error::HyperSnafu)?
+                .as_ref(),
+        )
+        .context(SerdeSnafu)?;
 
         if json.is_array() {
             Ok(ContentItems {

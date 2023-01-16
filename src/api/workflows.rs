@@ -37,7 +37,7 @@ impl<'octo> WorkflowsHandler<'octo> {
 
     pub async fn get(&self, run_id: RunId) -> Result<models::workflows::Run> {
         let route = format!(
-            "repos/{owner}/{repo}/actions/runs/{run_id}",
+            "/repos/{owner}/{repo}/actions/runs/{run_id}",
             owner = self.owner,
             repo = self.repo,
             run_id = run_id,
@@ -155,7 +155,7 @@ impl<'octo, 'b> ListWorkflowsBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::workflows::WorkFlow>> {
         let url = format!(
-            "repos/{owner}/{repo}/actions/workflows",
+            "/repos/{owner}/{repo}/actions/workflows",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
@@ -254,12 +254,12 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
     pub async fn send(self) -> Result<Page<models::workflows::Run>> {
         let url = match self.r#type {
             ListRunsRequestType::ByRepo => format!(
-                "repos/{owner}/{repo}/actions/runs",
+                "/repos/{owner}/{repo}/actions/runs",
                 owner = self.handler.owner,
                 repo = self.handler.repo
             ),
             ListRunsRequestType::ByWorkflow(ref workflow_id) => format!(
-                "repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
+                "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
                 owner = self.handler.owner,
                 repo = self.handler.repo,
                 workflow_id = workflow_id
@@ -315,7 +315,7 @@ impl<'octo, 'b> ListJobsBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::workflows::Job>> {
         let url = format!(
-            "repos/{owner}/{repo}/actions/runs/{run_id}/jobs",
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/jobs",
             owner = self.handler.owner,
             repo = self.handler.repo,
             run_id = self.run_id,

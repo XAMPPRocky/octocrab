@@ -37,7 +37,7 @@ impl<'octo, 'r> ListPullsBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::pulls::PullRequest>> {
         let url = format!(
-            "repos/{owner}/{repo}/commits/{sha}/pulls",
+            "/repos/{owner}/{repo}/commits/{sha}/pulls",
             owner = self.handler.owner,
             repo = self.handler.repo,
             sha = self.sha,

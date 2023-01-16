@@ -1,5 +1,7 @@
 //! The gitignore API
 
+use crate::error::HttpSnafu;
+use http::{request, Uri};
 use snafu::ResultExt;
 
 use crate::Octocrab;
@@ -36,18 +38,17 @@ impl<'octo> GitignoreHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, name: impl AsRef<str>) -> crate::Result<String> {
-        let route = format!("gitignore/templates/{name}", name = name.as_ref());
-        let request = self
-            .crab
-            .client
-            .get(self.crab.absolute_url(route)?)
-            .header(http::header::ACCEPT, crate::format_media_type("raw"));
+        let route = format!("/gitignore/templates/{name}", name = name.as_ref());
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let mut request = request::Builder::new().method("GET").uri(uri);
+        request = request.header(http::header::ACCEPT, crate::format_media_type("raw"));
 
-        self.crab
-            .execute(request)
-            .await?
-            .text()
-            .await
-            .context(crate::error::HttpSnafu)
+        let request = self.crab.build_request(request, None::<&()>)?;
+
+        let response = self.crab.execute(request).await?;
+        self.crab.body_to_string(response).await
     }
 }

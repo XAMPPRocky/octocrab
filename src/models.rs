@@ -5,8 +5,8 @@ use std::fmt;
 use std::ops::{Deref, DerefMut};
 
 use chrono::{DateTime, Utc};
-use url::Url;
 use serde::{de, Deserialize, Deserializer, Serialize};
+use url::Url;
 
 pub mod activity;
 pub mod apps;
@@ -544,21 +544,20 @@ pub struct Repository {
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct RepositoryFile {
-    pub name : Option<String>,
+    pub name: Option<String>,
     pub key: Option<String>,
-    pub url : Option<Url>,
-    pub html_url : Option<Url>,
+    pub url: Option<Url>,
+    pub html_url: Option<Url>,
 }
-
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct RepositoryMetrics {
-    pub health_percentage : u64,
+    pub health_percentage: u64,
     pub description: Option<String>,
-    pub documentation : Option<String>,
+    pub documentation: Option<String>,
     pub files: HashMap<String, Option<RepositoryFile>>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub content_reports_enabled: Option<bool>
+    pub content_reports_enabled: Option<bool>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -770,29 +769,28 @@ pub struct PublicKey {
     pub key: String,
 }
 
-
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RateLimit {
     pub resources: Resources,
-    pub rate:      Rate,
+    pub rate: Rate,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Resources {
-    pub core:                        Rate,
-    pub search:                      Rate,
-    pub graphql:                     Option<Rate>,
-    pub integration_manifest:        Option<Rate>,
-    pub scim:                        Option<Rate>,
-    pub source_import:               Option<Rate>,
-    pub code_scanning_upload:        Option<Rate>,
+    pub core: Rate,
+    pub search: Rate,
+    pub graphql: Option<Rate>,
+    pub integration_manifest: Option<Rate>,
+    pub scim: Option<Rate>,
+    pub source_import: Option<Rate>,
+    pub code_scanning_upload: Option<Rate>,
     pub actions_runner_registration: Option<Rate>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Rate {
-    pub limit:     usize,
-    pub used:      usize,
+    pub limit: usize,
+    pub used: usize,
     pub remaining: usize,
-    pub reset:     usize,
+    pub reset: usize,
 }
