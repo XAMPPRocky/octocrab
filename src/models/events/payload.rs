@@ -27,7 +27,7 @@ pub use pull_request_review_comment::*;
 pub use push::*;
 pub use workflow_run::*;
 
-use reqwest::Url;
+use url::Url;
 use serde::{Deserialize, Serialize};
 
 /// The payload in an event type.

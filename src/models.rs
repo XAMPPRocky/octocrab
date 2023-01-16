@@ -5,7 +5,7 @@ use std::fmt;
 use std::ops::{Deref, DerefMut};
 
 use chrono::{DateTime, Utc};
-use reqwest::Url;
+use url::Url;
 use serde::{de, Deserialize, Deserializer, Serialize};
 
 pub mod activity;

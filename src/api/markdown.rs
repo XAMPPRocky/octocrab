@@ -54,7 +54,7 @@ impl<'octo> MarkdownHandler<'octo> {
             .crab
             .client
             .post(self.crab.absolute_url("markdown/raw")?)
-            .header(reqwest::header::CONTENT_TYPE, "text/x-markdown")
+            .header(http::header::CONTENT_TYPE, "text/x-markdown")
             .body(text.into());
 
         self.crab

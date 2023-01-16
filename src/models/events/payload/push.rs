@@ -22,7 +22,7 @@ mod test {
         events::{payload::EventPayload, Event},
         repos::GitUser,
     };
-    use reqwest::Url;
+    use url::Url;
 
     #[test]
     fn should_deserialize_push_event_with_correct_payload() {

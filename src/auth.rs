@@ -128,7 +128,7 @@ impl crate::Octocrab {
     /// "ACCEPT: application/json". For example:
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # use reqwest::header::ACCEPT;
+    /// # use http::header::ACCEPT;
     /// let crab = octocrab::Octocrab::builder()
     /// .base_url("https://github.com")?
     /// .add_header(ACCEPT, "application/json".to_string())

@@ -145,7 +145,6 @@
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
 
-const MAX_RETRIES: u32 = 3;
 
 mod api;
 mod error;
@@ -156,18 +155,38 @@ pub mod auth;
 pub mod etag;
 pub mod models;
 pub mod params;
+pub mod middleware;
 
+use std::convert::{TryFrom, TryInto};
 use std::fmt;
+use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
+use base64::write::EncoderWriter;
+use http::{HeaderMap, HeaderValue, Method, Uri};
 
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, StatusCode, Url};
+use http::{header::HeaderName, StatusCode};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Serialize;
+use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt, ServiceBuilder, buffer};
+use hyper::{Request, Body, Response, body};
+use hyper::client::HttpConnector;
+use hyper_timeout::TimeoutConnector;
 use snafu::*;
+use url::Url;
+
+use bytes::Bytes;
+use http::request::Builder;
+use tower_http::{
+    classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer, trace::TraceLayer,
+};
+use tracing::Span;
 
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
+use crate::middleware::base_uri::BaseUriLayer;
+use crate::middleware::extra_headers::ExtraHeadersLayer;
 
 pub use self::{
     api::{
@@ -182,7 +201,7 @@ pub use self::{
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-const GITHUB_BASE_URL: &str = "https://api.github.com";
+const GITHUB_base_uri: &str = "https://api.github.com";
 
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
@@ -215,7 +234,7 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
 
 /// Maps a GitHub error response into and `Err()` variant if the status is
 /// not a success.
-pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Response> {
+pub async fn map_github_error(response: hyper::Response<hyper::Body>) -> Result<hyper::Response<hyper::Body>> {
     if response.status().is_success() {
         Ok(response)
     } else {
@@ -256,7 +275,7 @@ pub fn instance() -> Arc<Octocrab> {
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let octocrab = octocrab::OctocrabBuilder::new()
 ///     .add_preview("machine-man")
-///     .base_url("https://github.example.com")?
+///     .base_uri("https://github.example.com")?
 ///     .build()?;
 /// # Ok(())
 /// # }
@@ -266,7 +285,11 @@ pub struct OctocrabBuilder {
     auth: Auth,
     previews: Vec<&'static str>,
     extra_headers: Vec<(HeaderName, String)>,
-    base_url: Option<Url>,
+    connect_timeout: Option<Duration>,
+    read_timeout: Option<Duration>,
+    write_timeout: Option<Duration>,
+    service_bound: Option<usize>,
+    base_uri: Option<Uri>,
 }
 
 impl OctocrabBuilder {
@@ -313,19 +336,85 @@ impl OctocrabBuilder {
     }
 
     /// Set the base url for `Octocrab`.
-    pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
-        self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
-        Ok(self)
+    pub fn base_uri(mut self, base_uri: impl TryInto<Uri>) -> Self {
+        self.base_uri = Some(base_uri);
+        self
+    }
+
+    #[cfg(feature = "hyper-timeout")]
+    pub fn set_connect_timeout_service<S, R>(mut self, mut connector: S) -> TimeoutConnector<S>
+    where
+        S: Service<R>,
+    {
+        let mut connector = TimeoutConnector::new(connector);
+        // Set the timeouts for the client
+        connector.set_connect_timeout(self.connect_timeout);
+        connector.set_read_timeout(self.read_timeout);
+        connector.set_write_timeout(self.write_timeout);
+        return connector;
+    }
+
+    #[cfg(feature = "openssl-tls")]
+    fn openssl_https_connector_with_connector(
+        &self,
+        connector: hyper::client::HttpConnector,
+    ) -> Result<hyper_openssl::HttpsConnector<hyper::client::HttpConnector>> {
+        let mut https =
+            hyper_openssl::HttpsConnector::with_connector(connector, self.openssl_ssl_connector_builder().context(error::OtherSnafu)?)?;
+        if self.accept_invalid_certs {
+            https.set_callback(|ssl, _uri| {
+                ssl.set_verify(openssl::ssl::SslVerifyMode::NONE);
+                Ok(())
+            });
+        }
+        return Ok(https)
+    }
+
+    #[cfg(feature = "rustls-tls")]
+    fn rustls_https_connector_with_connector(
+        &self,
+        connector: hyper::client::HttpConnector,
+    ) -> Result<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
+        let rustls_config = self.rustls_client_config()?;
+        let mut builder = hyper_rustls::HttpsConnectorBuilder::new()
+            .with_tls_config(rustls_config)
+            .https_or_http();
+        if let Some(tsn) = self.tls_server_name.as_ref() {
+            builder = builder.with_server_name(tsn.clone());
+        }
+        Ok(builder.enable_http1().wrap_connector(connector))
     }
 
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
-        let mut hmap = reqwest::header::HeaderMap::new();
+
+        let client: hyper::Client<_, hyper::Body> = {
+            let mut connector = HttpConnector::new();
+            connector.enforce_http(false);
+
+            // Current TLS feature precedence when more than one are set:
+            // 1. openssl-tls
+            // 2. rustls-tls
+            // Create a custom client to use something else.
+            // If TLS features are not enabled, http connector will be used.
+            #[cfg(feature = "openssl-tls")]
+                let connector = self.openssl_https_connector_with_connector(connector)?;
+            #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
+                let connector = self.rustls_https_connector_with_connector(connector)?;
+
+            #[cfg(feature = "hyper-timeout")]
+                let connector = self.set_connect_timeout_service(connector);
+
+            hyper::Client::builder().build(connector)
+        };
+
+
+        let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
         for preview in &self.previews {
-            hmap.append(
-                reqwest::header::ACCEPT,
-                crate::format_preview(&preview).parse().unwrap(),
+            hmap.push(
+                (http::header::ACCEPT,
+                HeaderValue::from_str(crate::format_preview(&preview).as_str()).unwrap())
             );
         }
 
@@ -333,41 +422,87 @@ impl OctocrabBuilder {
             Auth::None => AuthState::None,
             Auth::Basic{ username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
-                hmap.append(
-                    reqwest::header::AUTHORIZATION,
-                    (String::from("Bearer ") + token.expose_secret())
-                        .parse()
-                        .unwrap(),
+                hmap.push(
+                    (http::header::AUTHORIZATION,
+                        format!("Bearer {}", token.expose_secret()).parse().unwrap()
+                    )
                 );
                 AuthState::None
             }
             Auth::App(app_auth) => AuthState::App(app_auth),
             Auth::OAuth(device) => {
-                hmap.append(
-                    reqwest::header::AUTHORIZATION,
-                    (device.token_type + " " + &device.access_token.expose_secret())
-                        .parse()
-                        .unwrap(),
+                hmap.push(
+                    (http::header::AUTHORIZATION,
+                        format!("{} {}", device.token_type, &device.access_token.expose_secret()).parse().unwrap()
+                    )
                 );
                 AuthState::None
             }
         };
 
         for (key, value) in self.extra_headers.into_iter() {
-            hmap.append(key, value.parse().unwrap());
+            hmap.push((key, HeaderValue::from_str(value.as_str())?));
         }
 
-        let client = reqwest::Client::builder()
-            .user_agent("octocrab")
-            .default_headers(hmap)
-            .build()
-            .context(crate::error::HttpSnafu)?;
+        let uri = Uri::try_from(self.base_uri.unwrap_or_else(|| Uri::from_str(GITHUB_base_uri).unwrap()))?;
+        let stack = ServiceBuilder::new()
+            .layer(BaseUriLayer::new(uri)).into_inner();
 
-        Ok(Octocrab {
-            client,
-            base_url: self
-                .base_url
-                .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
+        let service = ServiceBuilder::new()
+            .layer(stack)
+            .layer(ExtraHeadersLayer{
+                headers: Arc::new(hmap)
+            })
+            .layer(
+                TraceLayer::new_for_http()
+                    .make_span_with(|req: &Request<hyper::Body>| {
+                        tracing::debug_span!(
+                            "HTTP",
+                             http.method = %req.method(),
+                             http.url = %req.uri(),
+                             http.status_code = tracing::field::Empty,
+                             otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
+                             otel.kind = "client",
+                             otel.status_code = tracing::field::Empty,
+                        )
+                    })
+                    .on_request(|_req: &Request<hyper::Body>, _span: &Span| {
+                        tracing::debug!("requesting");
+                    })
+                    .on_response(|res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
+                        let status = res.status();
+                        span.record("http.status_code", status.as_u16());
+                        if status.is_client_error() || status.is_server_error() {
+                            span.record("otel.status_code", "ERROR");
+                        }
+                    })
+                    // Explicitly disable `on_body_chunk`. The default does nothing.
+                    .on_body_chunk(())
+                    .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
+                        tracing::debug!("stream closed");
+                    })
+                    .on_failure(|ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
+                        // Called when
+                        // - Calling the inner service errored
+                        // - Polling `Body` errored
+                        // - the response was classified as failure (5xx)
+                        // - End of stream was classified as failure
+                        span.record("otel.status_code", "ERROR");
+                        match ec {
+                            ServerErrorsFailureClass::StatusCode(status) => {
+                                span.record("http.status_code", status.as_u16());
+                                tracing::error!("failed with status {}", status)
+                            }
+                            ServerErrorsFailureClass::Error(err) => {
+                                tracing::error!("failed with error {}", err)
+                            }
+                        }
+                    }),
+            )
+            .service(client);
+
+        return Ok(Octocrab {
+          client: Buffer::new(BoxService::new(service), self.service_bound.unwrap_or_else(|| 1024)),
             auth_state,
         })
     }
@@ -445,25 +580,17 @@ enum AuthState {
 /// The GitHub API client.
 #[derive(Debug, Clone)]
 pub struct Octocrab {
-    client: reqwest::Client,
-    pub base_url: Url,
+    client: buffer::Buffer<BoxService<Request<Body>, Response<Body>, BoxError>, Request<Body>>,
     auth_state: AuthState,
 }
 
 /// Defaults for Octocrab:
-/// - `base_url`: `https://api.github.com`
+/// - `base_uri`: `https://api.github.com`
 /// - `auth`: `None`
-/// - `client`: reqwest client with the `octocrab` user agent.
+/// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        Self {
-            base_url: Url::parse(GITHUB_BASE_URL).unwrap(),
-            client: reqwest::ClientBuilder::new()
-                .user_agent("octocrab")
-                .build()
-                .unwrap(),
-            auth_state: AuthState::None,
-        }
+        return OctocrabBuilder::new().build().unwrap();
     }
 }
 
@@ -489,7 +616,6 @@ impl Octocrab {
         };
         Octocrab {
             client: self.client.clone(),
-            base_url: self.base_url.clone(),
             auth_state: AuthState::Installation {
                 app: app_auth,
                 installation: id,
@@ -648,7 +774,7 @@ impl Octocrab {
                 "query": body,
             })),
         )
-        .await
+            .await
     }
 }
 
@@ -662,7 +788,7 @@ impl Octocrab {
 /// This isn't always ideal when working with GitHub's API and as such there are
 /// additional methods available prefixed with `_` (e.g.  `_get`, `_post`,
 /// etc.) that perform no pre or post processing and directly return the
-/// `reqwest::Response` struct.
+/// `hyper::Response` struct.
 impl Octocrab {
     /// Send a `POST` request to `route` with an optional body, returning the body
     /// of the response.
@@ -678,25 +804,21 @@ impl Octocrab {
     /// Send a `POST` request with no additional pre/post-processing.
     pub async fn _post<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<hyper::Uri>,
         body: Option<&P>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.post(url);
+    ) -> Result<hyper::Response<hyper::Body>> {
+        let mut request = Builder::new().method(Method::POST).uri(uri);
 
-        if let Some(body) = body {
-            request = request.json(body);
-        }
-
-        self.execute(request).await
+        self.execute(request, body).await
     }
 
     /// Send a `GET` request to `route` with optional query parameters, returning
     /// the body of the response.
     pub async fn get<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
-    where
-        A: AsRef<str>,
-        P: Serialize + ?Sized,
-        R: FromResponse,
+        where
+            A: AsRef<str>,
+            P: Serialize + ?Sized,
+            R: FromResponse,
     {
         self.get_with_headers(route, parameters, None).await
     }
@@ -704,20 +826,27 @@ impl Octocrab {
     /// Send a `GET` request with no additional post-processing.
     pub async fn _get<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         parameters: Option<&P>,
-    ) -> Result<reqwest::Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         self._get_with_headers(url, parameters, None).await
     }
-    
+
     /// Send a `GET` request to `route` with optional query parameters and headers, returning
     /// the body of the response.
-    pub async fn get_with_headers<R, A, P>(&self, route: A, parameters: Option<&P>, headers: Option<reqwest::header::HeaderMap>) -> Result<R>
-    where
-        A: AsRef<str>,
-        P: Serialize + ?Sized,
-        R: FromResponse,
+    pub async fn get_with_headers<R, A, P>(&self, route: A, parameters: Option<&P>, headers: Option<http::header::HeaderMap>) -> Result<R>
+        where
+            A: AsRef<str>,
+            P: Serialize + ?Sized,
+            R: FromResponse,
     {
+        let serializer = serde_urlencoded::Serializer::new(&mut pairs);
+
+
+        let uri = http::Uri::builder().path_and_query()
+        let request = Builder::new().method(Method::GET).uri(Uri::from_str(route)?);
+
+
         let response = self._get_with_headers(self.absolute_url(route)?, parameters, headers).await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
@@ -725,7 +854,7 @@ impl Octocrab {
     /// Send a `GET` request including option to set headers, with no additional post-processing.
     pub async fn _get_with_headers<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         parameters: Option<&P>,
         headers: Option<reqwest::header::HeaderMap>
     ) -> Result<reqwest::Response> {
@@ -734,22 +863,22 @@ impl Octocrab {
         if let Some(parameters) = parameters {
             request = request.query(parameters);
         }
-        
+
         if let Some(headers) = headers {
             request = request.headers(headers)
         }
 
-        self.execute(request).await
+        self.execute(request, parameters).await
     }
 
 
     /// Send a `PATCH` request to `route` with optional query parameters,
     /// returning the body of the response.
     pub async fn patch<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
-    where
-        A: AsRef<str>,
-        B: Serialize + ?Sized,
-        R: FromResponse,
+        where
+            A: AsRef<str>,
+            B: Serialize + ?Sized,
+            R: FromResponse,
     {
         let response = self._patch(self.absolute_url(route)?, body).await?;
         R::from_response(crate::map_github_error(response).await?).await
@@ -758,25 +887,20 @@ impl Octocrab {
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _patch<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         parameters: Option<&B>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.patch(url);
-
-        if let Some(parameters) = parameters {
-            request = request.json(parameters);
-        }
-
-        self.execute(request).await
+    ) -> Result<hyper::Response<hyper::Body>> {
+        let mut request = Builder::new().method(Method::PATCH).uri(uri);
+        self.execute(request, parameters).await
     }
 
     /// Send a `PUT` request to `route` with optional query parameters,
     /// returning the body of the response.
     pub async fn put<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
-    where
-        A: AsRef<str>,
-        B: Serialize + ?Sized,
-        R: FromResponse,
+        where
+            A: AsRef<str>,
+            B: Serialize + ?Sized,
+            R: FromResponse,
     {
         let response = self._put(self.absolute_url(route)?, body).await?;
         R::from_response(crate::map_github_error(response).await?).await
@@ -785,9 +909,9 @@ impl Octocrab {
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _put<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         body: Option<&B>,
-    ) -> Result<reqwest::Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         let mut request = self.client.put(url);
 
         if let Some(body) = body {
@@ -800,10 +924,10 @@ impl Octocrab {
     /// Send a `DELETE` request to `route` with optional query parameters,
     /// returning the body of the response.
     pub async fn delete<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
-    where
-        A: AsRef<str>,
-        P: Serialize + ?Sized,
-        R: FromResponse,
+        where
+            A: AsRef<str>,
+            P: Serialize + ?Sized,
+            R: FromResponse,
     {
         let response = self._delete(self.absolute_url(route)?, parameters).await?;
         R::from_response(crate::map_github_error(response).await?).await
@@ -812,9 +936,9 @@ impl Octocrab {
     /// Send a `DELETE` request with no additional post-processing.
     pub async fn _delete<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         parameters: Option<&P>,
-    ) -> Result<reqwest::Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         let mut request = self.client.delete(url);
 
         if let Some(parameters) = parameters {
@@ -824,14 +948,14 @@ impl Octocrab {
         self.execute(request).await
     }
 
-    /// Construct a `reqwest::RequestBuilder` with the given http method. This can be executed
+    /// Construct a `http::RequestBuilder` with the given http method. This can be executed
     /// with [execute](struct.Octocrab.html#method.execute).
     ///
     /// ```no_run
     /// # async fn doc() -> Result<(), Box<dyn std::error::Error>> {
     /// let octocrab = octocrab::instance();
-    /// let url = format!("{}/events", octocrab.base_url);
-    /// let builder = octocrab::instance().request_builder(&url, reqwest::Method::GET)
+    /// let url = format!("{}/events", octocrab.base_uri);
+    /// let builder = octocrab::instance().request_builder(&url, http::Method::GET)
     ///     .header("if-none-match", "\"73ca617c70cd2bd9b6f009dab5e2d49d\"");
     /// let response = octocrab.execute(builder).await?;
     /// # Ok(())
@@ -839,9 +963,9 @@ impl Octocrab {
     /// ```
     pub fn request_builder(
         &self,
-        url: impl reqwest::IntoUrl,
-        method: reqwest::Method,
-    ) -> reqwest::RequestBuilder {
+        uri: impl TryInto<Uri>,
+        method: http::Method,
+    ) -> hyper::Request<hyper::Body> {
         self.client.request(method, url)
     }
 
@@ -857,100 +981,122 @@ impl Octocrab {
         } else {
             panic!("Installation not configured");
         };
-        let mut retries = 0;
-        loop {
-            let result = self
-                .client
-                .post(
-                    self.absolute_url(format!("app/installations/{}/access_tokens", installation))?,
-                )
-                .bearer_auth(app.generate_bearer_token()?)
-                .send()
-                .await;
-            let status = match &result {
-                Ok(v) => Some(v.status()),
-                Err(e) => e.status(),
-            };
-            if let Some(StatusCode::UNAUTHORIZED) = status {
-                if retries < MAX_RETRIES {
-                    retries += 1;
-                    continue;
-                }
-            }
-            let response = result.context(error::HttpSnafu)?;
-            let token_object =
-                InstallationToken::from_response(crate::map_github_error(response).await?).await?;
-            token.set(token_object.token.clone());
-            return Ok(SecretString::new(token_object.token));
-        }
+        let mut request = Builder::new();
+        let mut sensitive_value = HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())?;
+        sensitive_value.set_sensitive(true);
+        request = request.header(
+            hyper::header::AUTHORIZATION,
+            sensitive_value,
+        ).method(http::Method::POST).uri(
+            format!(
+                "app/installations/{}/access_tokens",
+                installation
+            )
+            .parse()?,
+        );
+        let response = self.send(request.body(Body::empty())?).await?;
+        let status = response.status();
+
+        let token_object =
+            InstallationToken::from_response(crate::map_github_error(response).await?).await?;
+        token.set(token_object.token.clone());
+        return Ok(SecretString::new(token_object.token));
+
+    }
+
+    /// Send the given request to the underlying service
+    pub async fn send(&self, request: Request<Body>) -> Result<hyper::Response<hyper::Body>>{
+        let mut svc = self.client.clone();
+        let response: Response<Body> = svc.ready().await.call(request).await.map_err(|err| {
+            // Error decorating request
+            err.downcast::<Error>()
+                .map(|e| *e)
+                // Error requesting
+                .or_else(|err| err.downcast::<hyper::Error>().map(|err| Error::HyperError(*err)))
+                // Error from another middleware
+                .unwrap_or_else(|err| Error::Service(err))
+        }).context(error::HttpSnafu)?;
     }
 
     /// Execute the given `request` using octocrab's Client.
-    pub async fn execute(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
-        let mut retries = 0;
-        loop {
-            // Saved request that we can retry later if necessary
-            let mut retry_request = None;
-            match self.auth_state {
-                AuthState::None => (),
-                AuthState::App(ref app) => {
-                    retry_request = Some(request.try_clone().unwrap());
-                    request = request.bearer_auth(app.generate_bearer_token()?);
-                }
-                AuthState::BasicAuth { ref username, ref password } => {
-                    retry_request = Some(request.try_clone().unwrap());
-                    request = request.basic_auth(username, Some(password));
-                }
-                AuthState::Installation { ref token, .. } => {
-                    retry_request = Some(request.try_clone().unwrap());
-                    let token = if let Some(token) = token.get() {
-                        token
-                    } else {
-                        self.request_installation_auth_token().await?
-                    };
-                    request = request.bearer_auth(token.expose_secret());
-                }
-            };
+    pub async fn execute<B>(&self, mut request: http::request::Builder, body: Option<&B>) -> Result<hyper::Response<hyper::Body>>
+    where B: Serialize + ?Sized,
+    {
 
-            let result = request.send().await;
-            let status = match &result {
-                Ok(v) => Some(v.status()),
-                Err(e) => e.status(),
-            };
-            if let Some(StatusCode::UNAUTHORIZED) = status {
-                if let AuthState::Installation { ref token, .. } = self.auth_state {
-                    token.clear();
-                }
-                if let Some(retry) = retry_request {
-                    if retries < MAX_RETRIES {
-                        retries += 1;
-                        request = retry;
-                        continue;
-                    }
-                }
+        // Saved request that we can retry later if necessary
+        let mut retry_request = None;
+        match self.auth_state {
+            AuthState::None => (),
+            AuthState::App(ref app) => {
+                let mut sensitive_value = HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())?;
+                sensitive_value.set_sensitive(true);
+                request = request.header(
+                    hyper::header::AUTHORIZATION,
+                    sensitive_value,
+                );
             }
-            return result.context(error::HttpSnafu);
+            AuthState::BasicAuth { ref username, ref password } => {
+                let mut enc = base64::write::EncoderWriter::new(b"Basic ".to_vec(), &general_purpose::STANDARD);
+
+                // The unwraps here are fine because Vec::write* is infallible.
+                write!(enc, "{}:", username).unwrap();
+                if let Some(password) = password {
+                    write!(enc, "{}", password).unwrap();
+                }
+                let mut sensitive_value = HeaderValue::from_str(enc.finish())?;
+                sensitive_value.set_sensitive(true);
+                request = request.header(
+                    hyper::header::AUTHORIZATION,
+                    sensitive_value,
+                );
+            }
+            AuthState::Installation { ref token, .. } => {
+                let token = if let Some(token) = token.get() {
+                    token
+                } else {
+                    self.request_installation_auth_token().await?
+                };
+
+                let mut sensitive_value = HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())?;
+                sensitive_value.set_sensitive(true);
+                request = request.header(
+                    hyper::header::AUTHORIZATION,
+                    sensitive_value,
+                );
+            }
+        };
+
+        let request = match body {
+            Some(body) => {
+                request = request.header(http::header::CONTENT_TYPE, "application/json");
+                request.body(Body::from(serde_json::to_vec(body)?))?
+            }
+            None => (
+                request.body(())?
+            ),
+        };
+
+        let response = self.send(request).await?;
+
+        let status = response.status();
+        if let Some(StatusCode::UNAUTHORIZED) = status {
+            if let AuthState::Installation { ref token, .. } = self.auth_state {
+                token.clear();
+            }
         }
+        return Ok(response);
     }
 }
 
 /// # Utility Methods
 impl Octocrab {
-    /// Returns an absolute url version of `url` using the `base_url` (default:
-    /// `https://api.github.com`)
-    pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
-        self.base_url
-            .join(url.as_ref())
-            .context(crate::error::UrlSnafu)
-    }
-
     /// A convenience method to get a page of results (if present).
     pub async fn get_page<R: serde::de::DeserializeOwned>(
         &self,
-        url: &Option<Url>,
+        uri: &Option<Url>,
     ) -> crate::Result<Option<Page<R>>> {
-        match url {
-            Some(url) => self.get(url, None::<&()>).await.map(Some),
+        match uri {
+            Some(uri) => self.get(uri, None::<&()>).await.map(Some),
             None => Ok(None),
         }
     }
@@ -979,7 +1125,7 @@ mod tests {
                 .absolute_url("/help wanted")
                 .unwrap()
                 .as_str(),
-            String::from(crate::GITHUB_BASE_URL) + "/help%20wanted"
+            String::from(crate::GITHUB_BASE_URI) + "/help%20wanted"
         );
     }
 
@@ -987,7 +1133,7 @@ mod tests {
     fn absolute_url_for_subdir() {
         assert_eq!(
             crate::OctocrabBuilder::new()
-                .base_url("https://git.example.com/api/v3/")
+                .base_uri("https://git.example.com/api/v3/")
                 .unwrap()
                 .build()
                 .unwrap()
@@ -1002,7 +1148,7 @@ mod tests {
     fn relative_url() {
         assert_eq!(
             crate::instance().absolute_url("my/api").unwrap().as_str(),
-            String::from(crate::GITHUB_BASE_URL) + "/my/api"
+            String::from(crate::GITHUB_BASE_URI) + "/my/api"
         );
     }
 
@@ -1010,7 +1156,7 @@ mod tests {
     fn relative_url_for_subdir() {
         assert_eq!(
             crate::OctocrabBuilder::new()
-                .base_url("https://git.example.com/api/v3/")
+                .base_uri("https://git.example.com/api/v3/")
                 .unwrap()
                 .build()
                 .unwrap()
@@ -1023,7 +1169,7 @@ mod tests {
 
     #[tokio::test]
     async fn extra_headers() {
-        use reqwest::header::HeaderName;
+        use http::header::HeaderName;
         use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
         let response = ResponseTemplate::new(304).append_header("etag", "\"abcd\"");
         let mock_server = MockServer::start().await;
@@ -1036,7 +1182,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         crate::OctocrabBuilder::new()
-            .base_url(mock_server.uri())
+            .base_uri(mock_server.uri())
             .unwrap()
             .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
             .add_header(HeaderName::from_static("x-test2"), "goodbye".to_string())

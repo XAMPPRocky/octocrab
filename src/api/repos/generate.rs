@@ -63,7 +63,7 @@ impl<'octo, 'r> GenerateRepositoryBuilder<'octo, 'r> {
             .client
             .post(self.handler.crab.absolute_url(url)?)
             .body(serde_json::to_string(&self).unwrap())
-            .header(reqwest::header::ACCEPT, "application/vnd.github.baptiste-preview+json");
+            .header(http::header::ACCEPT, "application/vnd.github.baptiste-preview+json");
 
         let response = self.handler.crab.execute(request).await?;
         crate::map_github_error(response)

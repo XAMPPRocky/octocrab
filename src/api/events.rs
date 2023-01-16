@@ -5,7 +5,7 @@ use crate::{
     FromResponse, Octocrab, Page,
 };
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,

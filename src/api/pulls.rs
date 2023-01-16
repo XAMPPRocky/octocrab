@@ -6,6 +6,8 @@ mod update;
 mod list;
 mod merge;
 
+use http::Request;
+use hyper::Body;
 use snafu::ResultExt;
 
 use crate::{Octocrab, Page};
@@ -132,9 +134,9 @@ impl<'octo> PullRequestHandler<'octo> {
             .crab
             .client
             .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
+            .header(http::header::ACCEPT, crate::format_media_type("diff"));
 
-        let response = crate::map_github_error(self.crab.execute(request).await?).await?;
+        let response = crate::map_github_error(self.crab.execute(request, None).await?).await?;
 
         response.text().await.context(crate::error::HttpSnafu)
     }
@@ -158,9 +160,9 @@ impl<'octo> PullRequestHandler<'octo> {
             .crab
             .client
             .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
+            .header(http::header::ACCEPT, crate::format_media_type("patch"));
 
-        let response = crate::map_github_error(self.crab.execute(request).await?).await?;
+        let response = crate::map_github_error(self.crab.execute(request, None).await?).await?;
 
         response.text().await.context(crate::error::HttpSnafu)
     }
@@ -378,12 +380,12 @@ impl<'octo> PullRequestHandler<'octo> {
 
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
+                http::header::ACCEPT,
                 crate::format_media_type(&media_type.to_string()),
             );
         }
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, None).await?).await?).await
     }
 
     pub(crate) async fn http_post<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -394,9 +396,9 @@ impl<'octo> PullRequestHandler<'octo> {
     {
         let mut request = self.crab.client.post(self.crab.absolute_url(route)?);
 
-        request = self.build_request(request, body);
+        request = self.build_request(request);
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, body).await?).await?).await
     }
 
     pub(crate) async fn http_put<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -407,9 +409,9 @@ impl<'octo> PullRequestHandler<'octo> {
     {
         let mut request = self.crab.client.put(self.crab.absolute_url(route)?);
 
-        request = self.build_request(request, body);
+        request = self.build_request(request, );
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, body).await?).await?).await
     }
 
     pub(crate) async fn http_patch<R, A, P>(&self, route: A, body: Option<&P>) -> crate::Result<R>
@@ -420,30 +422,25 @@ impl<'octo> PullRequestHandler<'octo> {
     {
         let mut request = self.crab.client.patch(self.crab.absolute_url(route)?);
 
-        request = self.build_request(request, body);
+        request = self.build_request(request);
 
-        R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
+        R::from_response(crate::map_github_error(self.crab.execute(request, body).await?).await?).await
     }
 
     fn build_request<P>(
         &self,
-        mut request: reqwest::RequestBuilder,
-        body: Option<&P>,
-    ) -> reqwest::RequestBuilder
+        mut request: http::request::Builder,
+    ) -> http::request::Builder
     where
         P: serde::Serialize + ?Sized,
     {
-        if let Some(body) = body {
-            request = request.json(body);
-        }
 
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
+                http::header::ACCEPT,
                 crate::format_media_type(&media_type.to_string()),
             );
         }
-
         request
     }
 }
