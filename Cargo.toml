@@ -17,7 +17,6 @@ keywords = ["github", "github-api"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-reqwest = { version = "0.11.10", default-features = false, features = ["json"] }
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
 serde_path_to_error = "0.1.4"
@@ -36,8 +35,18 @@ futures-util = { version = "0.3.15", optional = true }
 secrecy = "0.8.0"
 cfg-if = "1.0.0"
 either = "1.8.0"
-tracing = "0.1"
-
+hyper = "0.14.23"
+http = "0.2.5"
+tower-http = { version = "0.3.2", features = ["map-response-body", "trace"] }
+hyper-timeout = {version = "0.4.1", optional = true }
+http-body = "0.4.5"
+tower = { version = "0.4.13", default-features = false, features = ["util", "buffer"] }
+hyper-openssl = { version = "0.9.2", optional = true }
+openssl = { version = "0.10.36", optional = true }
+rustls = { version = "0.20.3", features = ["dangerous_configuration"], optional = true }
+hyper-rustls = { version = "0.23.2", optional = true }
+rustls-pemfile = { version = "1.0.0", optional = true }
+tracing = { version = "0.1.37", features = ["log"]}
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
     "macros",
@@ -47,17 +56,9 @@ tokio = { version = "1.17.0", default-features = false, features = [
 wiremock = "0.5.3"
 
 [features]
-default = ["native-tls"]
-rustls = ["rustls-tls"]  # Legacy support (<=0.17.0)
+default = ["openssl-tls", "hyper-timeout"]
 
-# Enables native-tls specific functionality not available by default.
-native-tls = ["reqwest/native-tls"]
-native-tls-alpn = ["reqwest/native-tls-alpn"]
-native-tls-vendored = ["reqwest/native-tls-vendored"]
+rustls-tls = ["rustls", "rustls-pemfile", "hyper-rustls"]
+openssl-tls = ["openssl", "hyper-openssl"]
 
-rustls-tls = ["reqwest/rustls-tls"]
-rustls-tls-manual-roots = ["reqwest/rustls-tls-manual-roots"]
-rustls-tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
-rustls-tls-native-roots = ["reqwest/rustls-tls-native-roots"]
-
-stream = ["futures-core", "futures-util", "reqwest/stream"]
+stream = ["futures-core", "futures-util"]

@@ -15,7 +15,7 @@ pub enum Error {
     },
     #[snafu(display("HTTP Error: {}\n\nFound at {}", source, backtrace))]
     Http {
-        source: reqwest::Error,
+        source: http::Error,
         backtrace: Backtrace,
     },
     #[snafu(display("Serde Error: {}\nFound at {}", source, backtrace))]

@@ -1,6 +1,6 @@
 //! The repositories API.
 
-use reqwest::header::ACCEPT;
+use http::header::ACCEPT;
 
 mod branches;
 mod commits;
@@ -456,7 +456,7 @@ impl<'octo> RepoHandler<'octo> {
 
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
-    /// # use reqwest::Response;
+    /// # use hyper::Response;
     ///  async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .repos("owner", "repo")
@@ -478,14 +478,14 @@ impl<'octo> RepoHandler<'octo> {
         self,
         reference: impl Into<params::repos::Commitish>,
         path: impl AsRef<str>,
-    ) -> Result<reqwest::Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
             repo = self.repo,
             path = path.as_ref(),
         ))?;
-        let mut request = self.crab.request_builder(url, reqwest::Method::GET);
+        let mut request = self.crab.request_builder(url, http::Method::GET);
         request = request.query(&[("ref", &reference.into().0)]);
         request = request.header(ACCEPT, "application/vnd.github.v3.raw");
         self.crab.execute(request).await
@@ -512,7 +512,7 @@ impl<'octo> RepoHandler<'octo> {
     pub async fn download_tarball(
         &self,
         reference: impl Into<params::repos::Commitish>,
-    ) -> Result<reqwest::Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         let url = self.crab.absolute_url(format!(
             "repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,

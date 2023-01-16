@@ -1,5 +1,7 @@
 use super::*;
 use snafu::ResultExt;
+use url::Url;
+use hyper::Response;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -218,7 +220,7 @@ impl Content {
 
 #[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
-    async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
+    async fn from_response(response: Response<hyper::Body>) -> crate::Result<Self> {
         let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
         if json.is_array() {

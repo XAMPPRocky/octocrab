@@ -161,7 +161,7 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
 
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
-    async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
+    async fn from_response(response: hyper::Response<hyper::Body>) -> crate::Result<Self> {
         let HeaderLinks {
             first,
             prev,
@@ -220,7 +220,7 @@ struct HeaderLinks {
     last: Option<Url>,
 }
 
-fn get_links(response: &reqwest::Response) -> crate::Result<HeaderLinks> {
+fn get_links(response: &hyper::Response<hyper::Body>) -> crate::Result<HeaderLinks> {
     let mut first = None;
     let mut prev = None;
     let mut next = None;

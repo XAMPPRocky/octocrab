@@ -1,5 +1,5 @@
 use either::Either;
-use reqwest::header::ACCEPT;
+use http::header::ACCEPT;
 use std::time::Duration;
 
 #[tokio::main]

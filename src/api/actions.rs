@@ -1,4 +1,5 @@
 //! GitHub Actions
+use std::io::Read;
 use snafu::ResultExt;
 
 use crate::etag::{EntityTag, Etagged};
@@ -9,7 +10,7 @@ use crate::models::{
 };
 use crate::{params, FromResponse, Octocrab, Page};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -240,10 +241,10 @@ impl<'octo> ActionsHandler<'octo> {
 
     async fn follow_location_to_data(
         &self,
-        response: reqwest::Response,
+        response: hyper::Response<hyper::Body>,
     ) -> crate::Result<bytes::Bytes> {
         let data_response =
-            if let Some(redirect) = response.headers().get(reqwest::header::LOCATION) {
+            if let Some(redirect) = response.headers().get(http::header::LOCATION) {
                 let location = redirect.to_str().expect("Location URL not valid str");
 
                 self.crab._get(location, None::<&()>).await?
