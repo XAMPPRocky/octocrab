@@ -5,7 +5,7 @@ async fn main() -> octocrab::Result<()> {
         .get_diff(72033)
         .await?;
 
-    println!("{}", diff);
+    println!("{diff}");
 
     Ok(())
 }

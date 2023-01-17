@@ -356,8 +356,7 @@ mod test {
         let deserialized = deserialized.unwrap();
         assert_eq!(
             deserialized, event,
-            "unexpected event deserialized for {}",
-            event_type
+            "unexpected event deserialized for {event_type}"
         );
     }
 }

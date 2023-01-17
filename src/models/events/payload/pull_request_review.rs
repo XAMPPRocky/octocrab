@@ -55,7 +55,7 @@ mod test {
             (r#""created""#, PullRequestReviewEventAction::Created),
         ];
         for (action_str, action) in actions {
-            let deserialized = serde_json::from_str(&action_str).unwrap();
+            let deserialized = serde_json::from_str(action_str).unwrap();
             assert_eq!(action, deserialized);
         }
     }

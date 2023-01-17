@@ -1,8 +1,6 @@
 use super::*;
 use crate::error;
 use crate::error::SerdeSnafu;
-use base64::engine::general_purpose;
-use base64::Engine;
 use hyper::{body, Response};
 use snafu::ResultExt;
 use url::Url;
@@ -216,7 +214,7 @@ impl Content {
         self.content.as_ref().map(|c| {
             let mut content = c.as_bytes().to_owned();
             content.retain(|b| !b" \n\t\r\x0b\x0c".contains(b));
-            let c = general_purpose::STANDARD.decode(&content).unwrap();
+            let c = base64::decode(&content).unwrap();
             String::from_utf8_lossy(&c).into_owned()
         })
     }

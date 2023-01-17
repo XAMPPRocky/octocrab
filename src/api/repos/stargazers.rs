@@ -33,7 +33,7 @@ impl<'octo, 'r> ListStarGazersBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::StarGazer>> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/stargazers",
             owner = self.handler.owner,
             repo = self.handler.repo
@@ -44,7 +44,7 @@ impl<'octo, 'r> ListStarGazersBuilder<'octo, 'r> {
 
         self.handler
             .crab
-            .get_with_headers(url, Some(&self), Some(headers))
+            .get_with_headers(route, Some(&self), Some(headers))
             .await
     }
 }

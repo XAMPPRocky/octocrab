@@ -112,14 +112,14 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, pr: u64) -> crate::Result<crate::models::pulls::PullRequest> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Get's a given pull request's `diff`.
@@ -263,14 +263,14 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # }
     /// ```
     pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/reviews",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Request a review from users or teams.
@@ -288,7 +288,7 @@ impl<'octo> PullRequestHandler<'octo> {
         reviewers: impl Into<Vec<String>>,
         team_reviewers: impl Into<Vec<String>>,
     ) -> crate::Result<crate::models::pulls::Review> {
-        let url = format!(
+        let route = format!(
             "repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
             owner = self.owner,
             repo = self.repo,
@@ -299,7 +299,7 @@ impl<'octo> PullRequestHandler<'octo> {
         map.insert("reviewers".to_string(), reviewers.into().into());
         map.insert("team_reviewers".to_string(), team_reviewers.into().into());
 
-        self.crab.post(url, Some(&map)).await
+        self.crab.post(route, Some(&map)).await
     }
 
     /// List all `FileDiff`s associated with the pull request.
@@ -309,14 +309,14 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
-        let url = format!(
+        let route = format!(
             "repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Creates a new `ListCommentsBuilder` that can be configured to list and

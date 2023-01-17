@@ -70,7 +70,7 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::pulls::Comment>> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
@@ -80,7 +80,7 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
                 "".into()
             },
         );
-        self.handler.http_get(url, Some(&self)).await
+        self.handler.http_get(route, Some(&self)).await
     }
 }
 

@@ -60,12 +60,12 @@ impl<'octo> TeamHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, team_slug: impl Into<String>) -> Result<models::teams::Team> {
-        let url = format!(
+        let route = format!(
             "/orgs/{org}/teams/{team}",
             org = self.owner,
             team = team_slug.into(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Creates a new team in the organization.

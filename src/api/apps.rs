@@ -1,6 +1,6 @@
-use http::Method;
 use crate::{models::InstallationId, Octocrab};
 use http::request::Builder;
+use http::Method;
 
 mod installations;
 
