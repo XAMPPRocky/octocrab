@@ -48,8 +48,8 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::Installation>> {
-        let url = "app/installations";
-        self.handler.http_get(url, Some(&self)).await
+        let route = "/app/installations";
+        self.handler.http_get(route, Some(&self)).await
     }
 }
 

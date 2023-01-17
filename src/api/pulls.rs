@@ -142,7 +142,7 @@ impl<'octo> PullRequestHandler<'octo> {
             .build()
             .context(crate::error::HttpSnafu)?;
         let request = Builder::new()
-            .method("GET")
+            .method(Method::GET)
             .uri(uri)
             .header(http::header::ACCEPT, crate::format_media_type("diff"));
         let request = self.crab.build_request(request, None::<&()>)?;

@@ -79,7 +79,7 @@
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
 //! let user: octocrab::models::User = octocrab::instance()
-//!     .get("user", None::<&()>)
+//!     .get("/user", None::<&()>)
 //!     .await?;
 //! # Ok(())
 //! # }

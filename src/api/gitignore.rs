@@ -27,7 +27,7 @@ impl<'octo> GitignoreHandler<'octo> {
     /// # }
     /// ```
     pub async fn list(&self) -> crate::Result<Vec<String>> {
-        self.crab.get("gitignore/templates", None::<&()>).await
+        self.crab.get("/gitignore/templates", None::<&()>).await
     }
 
     /// Get the source of a single template.
