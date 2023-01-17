@@ -205,6 +205,12 @@ use crate::error::{
     EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu,
     ServiceSnafu, UriParseError, UriParseSnafu, UriSnafu,
 };
+use tracing::Span;
+
+use crate::error::{
+    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
+    SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
+};
 use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 

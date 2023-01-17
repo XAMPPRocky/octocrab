@@ -180,8 +180,6 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
     use crate::models::repos::GitUser;
-    use base64::engine::general_purpose;
-    use base64::Engine;
 
     #[tokio::test]
     async fn serialize() {
@@ -207,7 +205,7 @@ mod tests {
             serde_json::to_value(builder).unwrap(),
             serde_json::json!({
                 "message": "Update test.txt",
-                "content": general_purpose::STANDARD.encode("This is a test."),
+                "content": base64::encode("This is a test."),
                 "sha": "testsha",
                 "branch": "not-master",
                 "commiter": {

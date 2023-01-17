@@ -1,4 +1,3 @@
-use crate::{Octocrab, models::InstallationId};
 use crate::{models::InstallationId, Octocrab};
 use http::request::Builder;
 use http::Method;
