@@ -10,8 +10,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .send()
         .await
     {
-        Ok(page) => println!("{:#?}", page),
-        Err(error) => println!("{:#?}", error),
+        Ok(page) => println!("{page:#?}"),
+        Err(error) => println!("{error:#?}"),
     }
 
     Ok(())

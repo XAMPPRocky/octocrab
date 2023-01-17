@@ -125,13 +125,13 @@ impl<'octo> TeamRepoHandler<'octo> {
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
     ) -> Result<()> {
-        let url = format!(
+        let route = format!(
             "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
             team = self.team,
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        self.crab.delete(url, None::<&()>).await
+        self.crab.delete(route, None::<&()>).await
     }
 }

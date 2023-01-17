@@ -403,7 +403,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         org: impl AsRef<str>,
     ) -> crate::Result<crate::models::PublicKey> {
-        let route = format!("orgs/{org}/actions/secrets/public-key", org = org.as_ref());
+        let route = format!("/orgs/{org}/actions/secrets/public-key", org = org.as_ref());
 
         self.crab.get(route, None::<&()>).await
     }

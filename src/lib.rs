@@ -156,10 +156,9 @@ pub mod models;
 pub mod params;
 pub mod service;
 use crate::service::body::BodyStreamExt;
-use base64::engine::general_purpose;
 
 use http::{HeaderMap, HeaderValue, Method, Uri};
-use std::convert::{TryInto};
+use std::convert::TryInto;
 use std::fmt;
 use std::io::Write;
 use std::str::FromStr;
@@ -181,13 +180,12 @@ use tower::{
 use bytes::Bytes;
 use http::request::Builder;
 #[cfg(feature = "openssl-tls")]
-use hyper_openssl::{HttpsLayer};
-
+use hyper_openssl::HttpsLayer;
 
 #[cfg(feature = "timeout")]
 use {
     hyper_timeout::TimeoutConnector,
-    tokio::io::{AsyncRead, AsyncWrite}
+    tokio::io::{AsyncRead, AsyncWrite},
 };
 
 use tower_http::{
@@ -195,7 +193,10 @@ use tower_http::{
 };
 use tracing::Span;
 
-use crate::error::{EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu};
+use crate::error::{
+    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
+    SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
+};
 use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
@@ -367,6 +368,12 @@ impl OctocrabBuilder {
         Ok(self)
     }
 
+    /// Set the base url for `Octocrab`.
+    /// #[deprecated(since="0.18.1", note="please use `base_uri` instead")]
+    pub fn base_url(self, base_uri: impl TryInto<Uri>) -> Result<Self> {
+        self.base_uri(base_uri)
+    }
+
     fn new_crab<S, B>(service: S, auth_state: AuthState) -> Octocrab
     where
         S: Service<Request<Body>, Response = Response<B>> + Send + 'static,
@@ -443,9 +450,9 @@ impl OctocrabBuilder {
             // Create a custom client to use something else.
             // If TLS features are not enabled, http connector will be used.
             #[cfg(feature = "openssl-tls")]
-                let connector = self.openssl_https_connector_with_connector(connector)?;
+            let connector = self.openssl_https_connector_with_connector(connector)?;
             #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
-                let connector = self.rustls_https_connector_with_connector(connector)?;
+            let connector = self.rustls_https_connector_with_connector(connector)?;
 
             #[cfg(feature = "hyper-timeout")]
             let connector = self.set_connect_timeout_service(connector);
@@ -497,7 +504,9 @@ impl OctocrabBuilder {
             ));
         }
 
-        let uri = self.base_uri.unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
+        let uri = self
+            .base_uri
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
         let stack = ServiceBuilder::new()
             .layer(BaseUriLayer::new(uri))
             .into_inner();
@@ -1163,10 +1172,8 @@ impl Octocrab {
                 ref username,
                 ref password,
             } => {
-                let mut enc = base64::write::EncoderWriter::new(
-                    b"Basic ".to_vec(),
-                    &general_purpose::STANDARD,
-                );
+                let mut enc =
+                    base64::write::EncoderWriter::new(b"Basic ".to_vec(), base64::STANDARD);
 
                 // The unwraps here are fine because Vec::write* is infallible.
                 enc.write(format!("{username}:{password}").as_bytes())
@@ -1246,52 +1253,13 @@ impl Octocrab {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn absolute_url_escapes() {
-        assert_eq!(
-            crate::instance()
-                .absolute_url("/help wanted")
-                .unwrap()
-                .as_str(),
-            String::from(crate::GITHUB_BASE_URI) + "/help%20wanted"
-        );
-    }
-
-    #[test]
-    fn absolute_url_for_subdir() {
-        assert_eq!(
-            crate::OctocrabBuilder::new()
-                .base_uri("https://git.example.com/api/v3/")
-                .unwrap()
-                .build()
-                .unwrap()
-                .absolute_url("/my/api")
-                .unwrap()
-                .as_str(),
-            String::from("https://git.example.com/my/api")
-        );
-    }
-
-    #[test]
-    fn relative_url() {
-        assert_eq!(
-            crate::instance().absolute_url("my/api").unwrap().as_str(),
-            String::from(crate::GITHUB_BASE_URI) + "/my/api"
-        );
-    }
-
-    #[test]
-    fn relative_url_for_subdir() {
-        assert_eq!(
-            crate::OctocrabBuilder::new()
-                .base_uri("https://git.example.com/api/v3/")
-                .unwrap()
-                .build()
-                .unwrap()
-                .absolute_url("my/api")
-                .unwrap()
-                .as_str(),
-            String::from("https://git.example.com/api/v3/my/api")
-        );
+    fn parametrize_uri_valid() {
+        //Previously, invalid characters were handled by url lib's parse function.
+        //Todo: should we handle encoding of uri routes ourselves?
+        let uri = crate::instance()
+            .parameterized_uri("/help%20world", None::<&()>)
+            .unwrap();
+        assert_eq!(uri.path(), "/help%20world");
     }
 
     #[tokio::test]

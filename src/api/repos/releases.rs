@@ -97,14 +97,14 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get_asset(&self, asset_id: AssetId) -> crate::Result<models::repos::Asset> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/assets/{asset_id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
         );
 
-        self.parent.crab.get(url, None::<&()>).await
+        self.parent.crab.get(route, None::<&()>).await
     }
 
     /// Gets the latest release.
@@ -119,13 +119,13 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get_latest(&self) -> crate::Result<models::repos::Release> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/releases/latest",
             owner = self.parent.owner,
             repo = self.parent.repo,
         );
 
-        self.parent.crab.get(url, None::<&()>).await
+        self.parent.crab.get(route, None::<&()>).await
     }
 
     /// Gets the release using its tag.
@@ -140,14 +140,14 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get_by_tag(&self, tag: &str) -> crate::Result<models::repos::Release> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/releases/tags/{tag}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             tag = tag,
         );
 
-        self.parent.crab.get(url, None::<&()>).await
+        self.parent.crab.get(route, None::<&()>).await
     }
 
     /// Streams the binary contents of an asset.
@@ -242,12 +242,12 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Release>> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/releases",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo
         );
-        self.handler.parent.crab.get(url, Some(&self)).await
+        self.handler.parent.crab.get(route, Some(&self)).await
     }
 }
 
@@ -360,12 +360,12 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/releases",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo
         );
-        self.handler.parent.crab.post(url, Some(&self)).await
+        self.handler.parent.crab.post(route, Some(&self)).await
     }
 }
 
@@ -452,12 +452,12 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
-        let url = format!(
+        let route = format!(
             "repos/{owner}/{repo}/releases/{release_id}",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo,
             release_id = self.release_id,
         );
-        self.handler.parent.crab.patch(url, Some(&self)).await
+        self.handler.parent.crab.patch(route, Some(&self)).await
     }
 }
