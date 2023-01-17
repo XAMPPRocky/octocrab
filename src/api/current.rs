@@ -22,7 +22,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
 
     /// Fetches information about the current user.
     pub async fn user(&self) -> Result<models::User> {
-        self.crab.get("user", None::<&()>).await
+        self.crab.get("/user", None::<&()>).await
     }
 
     /// Fetches information about the currently authenticated app.
@@ -41,7 +41,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     pub async fn app(&self) -> Result<models::App> {
-        self.crab.get("app", None::<&()>).await
+        self.crab.get("/app", None::<&()>).await
     }
 
     /// List repositories starred by current authenticated user.
@@ -149,7 +149,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Repository>> {
-        self.crab.get("user/starred", Some(&self)).await
+        self.crab.get("/user/starred", Some(&self)).await
     }
 }
 
@@ -286,6 +286,6 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Repository>> {
-        self.crab.get("user/repos", (&self).into()).await
+        self.crab.get("/user/repos", (&self).into()).await
     }
 }

@@ -1,3 +1,4 @@
+use http::Method;
 use crate::{models::InstallationId, Octocrab};
 use http::request::Builder;
 
@@ -76,7 +77,7 @@ impl<'octo> AppsRequestHandler<'octo> {
         R: crate::FromResponse,
     {
         let request = Builder::new()
-            .method("GET")
+            .method(Method::GET)
             .uri(self.crab.parameterized_uri(route, parameters)?);
         let request = self.crab.build_request(request, None::<&()>)?;
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
