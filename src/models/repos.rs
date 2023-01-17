@@ -1,6 +1,8 @@
 use super::*;
 use crate::error;
 use crate::error::SerdeSnafu;
+use base64::engine::general_purpose;
+use base64::Engine;
 use hyper::{body, Response};
 use snafu::ResultExt;
 use url::Url;

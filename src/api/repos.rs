@@ -1,5 +1,7 @@
 //! The repositories API.
 
+use base64::engine::general_purpose;
+use base64::Engine;
 use http::header::ACCEPT;
 use http::request::Builder;
 use http::Uri;

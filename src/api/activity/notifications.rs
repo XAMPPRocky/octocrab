@@ -1,7 +1,6 @@
 //! Github Notifications API
 
 use crate::error::HttpSnafu;
-use crate::error::HttpSnafu;
 use crate::models::activity::Notification;
 use crate::models::activity::ThreadSubscription;
 use crate::models::{NotificationId, ThreadId};
