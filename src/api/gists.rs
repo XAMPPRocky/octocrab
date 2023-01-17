@@ -75,7 +75,7 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub async fn get(&self, id: impl AsRef<str>) -> Result<Gist> {
         let id = id.as_ref();
-        self.crab.get(format!("/gists/{}", id), None::<&()>).await
+        self.crab.get(format!("/gists/{id}"), None::<&()>).await
     }
 
     /// Get a single gist revision.
@@ -96,7 +96,7 @@ impl<'octo> GistsHandler<'octo> {
         let id = id.as_ref();
         let sha1 = sha1.as_ref();
         self.crab
-            .get(format!("/gists/{}/{}", id, sha1), None::<&()>)
+            .get(format!("/gists/{id}/{sha1}"), None::<&()>)
             .await
     }
 

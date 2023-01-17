@@ -113,7 +113,7 @@ impl From<OAuthWire> for OAuth {
         OAuth {
             access_token: SecretString::from(value.access_token),
             token_type: value.token_type,
-            scope: value.scope.split(",").map(ToString::to_string).collect(),
+            scope: value.scope.split(',').map(ToString::to_string).collect(),
         }
     }
 }

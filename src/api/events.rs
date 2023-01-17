@@ -9,7 +9,6 @@ use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
 use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 
-
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
     headers: Headers,
@@ -60,7 +59,7 @@ impl<'octo> EventsBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let route = format!("/events");
+        let route = "/events".to_string();
         let uri = self.crab.parameterized_uri(route, Some(&self.params))?;
 
         let mut headers = HeaderMap::new();

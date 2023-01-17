@@ -35,10 +35,7 @@ impl<'octo> AppsRequestHandler<'octo> {
         &self,
         installation_id: InstallationId,
     ) -> crate::Result<crate::models::Installation> {
-        let route = format!(
-            "/app/installations/{installation_id}",
-            installation_id = installation_id,
-        );
+        let route = format!("/app/installations/{installation_id}",);
 
         self.crab.get(&route, None::<&()>).await
     }

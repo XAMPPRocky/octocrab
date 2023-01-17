@@ -77,7 +77,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user)
     pub fn list_repos_for_authenticated_user(&self) -> ListReposForAuthenticatedUserBuilder<'octo> {
-        ListReposForAuthenticatedUserBuilder::new(&self.crab)
+        ListReposForAuthenticatedUserBuilder::new(self.crab)
     }
 }
 

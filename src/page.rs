@@ -1,4 +1,3 @@
-
 use http::Uri;
 use hyper::body;
 use std::slice::Iter;
@@ -8,7 +7,7 @@ use crate::error;
 use crate::error::{SerdeSnafu, UriSnafu};
 use hyperx::header::TypedHeaders;
 use snafu::ResultExt;
-use url::{form_urlencoded};
+use url::form_urlencoded;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "stream")] {
