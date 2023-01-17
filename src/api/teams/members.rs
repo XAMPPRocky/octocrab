@@ -37,11 +37,11 @@ impl<'octo, 'r> ListTeamMembersBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<Page<models::User>> {
-        let url = format!(
+        let route = format!(
             "/orgs/{org}/teams/{team}/members",
             org = self.handler.owner,
             team = self.slug,
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

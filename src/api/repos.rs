@@ -51,13 +51,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn license(&self) -> Result<models::repos::Content> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/license",
             owner = self.owner,
             repo = self.repo,
         );
 
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Get's a repository's public key.
@@ -68,13 +68,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn public_key(&self) -> Result<models::PublicKey> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/actions/secrets/public-key",
             owner = self.owner,
             repo = self.repo,
         );
 
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a single repository.
@@ -88,12 +88,12 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}",
             owner = self.owner,
             repo = self.repo,
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a repository's metrics.
@@ -107,12 +107,12 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/community/profile",
             owner = self.owner,
             repo = self.repo,
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a single reference in the Git database.
@@ -131,13 +131,13 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         reference: &params::repos::Reference,
     ) -> Result<models::repos::Ref> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches information about a git tag with the given `tag_sha`.
@@ -153,13 +153,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/git/tags/{tag_sha}",
             owner = self.owner,
             repo = self.repo,
             tag_sha = tag_sha.into(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Creates a new reference for the repository.
@@ -181,14 +181,14 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
         sha: impl Into<String>,
     ) -> Result<models::repos::Ref> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/git/refs",
             owner = self.owner,
             repo = self.repo,
         );
         self.crab
             .post(
-                url,
+                route,
                 Some(&serde_json::json!({
                     "ref": reference.full_ref_url(),
                     "sha": sha.into(),
@@ -455,13 +455,13 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         reference: &params::repos::Reference,
     ) -> Result<models::CombinedStatus> {
-        let url = format!(
-            "repos/{owner}/{repo}/commits/{reference}/status",
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{reference}/status",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Creates a new repository from repository if it is a template.

@@ -49,7 +49,7 @@ mod test {
                     }
                 );
                 assert_eq!(commit.message, "Charts Updated");
-                assert_eq!(commit.distinct, true);
+                assert!(commit.distinct);
                 assert_eq!(
                     commit.url,
                     Url::parse("https://api.github.com/repos/user/user/commits/12345").unwrap()

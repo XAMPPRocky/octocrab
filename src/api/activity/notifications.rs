@@ -40,8 +40,8 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, id: NotificationId) -> crate::Result<Notification> {
-        let url = format!("/notifications/threads/{id}");
-        self.crab.get(url, None::<&()>).await
+        let route = format!("/notifications/threads/{id}");
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Marks a single thread as read.
@@ -156,9 +156,9 @@ impl<'octo> NotificationsHandler<'octo> {
         &self,
         thread: ThreadId,
     ) -> crate::Result<ThreadSubscription> {
-        let url = format!("notifications/threads/{thread}/subscription");
+        let route = format!("/notifications/threads/{thread}/subscription");
 
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Ignore or unignore a thread subscription, that is enabled by watching a repository.
@@ -183,10 +183,10 @@ impl<'octo> NotificationsHandler<'octo> {
             ignored: bool,
         }
 
-        let url = format!("notifications/threads/{thread}/subscription");
+        let route = format!("/notifications/threads/{thread}/subscription");
         let body = Inner { ignored };
 
-        self.crab.get(url, Some(&body)).await
+        self.crab.get(route, Some(&body)).await
     }
 
     /// Mutes the whole thread conversation until you comment or get mentioned.
@@ -231,8 +231,8 @@ impl<'octo> NotificationsHandler<'octo> {
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
     ) -> ListNotificationsBuilder<'octo> {
-        let url = format!("repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
-        ListNotificationsBuilder::new(self.crab, url)
+        let route = format!("/repos/{}/{}/notifications", owner.as_ref(), repo.as_ref());
+        ListNotificationsBuilder::new(self.crab, route)
     }
 
     /// List all notifications for the current user.

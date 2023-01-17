@@ -17,7 +17,7 @@ async fn main() -> octocrab::Result<()> {
         prs.extend(new_page.take_items());
 
         for pr in prs.drain(..) {
-            println!("{:?}", pr);
+            println!("{pr:?}");
         }
 
         current_page = new_page;

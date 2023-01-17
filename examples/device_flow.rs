@@ -6,7 +6,7 @@ use std::time::Duration;
 async fn main() -> octocrab::Result<()> {
     let client_id = secrecy::Secret::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
     let crab = octocrab::Octocrab::builder()
-        .base_url("https://github.com")?
+        .base_uri("https://github.com")?
         .add_header(ACCEPT, "application/json".to_string())
         .build()?;
 
@@ -41,5 +41,5 @@ async fn main() -> octocrab::Result<()> {
     };
 
     println!("Authorization succeeded with access to {:?}", auth.scope);
-    return Ok(());
+    Ok(())
 }

@@ -35,13 +35,13 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = path,
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
 
@@ -103,13 +103,13 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.put(url, Some(&self)).await
+        self.handler.crab.put(route, Some(&self)).await
     }
 }
 
@@ -167,21 +167,19 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileDeletion> {
-        let url = format!(
+        let route = format!(
             "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.delete(url, Some(&self)).await
+        self.handler.crab.delete(route, Some(&self)).await
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::models::repos::GitUser;
-    use base64::engine::general_purpose;
-    use base64::Engine;
 
     #[test]
     fn serialize() {
@@ -203,12 +201,11 @@ mod tests {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
             });
-
         assert_eq!(
             serde_json::to_value(builder).unwrap(),
             serde_json::json!({
                 "message": "Update test.txt",
-                "content": general_purpose::STANDARD.encode("This is a test."),
+                "content": base64::encode("This is a test."),
                 "sha": "testsha",
                 "branch": "not-master",
                 "commiter": {
