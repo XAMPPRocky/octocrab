@@ -159,7 +159,7 @@ use crate::service::body::BodyStreamExt;
 use base64::engine::general_purpose;
 
 use http::{HeaderMap, HeaderValue, Method, Uri};
-use std::convert::{TryFrom, TryInto};
+use std::convert::{TryInto};
 use std::fmt;
 use std::io::Write;
 use std::str::FromStr;
@@ -178,20 +178,24 @@ use tower::{
     buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceBuilder, ServiceExt,
 };
 
-
 use bytes::Bytes;
-use futures_util::TryStreamExt;
 use http::request::Builder;
+#[cfg(feature = "openssl-tls")]
+use hyper_openssl::{HttpsLayer};
+
+
+#[cfg(feature = "timeout")]
+use {
+    hyper_timeout::TimeoutConnector,
+    tokio::io::{AsyncRead, AsyncWrite}
+};
 
 use tower_http::{
     classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer, trace::TraceLayer,
 };
 use tracing::Span;
 
-use crate::error::{
-    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu,
-    SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
-};
+use crate::error::{EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu};
 use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
@@ -239,7 +243,7 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
         _ => "",
     };
 
-    format!("application/vnd.github.v3.{}{}", media_type, json_suffix)
+    format!("application/vnd.github.v3.{media_type}{json_suffix}")
 }
 
 /// Maps a GitHub error response into and `Err()` variant if the status is
@@ -306,6 +310,7 @@ pub struct OctocrabBuilder {
     read_timeout: Option<Duration>,
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>, //todo: once compilation errors fixed, figure out if this should be done via service, or by request builders
+    accept_invalid_certs: bool,
 }
 
 impl OctocrabBuilder {
@@ -363,12 +368,12 @@ impl OctocrabBuilder {
     }
 
     fn new_crab<S, B>(service: S, auth_state: AuthState) -> Octocrab
-        where
-            S: Service<Request<Body>, Response = Response<B>> + Send + 'static,
-            S::Future: Send + 'static,
-            S::Error: Into<BoxError>,
-            B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
-            B::Error: Into<BoxError>,
+    where
+        S: Service<Request<Body>, Response = Response<B>> + Send + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<BoxError>,
+        B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+        B::Error: Into<BoxError>,
     {
         // Transform response body to `hyper::Body` and use type erased error to avoid type parameters.
         let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
@@ -380,51 +385,50 @@ impl OctocrabBuilder {
         }
     }
 
+    #[cfg(feature = "hyper-timeout")]
+    pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
+    where
+        T: Service<Uri> + Send,
+        T::Response: AsyncRead + AsyncWrite + Send + Unpin,
+        T::Future: Send + 'static,
+        T::Error: Into<BoxError>,
+    {
+        let mut connector = TimeoutConnector::new(connector);
+        // Set the timeouts for the client
+        connector.set_connect_timeout(self.connect_timeout);
+        connector.set_read_timeout(self.read_timeout);
+        connector.set_write_timeout(self.write_timeout);
+        connector
+    }
 
-    //todo: add timeout once i figure out bounds
-    // #[cfg(feature = "hyper-timeout")]
-    // pub fn set_connect_timeout_service<S, R>(mut self, mut connector: S) -> TimeoutConnector<S>
-    // where
-    //     S: Service<R>,
-    // {
-    //     let mut connector = TimeoutConnector::new(connector);
-    //     // Set the timeouts for the client
-    //     connector.set_connect_timeout(self.connect_timeout);
-    //     connector.set_read_timeout(self.read_timeout);
-    //     connector.set_write_timeout(self.write_timeout);
-    //     return connector;
-    // }
+    #[cfg(feature = "openssl-tls")]
+    fn openssl_https_connector_with_connector(
+        &self,
+        connector: hyper::client::HttpConnector,
+    ) -> Result<hyper_openssl::HttpsConnector<hyper::client::HttpConnector>> {
+        let https = HttpsLayer::new().context(OpenSSLStackSnafu)?;
+        let mut https = https.layer(connector);
+        if self.accept_invalid_certs {
+            https.set_callback(|ssl, _uri| {
+                ssl.set_verify(openssl::ssl::SslVerifyMode::NONE);
+                Ok(())
+            });
+        }
+        Ok(https)
+    }
 
-    // #[cfg(feature = "openssl-tls")]
-    // fn openssl_https_connector_with_connector(
-    //     &self,
-    //     connector: hyper::client::HttpConnector,
-    // ) -> Result<hyper_openssl::HttpsConnector<hyper::client::HttpConnector>> {
-    //     let mut https =
-    //         hyper_openssl::HttpsConnector::with_connector(connector, self.openssl_ssl_connector_builder().context(error::OtherSnafu)?)?;
-    //     if self.accept_invalid_certs {
-    //         https.set_callback(|ssl, _uri| {
-    //             ssl.set_verify(openssl::ssl::SslVerifyMode::NONE);
-    //             Ok(())
-    //         });
-    //     }
-    //     return Ok(https)
-    // }
-    //
-    // #[cfg(feature = "rustls-tls")]
-    // fn rustls_https_connector_with_connector(
-    //     &self,
-    //     connector: hyper::client::HttpConnector,
-    // ) -> Result<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
-    //     let rustls_config = self.rustls_client_config()?;
-    //     let mut builder = hyper_rustls::HttpsConnectorBuilder::new()
-    //         .with_tls_config(rustls_config)
-    //         .https_or_http();
-    //     if let Some(tsn) = self.tls_server_name.as_ref() {
-    //         builder = builder.with_server_name(tsn.clone());
-    //     }
-    //     Ok(builder.enable_http1().wrap_connector(connector))
-    // }
+    #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
+    fn rustls_https_connector_with_connector(
+        &self,
+        connector: hyper::client::HttpConnector,
+    ) -> Result<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
+        let connector = hyper_rustls::HttpsConnectorBuilder::new()
+            .with_native_roots()
+            .https_or_http()
+            .enable_http1()
+            .wrap_connector(connector);
+        Ok(connector)
+    }
 
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
@@ -438,13 +442,13 @@ impl OctocrabBuilder {
             // 2. rustls-tls
             // Create a custom client to use something else.
             // If TLS features are not enabled, http connector will be used.
-            // #[cfg(feature = "openssl-tls")]
-            //     let connector = self.openssl_https_connector_with_connector(connector)?;
-            // #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
-            //     let connector = self.rustls_https_connector_with_connector(connector)?;
+            #[cfg(feature = "openssl-tls")]
+                let connector = self.openssl_https_connector_with_connector(connector)?;
+            #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
+                let connector = self.rustls_https_connector_with_connector(connector)?;
 
-            // #[cfg(feature = "hyper-timeout")]
-            //     let connector = self.set_connect_timeout_service(connector);
+            #[cfg(feature = "hyper-timeout")]
+            let connector = self.set_connect_timeout_service(connector);
 
             hyper::Client::builder().build(connector)
         };
@@ -454,7 +458,7 @@ impl OctocrabBuilder {
         for preview in &self.previews {
             hmap.push((
                 http::header::ACCEPT,
-                HeaderValue::from_str(crate::format_preview(&preview).as_str()).unwrap(),
+                HeaderValue::from_str(crate::format_preview(preview).as_str()).unwrap(),
             ));
         }
 
@@ -488,16 +492,12 @@ impl OctocrabBuilder {
             hmap.push((
                 key.clone(),
                 HeaderValue::from_str(value.as_str())
-                    .map_err(|e| http::Error::from(e))
+                    .map_err(http::Error::from)
                     .context(HttpSnafu)?,
             ));
         }
 
-        let uri = Uri::try_from(
-            self.base_uri.clone()
-                .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap()),
-        )
-        .unwrap();
+        let uri = self.base_uri.unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
         let stack = ServiceBuilder::new()
             .layer(BaseUriLayer::new(uri))
             .into_inner();
@@ -563,10 +563,10 @@ impl OctocrabBuilder {
             MapResponseBodyLayer::new(|body| {
                 Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
             })
-                .layer(service),
+            .layer(service),
         );
 
-        return Ok(OctocrabBuilder::new_crab(service, auth_state));
+        Ok(OctocrabBuilder::new_crab(service, auth_state))
     }
 }
 
@@ -665,7 +665,7 @@ impl fmt::Debug for Octocrab {
 /// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        return OctocrabBuilder::new().build().unwrap();
+        OctocrabBuilder::new().build().unwrap()
     }
 }
 
@@ -914,12 +914,17 @@ impl Octocrab {
         A: AsRef<str>,
         P: Serialize + ?Sized,
     {
+        let mut route = route.as_ref().to_string();
+        if !route.starts_with('/') {
+            route = format!("/{route}");
+        }
+
         let uri = match parameters {
             Some(parameters) => http::Uri::builder()
                 .path_and_query(
                     format!(
                         "{}?{}",
-                        route.as_ref(),
+                        route,
                         serde_urlencoded::to_string(parameters).context(SerdeUrlEncodedSnafu)?
                     )
                     .as_str(),
@@ -927,7 +932,7 @@ impl Octocrab {
                 .build()
                 .context(HttpSnafu)?,
             None => Uri::builder()
-                .path_and_query(route.as_ref())
+                .path_and_query(route)
                 .build()
                 .context(HttpSnafu)?,
         };
@@ -936,7 +941,7 @@ impl Octocrab {
 
     pub async fn body_to_string(&self, res: http::Response<Body>) -> Result<String> {
         let body_bytes = body::to_bytes(res.into_body()).await.context(HyperSnafu)?;
-        return String::from_utf8(body_bytes.to_vec()).context(InvalidUtf8Snafu);
+        String::from_utf8(body_bytes.to_vec()).context(InvalidUtf8Snafu)
     }
 
     /// Send a `GET` request to `route` with optional query parameters and headers, returning
@@ -1093,11 +1098,11 @@ impl Octocrab {
         let mut request = Builder::new();
         let mut sensitive_value =
             HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
-                .map_err(|e| http::Error::from(e))
+                .map_err(http::Error::from)
                 .context(HttpSnafu)?;
 
         let uri = http::Uri::builder()
-            .path_and_query(format!("/app/installations/{}/access_tokens", installation))
+            .path_and_query(format!("/app/installations/{installation}/access_tokens"))
             .build()
             .context(HttpSnafu)?;
 
@@ -1114,7 +1119,7 @@ impl Octocrab {
         let token_object =
             InstallationToken::from_response(crate::map_github_error(response).await?).await?;
         token.set(token_object.token.clone());
-        return Ok(SecretString::new(token_object.token));
+        Ok(SecretString::new(token_object.token))
     }
 
     /// Send the given request to the underlying service
@@ -1151,7 +1156,7 @@ impl Octocrab {
             AuthState::None => None,
             AuthState::App(ref app) => Some(
                 HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
-                    .map_err(|e| http::Error::from(e))
+                    .map_err(http::Error::from)
                     .context(HttpSnafu)?,
             ),
             AuthState::BasicAuth {
@@ -1164,13 +1169,13 @@ impl Octocrab {
                 );
 
                 // The unwraps here are fine because Vec::write* is infallible.
-                enc.write(format!("{}:{}", username, password).as_bytes())
+                enc.write(format!("{username}:{password}").as_bytes())
                     .context(EncoderSnafu)?;
                 let result = enc.finish().context(EncoderSnafu)?;
 
                 Some(
                     HeaderValue::from_bytes(result.as_ref())
-                        .map_err(|e| http::Error::from(e))
+                        .map_err(http::Error::from)
                         .context(HttpSnafu)?,
                 )
             }
@@ -1183,7 +1188,7 @@ impl Octocrab {
 
                 Some(
                     HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
-                        .map_err(|e| http::Error::from(e))
+                        .map_err(http::Error::from)
                         .context(HttpSnafu)?,
                 )
             }
@@ -1206,7 +1211,7 @@ impl Octocrab {
                 token.clear();
             }
         }
-        return Ok(response);
+        Ok(response)
     }
 }
 
