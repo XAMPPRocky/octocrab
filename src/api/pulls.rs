@@ -387,7 +387,7 @@ impl<'octo> PullRequestHandler<'octo> {
         if let Some(media_type) = self.media_type {
             request = request.header(
                 http::header::ACCEPT,
-                crate::format_media_type(&media_type.to_string()),
+                crate::format_media_type(media_type.to_string()),
             );
         }
         let request = self.crab.build_request(request, None::<&()>)?;
@@ -452,7 +452,7 @@ where {
         if let Some(media_type) = self.media_type {
             request = request.header(
                 http::header::ACCEPT,
-                crate::format_media_type(&media_type.to_string()),
+                crate::format_media_type(media_type.to_string()),
             );
         }
         request

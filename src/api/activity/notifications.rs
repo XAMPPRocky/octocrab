@@ -40,7 +40,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, id: NotificationId) -> crate::Result<Notification> {
-        let url = format!("/notifications/threads/{}", id);
+        let url = format!("/notifications/threads/{id}");
         self.crab.get(url, None::<&()>).await
     }
 
@@ -57,7 +57,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn mark_as_read(&self, id: NotificationId) -> crate::Result<()> {
-        let route = format!("/notifications/threads/{}", id);
+        let route = format!("/notifications/threads/{id}");
         let uri = Uri::builder()
             .path_and_query(route)
             .build()
@@ -156,7 +156,7 @@ impl<'octo> NotificationsHandler<'octo> {
         &self,
         thread: ThreadId,
     ) -> crate::Result<ThreadSubscription> {
-        let url = format!("notifications/threads/{}/subscription", thread);
+        let url = format!("notifications/threads/{thread}/subscription");
 
         self.crab.get(url, None::<&()>).await
     }
@@ -183,7 +183,7 @@ impl<'octo> NotificationsHandler<'octo> {
             ignored: bool,
         }
 
-        let url = format!("notifications/threads/{}/subscription", thread);
+        let url = format!("notifications/threads/{thread}/subscription");
         let body = Inner { ignored };
 
         self.crab.get(url, Some(&body)).await
@@ -201,7 +201,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
-        let route = format!("/notifications/threads/{}/subscription", thread);
+        let route = format!("/notifications/threads/{thread}/subscription");
 
         let uri = Uri::builder()
             .path_and_query(route)

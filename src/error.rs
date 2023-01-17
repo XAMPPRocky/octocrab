@@ -67,6 +67,11 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
+    OpenSSLStack {
+        source: openssl::error::ErrorStack,
+        backtrace: Backtrace,
+    },
+
     #[snafu(display("Serde Url Encode Error: {}\nFound at {}", source, backtrace))]
     SerdeUrlEncoded {
         source: serde_urlencoded::ser::Error,
@@ -108,13 +113,13 @@ impl fmt::Display for GitHubError {
         write!(f, "{}", self.message)?;
 
         if let Some(documentation_url) = &self.documentation_url {
-            write!(f, "\nDocumentation URL: {}", documentation_url)?;
+            write!(f, "\nDocumentation URL: {documentation_url}")?;
         }
 
         if let Some(errors) = &self.errors.as_ref().filter(|errors| !errors.is_empty()) {
             write!(f, "\nErrors:")?;
             for error in errors.iter() {
-                write!(f, "\n- {}", error)?;
+                write!(f, "\n- {error}")?;
             }
         }
 
