@@ -93,16 +93,17 @@
 //! the request.
 //!
 //! ```no_run
+//! # use http::Uri;
 //! # async fn run() -> octocrab::Result<()> {
 //! let octocrab = octocrab::instance();
-//! let response =  octocrab
+//! let response = octocrab
 //!     ._get("https://api.github.com/organizations")
 //!     .await?;
 //!
 //! // You can also use `Octocrab::absolute_url` if you want to still to go to
 //! // the same base.
 //! let response =  octocrab
-//!     ._get(octocrab.absolute_url("organizations")?)
+//!     ._get(Uri::builder().path_and_query("/organizations").build().expect("valid uri"))
 //!     .await?;
 //! # Ok(())
 //! # }
@@ -137,11 +138,13 @@
 //! ```
 //! // Initialises the static instance with your configuration and returns an
 //! // instance of the client.
+//! # tokio_test::block_on(async {
 //! octocrab::initialise(octocrab::Octocrab::builder());
 //! // Gets a instance of `Octocrab` from the static API. If you call this
 //! // without first calling `octocrab::initialise` a default client will be
 //! // initialised and returned instead.
 //! octocrab::instance();
+//! # })
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
 
@@ -188,10 +191,10 @@ use {
     tokio::io::{AsyncRead, AsyncWrite},
 };
 
-use tower_http::{
-    classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer, trace::TraceLayer,
-};
-use tracing::Span;
+use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
+
+#[cfg(feature = "tracing")]
+use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::error::{
     EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
@@ -273,7 +276,8 @@ pub async fn map_github_error(
 /// Initialises the static instance using the configuration set by
 /// `builder`.
 /// ```
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let octocrab = octocrab::initialise(octocrab::Octocrab::builder())?;
 /// # Ok(())
 /// # }
@@ -285,7 +289,10 @@ pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
 /// Returns a new instance of [`Octocrab`]. If it hasn't been previously
 /// initialised it returns a default instance with no authentication set.
 /// ```
+/// #[tokio::main]
+/// async fn main() -> () {
 /// let octocrab = octocrab::instance();
+/// }
 /// ```
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
@@ -294,7 +301,8 @@ pub fn instance() -> Arc<Octocrab> {
 /// A builder struct for `Octocrab`, allowing you to configure the client, such
 /// as using GitHub previews, the github instance, authentication, etc.
 /// ```
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let octocrab = octocrab::OctocrabBuilder::new()
 ///     .add_preview("machine-man")
 ///     .base_uri("https://github.example.com")?
@@ -511,62 +519,61 @@ impl OctocrabBuilder {
             .layer(BaseUriLayer::new(uri))
             .into_inner();
 
-        let service = ServiceBuilder::new()
-            .layer(stack)
-            .layer(ExtraHeadersLayer {
-                headers: Arc::new(hmap),
-            })
-            .layer(
-                TraceLayer::new_for_http()
-                    .make_span_with(|req: &Request<hyper::Body>| {
-                        tracing::debug_span!(
-                            "HTTP",
-                             http.method = %req.method(),
-                             http.url = %req.uri(),
-                             http.status_code = tracing::field::Empty,
-                             otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
-                             otel.kind = "client",
-                             otel.status_code = tracing::field::Empty,
-                        )
-                    })
-                    .on_request(|_req: &Request<hyper::Body>, _span: &Span| {
-                        tracing::debug!("requesting");
-                    })
-                    .on_response(
-                        |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
-                            let status = res.status();
-                            span.record("http.status_code", status.as_u16());
-                            if status.is_client_error() || status.is_server_error() {
-                                span.record("otel.status_code", "ERROR");
-                            }
-                        },
+        let service = ServiceBuilder::new().layer(stack).layer(ExtraHeadersLayer {
+            headers: Arc::new(hmap),
+        });
+        #[cfg(feature = "tracing")]
+        let service = service.layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|req: &Request<hyper::Body>| {
+                    tracing::debug_span!(
+                        "HTTP",
+                         http.method = %req.method(),
+                         http.url = %req.uri(),
+                         http.status_code = tracing::field::Empty,
+                         otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
+                         otel.kind = "client",
+                         otel.status_code = tracing::field::Empty,
                     )
-                    // Explicitly disable `on_body_chunk`. The default does nothing.
-                    .on_body_chunk(())
-                    .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
-                        tracing::debug!("stream closed");
-                    })
-                    .on_failure(
-                        |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
-                            // Called when
-                            // - Calling the inner service errored
-                            // - Polling `Body` errored
-                            // - the response was classified as failure (5xx)
-                            // - End of stream was classified as failure
+                })
+                .on_request(|_req: &Request<hyper::Body>, _span: &Span| {
+                    tracing::debug!("requesting");
+                })
+                .on_response(
+                    |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
+                        let status = res.status();
+                        span.record("http.status_code", status.as_u16());
+                        if status.is_client_error() || status.is_server_error() {
                             span.record("otel.status_code", "ERROR");
-                            match ec {
-                                ServerErrorsFailureClass::StatusCode(status) => {
-                                    span.record("http.status_code", status.as_u16());
-                                    tracing::error!("failed with status {}", status)
-                                }
-                                ServerErrorsFailureClass::Error(err) => {
-                                    tracing::error!("failed with error {}", err)
-                                }
+                        }
+                    },
+                )
+                // Explicitly disable `on_body_chunk`. The default does nothing.
+                .on_body_chunk(())
+                .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
+                    tracing::debug!("stream closed");
+                })
+                .on_failure(
+                    |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
+                        // Called when
+                        // - Calling the inner service errored
+                        // - Polling `Body` errored
+                        // - the response was classified as failure (5xx)
+                        // - End of stream was classified as failure
+                        span.record("otel.status_code", "ERROR");
+                        match ec {
+                            ServerErrorsFailureClass::StatusCode(status) => {
+                                span.record("http.status_code", status.as_u16());
+                                tracing::error!("failed with status {}", status)
                             }
-                        },
-                    ),
-            )
-            .service(client);
+                            ServerErrorsFailureClass::Error(err) => {
+                                tracing::error!("failed with error {}", err)
+                            }
+                        }
+                    },
+                ),
+        );
+        let service = service.service(client);
 
         let service = BoxService::new(
             MapResponseBodyLayer::new(|body| {
@@ -1252,8 +1259,9 @@ impl Octocrab {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn parametrize_uri_valid() {
+    // tokio runtime seems to be needed for tower: https://users.rust-lang.org/t/no-reactor-running-when-calling-runtime-spawn/81256
+    #[tokio::test]
+    async fn parametrize_uri_valid() {
         //Previously, invalid characters were handled by url lib's parse function.
         //Todo: should we handle encoding of uri routes ourselves?
         let uri = crate::instance()

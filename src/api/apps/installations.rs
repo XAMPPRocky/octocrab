@@ -55,8 +55,9 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn serialize() {
+
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::Octocrab::default();
 
         let handler = octocrab.apps();

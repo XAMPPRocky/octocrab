@@ -181,8 +181,8 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
 mod tests {
     use crate::models::repos::GitUser;
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo
@@ -220,8 +220,8 @@ mod tests {
         )
     }
 
-    #[test]
-    fn serialize_delete() {
+    #[tokio::test]
+    async fn serialize_delete() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo
