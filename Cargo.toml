@@ -32,8 +32,6 @@ arc-swap = "1.3.0"
 base64 = "0.13.1"
 bytes = "1.0.1"
 jsonwebtoken = "8"
-futures-core = { version = "0.3.15" }
-futures-util = { version = "0.3.15" }
 futures = { version = "0.3.15" }
 secrecy = "0.8.0"
 cfg-if = "1.0.0"
@@ -76,3 +74,4 @@ tls = ["hyper-tls"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 stream = ["futures-core", "futures-util", "hyper/stream"]
 timeout = ["hyper-timeout", "tokio"]
+stream = ["futures-core", "futures-util", "hyper/stream"]
