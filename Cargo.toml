@@ -32,8 +32,6 @@ arc-swap = "1.3.0"
 base64 = "0.13.1"
 bytes = "1.0.1"
 jsonwebtoken = "8"
-futures-core = { version = "0.3.15" }
-futures-util = { version = "0.3.15" }
 futures = { version = "0.3.15" }
 secrecy = "0.8.0"
 cfg-if = "1.0.0"
@@ -51,6 +49,9 @@ tracing = { version = "0.1.37", features = ["log"], optional = true }
 serde_urlencoded = "0.7.1"
 pin-project = "1.0.12"
 tokio = { version = "1.17.0", default-features = false, optional = true }
+futures-core = { version = "0.3.15", optional = true }
+futures-util = { version = "0.3.15", optional = true }
+
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
     "macros",
@@ -65,3 +66,4 @@ default = ["openssl-tls", "timeout", "tracing"]
 rustls-tls = ["hyper-rustls"]
 openssl-tls = ["openssl", "hyper-openssl"]
 timeout = ["hyper-timeout", "tokio"]
+stream = ["futures-core", "futures-util", "hyper/stream"]

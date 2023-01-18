@@ -192,14 +192,10 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
             .uri(uri)
             .header(http::header::ACCEPT, "application/octet-stream");
         let request = self.parent.crab.build_request(builder, None::<&()>)?;
-
-        Ok(self
-            .parent
-            .crab
-            .execute(request)
-            .await?
-            .bytes_stream()
-            .map_err(|source| crate::error::Error::Http {
+        let response = self.parent.crab.execute(request).await?;
+        Ok(response
+            .into_body()
+            .map_err(|source| crate::error::Error::Hyper {
                 source,
                 backtrace: snafu::Backtrace::generate(),
             }))
