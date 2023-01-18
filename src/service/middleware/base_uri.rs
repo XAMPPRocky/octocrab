@@ -1,5 +1,5 @@
 //! Set base URI of requests.
-use http::{uri, Request};
+use http::{uri, Request, Uri};
 use tower::{Layer, Service};
 
 /// Layer that applies [`BaseUri`] which makes all requests relative to the URI.
@@ -52,21 +52,25 @@ where
 
     fn call(&mut self, req: Request<ReqBody>) -> Self::Future {
         let (mut parts, body) = req.into_parts();
-        let req_pandq = parts.uri.path_and_query();
         //todo: Only overwrite if authority/scheme are not set
-        parts.uri = set_base_uri(&self.base_uri, req_pandq);
+        parts.uri = set_base_uri(&self.base_uri, parts.uri);
         self.inner.call(Request::from_parts(parts, body))
     }
 }
 
 // Join base URI and Path+Query, preserving any path in the base.
-fn set_base_uri(base_uri: &http::Uri, req_pandq: Option<&uri::PathAndQuery>) -> http::Uri {
+fn set_base_uri(base_uri: &http::Uri, current_uri: Uri) -> http::Uri {
+    let req_pandq = current_uri.path_and_query();
     let mut builder = uri::Builder::new();
-    if let Some(scheme) = base_uri.scheme() {
-        builder = builder.scheme(scheme.as_str());
+    if current_uri.scheme().is_none() {
+        if let Some(scheme) = base_uri.scheme() {
+            builder = builder.scheme(scheme.as_str());
+        }
     }
-    if let Some(authority) = base_uri.authority() {
-        builder = builder.authority(authority.as_str());
+    if current_uri.authority().is_none() {
+        if let Some(authority) = base_uri.authority() {
+            builder = builder.authority(authority.as_str());
+        }
     }
 
     if let Some(pandq) = base_uri.path_and_query() {
@@ -92,9 +96,8 @@ mod tests {
     fn normal_host() {
         let base_uri = http::Uri::from_static("https://192.168.1.65:8443");
         let apipath = http::Uri::from_static("/api/v1/nodes?hi=yes");
-        let pandq = apipath.path_and_query();
         assert_eq!(
-            super::set_base_uri(&base_uri, pandq),
+            super::set_base_uri(&base_uri, apipath),
             "https://192.168.1.65:8443/api/v1/nodes?hi=yes"
         );
     }
@@ -104,9 +107,8 @@ mod tests {
         // in rancher, kubernetes server names are not hostnames, but a host with a path:
         let base_uri = http::Uri::from_static("https://example.com/foo/bar");
         let api_path = http::Uri::from_static("/api/v1/nodes?hi=yes");
-        let pandq = api_path.path_and_query();
         assert_eq!(
-            super::set_base_uri(&base_uri, pandq),
+            super::set_base_uri(&base_uri, api_path),
             "https://example.com/foo/bar/api/v1/nodes?hi=yes"
         );
     }
