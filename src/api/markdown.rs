@@ -118,8 +118,8 @@ impl<'octo, 'r, 'text> RenderMarkdownBuilder<'octo, 'r, 'text> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::instance();
         let handler = octocrab.markdown();
         let render = handler
