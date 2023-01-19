@@ -181,6 +181,7 @@ use tower::{
 };
 
 use bytes::Bytes;
+use http::header::USER_AGENT;
 use http::request::Builder;
 #[cfg(feature = "openssl-tls")]
 use hyper_openssl::HttpsLayer;
@@ -200,7 +201,7 @@ use crate::error::{
     EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
     SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
 };
-use crate::service::middleware::base_uri::BaseUriLayer;
+use crate::service::middleware::base_uri::{BaseUri, BaseUriLayer};
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 use auth::{AppAuth, Auth};
@@ -382,7 +383,7 @@ impl OctocrabBuilder {
         self.base_uri(base_uri)
     }
 
-    fn new_crab<S, B>(service: S, auth_state: AuthState) -> Octocrab
+    fn new_crab<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Octocrab
     where
         S: Service<Request<Body>, Response = Response<B>> + Send + 'static,
         S::Future: Send + 'static,
@@ -394,13 +395,17 @@ impl OctocrabBuilder {
         let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
             .layer(service)
             .map_err(|e| e.into());
+
+        let service = Buffer::new(BoxService::new(service), 1024);
+        let service = BaseUriLayer::new(base_uri).layer(service);
+
         Octocrab {
-            client: Buffer::new(BoxService::new(service), 1024),
+            client: service,
             auth_state,
         }
     }
 
-    #[cfg(feature = "hyper-timeout")]
+    #[cfg(feature = "timeout")]
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
         T: Service<Uri> + Send,
@@ -462,11 +467,14 @@ impl OctocrabBuilder {
             #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
             let connector = self.rustls_https_connector_with_connector(connector)?;
 
-            #[cfg(feature = "hyper-timeout")]
+            #[cfg(feature = "timeout")]
             let connector = self.set_connect_timeout_service(connector);
 
             hyper::Client::builder().build(connector)
         };
+
+        #[cfg(feature = "retry")]
+            let client = self.set_connector_retry_service(client);
 
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
@@ -512,14 +520,7 @@ impl OctocrabBuilder {
             ));
         }
 
-        let uri = self
-            .base_uri
-            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
-        let stack = ServiceBuilder::new()
-            .layer(BaseUriLayer::new(uri))
-            .into_inner();
-
-        let service = ServiceBuilder::new().layer(stack).layer(ExtraHeadersLayer {
+        let service = ServiceBuilder::new().layer(ExtraHeadersLayer {
             headers: Arc::new(hmap),
         });
         #[cfg(feature = "tracing")]
@@ -582,7 +583,11 @@ impl OctocrabBuilder {
             .layer(service),
         );
 
-        Ok(OctocrabBuilder::new_crab(service, auth_state))
+        let uri = self
+            .base_uri.clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
+
+        Ok(OctocrabBuilder::new_crab(service, auth_state, uri))
     }
 }
 
@@ -657,13 +662,15 @@ enum AuthState {
     },
 }
 
+pub type OctocrabService = BaseUri<Buffer<
+    BoxService<http::Request<hyper::Body>, http::Response<hyper::Body>, BoxError>,
+    http::Request<hyper::Body>,
+>>;
+
 /// The GitHub API client.
 #[derive(Clone)]
 pub struct Octocrab {
-    client: Buffer<
-        BoxService<http::Request<hyper::Body>, http::Response<hyper::Body>, BoxError>,
-        http::Request<hyper::Body>,
-    >,
+    client: OctocrabService,
     auth_state: AuthState,
 }
 
@@ -681,7 +688,7 @@ impl fmt::Debug for Octocrab {
 /// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        OctocrabBuilder::new().build().unwrap()
+        OctocrabBuilder::new().add_header(USER_AGENT, "octocrab".to_string()).build().unwrap()
     }
 }
 
@@ -690,6 +697,10 @@ impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
     pub fn builder() -> OctocrabBuilder {
         OctocrabBuilder::default()
+    }
+
+    pub fn set_base_uri(&mut self, base_uri: Uri) {
+        self.client.set_base_uri(base_uri);
     }
 
     /// Returns a new `Octocrab` based on the current builder but
