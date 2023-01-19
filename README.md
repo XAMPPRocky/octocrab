@@ -1,4 +1,4 @@
-# Octocrab: A modern, extensible GitHub API client
+# Octocrab: A modern, extensible GitHub API client.
 
 [![Rust](https://github.com/XAMPPRocky/octocrab/workflows/Rust/badge.svg)](https://github.com/XAMPPRocky/octocrab/actions?query=workflow%3ARust)
 [![crates.io](https://img.shields.io/crates/d/octocrab.svg)](https://crates.io/crates/octocrab)
