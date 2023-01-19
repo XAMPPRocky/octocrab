@@ -35,6 +35,12 @@ pub struct BaseUri<S> {
     inner: S,
 }
 
+impl<S> BaseUri<S> {
+    pub fn set_base_uri(&mut self, base_uri: http::Uri) {
+        self.base_uri = base_uri;
+    }
+}
+
 impl<S, ReqBody> Service<Request<ReqBody>> for BaseUri<S>
 where
     S: Service<Request<ReqBody>>,
@@ -53,13 +59,13 @@ where
     fn call(&mut self, req: Request<ReqBody>) -> Self::Future {
         let (mut parts, body) = req.into_parts();
         //todo: Only overwrite if authority/scheme are not set
-        parts.uri = set_base_uri(&self.base_uri, parts.uri);
+        parts.uri = overwrite_base_uri(&self.base_uri, parts.uri);
         self.inner.call(Request::from_parts(parts, body))
     }
 }
 
 // Join base URI and Path+Query, preserving any path in the base.
-fn set_base_uri(base_uri: &http::Uri, current_uri: Uri) -> http::Uri {
+fn overwrite_base_uri(base_uri: &http::Uri, current_uri: Uri) -> http::Uri {
     let req_pandq = current_uri.path_and_query();
     let mut builder = uri::Builder::new();
     if current_uri.scheme().is_none() {
@@ -97,7 +103,7 @@ mod tests {
         let base_uri = http::Uri::from_static("https://192.168.1.65:8443");
         let apipath = http::Uri::from_static("/api/v1/nodes?hi=yes");
         assert_eq!(
-            super::set_base_uri(&base_uri, apipath),
+            super::overwrite_base_uri(&base_uri, apipath),
             "https://192.168.1.65:8443/api/v1/nodes?hi=yes"
         );
     }
@@ -108,7 +114,7 @@ mod tests {
         let base_uri = http::Uri::from_static("https://example.com/foo/bar");
         let api_path = http::Uri::from_static("/api/v1/nodes?hi=yes");
         assert_eq!(
-            super::set_base_uri(&base_uri, api_path),
+            super::overwrite_base_uri(&base_uri, api_path),
             "https://example.com/foo/bar/api/v1/nodes?hi=yes"
         );
     }
