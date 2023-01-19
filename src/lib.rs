@@ -169,6 +169,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use http::{header::HeaderName, StatusCode};
+#[cfg(all(not(feature = "tls")))]
 use hyper::client::HttpConnector;
 use hyper::{body, Body, Request, Response};
 
@@ -183,8 +184,8 @@ use tower::{
 use bytes::Bytes;
 use http::header::USER_AGENT;
 use http::request::Builder;
-#[cfg(feature = "openssl-tls")]
-use hyper_openssl::HttpsLayer;
+#[cfg(feature = "tls")]
+use hyper_tls::HttpsConnector;
 
 #[cfg(feature = "timeout")]
 use {
@@ -198,8 +199,8 @@ use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapRespo
 use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::error::{
-    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
-    SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
+    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu,
+    ServiceSnafu, UriParseError, UriParseSnafu,
 };
 use crate::service::middleware::base_uri::{BaseUri, BaseUriLayer};
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
@@ -319,8 +320,7 @@ pub struct OctocrabBuilder {
     connect_timeout: Option<Duration>,
     read_timeout: Option<Duration>,
     write_timeout: Option<Duration>,
-    base_uri: Option<Uri>, //todo: once compilation errors fixed, figure out if this should be done via service, or by request builders
-    accept_invalid_certs: bool,
+    base_uri: Option<Uri>,
 }
 
 impl OctocrabBuilder {
@@ -421,51 +421,13 @@ impl OctocrabBuilder {
         connector
     }
 
-    #[cfg(feature = "openssl-tls")]
-    fn openssl_https_connector_with_connector(
-        &self,
-        connector: hyper::client::HttpConnector,
-    ) -> Result<hyper_openssl::HttpsConnector<hyper::client::HttpConnector>> {
-        let https = HttpsLayer::new().context(OpenSSLStackSnafu)?;
-        let mut https = https.layer(connector);
-        if self.accept_invalid_certs {
-            https.set_callback(|ssl, _uri| {
-                ssl.set_verify(openssl::ssl::SslVerifyMode::NONE);
-                Ok(())
-            });
-        }
-        Ok(https)
-    }
-
-    #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
-    fn rustls_https_connector_with_connector(
-        &self,
-        connector: hyper::client::HttpConnector,
-    ) -> Result<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
-        let connector = hyper_rustls::HttpsConnectorBuilder::new()
-            .with_native_roots()
-            .https_or_http()
-            .enable_http1()
-            .wrap_connector(connector);
-        Ok(connector)
-    }
-
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper::Client<_, hyper::Body> = {
+            #[cfg(all(not(feature = "tls")))]
             let mut connector = HttpConnector::new();
-            connector.enforce_http(false);
-
-            // todo: enable SSL connectors if applicable
-            // Current TLS feature precedence when more than one are set:
-            // 1. openssl-tls
-            // 2. rustls-tls
-            // Create a custom client to use something else.
-            // If TLS features are not enabled, http connector will be used.
-            #[cfg(feature = "openssl-tls")]
-            let connector = self.openssl_https_connector_with_connector(connector)?;
-            #[cfg(all(not(feature = "openssl-tls"), feature = "rustls-tls"))]
-            let connector = self.rustls_https_connector_with_connector(connector)?;
+            #[cfg(feature = "tls")]
+            let connector = HttpsConnector::new();
 
             #[cfg(feature = "timeout")]
             let connector = self.set_connect_timeout_service(connector);
@@ -474,7 +436,7 @@ impl OctocrabBuilder {
         };
 
         #[cfg(feature = "retry")]
-            let client = self.set_connector_retry_service(client);
+        let client = self.set_connector_retry_service(client);
 
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
@@ -584,7 +546,8 @@ impl OctocrabBuilder {
         );
 
         let uri = self
-            .base_uri.clone()
+            .base_uri
+            .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
         Ok(OctocrabBuilder::new_crab(service, auth_state, uri))
@@ -662,10 +625,12 @@ enum AuthState {
     },
 }
 
-pub type OctocrabService = BaseUri<Buffer<
-    BoxService<http::Request<hyper::Body>, http::Response<hyper::Body>, BoxError>,
-    http::Request<hyper::Body>,
->>;
+pub type OctocrabService = BaseUri<
+    Buffer<
+        BoxService<http::Request<hyper::Body>, http::Response<hyper::Body>, BoxError>,
+        http::Request<hyper::Body>,
+    >,
+>;
 
 /// The GitHub API client.
 #[derive(Clone)]
@@ -688,7 +653,10 @@ impl fmt::Debug for Octocrab {
 /// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        OctocrabBuilder::new().add_header(USER_AGENT, "octocrab".to_string()).build().unwrap()
+        OctocrabBuilder::new()
+            .add_header(USER_AGENT, "octocrab".to_string())
+            .build()
+            .unwrap()
     }
 }
 
