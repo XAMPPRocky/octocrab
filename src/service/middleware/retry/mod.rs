@@ -1,0 +1,56 @@
+
+use futures_util::future;
+use http::{Request, Response};
+use hyper::{Body, Error};
+use tower::retry::Policy;
+
+#[derive(Clone)]
+pub enum RetryConfig {
+    None,
+    Simple(usize),
+}
+
+impl Policy<Request<String>, Response<hyper::Body>, hyper::Error> for RetryConfig {
+    type Future = futures_util::future::Ready<Self>;
+
+    fn retry(
+        &self,
+        _req: &Request<String>,
+        result: Result<&Response<Body>, &Error>,
+    ) -> Option<Self::Future> {
+        match self {
+            RetryConfig::None => None,
+            RetryConfig::Simple(count) => match result {
+                Ok(_) => None,
+                Err(_) => {
+                    if *count > 0 {
+                        Some(future::ready(RetryConfig::Simple(count - 1)))
+                    } else {
+                        None
+                    }
+                }
+            },
+        }
+    }
+
+    fn clone_request(&self, req: &Request<String>) -> Option<Request<String>> {
+        match self {
+            RetryConfig::None => None,
+            _ => {
+                // `Request` can't be cloned
+                let mut new_req = Request::builder()
+                    .uri(req.uri())
+                    .method(req.method())
+                    .version(req.version());
+                for (name, value) in req.headers() {
+                    new_req = new_req.header(name, value);
+                }
+
+                let body = req.body().clone();
+                let new_req = new_req.body(body).expect("failed to build request");
+
+                Some(new_req)
+            }
+        }
+    }
+}
