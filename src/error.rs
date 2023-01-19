@@ -73,11 +73,6 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
-    OpenSSLStack {
-        source: openssl::error::ErrorStack,
-        backtrace: Backtrace,
-    },
-
     #[snafu(display("Serde Url Encode Error: {}\nFound at {}", source, backtrace))]
     SerdeUrlEncoded {
         source: serde_urlencoded::ser::Error,
