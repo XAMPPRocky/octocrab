@@ -42,8 +42,6 @@ tower-http = { version = "0.3.2", features = ["map-response-body", "trace"] }
 hyper-timeout = {version = "0.4.1", optional = true }
 http-body = "0.4.5"
 tower = { version = "0.4.13", default-features = false, features = ["util", "buffer"] }
-hyper-openssl = { version = "0.9.2", optional = true }
-openssl = { version = "0.10.36", optional = true }
 hyper-rustls = { version = "0.23.2", optional = true }
 tracing = { version = "0.1.37", features = ["log"], optional = true }
 serde_urlencoded = "0.7.1"
@@ -51,6 +49,7 @@ pin-project = "1.0.12"
 tokio = { version = "1.17.0", default-features = false, optional = true }
 futures-core = { version = "0.3.15", optional = true }
 futures-util = { version = "0.3.15", optional = true }
+hyper-tls = { version = "0.5.0", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
@@ -62,9 +61,8 @@ tokio-test = "0.4.2"
 wiremock = "0.5.3"
 
 [features]
-default = ["openssl-tls", "timeout", "tracing"]
+default = ["tls", "timeout", "tracing"]
 
-rustls-tls = ["hyper-rustls"]
-openssl-tls = ["openssl", "hyper-openssl"]
+tls = ["hyper-tls"]
 timeout = ["hyper-timeout", "tokio"]
 stream = ["futures-core", "futures-util", "hyper/stream"]
