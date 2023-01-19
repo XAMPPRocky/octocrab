@@ -41,7 +41,7 @@ http = "0.2.5"
 tower-http = { version = "0.3.2", features = ["map-response-body", "trace"] }
 hyper-timeout = {version = "0.4.1", optional = true }
 http-body = "0.4.5"
-tower = { version = "0.4.13", default-features = false, features = ["util", "buffer"] }
+tower = { version = "0.4.13", default-features = false, features = ["util", "buffer", "retry"] }
 hyper-rustls = { version = "0.23.2", optional = true }
 tracing = { version = "0.1.37", features = ["log"], optional = true }
 serde_urlencoded = "0.7.1"
