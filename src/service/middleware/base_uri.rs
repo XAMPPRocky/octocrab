@@ -58,7 +58,6 @@ where
 
     fn call(&mut self, req: Request<ReqBody>) -> Self::Future {
         let (mut parts, body) = req.into_parts();
-        //todo: Only overwrite if authority/scheme are not set
         parts.uri = overwrite_base_uri(&self.base_uri, parts.uri);
         self.inner.call(Request::from_parts(parts, body))
     }
