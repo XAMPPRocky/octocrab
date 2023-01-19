@@ -186,6 +186,8 @@ use http::header::USER_AGENT;
 use http::request::Builder;
 #[cfg(feature = "tls")]
 use hyper_tls::HttpsConnector;
+#[cfg(feature = "retry")]
+use tower::retry::{Retry, RetryLayer};
 
 #[cfg(feature = "timeout")]
 use {
@@ -205,6 +207,7 @@ use crate::error::{
 use crate::service::middleware::base_uri::{BaseUri, BaseUriLayer};
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
+use crate::service::middleware::retry::RetryConfig;
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
 
@@ -312,7 +315,7 @@ pub fn instance() -> Arc<Octocrab> {
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Default)]
+
 pub struct OctocrabBuilder {
     auth: Auth,
     previews: Vec<&'static str>,
@@ -321,11 +324,34 @@ pub struct OctocrabBuilder {
     read_timeout: Option<Duration>,
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>,
+    #[cfg(feature = "retry")]
+    retry_config: RetryConfig,
+}
+
+impl Default for OctocrabBuilder {
+    fn default() -> Self {
+        Self {
+            auth: Auth::None,
+            previews: Vec::new(),
+            extra_headers: Vec::new(),
+            connect_timeout: None,
+            read_timeout: None,
+            write_timeout: None,
+            base_uri: None,
+            #[cfg(feature = "retry")]
+            retry_config: RetryConfig::None,
+        }
+    }
 }
 
 impl OctocrabBuilder {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn add_retry_config(&mut self, retry_config: RetryConfig) -> &mut Self {
+        self.retry_config = retry_config;
+        self
     }
 
     /// Enable a GitHub preview.
@@ -383,9 +409,19 @@ impl OctocrabBuilder {
         self.base_uri(base_uri)
     }
 
+    #[cfg(feature = "retry")]
+    pub fn set_connector_retry_service<S>(
+        &self,
+        connector: hyper::Client<S, String>,
+    ) -> Retry<RetryConfig, hyper::Client<S, String>> {
+        let retry_layer = RetryLayer::new(self.retry_config.clone());
+
+        retry_layer.layer(connector)
+    }
+
     fn new_crab<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Octocrab
     where
-        S: Service<Request<Body>, Response = Response<B>> + Send + 'static,
+        S: Service<Request<String>, Response = Response<B>> + Send + 'static,
         S::Future: Send + 'static,
         S::Error: Into<BoxError>,
         B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
@@ -423,7 +459,7 @@ impl OctocrabBuilder {
 
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
-        let client: hyper::Client<_, hyper::Body> = {
+        let client: hyper::Client<_, String> = {
             #[cfg(all(not(feature = "tls")))]
             let mut connector = HttpConnector::new();
             #[cfg(feature = "tls")]
@@ -488,7 +524,7 @@ impl OctocrabBuilder {
         #[cfg(feature = "tracing")]
         let service = service.layer(
             TraceLayer::new_for_http()
-                .make_span_with(|req: &Request<hyper::Body>| {
+                .make_span_with(|req: &Request<String>| {
                     tracing::debug_span!(
                         "HTTP",
                          http.method = %req.method(),
@@ -499,7 +535,7 @@ impl OctocrabBuilder {
                          otel.status_code = tracing::field::Empty,
                     )
                 })
-                .on_request(|_req: &Request<hyper::Body>, _span: &Span| {
+                .on_request(|_req: &Request<String>, _span: &Span| {
                     tracing::debug!("requesting");
                 })
                 .on_response(
@@ -627,8 +663,8 @@ enum AuthState {
 
 pub type OctocrabService = BaseUri<
     Buffer<
-        BoxService<http::Request<hyper::Body>, http::Response<hyper::Body>, BoxError>,
-        http::Request<hyper::Body>,
+        BoxService<http::Request<String>, http::Response<hyper::Body>, BoxError>,
+        http::Request<String>,
     >,
 >;
 
@@ -1040,15 +1076,21 @@ impl Octocrab {
         &self,
         mut builder: Builder,
         body: Option<&B>,
-    ) -> Result<http::Request<hyper::Body>> {
+    ) -> Result<http::Request<String>> {
+        // Since Octocrab doesn't require streamable bodies(aka, file upload) because it is serde::Serialize),
+        // we can just use String body, since it is both http_body::Body(required by Hyper::Client), and Clone(required by BoxService).
+
+        // In case octocrab needs to support cases where body is strictly streamable, it should use something like reqwest::Body,
+        // since it differentiates between retryable bodies, and streams(aka, it implements try_clone(), which is needed for middlewares like retry).
+
         if let Some(body) = body {
             builder = builder.header(http::header::CONTENT_TYPE, "application/json");
             let request = builder
-                .body(Body::from(serde_json::to_vec(body).context(SerdeSnafu)?))
+                .body(serde_json::to_string(body).context(SerdeSnafu)?)
                 .context(HttpSnafu)?;
             Ok(request)
         } else {
-            Ok(builder.body(Body::empty()).context(HttpSnafu)?)
+            Ok(builder.body(String::new()).context(HttpSnafu)?)
         }
     }
 
@@ -1107,7 +1149,7 @@ impl Octocrab {
             .method(http::Method::POST)
             .uri(uri);
         let response = self
-            .send(request.body(Body::empty()).context(HttpSnafu)?)
+            .send(request.body(String::new()).context(HttpSnafu)?)
             .await?;
         let _status = response.status();
 
@@ -1118,7 +1160,7 @@ impl Octocrab {
     }
 
     /// Send the given request to the underlying service
-    pub async fn send(&self, request: Request<Body>) -> Result<http::Response<hyper::Body>> {
+    pub async fn send(&self, request: Request<String>) -> Result<http::Response<hyper::Body>> {
         let mut svc = self.client.clone();
         let response: Response<Body> = svc
             .ready()
@@ -1143,7 +1185,7 @@ impl Octocrab {
     /// Execute the given `request` using octocrab's Client.
     pub async fn execute(
         &self,
-        request: http::Request<hyper::Body>,
+        request: http::Request<String>,
     ) -> Result<http::Response<hyper::Body>> {
         let (mut parts, body) = request.into_parts();
         // Saved request that we can retry later if necessary
