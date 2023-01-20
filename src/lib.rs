@@ -463,10 +463,7 @@ impl OctocrabBuilder {
 
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
-        hmap.push((
-            USER_AGENT,
-            HeaderValue::from_str("octocrab").unwrap(),
-        ));
+        hmap.push((USER_AGENT, HeaderValue::from_str("octocrab").unwrap()));
 
         for preview in &self.previews {
             hmap.push((
@@ -681,9 +678,7 @@ impl fmt::Debug for Octocrab {
 /// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        OctocrabBuilder::new()
-            .build()
-            .unwrap()
+        OctocrabBuilder::new().build().unwrap()
     }
 }
 
