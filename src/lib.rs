@@ -164,7 +164,6 @@ use http::{HeaderMap, HeaderValue, Method, Uri};
 use std::convert::TryInto;
 use std::fmt;
 use std::io::Write;
-use std::process::exit;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
