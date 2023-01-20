@@ -265,10 +265,6 @@ pub async fn map_github_error(
     if response.status().is_success() {
         Ok(response)
     } else {
-        let b = response.into_body();
-        let b = body::to_bytes(b).await.context(error::HyperSnafu)?;
-        println!("{}", String::from_utf8_lossy(b.as_ref()));
-        exit(0);
         let b: error::GitHubError = serde_json::from_slice(
             body::to_bytes(response.into_body())
                 .await
