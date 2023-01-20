@@ -186,6 +186,7 @@ use http::header::USER_AGENT;
 use http::request::Builder;
 #[cfg(feature = "tls")]
 use hyper_tls::HttpsConnector;
+
 #[cfg(feature = "retry")]
 use tower::retry::{Retry, RetryLayer};
 
@@ -320,8 +321,11 @@ pub struct OctocrabBuilder {
     auth: Auth,
     previews: Vec<&'static str>,
     extra_headers: Vec<(HeaderName, String)>,
+    #[cfg(feature = "timeout")]
     connect_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
     read_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>,
     #[cfg(feature = "retry")]
@@ -417,28 +421,6 @@ impl OctocrabBuilder {
         let retry_layer = RetryLayer::new(self.retry_config.clone());
 
         retry_layer.layer(connector)
-    }
-
-    fn new_crab<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Octocrab
-    where
-        S: Service<Request<String>, Response = Response<B>> + Send + 'static,
-        S::Future: Send + 'static,
-        S::Error: Into<BoxError>,
-        B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
-        B::Error: Into<BoxError>,
-    {
-        // Transform response body to `hyper::Body` and use type erased error to avoid type parameters.
-        let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
-            .layer(service)
-            .map_err(|e| e.into());
-
-        let service = Buffer::new(BoxService::new(service), 1024);
-        let service = BaseUriLayer::new(base_uri).layer(service);
-
-        Octocrab {
-            client: service,
-            auth_state,
-        }
     }
 
     #[cfg(feature = "timeout")]
@@ -586,7 +568,7 @@ impl OctocrabBuilder {
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        Ok(OctocrabBuilder::new_crab(service, auth_state, uri))
+        Ok(Octocrab::new(service, auth_state, uri))
     }
 }
 
@@ -701,6 +683,28 @@ impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
     pub fn builder() -> OctocrabBuilder {
         OctocrabBuilder::default()
+    }
+
+    fn new<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Self
+    where
+        S: Service<Request<String>, Response = Response<B>> + Send + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<BoxError>,
+        B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+        B::Error: Into<BoxError>,
+    {
+        // Transform response body to `hyper::Body` and use type erased error to avoid type parameters.
+        let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
+            .layer(service)
+            .map_err(|e| e.into());
+
+        let service = Buffer::new(BoxService::new(service), 1024);
+        let service = BaseUriLayer::new(base_uri).layer(service);
+
+        Self {
+            client: service,
+            auth_state,
+        }
     }
 
     pub fn set_base_uri(&mut self, base_uri: Uri) {
