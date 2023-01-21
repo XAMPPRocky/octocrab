@@ -203,7 +203,7 @@ use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::error::{
     EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu,
-    ServiceSnafu, UriParseError, UriParseSnafu,
+    ServiceSnafu, UriParseError, UriParseSnafu, UriSnafu,
 };
 use crate::service::middleware::base_uri::{BaseUri, BaseUriLayer};
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
@@ -943,34 +943,28 @@ impl Octocrab {
         self._get_with_headers(uri, None).await
     }
 
-    fn parameterized_uri<A, P>(&self, route: A, parameters: Option<&P>) -> Result<Uri>
+    fn parameterized_uri<A, P>(&self, uri: A, parameters: Option<&P>) -> Result<Uri>
     where
         A: AsRef<str>,
         P: Serialize + ?Sized,
     {
-        let mut route = route.as_ref().to_string();
-        if !route.starts_with('/') {
-            route = format!("/{route}");
+        let mut uri = uri.as_ref().to_string();
+        if let Some(parameters) = parameters {
+            if uri.contains('?') {
+                uri = format!("{uri}&");
+            } else {
+                uri = format!("{uri}?");
+            }
+            uri = format!(
+                "{}{}",
+                uri,
+                serde_urlencoded::to_string(parameters)
+                    .context(SerdeUrlEncodedSnafu)?
+                    .as_str()
+            );
         }
-
-        let uri = match parameters {
-            Some(parameters) => http::Uri::builder()
-                .path_and_query(
-                    format!(
-                        "{}?{}",
-                        route,
-                        serde_urlencoded::to_string(parameters).context(SerdeUrlEncodedSnafu)?
-                    )
-                    .as_str(),
-                )
-                .build()
-                .context(HttpSnafu)?,
-            None => Uri::builder()
-                .path_and_query(route)
-                .build()
-                .context(HttpSnafu)?,
-        };
-        Ok(uri)
+        let uri = Uri::from_str(uri.as_str()).context(UriSnafu);
+        uri
     }
 
     pub async fn body_to_string(&self, res: http::Response<Body>) -> Result<String> {
