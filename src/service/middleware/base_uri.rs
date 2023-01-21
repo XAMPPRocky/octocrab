@@ -67,14 +67,20 @@ where
 fn overwrite_base_uri(base_uri: &http::Uri, current_uri: Uri) -> http::Uri {
     let req_pandq = current_uri.path_and_query();
     let mut builder = uri::Builder::new();
-    if current_uri.scheme().is_none() {
-        if let Some(scheme) = base_uri.scheme() {
-            builder = builder.scheme(scheme.as_str());
+    match current_uri.scheme() {
+        Some(scheme) => builder = builder.scheme(scheme.as_str()),
+        None => {
+            if let Some(scheme) = base_uri.scheme() {
+                builder = builder.scheme(scheme.as_str());
+            }
         }
     }
-    if current_uri.authority().is_none() {
-        if let Some(authority) = base_uri.authority() {
-            builder = builder.authority(authority.as_str());
+    match current_uri.authority() {
+        Some(authority) => builder = builder.authority(authority.as_str()),
+        None => {
+            if let Some(authority) = base_uri.authority() {
+                builder = builder.authority(authority.as_str());
+            }
         }
     }
 
