@@ -58,3 +58,29 @@ impl<'octo, 'r> CreateCommentBuilder <'octo, 'r> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn serialize() {
+        let octocrab = crate::Octocrab::default();
+        let handler = octocrab.commits("owner", "repo");
+        let list = handler
+            .create_comment("95b3b039e71659a401ef39e86bab691ab6ce5fe5", "boo boo")
+            .path("lib/octocat.rb")
+            .position(10)
+            .line(1);
+
+        assert_eq!(
+            serde_json::to_value(list).unwrap(),
+            serde_json::json!({
+                "sha": "95b3b039e71659a401ef39e86bab691ab6ce5fe5",
+                "body": "boo boo",
+                "path": "lib/octocat.rb",
+                "position": 10,
+                "line": 1,
+            })
+        )
+    }
+}
