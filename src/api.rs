@@ -15,3 +15,4 @@ pub mod repos;
 pub mod search;
 pub mod teams;
 pub mod workflows;
+pub mod commits;
