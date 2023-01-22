@@ -21,7 +21,7 @@ impl<'octo> CommitHandler<'octo> {
     //     create::CreateIssueBuilder::new(self, title.into())
     // }
 
-    pub async fn create_comment(
+    pub fn create_comment(
         &self,
         sha: impl Into<String>,
         body: impl Into<String>,
