@@ -171,8 +171,8 @@ use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
-        actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
-        orgs, pulls, repos, search, teams, workflows, ratelimit,
+        actions, activity, apps, current, events, gists, gitignore, issues, commits,
+        licenses, markdown, orgs, pulls, repos, search, teams, workflows, ratelimit,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -552,6 +552,14 @@ impl Octocrab {
         repo: impl Into<String>,
     ) -> issues::IssueHandler {
         issues::IssueHandler::new(self, owner.into(), repo.into())
+    }
+
+    pub fn commits(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> commits::CommitHandler {
+        commits::CommitHandler::new(self, owner.into(), repo.into())
     }
 
     /// Creates a [`licenses::LicenseHandler`].
