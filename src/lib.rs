@@ -214,8 +214,8 @@ use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
-        actions, activity, apps, current, events, gists, gitignore, issues, licenses, markdown,
-        orgs, pulls, ratelimit, repos, search, teams, workflows, commits
+        actions, activity, apps, commits, current, events, gists, gitignore, issues, licenses,
+        markdown, orgs, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,

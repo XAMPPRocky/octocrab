@@ -1,10 +1,8 @@
 //! The commit API.
 mod create_comment;
 
+pub use self::create_comment::CreateCommentBuilder;
 use crate::{models, Octocrab};
-pub use self::{
-    create_comment::CreateCommentBuilder,
-};
 
 pub struct CommitHandler<'octo> {
     crab: &'octo Octocrab,
