@@ -177,7 +177,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         use snafu::GenerateImplicitData;
 
         let url = format!(
-            "repos/{owner}/{repo}/assets/{asset_id}",
+            "{base_url}repos/{owner}/{repo}/releases/assets/{asset_id}",
+            base_url = self.parent.crab.base_url,
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
