@@ -684,6 +684,7 @@ impl Octocrab {
         OctocrabBuilder::default()
     }
 
+    /// Creates a new `Octocrab`.
     fn new<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Self
     where
         S: Service<Request<String>, Response = Response<B>> + Send + 'static,
@@ -706,6 +707,7 @@ impl Octocrab {
         }
     }
 
+    /// set_base_uri sets the base URI of the BaseUri layer.
     pub fn set_base_uri(&mut self, base_uri: Uri) {
         self.client.set_base_uri(base_uri);
     }
@@ -943,6 +945,8 @@ impl Octocrab {
         self._get_with_headers(uri, None).await
     }
 
+    /// Convenience method to accept any &str, and attempt to convert it to a Uri.
+    /// the method also attempts to serialize any parameters into a query string, and append it to the uri.
     fn parameterized_uri<A, P>(&self, uri: A, parameters: Option<&P>) -> Result<Uri>
     where
         A: AsRef<str>,
