@@ -62,8 +62,8 @@ impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.commits("owner", "repo");
         let list = handler
