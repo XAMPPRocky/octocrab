@@ -177,7 +177,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         use snafu::GenerateImplicitData;
 
         let route = format!(
-            "/repos/{owner}/{repo}/assets/{asset_id}",
+            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
