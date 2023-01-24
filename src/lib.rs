@@ -363,7 +363,14 @@ impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
     }
 }
 
-impl<Svc, Config, Auth> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
     /// Add a [`Layer`] to the current [`Service`] stack.
     pub fn with_layer<L: Layer<Svc>>(
         self,
@@ -416,7 +423,7 @@ where
 }
 
 impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
-    fn with_auth<Auth>(self, auth: Auth) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
+    pub fn with_auth<Auth>(self, auth: Auth) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
         OctocrabBuilder {
             service: self.service,
             auth,
@@ -622,10 +629,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             ));
         }
 
-        let client = (ExtraHeadersLayer {
-            headers: Arc::new(hmap),
-        })
-        .layer(client);
+        let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
 
         let client = MapResponseBodyLayer::new(|body| {
             Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
@@ -687,7 +691,7 @@ impl DefaultOctocrabBuilderConfig {
 pub type DynBody = dyn http_body::Body<Data = Bytes, Error = BoxError> + Send + Unpin;
 
 /// A cached API access token (which may be None)
-struct CachedToken(RwLock<Option<SecretString>>);
+pub struct CachedToken(RwLock<Option<SecretString>>);
 
 impl CachedToken {
     fn clear(&self) {
@@ -731,7 +735,7 @@ impl Default for CachedToken {
 
 /// State used for authenticate to Github
 #[derive(Debug, Clone)]
-enum AuthState {
+pub enum AuthState {
     /// No state, although Auth::PersonalToken may have caused
     /// an Authorization HTTP header to be set to provide authentication.
     None,
