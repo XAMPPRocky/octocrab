@@ -31,7 +31,7 @@ async fn main() -> octocrab::Result<()> {
         .await
         .unwrap();
 
-    let octocrab = octocrab::OctocrabBuilder::new()
+    let octocrab = octocrab::OctocrabBuilder::default()
         .personal_token(access.token)
         .build()
         .unwrap();
