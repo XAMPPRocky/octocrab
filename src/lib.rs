@@ -138,8 +138,9 @@
 //! ```
 //! // Initialises the static instance with your configuration and returns an
 //! // instance of the client.
-//! # tokio_test::block_on(async {
-//! octocrab::initialise(octocrab::Octocrab::builder());
+//! # use octocrab::Octocrab;
+//! tokio_test::block_on(async {
+//! octocrab::initialise(Octocrab::default());
 //! // Gets a instance of `Octocrab` from the static API. If you call this
 //! // without first calling `octocrab::initialise` a default client will be
 //! // initialised and returned instead.
@@ -161,9 +162,10 @@ pub mod service;
 use crate::service::body::BodyStreamExt;
 
 use http::{HeaderMap, HeaderValue, Method, Uri};
-use std::convert::TryInto;
+use std::convert::{Infallible, TryInto};
 use std::fmt;
 use std::io::Write;
+use std::marker::PhantomData;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
@@ -177,9 +179,7 @@ use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 use serde::Serialize;
 use snafu::*;
-use tower::{
-    buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceBuilder, ServiceExt,
-};
+use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
 use http::header::USER_AGENT;
@@ -205,7 +205,7 @@ use crate::error::{
     EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu,
     ServiceSnafu, UriParseError, UriParseSnafu, UriSnafu,
 };
-use crate::service::middleware::base_uri::{BaseUri, BaseUriLayer};
+use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 use crate::service::middleware::retry::RetryConfig;
@@ -284,12 +284,12 @@ pub async fn map_github_error(
 /// ```
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let octocrab = octocrab::initialise(octocrab::Octocrab::builder())?;
+/// let octocrab = octocrab::initialise(octocrab::Octocrab::default());
 /// # Ok(())
 /// # }
 /// ```
-pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
-    Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
+pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
+    STATIC_INSTANCE.swap(Arc::from(crab))
 }
 
 /// Returns a new instance of [`Octocrab`]. If it hasn't been previously
@@ -309,7 +309,7 @@ pub fn instance() -> Arc<Octocrab> {
 /// ```
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let octocrab = octocrab::OctocrabBuilder::new()
+/// let octocrab = octocrab::OctocrabBuilder::default()
 ///     .add_preview("machine-man")
 ///     .base_uri("https://github.example.com")?
 ///     .build()?;
@@ -317,88 +317,158 @@ pub fn instance() -> Arc<Octocrab> {
 /// # }
 /// ```
 
-pub struct OctocrabBuilder {
+pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+    service: Svc,
     auth: Auth,
-    previews: Vec<&'static str>,
-    extra_headers: Vec<(HeaderName, String)>,
-    #[cfg(feature = "timeout")]
-    connect_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
-    read_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
-    write_timeout: Option<Duration>,
-    base_uri: Option<Uri>,
-    #[cfg(feature = "retry")]
-    retry_config: RetryConfig,
+    config: Config,
+    _layer_ready: PhantomData<LayerReady>,
 }
 
-impl Default for OctocrabBuilder {
-    fn default() -> Self {
-        Self {
-            auth: Auth::None,
-            previews: Vec::new(),
-            extra_headers: Vec::new(),
-            connect_timeout: None,
-            read_timeout: None,
-            write_timeout: None,
-            base_uri: None,
-            #[cfg(feature = "retry")]
-            retry_config: RetryConfig::None,
+//Indicates weather the builder supports config
+pub struct NoConfig {}
+
+//Indicates weather the builder supports service that is already inside builder
+pub struct NoSvc {}
+
+//Indicates weather builder supports with_layer(This is somewhat redundant given NoSvc exists, but we have to use this until specialization is stable)
+pub struct NotLayerReady {}
+pub struct LayerReady {}
+
+//Indicates weather the builder supports auth
+pub struct NoAuth {}
+
+impl OctocrabBuilder<NoSvc, NoConfig, NoAuth, NotLayerReady> {
+    pub fn new() -> Self {
+        OctocrabBuilder {
+            service: NoSvc {},
+            auth: NoAuth {},
+            config: NoConfig {},
+            _layer_ready: PhantomData,
         }
     }
 }
 
-impl OctocrabBuilder {
-    pub fn new() -> Self {
-        Self::default()
+impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
+    pub fn with_service<Svc>(self, service: Svc) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+        OctocrabBuilder {
+            service,
+            auth: self.auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+        }
     }
+}
 
+impl<Svc, Config, Auth> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+    /// Add a [`Layer`] to the current [`Service`] stack.
+    pub fn with_layer<L: Layer<Svc>>(
+        self,
+        layer: &L,
+    ) -> OctocrabBuilder<L::Service, Config, Auth, LayerReady> {
+        let Self {
+            service: stack,
+            auth,
+            config,
+            ..
+        } = self;
+        OctocrabBuilder {
+            service: layer.layer(stack),
+            auth,
+            config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl Default for OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    fn default() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+        OctocrabBuilder::new().with_config(DefaultOctocrabBuilderConfig::default())
+    }
+}
+
+impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
+    fn with_config<Config>(self, config: Config) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
+        OctocrabBuilder {
+            service: self.service,
+            auth: self.auth,
+            config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
+where
+    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Build a [`Client`] instance with the current [`Service`] stack.
+    pub fn build(self) -> Result<Octocrab, Infallible> {
+        Ok(Octocrab::new(self.service, self.auth))
+    }
+}
+
+impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
+    fn with_auth<Auth>(self, auth: Auth) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
+        OctocrabBuilder {
+            service: self.service,
+            auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     pub fn add_retry_config(&mut self, retry_config: RetryConfig) -> &mut Self {
-        self.retry_config = retry_config;
+        self.config.retry_config = retry_config;
         self
     }
 
     /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
-        self.previews.push(preview);
+        self.config.previews.push(preview);
         self
     }
 
     /// Add an additional header to include with every request.
     pub fn add_header(mut self, key: HeaderName, value: String) -> Self {
-        self.extra_headers.push((key, value));
+        self.config.extra_headers.push((key, value));
         self
     }
 
     /// Add a personal token to use for authentication.
     pub fn personal_token(mut self, token: String) -> Self {
-        self.auth = Auth::PersonalToken(SecretString::new(token));
+        self.config.auth = Auth::PersonalToken(SecretString::new(token));
         self
     }
 
     /// Authenticate as a Github App.
     /// `key`: RSA private key in DER or PEM formats.
     pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
-        self.auth = Auth::App(AppAuth { app_id, key });
+        self.config.auth = Auth::App(AppAuth { app_id, key });
         self
     }
 
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.auth = Auth::Basic { username, password };
+        self.config.auth = Auth::Basic { username, password };
         self
     }
 
     /// Authenticate with an OAuth token.
     pub fn oauth(mut self, oauth: auth::OAuth) -> Self {
-        self.auth = Auth::OAuth(oauth);
+        self.config.auth = Auth::OAuth(oauth);
         self
     }
 
     /// Set the base url for `Octocrab`.
     pub fn base_uri(mut self, base_uri: impl TryInto<Uri>) -> Result<Self> {
-        self.base_uri = Some(
+        self.config.base_uri = Some(
             base_uri
                 .try_into()
                 .map_err(|_| UriParseError {})
@@ -407,18 +477,12 @@ impl OctocrabBuilder {
         Ok(self)
     }
 
-    /// Set the base url for `Octocrab`.
-    /// #[deprecated(since="0.18.1", note="please use `base_uri` instead")]
-    pub fn base_url(self, base_uri: impl TryInto<Uri>) -> Result<Self> {
-        self.base_uri(base_uri)
-    }
-
     #[cfg(feature = "retry")]
     pub fn set_connector_retry_service<S>(
         &self,
         connector: hyper::Client<S, String>,
     ) -> Retry<RetryConfig, hyper::Client<S, String>> {
-        let retry_layer = RetryLayer::new(self.retry_config.clone());
+        let retry_layer = RetryLayer::new(self.config.retry_config.clone());
 
         retry_layer.layer(connector)
     }
@@ -433,13 +497,13 @@ impl OctocrabBuilder {
     {
         let mut connector = TimeoutConnector::new(connector);
         // Set the timeouts for the client
-        connector.set_connect_timeout(self.connect_timeout);
-        connector.set_read_timeout(self.read_timeout);
-        connector.set_write_timeout(self.write_timeout);
+        connector.set_connect_timeout(self.config.connect_timeout);
+        connector.set_read_timeout(self.config.read_timeout);
+        connector.set_write_timeout(self.config.write_timeout);
         connector
     }
 
-    /// Create the `Octocrab` client.
+    /// Build a [`Client`] instance with the current [`Service`] stack.
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper::Client<_, String> = {
             #[cfg(all(not(feature = "tls")))]
@@ -456,18 +520,70 @@ impl OctocrabBuilder {
         #[cfg(feature = "retry")]
         let client = self.set_connector_retry_service(client);
 
+        #[cfg(feature = "tracing")]
+        let client = TraceLayer::new_for_http()
+            .make_span_with(|req: &Request<String>| {
+                tracing::debug_span!(
+                    "HTTP",
+                     http.method = %req.method(),
+                     http.url = %req.uri(),
+                     http.status_code = tracing::field::Empty,
+                     otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
+                     otel.kind = "client",
+                     otel.status_code = tracing::field::Empty,
+                )
+            })
+            .on_request(|_req: &Request<String>, _span: &Span| {
+                tracing::debug!("requesting");
+            })
+            .on_response(
+                |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
+                    let status = res.status();
+                    span.record("http.status_code", status.as_u16());
+                    if status.is_client_error() || status.is_server_error() {
+                        span.record("otel.status_code", "ERROR");
+                    }
+                },
+            )
+            // Explicitly disable `on_body_chunk`. The default does nothing.
+            .on_body_chunk(())
+            .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
+                tracing::debug!("stream closed");
+            })
+            .on_failure(
+                |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
+                    // Called when
+                    // - Calling the inner service errored
+                    // - Polling `Body` errored
+                    // - the response was classified as failure (5xx)
+                    // - End of stream was classified as failure
+                    span.record("otel.status_code", "ERROR");
+                    match ec {
+                        ServerErrorsFailureClass::StatusCode(status) => {
+                            span.record("http.status_code", status.as_u16());
+                            tracing::error!("failed with status {}", status)
+                        }
+                        ServerErrorsFailureClass::Error(err) => {
+                            tracing::error!("failed with error {}", err)
+                        }
+                    }
+                },
+            )
+            .layer(client);
+
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
+        // Add the user agent header required by GitHub
         hmap.push((USER_AGENT, HeaderValue::from_str("octocrab").unwrap()));
 
-        for preview in &self.previews {
+        for preview in &self.config.previews {
             hmap.push((
                 http::header::ACCEPT,
                 HeaderValue::from_str(crate::format_preview(preview).as_str()).unwrap(),
             ));
         }
 
-        let auth_state = match self.auth {
+        let auth_state = match self.config.auth {
             Auth::None => AuthState::None,
             Auth::Basic { username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
@@ -493,7 +609,7 @@ impl OctocrabBuilder {
             }
         };
 
-        for (key, value) in self.extra_headers.iter() {
+        for (key, value) in self.config.extra_headers.iter() {
             hmap.push((
                 key.clone(),
                 HeaderValue::from_str(value.as_str())
@@ -502,75 +618,65 @@ impl OctocrabBuilder {
             ));
         }
 
-        let service = ServiceBuilder::new().layer(ExtraHeadersLayer {
+        let client = (ExtraHeadersLayer {
             headers: Arc::new(hmap),
-        });
-        #[cfg(feature = "tracing")]
-        let service = service.layer(
-            TraceLayer::new_for_http()
-                .make_span_with(|req: &Request<String>| {
-                    tracing::debug_span!(
-                        "HTTP",
-                         http.method = %req.method(),
-                         http.url = %req.uri(),
-                         http.status_code = tracing::field::Empty,
-                         otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
-                         otel.kind = "client",
-                         otel.status_code = tracing::field::Empty,
-                    )
-                })
-                .on_request(|_req: &Request<String>, _span: &Span| {
-                    tracing::debug!("requesting");
-                })
-                .on_response(
-                    |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
-                        let status = res.status();
-                        span.record("http.status_code", status.as_u16());
-                        if status.is_client_error() || status.is_server_error() {
-                            span.record("otel.status_code", "ERROR");
-                        }
-                    },
-                )
-                // Explicitly disable `on_body_chunk`. The default does nothing.
-                .on_body_chunk(())
-                .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
-                    tracing::debug!("stream closed");
-                })
-                .on_failure(
-                    |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
-                        // Called when
-                        // - Calling the inner service errored
-                        // - Polling `Body` errored
-                        // - the response was classified as failure (5xx)
-                        // - End of stream was classified as failure
-                        span.record("otel.status_code", "ERROR");
-                        match ec {
-                            ServerErrorsFailureClass::StatusCode(status) => {
-                                span.record("http.status_code", status.as_u16());
-                                tracing::error!("failed with status {}", status)
-                            }
-                            ServerErrorsFailureClass::Error(err) => {
-                                tracing::error!("failed with error {}", err)
-                            }
-                        }
-                    },
-                ),
-        );
-        let service = service.service(client);
+        })
+        .layer(client);
 
-        let service = BoxService::new(
-            MapResponseBodyLayer::new(|body| {
-                Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
-            })
-            .layer(service),
-        );
+        let client = MapResponseBodyLayer::new(|body| {
+            Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
+        })
+        .layer(client);
 
         let uri = self
+            .config
             .base_uri
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        Ok(Octocrab::new(service, auth_state, uri))
+        let client = BaseUriLayer::new(uri).layer(client);
+
+        Ok(Octocrab::new(client, auth_state))
+    }
+}
+
+pub struct DefaultOctocrabBuilderConfig {
+    auth: Auth,
+    previews: Vec<&'static str>,
+    extra_headers: Vec<(HeaderName, String)>,
+    #[cfg(feature = "timeout")]
+    connect_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
+    read_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
+    write_timeout: Option<Duration>,
+    base_uri: Option<Uri>,
+    #[cfg(feature = "retry")]
+    retry_config: RetryConfig,
+}
+
+impl Default for DefaultOctocrabBuilderConfig {
+    fn default() -> Self {
+        Self {
+            auth: Auth::None,
+            previews: Vec::new(),
+            extra_headers: Vec::new(),
+            #[cfg(feature = "timeout")]
+            connect_timeout: None,
+            #[cfg(feature = "timeout")]
+            read_timeout: None,
+            #[cfg(feature = "timeout")]
+            write_timeout: None,
+            base_uri: None,
+            #[cfg(feature = "retry")]
+            retry_config: RetryConfig::Simple(3),
+        }
+    }
+}
+
+impl DefaultOctocrabBuilderConfig {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -645,11 +751,9 @@ enum AuthState {
     },
 }
 
-pub type OctocrabService = BaseUri<
-    Buffer<
-        BoxService<http::Request<String>, http::Response<hyper::Body>, BoxError>,
-        http::Request<String>,
-    >,
+pub type OctocrabService = Buffer<
+    BoxService<http::Request<String>, http::Response<hyper::Body>, BoxError>,
+    http::Request<String>,
 >;
 
 /// The GitHub API client.
@@ -673,19 +777,20 @@ impl fmt::Debug for Octocrab {
 /// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        OctocrabBuilder::new().build().unwrap()
+        OctocrabBuilder::default().build().unwrap()
     }
 }
 
 /// # Constructors
 impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
-    pub fn builder() -> OctocrabBuilder {
-        OctocrabBuilder::default()
+    pub fn builder() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
+    {
+        OctocrabBuilder::new().with_config(DefaultOctocrabBuilderConfig::default())
     }
 
     /// Creates a new `Octocrab`.
-    fn new<S, B>(service: S, auth_state: AuthState, base_uri: Uri) -> Self
+    fn new<S, B>(service: S, auth_state: AuthState) -> Self
     where
         S: Service<Request<String>, Response = Response<B>> + Send + 'static,
         S::Future: Send + 'static,
@@ -699,17 +804,11 @@ impl Octocrab {
             .map_err(|e| e.into());
 
         let service = Buffer::new(BoxService::new(service), 1024);
-        let service = BaseUriLayer::new(base_uri).layer(service);
 
         Self {
             client: service,
             auth_state,
         }
-    }
-
-    /// set_base_uri sets the base URI of the BaseUri layer.
-    pub fn set_base_uri(&mut self, base_uri: Uri) {
-        self.client.set_base_uri(base_uri);
     }
 
     /// Returns a new `Octocrab` based on the current builder but
@@ -1306,7 +1405,7 @@ mod tests {
             .expect(1)
             .mount(&mock_server)
             .await;
-        crate::OctocrabBuilder::new()
+        crate::OctocrabBuilder::default()
             .base_uri(mock_server.uri())
             .unwrap()
             .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
