@@ -9,6 +9,12 @@ pub struct ExtraHeadersLayer {
     pub(crate) headers: Arc<Vec<(HeaderName, HeaderValue)>>,
 }
 
+impl ExtraHeadersLayer {
+    pub fn new(headers: Arc<Vec<(HeaderName, HeaderValue)>>) -> Self {
+        ExtraHeadersLayer { headers }
+    }
+}
+
 impl<S> Layer<S> for ExtraHeadersLayer {
     type Service = ExtraHeaders<S>;
 
