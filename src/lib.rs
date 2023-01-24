@@ -317,6 +317,10 @@ pub fn instance() -> Arc<Octocrab> {
 /// # }
 /// ```
 
+//Typed builder, thanks to https://www.greyblake.com/blog/builder-with-typestate-in-rust/ for explaining
+
+/// A builder struct for `Octocrab`.
+/// OctocrabBuilder can be extended with a custom config, see [DefaultOctocrabBuilderConfig] for an example
 pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
     service: Svc,
     auth: Auth,
