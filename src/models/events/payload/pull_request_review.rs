@@ -1,6 +1,6 @@
 use crate::models::{
     pulls::{PullRequest, Review},
-    Repository, User,
+    Repository, Author,
 };
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +19,7 @@ pub struct PullRequestReviewEventPayload {
     /// The repository where the event occurred.
     pub repository: Repository,
     /// The user that triggered the event.
-    pub sender: User,
+    pub sender: Author,
 }
 
 /// The action on a pull request review this event corresponds to.

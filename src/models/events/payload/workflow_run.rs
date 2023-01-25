@@ -1,7 +1,7 @@
 use crate::models::{
     orgs::Organization,
     workflows::{Run, WorkFlow},
-    Repository, User,
+    Repository, Author,
 };
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +14,7 @@ pub struct WorkflowRunEventPayload {
     pub workflow: WorkFlow,
     pub organization: Option<Organization>,
     pub repository: Repository,
-    pub sender: User,
+    pub sender: Author,
 }
 
 /// The action on a pull request this event corresponds to.

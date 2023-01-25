@@ -304,7 +304,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
     }
 
     /// Send the actual request.
-    pub async fn send(self) -> Result<crate::Page<models::User>> {
+    pub async fn send(self) -> Result<crate::Page<models::Author>> {
         let route = format!(
             "repos/{owner}/{repo}/assignees",
             owner = self.handler.owner,

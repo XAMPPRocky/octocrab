@@ -35,7 +35,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<Box<User>>,
+    pub user: Option<Box<Author>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -63,11 +63,11 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<Box<User>>,
+    pub assignee: Option<Box<Author>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignees: Option<Vec<User>>,
+    pub assignees: Option<Vec<Author>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requested_reviewers: Option<Vec<User>>,
+    pub requested_reviewers: Option<Vec<Author>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested_teams: Option<Vec<teams::RequestedTeam>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -94,7 +94,7 @@ pub struct Head {
     pub ref_field: String,
     pub sha: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<User>,
+    pub user: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
 }
@@ -108,7 +108,7 @@ pub struct Base {
     pub ref_field: String,
     pub sha: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<User>,
+    pub user: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<Repository>,
 }
@@ -197,7 +197,7 @@ pub struct Review {
     pub id: ReviewId,
     pub node_id: String,
     pub html_url: Url,
-    pub user: Option<User>,
+    pub user: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -244,7 +244,7 @@ pub struct Comment {
     pub original_commit_id: String,
     #[serde(default)]
     pub in_reply_to_id: Option<u64>,
-    pub user: Option<User>,
+    pub user: Option<Author>,
     pub body: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,

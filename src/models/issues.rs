@@ -20,11 +20,11 @@ pub struct Issue {
     pub body_text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
-    pub user: User,
+    pub user: Author,
     pub labels: Vec<Label>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<User>,
-    pub assignees: Vec<User>,
+    pub assignee: Option<Author>,
+    pub assignees: Vec<Author>,
     pub author_association: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub milestone: Option<Milestone>,
@@ -55,7 +55,7 @@ pub struct Comment {
     pub body_text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
-    pub user: User,
+    pub user: Author,
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,

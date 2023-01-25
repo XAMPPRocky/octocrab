@@ -59,8 +59,8 @@ pub struct HeadCommit {
     pub tree_id: String,
     pub message: String,
     pub timestamp: chrono::DateTime<chrono::Utc>,
-    pub author: super::repos::GitUser,
-    pub committer: super::repos::GitUser,
+    pub author: super::repos::CommitAuthor,
+    pub committer: super::repos::CommitAuthor,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
