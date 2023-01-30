@@ -342,13 +342,19 @@ pub struct LayerReady {}
 pub struct NoAuth {}
 
 impl OctocrabBuilder<NoSvc, NoConfig, NoAuth, NotLayerReady> {
-    pub fn new() -> Self {
+    pub fn new_empty() -> Self {
         OctocrabBuilder {
             service: NoSvc {},
             auth: NoAuth {},
             config: NoConfig {},
             _layer_ready: PhantomData,
         }
+    }
+}
+
+impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    pub fn new() -> Self {
+        OctocrabBuilder::default()
     }
 }
 
@@ -393,7 +399,7 @@ where
 
 impl Default for OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     fn default() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
-        OctocrabBuilder::new().with_config(DefaultOctocrabBuilderConfig::default())
+        OctocrabBuilder::new_empty().with_config(DefaultOctocrabBuilderConfig::default())
     }
 }
 
@@ -486,6 +492,16 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 .context(UriParseSnafu)?,
         );
         Ok(self)
+    }
+
+    #[deprecated(since = "0.19.0", note = "please use `base_uri` instead")]
+    pub fn base_url(self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
+        self.base_uri(
+            base_url
+                .into_url()
+                .context(crate::error::UrlSnafu)?
+                .as_str(),
+        )
     }
 
     #[cfg(feature = "retry")]
@@ -794,7 +810,7 @@ impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
     pub fn builder() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     {
-        OctocrabBuilder::new().with_config(DefaultOctocrabBuilderConfig::default())
+        OctocrabBuilder::new_empty().with_config(DefaultOctocrabBuilderConfig::default())
     }
 
     /// Creates a new `Octocrab`.
