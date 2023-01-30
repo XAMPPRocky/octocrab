@@ -50,6 +50,11 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
+    Url {
+        source: reqwest::Error,
+        backtrace: Backtrace,
+    },
+
     Encoder {
         source: std::io::Error,
         backtrace: Backtrace,

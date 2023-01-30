@@ -1,17 +1,16 @@
 use http::header::USER_AGENT;
 use http::Uri;
 use hyper_tls::HttpsConnector;
-use octocrab::auth::Auth;
+
 use octocrab::service::middleware::base_uri::BaseUriLayer;
 use octocrab::service::middleware::extra_headers::ExtraHeadersLayer;
-use octocrab::{AuthState, Octocrab, OctocrabBuilder};
+use octocrab::{AuthState, OctocrabBuilder};
 use std::sync::Arc;
-use tower::Layer;
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let client = hyper::Client::builder().build(HttpsConnector::new());
-    let octocrab = OctocrabBuilder::new()
+    let octocrab = OctocrabBuilder::new_empty()
         .with_service(client)
         .with_layer(&BaseUriLayer::new(Uri::from_static(
             "https://api.github.com",
