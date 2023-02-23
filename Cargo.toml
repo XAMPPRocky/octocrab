@@ -47,7 +47,7 @@ wiremock = "0.5.3"
 
 [features]
 default = ["native-tls"]
-rustls = ["rustls-tls"]  # Leagcy support (<=0.17.0)
+rustls = ["rustls-tls"]  # Legacy support (<=0.17.0)
 
 # Enables native-tls specific functionality not available by default.
 native-tls = ["reqwest/native-tls"]
