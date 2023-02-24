@@ -230,6 +230,7 @@ pub use self::{
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
+const MAX_RETRIES: usize = 3;
 
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
@@ -695,7 +696,7 @@ impl Default for DefaultOctocrabBuilderConfig {
             write_timeout: None,
             base_uri: None,
             #[cfg(feature = "retry")]
-            retry_config: RetryConfig::Simple(3),
+            retry_config: RetryConfig::Simple(MAX_RETRIES),
         }
     }
 }
