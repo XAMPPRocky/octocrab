@@ -36,7 +36,6 @@ futures-util = { version = "0.3.15", optional = true }
 secrecy = "0.8.0"
 cfg-if = "1.0.0"
 either = "1.8.0"
-tokio = "1.25"
 tracing = "0.1"
 
 [dev-dependencies]
