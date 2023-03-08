@@ -920,6 +920,15 @@ impl Octocrab {
         issues::IssueHandler::new(self, owner.into(), repo.into())
     }
 
+    /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
+    pub fn commits(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> commits::CommitHandler {
+        commits::CommitHandler::new(self, owner.into(), repo.into())
+    }
+
     /// Creates a [`licenses::LicenseHandler`].
     pub fn licenses(&self) -> licenses::LicenseHandler {
         licenses::LicenseHandler::new(self)

@@ -550,13 +550,18 @@ impl<'octo> RepoHandler<'octo> {
 
     /// Check if a user is a repository collaborator
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
-        let url = self.crab.absolute_url(format!(
+        let route = format!(
             "/repos/{owner}/{repo}/collaborators/{username}",
             owner = self.owner,
             repo = self.repo,
             username = username.as_ref(),
-        ))?;
-        let response = self.crab._get(url, None::<&()>).await?;
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._get(uri).await?;
         Ok(response.status().is_success())
     }
 
