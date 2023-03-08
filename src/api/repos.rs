@@ -546,10 +546,7 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Check if a user is a repository collaborator
-    pub async fn is_collaborator(
-        &self,
-        username: impl AsRef<str>,
-    ) -> Result<bool> {
+    pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let route = format!(
             "/repos/{owner}/{repo}/collaborators/{username}",
             owner = self.owner,
