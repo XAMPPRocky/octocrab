@@ -20,7 +20,17 @@ impl Policy<Request<String>, Response<hyper::Body>, hyper::Error> for RetryConfi
         match self {
             RetryConfig::None => None,
             RetryConfig::Simple(count) => match result {
-                Ok(_) => None,
+                Ok(response) => {
+                    if response.status().is_server_error() || response.status() == 429 {
+                        if *count > 0 {
+                            Some(future::ready(RetryConfig::Simple(count - 1)))
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                }
                 Err(_) => {
                     if *count > 0 {
                         Some(future::ready(RetryConfig::Simple(count - 1)))
