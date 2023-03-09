@@ -46,7 +46,9 @@ impl Policy<Request<String>, Response<hyper::Body>, hyper::Error> for RetryConfi
                 }
 
                 let body = req.body().clone();
-                let new_req = new_req.body(body).expect("This should never panic, as we are cloning a components from existing request");
+                let new_req = new_req.body(body).expect(
+                    "This should never panic, as we are cloning a components from existing request",
+                );
 
                 Some(new_req)
             }
