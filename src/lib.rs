@@ -279,6 +279,7 @@ pub struct OctocrabBuilder {
     extra_headers: Vec<(HeaderName, String)>,
     base_url: Option<Url>,
     retry_predicate: Option<RetryPredicate>,
+    client_builder: Option<reqwest::ClientBuilder>,
 }
 
 impl OctocrabBuilder {
@@ -336,6 +337,16 @@ impl OctocrabBuilder {
         self
     }
 
+    /// Set a custom Reqwest client builder. Use this if you need to set additional
+    /// options on the client used to make requests to GitHub.
+    ///
+    /// Additional headers specified using `add_preview()` and `add_header()` will
+    /// be added to the builder before building.
+    pub fn client_builder(mut self, client_builder: reqwest::ClientBuilder) -> Self {
+        self.client_builder = Some(client_builder);
+        self
+    }
+
     /// Create the `Octocrab` client.
     pub fn build(self) -> Result<Octocrab> {
         let mut hmap = reqwest::header::HeaderMap::new();
@@ -375,8 +386,8 @@ impl OctocrabBuilder {
             hmap.append(key, value.parse().unwrap());
         }
 
-        let client = reqwest::Client::builder()
-            .user_agent("octocrab")
+        let client = self.client_builder
+            .unwrap_or_else(|| reqwest::Client::builder().user_agent("octocrab"))
             .default_headers(hmap)
             .build()
             .context(crate::error::HttpSnafu)?;
