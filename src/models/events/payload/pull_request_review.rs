@@ -1,7 +1,4 @@
-use crate::models::{
-    pulls::{PullRequest, Review},
-    Repository, User,
-};
+use crate::models::pulls::{PullRequest, Review};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::PullRequestReviewEvent`] type.
