@@ -248,11 +248,12 @@ impl<'octo> RepoHandler<'octo> {
         message: impl Into<String>,
         content: impl AsRef<[u8]>,
     ) -> UpdateFileBuilder<'_, '_> {
+        use base64::Engine;
         UpdateFileBuilder::new(
             self,
             path.into(),
             message.into(),
-            base64::encode(content),
+            base64::prelude::BASE64_STANDARD.encode(content),
             None,
         )
     }
@@ -292,11 +293,12 @@ impl<'octo> RepoHandler<'octo> {
         content: impl AsRef<[u8]>,
         sha: impl Into<String>,
     ) -> UpdateFileBuilder<'_, '_> {
+        use base64::Engine;
         UpdateFileBuilder::new(
             self,
             path.into(),
             message.into(),
-            base64::encode(content),
+            base64::prelude::BASE64_STANDARD.encode(content),
             Some(sha.into()),
         )
     }
