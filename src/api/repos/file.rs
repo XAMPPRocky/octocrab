@@ -201,11 +201,14 @@ mod tests {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
             });
+
+        use base64::{engine::general_purpose, Engine as _};
+
         assert_eq!(
             serde_json::to_value(builder).unwrap(),
             serde_json::json!({
                 "message": "Update test.txt",
-                "content": base64::encode("This is a test."),
+                "content": general_purpose::STANDARD.encode("This is a test."),
                 "sha": "testsha",
                 "branch": "not-master",
                 "commiter": {

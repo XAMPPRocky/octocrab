@@ -202,8 +202,8 @@ use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapRespo
 use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::error::{
-    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu,
-    ServiceSnafu, UriParseError, UriParseSnafu, UriSnafu,
+    HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
+    UriParseError, UriParseSnafu, UriSnafu,
 };
 use tracing::Span;
 
@@ -1339,19 +1339,17 @@ impl Octocrab {
                 ref username,
                 ref password,
             } => {
-                let mut enc =
-                    base64::write::EncoderWriter::new(b"Basic ".to_vec(), base64::STANDARD);
+                // Equivalent implementation of: https://github.com/seanmonstar/reqwest/blob/df2b3baadc1eade54b1c22415792b778442673a4/src/util.rs#L3-L23
+                use base64::prelude::BASE64_STANDARD;
+                use base64::write::EncoderWriter;
 
-                // The unwraps here are fine because Vec::write* is infallible.
-                enc.write(format!("{username}:{password}").as_bytes())
-                    .context(EncoderSnafu)?;
-                let result = enc.finish().context(EncoderSnafu)?;
-
-                Some(
-                    HeaderValue::from_bytes(result.as_ref())
-                        .map_err(http::Error::from)
-                        .context(HttpSnafu)?,
-                )
+                let mut buf = b"Basic ".to_vec();
+                {
+                    let mut encoder = EncoderWriter::new(&mut buf, &BASE64_STANDARD);
+                    write!(encoder, "{}:{}", username, password)
+                        .expect("writing to a Vec never fails");
+                }
+                Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
             AuthState::Installation { ref token, .. } => {
                 let token = if let Some(token) = token.get() {
