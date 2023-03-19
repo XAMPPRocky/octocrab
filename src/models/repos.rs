@@ -217,7 +217,6 @@ impl Content {
             content.retain(|b| !b" \n\t\r\x0b\x0c".contains(b));
             let c = base64::prelude::BASE64_STANDARD.decode(content).unwrap();
             String::from_utf8_lossy(&c).into_owned()
-
         })
     }
 }

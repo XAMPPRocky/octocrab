@@ -279,7 +279,7 @@ impl<'octo> ActionsHandler<'octo> {
 
         let body = data_response.into_body();
 
-        return body::to_bytes(body).await.context(HyperSnafu);
+        body::to_bytes(body).await.context(HyperSnafu)
     }
 
     /// Downloads and returns the raw data representing a zip of the logs from
