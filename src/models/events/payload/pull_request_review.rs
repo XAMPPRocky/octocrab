@@ -48,9 +48,7 @@ mod test {
 
     #[test]
     fn should_deserialize_action_from_lowercase() {
-        let actions = vec![
-            (r#""created""#, PullRequestReviewEventAction::Created),
-        ];
+        let actions = vec![(r#""created""#, PullRequestReviewEventAction::Created)];
         for (action_str, action) in actions {
             let deserialized = serde_json::from_str(&action_str).unwrap();
             assert_eq!(action, deserialized);

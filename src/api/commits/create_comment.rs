@@ -14,7 +14,7 @@ pub struct CreateCommentBuilder<'octo, 'r> {
     line: Option<u64>,
 }
 
-impl<'octo, 'r> CreateCommentBuilder <'octo, 'r> {
+impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r super::CommitHandler<'octo>, sha: String, body: String) -> Self {
         Self {
             handler,
@@ -39,9 +39,9 @@ impl<'octo, 'r> CreateCommentBuilder <'octo, 'r> {
     }
 
     /// Relative path of the file to comment on.
-    /// 
+    ///
     /// Required if you provide position.
-    /// 
+    ///
     /// For example, if you want to comment on a line in the file
     /// `lib/octocat.rb`, you would provide `lib/octocat.rb`.
     pub fn path<A: Into<String>>(mut self, path: impl Into<Option<A>>) -> Self {

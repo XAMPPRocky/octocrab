@@ -2,15 +2,18 @@
 
 mod comment;
 mod create;
-mod update;
 mod list;
 mod merge;
+mod update;
 
 use snafu::ResultExt;
 
 use crate::{Octocrab, Page};
 
-pub use self::{create::CreatePullRequestBuilder, update::UpdatePullRequestBuilder, list::ListPullRequestsBuilder};
+pub use self::{
+    create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
+    update::UpdatePullRequestBuilder,
+};
 
 /// A client to GitHub's pull request API.
 ///
@@ -211,10 +214,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn update(
-        &self,
-        pull_number: u64,
-    ) -> update::UpdatePullRequestBuilder<'octo, '_> {
+    pub fn update(&self, pull_number: u64) -> update::UpdatePullRequestBuilder<'octo, '_> {
         update::UpdatePullRequestBuilder::new(self, pull_number)
     }
 

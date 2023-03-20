@@ -40,4 +40,3 @@ impl<'octo, 'b> ListCommitsBuilder<'octo, 'b> {
         self.handler.crab.get(url, Some(&self)).await
     }
 }
-

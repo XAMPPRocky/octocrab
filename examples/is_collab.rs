@@ -6,7 +6,10 @@ async fn main() -> octocrab::Result<()> {
 
     let octocrab = Octocrab::builder().personal_token(token).build()?;
 
-    let repo = octocrab.repos("rust-lang", "rust").is_collaborator("Roger-luo").await?;
+    let repo = octocrab
+        .repos("rust-lang", "rust")
+        .is_collaborator("Roger-luo")
+        .await?;
 
     if repo {
         println!("Roger-luo is a collaborator of rust-lang/rust");

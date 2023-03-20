@@ -15,15 +15,15 @@ mod status;
 mod tags;
 
 use crate::{models, params, Octocrab, Result};
+pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
-pub use file::{GetContentBuilder, UpdateFileBuilder, DeleteFileBuilder};
+pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use branches::ListBranchesBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -525,10 +525,7 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Check if a user is a repository collaborator
-    pub async fn is_collaborator(
-        &self,
-        username: impl AsRef<str>,
-    ) -> Result<bool> {
+    pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let url = self.crab.absolute_url(format!(
             "/repos/{owner}/{repo}/collaborators/{username}",
             owner = self.owner,

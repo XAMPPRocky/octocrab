@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod activity;
 pub mod apps;
+pub mod commits;
 pub mod current;
 pub mod events;
 pub mod gists;
@@ -15,4 +16,3 @@ pub mod repos;
 pub mod search;
 pub mod teams;
 pub mod workflows;
-pub mod commits;
