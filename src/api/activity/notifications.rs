@@ -201,7 +201,6 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_thread_subscription(&self, thread: ThreadId) -> crate::Result<()> {
-
         let route = format!("/notifications/threads/{thread}/subscription");
 
         let uri = Uri::builder()
