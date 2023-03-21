@@ -5,6 +5,8 @@ mod create;
 mod list;
 mod merge;
 mod update;
+use http::request::Builder;
+use http::{Method, Uri};
 
 use http::request::Builder;
 use http::{Method, Uri};

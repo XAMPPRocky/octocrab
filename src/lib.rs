@@ -196,6 +196,7 @@ use {
     tokio::io::{AsyncRead, AsyncWrite},
 };
 
+
 use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
 
 #[cfg(feature = "tracing")]
@@ -205,16 +206,12 @@ use crate::error::{
     HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
     UriParseError, UriParseSnafu, UriSnafu,
 };
-use tracing::Span;
 
-use crate::error::{
-    EncoderSnafu, HttpSnafu, HyperSnafu, InvalidUtf8Snafu, OpenSSLStackSnafu, SerdeSnafu,
-    SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError, UriParseSnafu,
-};
 use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 use crate::service::middleware::retry::RetryConfig;
+
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
 

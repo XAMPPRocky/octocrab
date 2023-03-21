@@ -1,13 +1,12 @@
 use http::Uri;
 use hyper::body;
-
 use std::slice::Iter;
 use std::str::FromStr;
 
 use crate::error;
 use crate::error::{SerdeSnafu, UriSnafu};
 use hyperx::header::TypedHeaders;
-use snafu::{GenerateImplicitData, ResultExt};
+use snafu::ResultExt;
 use url::form_urlencoded;
 
 cfg_if::cfg_if! {
@@ -239,24 +238,20 @@ fn get_links(headers: &http::header::HeaderMap) -> crate::Result<HeaderLinks> {
     let mut next = None;
     let mut last = None;
 
-    if let Some(link) = headers.get("Link") {
-        let links = link.to_str().map_err(|err| crate::Error::Other {
-            source: Box::new(err),
-            backtrace: snafu::Backtrace::generate(),
-        })?;
+    if let Ok(link_header) = response.headers().decode::<hyperx::header::Link>() {
+        for value in link_header.values() {
+            if let Some(relations) = value.rel() {
+                if relations.contains(&hyperx::header::RelationType::Next) {
+                    next = Some(Uri::from_str(value.link()).context(UriSnafu)?);
+                }
 
-        for url_with_params in links.split(",") {
-            let mut url_and_params = url_with_params.split(";");
-            let url = url_and_params
-                .next()
-                .expect("url to be present")
-                .trim()
-                .trim_start_matches('<')
-                .trim_end_matches('>');
+                if relations.contains(&hyperx::header::RelationType::Prev) {
+                    prev = Some(Uri::from_str(value.link()).context(UriSnafu)?);
+                }
 
-            for param in url_and_params {
-                if let Some((name, value)) = param.trim().split_once("=") {
-                    let value = value.trim_matches('\"');
+                if relations.contains(&hyperx::header::RelationType::First) {
+                    first = Some(Uri::from_str(value.link()).context(UriSnafu)?)
+                }
 
                     if name == "rel" {
                         match value {

@@ -73,7 +73,11 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
             .crab
             .build_request(Builder::new().method(Method::GET).uri(uri), None::<&()>)?;
         let response = self.crab.execute(request).await?;
-        let etag = EntityTag::extract_from_response(&response);
+        let etag = response
+            .headers()
+            .decode::<ETag>()
+            .ok()
+            .map(|ETag(tag)| tag);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {
