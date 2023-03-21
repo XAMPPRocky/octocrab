@@ -6,7 +6,6 @@ use crate::models::{
     workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
@@ -60,15 +59,11 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
         );
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
         let builder = self.crab.client.request(Method::GET, &url).headers(headers);
         let response = self.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {
