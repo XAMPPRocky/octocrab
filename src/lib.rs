@@ -100,8 +100,7 @@
 //!     ._get("https://api.github.com/organizations")
 //!     .await?;
 //!
-//! // You can also use `Octocrab::absolute_url` if you want to still to go to
-//! // the same base.
+//! // You can also use `Uri::builder().authority("<my custom base>").path_and_query("<my custom path>")` if you want to customize the base uri and path.
 //! let response =  octocrab
 //!     ._get(Uri::builder().path_and_query("/organizations").build().expect("valid uri"))
 //!     .await?;
