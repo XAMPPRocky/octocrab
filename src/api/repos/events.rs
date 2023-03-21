@@ -7,7 +7,6 @@ use crate::{
 };
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
     handler: &'handler RepoHandler<'octo>,

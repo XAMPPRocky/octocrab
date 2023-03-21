@@ -10,7 +10,6 @@ use crate::{params, FromResponse, Octocrab, Page};
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode, Uri};
 use hyper::body;
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -73,11 +72,7 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
             .crab
             .build_request(Builder::new().method(Method::GET).uri(uri), None::<&()>)?;
         let response = self.crab.execute(request).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {

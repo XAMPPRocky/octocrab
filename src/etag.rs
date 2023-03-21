@@ -4,7 +4,7 @@ use std::{
     str::FromStr,
 };
 
-use reqwest::header::{HeaderMap, InvalidHeaderValue};
+use http::header::{HeaderMap, InvalidHeaderValue};
 use snafu::GenerateImplicitData;
 
 /// Represents resources identified by etags.
@@ -64,7 +64,7 @@ pub struct EntityTag {
 }
 
 impl EntityTag {
-    pub fn extract_from_response(response: &reqwest::Response) -> Option<EntityTag> {
+    pub fn extract_from_response(response: &http::Response<hyper::Body>) -> Option<EntityTag> {
         response
             .headers()
             .get("ETag")
@@ -93,10 +93,7 @@ impl EntityTag {
     /// If the tag contains invalid characters.
     pub fn new(weak: bool, tag: String) -> EntityTag {
         assert!(check_slice_validity(&tag), "Invalid tag: {:?}", tag);
-        EntityTag {
-            weak: weak,
-            tag: tag,
-        }
+        EntityTag { weak, tag }
     }
 
     /// Constructs a new weak EntityTag.
@@ -167,14 +164,14 @@ impl Display for EntityTag {
 fn check_slice_validity(slice: &str) -> bool {
     slice
         .bytes()
-        .all(|c| c == b'\x21' || (c >= b'\x23' && c <= b'\x7e') | (c >= b'\x80'))
+        .all(|c| c == b'\x21' || (b'\x23'..=b'\x7e').contains(&c) | (c >= b'\x80'))
 }
 
 impl FromStr for EntityTag {
     type Err = String;
     fn from_str(s: &str) -> Result<EntityTag, Self::Err> {
         let length: usize = s.len();
-        let slice = &s[..];
+        let slice = s;
         // Early exits if it doesn't terminate in a DQUOTE.
         if !slice.ends_with('"') || slice.len() < 2 {
             return Err("Does not end with double quote character".to_string());

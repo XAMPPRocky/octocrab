@@ -92,7 +92,6 @@ impl<'octo> RepoHandler<'octo> {
             "/repos/{owner}/{repo}",
             owner = self.owner,
             repo = self.repo,
-
         );
         self.crab.get(route, None::<&()>).await
     }
@@ -564,6 +563,4 @@ impl<'octo> RepoHandler<'octo> {
         let response = self.crab._get(uri).await?;
         Ok(response.status().is_success())
     }
-
-
 }

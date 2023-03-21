@@ -26,8 +26,7 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /orgs/{org}/teams/{team}/invitations was not received"
-        ),
+        &format!("GET on /orgs/{org}/teams/{team}/invitations was not received"),
     )
     .await;
     mock_server

@@ -7,7 +7,6 @@ use crate::{
 };
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
@@ -73,11 +72,7 @@ impl<'octo> EventsBuilder<'octo> {
         let request = self.crab.build_request(builder, None::<&()>)?;
 
         let response = self.crab.execute(request).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {

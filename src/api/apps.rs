@@ -2,7 +2,6 @@ use crate::{models::InstallationId, Octocrab};
 use http::request::Builder;
 use http::Method;
 
-
 mod installations;
 
 /// A client to [GitHub's apps API][apps-api].

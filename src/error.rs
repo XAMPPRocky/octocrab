@@ -36,6 +36,11 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
+    InvalidHeaderValue {
+        source: reqwest::header::InvalidHeaderValue,
+        backtrace: Backtrace,
+    },
+
     #[snafu(display("HTTP Error: {}\n\nFound at {}", source, backtrace))]
     Http {
         source: http::Error,
