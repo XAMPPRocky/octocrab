@@ -66,9 +66,8 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
             .context(HttpSnafu)?;
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
-
         let request = self
             .crab
             .build_request(Builder::new().method(Method::GET).uri(uri), None::<&()>)?;

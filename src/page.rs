@@ -173,7 +173,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
             prev,
             next,
             last,
-        } = get_links(&response)?;
+        } = get_links(&response.headers())?;
 
         let json: serde_json::Value = serde_json::from_slice(
             body::to_bytes(response.into_body())
@@ -266,4 +266,75 @@ fn get_links(response: &http::Response<hyper::Body>) -> crate::Result<HeaderLink
         next,
         last,
     })
+}
+
+#[cfg(test)]
+mod test {
+    use reqwest::Url;
+
+    use super::{get_links, HeaderLinks};
+
+    #[test]
+    fn get_links_extracts_all_required_links_from_link_header() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=3>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last", <https://api.github.com/repositories/1234/releases?page=1>; rel="first", <https://api.github.com/repositories/1234/releases?page=2>; rel="prev""#.parse().unwrap());
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&headers).expect("No error");
+        assert_eq!(
+            first,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=1").unwrap())
+        );
+        assert_eq!(
+            prev,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=2").unwrap())
+        );
+        assert_eq!(
+            next,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=3").unwrap())
+        );
+        assert_eq!(
+            last,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=4").unwrap())
+        );
+    }
+
+    #[test]
+    fn get_links_extracts_partial_links_from_link_header() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=2>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last""#.parse().unwrap());
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&headers).expect("No error");
+        assert_eq!(first, None);
+        assert_eq!(prev, None);
+        assert_eq!(
+            next,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=2").unwrap())
+        );
+        assert_eq!(
+            last,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=4").unwrap())
+        );
+    }
+
+    #[test]
+    fn get_links_extracts_none_if_link_header_is_not_present() {
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&reqwest::header::HeaderMap::new()).expect("No error");
+        assert_eq!(first, None);
+        assert_eq!(prev, None);
+        assert_eq!(next, None);
+        assert_eq!(last, None);
+    }
 }

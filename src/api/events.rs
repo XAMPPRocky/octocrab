@@ -64,7 +64,7 @@ impl<'octo> EventsBuilder<'octo> {
 
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
         let mut builder = Builder::new().method(Method::GET).uri(uri);
         for (key, value) in headers.iter() {
