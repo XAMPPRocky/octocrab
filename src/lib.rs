@@ -934,21 +934,21 @@ impl Octocrab {
     ) -> Result<reqwest::Response, reqwest::Error> {
         let span = tracing::Span::current();
         let service = self.base_url.host_str().unwrap_or(GITHUB_SERVICE);
-        span.record("service.name", service);
+        span.record("service.name", &service);
         if attempt > 1 {
-            span.record("http.resend_count", attempt);
+            span.record("http.resend_count", &attempt);
         }
         let request = request_builder.build()?;
-        span.record("http.method", request.method().as_str());
-        span.record("http.url", request.url().as_str());
+        span.record("http.method", &request.method().as_str());
+        span.record("http.url", &request.url().as_str());
         let result = self.client.execute(request).await;
         match &result {
             Ok(v) => {
-                span.record("http.status_code", v.status().as_u16());
+                span.record("http.status_code", &v.status().as_u16());
             }
             Err(e) => {
                 let status = e.status().and_then(|s| Some(s.as_u16()));
-                span.record("http.status_code", status);
+                span.record("http.status_code", &status.unwrap_or_default());
             }
         };
         result
