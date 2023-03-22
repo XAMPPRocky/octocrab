@@ -200,15 +200,6 @@ pub enum IssueState {
     Closed,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum IssueStateReason {
-    Completed,
-    NotPlanned,
-    Reopened,
-}
-
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct IssueEvent {
