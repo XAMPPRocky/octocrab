@@ -5,7 +5,6 @@ use crate::{
     repos::RepoHandler,
     FromResponse, Page,
 };
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
@@ -66,7 +65,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
         );
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
         let builder = self
             .handler
@@ -76,11 +75,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
             .headers(headers)
             .query(&self.params);
         let response = self.handler.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {

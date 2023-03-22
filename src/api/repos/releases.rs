@@ -177,7 +177,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         use snafu::GenerateImplicitData;
 
         let url = format!(
-            "repos/{owner}/{repo}/assets/{asset_id}",
+            "{base_url}repos/{owner}/{repo}/releases/assets/{asset_id}",
+            base_url = self.parent.crab.base_url,
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
@@ -265,6 +266,28 @@ pub struct CreateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_comm
     draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     prerelease: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    make_latest: Option<MakeLatest>,
+}
+
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum MakeLatest {
+    True,
+    False,
+    Legacy,
+}
+
+impl std::fmt::Display for MakeLatest {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let text = match self {
+            Self::False => "false",
+            Self::True => "true",
+            Self::Legacy => "legacy",
+        };
+
+        f.write_str(text)
+    }
 }
 
 impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
@@ -282,6 +305,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
             body: None,
             draft: None,
             prerelease: None,
+            make_latest: None,
         }
     }
 
@@ -318,6 +342,15 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
     /// Whether to set the release as a "prerelease" or not.
     pub fn prerelease(mut self, prerelease: impl Into<bool>) -> Self {
         self.prerelease = Some(prerelease.into());
+        self
+    }
+
+    /// Specifies whether this release should be set as the latest release for the repository.
+    /// Drafts and prereleases cannot be set as latest.
+    /// Defaults to [`MakeLatest::True`] for newly published releases.
+    /// [`MakeLatest::Legacy`] specifies that the latest release should be determined based on the release creation date and higher semantic version.
+    pub fn make_latest(mut self, make_latest: MakeLatest) -> Self {
+        self.make_latest = Some(make_latest);
         self
     }
 

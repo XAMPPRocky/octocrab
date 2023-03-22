@@ -52,7 +52,10 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
     }
 
     /// The contents of the pull request.
-    pub fn state<A: Into<crate::params::pulls::State>>(mut self, state: impl Into<Option<A>>) -> Self {
+    pub fn state<A: Into<crate::params::pulls::State>>(
+        mut self,
+        state: impl Into<Option<A>>,
+    ) -> Self {
         self.state = state.into().map(A::into);
         self
     }

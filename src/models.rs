@@ -10,6 +10,7 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 
 pub mod activity;
 pub mod apps;
+pub mod commits;
 pub mod events;
 pub mod gists;
 pub mod hooks;

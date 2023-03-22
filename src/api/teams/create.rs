@@ -1,6 +1,6 @@
 use super::*;
-use crate::params;
 use crate::models::TeamId;
+use crate::params;
 
 #[derive(serde::Serialize)]
 pub struct CreateTeamBuilder<'octo, 'h, 'a, 'b> {

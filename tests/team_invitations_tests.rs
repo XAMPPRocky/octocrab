@@ -2,7 +2,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::{teams::TeamInvitation}, Octocrab, Page};
+use octocrab::{models::teams::TeamInvitation, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
@@ -26,7 +26,10 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /orgs/{}/teams/{}/invitations was not received", org, team),
+        &format!(
+            "GET on /orgs/{}/teams/{}/invitations was not received",
+            org, team
+        ),
     )
     .await;
     mock_server
