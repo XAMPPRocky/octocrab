@@ -1,4 +1,4 @@
-use crate::models::{issues::Issue, Label, Author};
+use crate::models::{issues::Issue, Author, Label};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::IssuesEvent`] type.

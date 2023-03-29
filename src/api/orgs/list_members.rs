@@ -32,7 +32,7 @@ impl<'octo, 'r> ListOrgMembersBuilder<'octo, 'r> {
     }
 
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Author>> {
-    let route = format!("/orgs/{org}/members", org = self.handler.owner);
-    self.handler.crab.get(route, Some(&self)).await
+        let route = format!("/orgs/{org}/members", org = self.handler.owner);
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
