@@ -31,7 +31,7 @@ pub struct Team {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RequestedReviewers {
-    pub users: Vec<User>,
+    pub users: Vec<Author>,
     pub teams: Vec<Team>,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -71,7 +71,7 @@ pub struct TeamInvitation {
     pub failed_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failed_reason: Option<String>,
-    pub inviter: User,
+    pub inviter: Author,
     pub team_count: u32,
     pub node_id: String,
     pub invitation_teams_url: String,

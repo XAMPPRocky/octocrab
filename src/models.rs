@@ -209,13 +209,13 @@ pub struct IssueEvent {
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
-    pub actor: User,
+    pub actor: Author,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<User>,
+    pub assignee: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignees: Option<Vec<User>>,
+    pub assignees: Option<Vec<Author>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assigner: Option<User>,
+    pub assigner: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Vec<Label>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -260,7 +260,7 @@ pub struct Project {
     pub number: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
-    pub creator: User,
+    pub creator: Author,
     pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateTime<Utc>>,
@@ -302,7 +302,7 @@ pub struct IssuePullRequest {
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct User {
+pub struct Author {
     pub login: String,
     pub id: UserId,
     pub node_id: String,
@@ -327,7 +327,7 @@ pub struct User {
 #[non_exhaustive]
 pub struct StarGazer {
     pub starred_at: Option<DateTime<Utc>>,
-    pub user: Option<User>,
+    pub user: Option<Author>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -359,7 +359,7 @@ pub struct Milestone {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub creator: Option<User>,
+    pub creator: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_issues: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -383,7 +383,7 @@ pub struct Repository {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub full_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub owner: Option<User>,
+    pub owner: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub private: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -682,7 +682,7 @@ pub struct Status {
     pub updated_at: Option<DateTime<Utc>>,
     pub state: StatusState,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub creator: Option<User>,
+    pub creator: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<String>,
 }
@@ -709,7 +709,7 @@ pub struct InstallationRepositories {
 #[non_exhaustive]
 pub struct Installation {
     pub id: InstallationId,
-    pub account: User,
+    pub account: Author,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub access_tokens_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

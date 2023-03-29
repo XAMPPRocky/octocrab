@@ -70,7 +70,7 @@ impl<'octo> SearchHandler<'octo> {
     pub fn users<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
-    ) -> QueryHandler<'octo, 'query, models::User> {
+    ) -> QueryHandler<'octo, 'query, models::Author> {
         QueryHandler::new(self.crab, "users", query.as_ref())
     }
 

@@ -12,7 +12,7 @@ mod pull_request_review_comment;
 mod push;
 mod workflow_run;
 
-use crate::models::repos::GitUser;
+use crate::models::repos::CommitAuthor;
 pub use commit_comment::*;
 pub use create::*;
 pub use delete::*;
@@ -60,7 +60,7 @@ pub enum EventPayload {
 #[non_exhaustive]
 pub struct Commit {
     pub sha: String,
-    pub author: GitUser,
+    pub author: CommitAuthor,
     pub message: String,
     pub distinct: bool,
     pub url: Url,

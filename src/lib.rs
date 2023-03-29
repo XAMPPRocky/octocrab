@@ -78,7 +78,7 @@
 //!
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
-//! let user: octocrab::models::User = octocrab::instance()
+//! let user: octocrab::models::Author = octocrab::instance()
 //!     .get("/user", None::<&()>)
 //!     .await?;
 //! # Ok(())

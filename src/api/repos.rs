@@ -218,7 +218,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new file in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Commit to add "crabs/ferris.txt"
     /// octocrab::instance()
@@ -229,11 +229,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         "Thought there’d never be a Rust Rap?\n"
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -261,7 +261,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Given the file blob for "crabs/ferris.txt", commit to update the file.
     /// octocrab::instance()
@@ -273,11 +273,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         blob_sha
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -307,7 +307,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Commit to delete "crabs/ferris.txt"
     /// octocrab::instance()
@@ -318,11 +318,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         blob_sha
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })

@@ -8,7 +8,7 @@ pub struct App {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub slug: Option<String>,
     pub node_id: String,
-    pub owner: User,
+    pub owner: Author,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
