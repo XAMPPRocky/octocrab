@@ -20,7 +20,7 @@ pub struct PushEventPayload {
 mod test {
     use crate::models::{
         events::{payload::EventPayload, Event},
-        repos::GitUser,
+        repos::CommitAuthor,
     };
     use reqwest::Url;
 
@@ -43,7 +43,7 @@ mod test {
                 assert_eq!(commit.sha, "eb1a60c03544dcea290f2d57bb66ae188ce25778");
                 assert_eq!(
                     commit.author,
-                    GitUser {
+                    CommitAuthor {
                         name: "readme-bot".to_string(),
                         email: "readme-bot@example.com".to_string()
                     }

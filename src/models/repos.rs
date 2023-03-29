@@ -30,8 +30,8 @@ pub struct RepoCommit {
     pub html_url: String,
     pub comments_url: String,
     pub commit: RepoCommitPage,
-    pub author: Option<User>,
-    pub committer: Option<User>,
+    pub author: Option<Author>,
+    pub committer: Option<Author>,
     pub parents: Vec<Commit>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -119,16 +119,16 @@ pub struct Commit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub author: Option<GitUser>,
+    pub author: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub committer: Option<GitUser>,
+    pub committer: Option<Author>,
 }
 
 /// The author of a commit, identified by its name and email, as well as (optionally) a time
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GitUserTime {
     #[serde(flatten)]
-    pub user: GitUser,
+    pub user: CommitAuthor,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
@@ -137,7 +137,7 @@ pub struct GitUserTime {
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct GitUser {
+pub struct CommitAuthor {
     pub name: String,
     pub email: String,
 }
@@ -292,7 +292,7 @@ pub struct Release {
     pub prerelease: bool,
     pub created_at: Option<DateTime<Utc>>,
     pub published_at: Option<DateTime<Utc>>,
-    pub author: crate::models::User,
+    pub author: crate::models::Author,
     pub assets: Vec<Asset>,
 }
 
@@ -311,7 +311,7 @@ pub struct Asset {
     pub download_count: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub uploader: User,
+    pub uploader: CommitAuthor,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

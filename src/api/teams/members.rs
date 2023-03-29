@@ -36,7 +36,7 @@ impl<'octo, 'r> ListTeamMembersBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<Page<models::User>> {
+    pub async fn send(self) -> Result<Page<models::Author>> {
         let url = format!(
             "orgs/{org}/teams/{team}/members",
             org = self.handler.owner,

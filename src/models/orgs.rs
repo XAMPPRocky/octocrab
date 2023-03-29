@@ -83,7 +83,7 @@ pub struct MembershipInvitation {
     pub role: String,
     pub organization_url: Url,
     pub organization: Organization,
-    pub user: User,
+    pub user: Author,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

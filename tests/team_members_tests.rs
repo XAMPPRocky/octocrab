@@ -2,7 +2,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::User, Octocrab, Page};
+use octocrab::{models::Author, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
@@ -44,7 +44,7 @@ const TEAM: &str = "team-name";
 
 #[tokio::test]
 async fn should_return_page_with_users() {
-    let team_members: User =
+    let team_members: Author =
         serde_json::from_str(include_str!("resources/team_members.json")).unwrap();
     let page_response = FakePage {
         items: vec![team_members],
