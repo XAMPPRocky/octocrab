@@ -3,12 +3,9 @@ use snafu::ResultExt;
 
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
-    workflows::WorkflowListArtifact,
-    ArtifactId, RepositoryId, RunId,
-    workflows::WorkflowDispatch
+    workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
 use crate::{params, FromResponse, Octocrab, Page};
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListWorkflowRunArtifacts<'octo> {
@@ -62,15 +59,11 @@ impl<'octo> ListWorkflowRunArtifacts<'octo> {
         );
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
         let builder = self.crab.client.request(Method::GET, &url).headers(headers);
         let response = self.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {
@@ -93,8 +86,20 @@ pub struct WorkflowDispatchBuilder<'octo> {
 }
 
 impl<'octo> WorkflowDispatchBuilder<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String, workflow_id: String, r#ref: String) -> Self {
-        let mut this = Self { crab, owner, repo, workflow_id, data: Default::default() };
+    pub(crate) fn new(
+        crab: &'octo Octocrab,
+        owner: String,
+        repo: String,
+        workflow_id: String,
+        r#ref: String,
+    ) -> Self {
+        let mut this = Self {
+            crab,
+            owner,
+            repo,
+            workflow_id,
+            data: Default::default(),
+        };
         this.data.r#ref = r#ref;
         this
     }
@@ -119,11 +124,9 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
         );
 
         // this entry point doesn't actually return anything sensible
-        self.crab._post(
-            self.crab.absolute_url(route)?,
-            Some(&self.data),
-        )
-        .await?;
+        self.crab
+            ._post(self.crab.absolute_url(route)?, Some(&self.data))
+            .await?;
 
         Ok(())
     }
@@ -411,11 +414,12 @@ impl<'octo> ActionsHandler<'octo> {
         workflow_id: impl Into<String>,
         r#ref: impl Into<String>,
     ) -> WorkflowDispatchBuilder<'_> {
-        WorkflowDispatchBuilder::new(self.crab,
+        WorkflowDispatchBuilder::new(
+            self.crab,
             owner.into(),
             repo.into(),
             workflow_id.into(),
-            r#ref.into()
+            r#ref.into(),
         )
     }
 }

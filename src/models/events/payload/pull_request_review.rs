@@ -1,7 +1,4 @@
-use crate::models::{
-    pulls::{PullRequest, Review},
-    Repository, Author,
-};
+use crate::models::pulls::{PullRequest, Review};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::PullRequestReviewEvent`] type.
@@ -14,12 +11,6 @@ pub struct PullRequestReviewEventPayload {
     pub pull_request: PullRequest,
     /// The review that was affected.
     pub review: Review,
-    /// The changes to body or title if this event is of type [`PullRequestReviewEventAction::Edited`].
-    pub changes: Option<PullRequestReviewChanges>,
-    /// The repository where the event occurred.
-    pub repository: Repository,
-    /// The user that triggered the event.
-    pub sender: Author,
 }
 
 /// The action on a pull request review this event corresponds to.
@@ -27,9 +18,7 @@ pub struct PullRequestReviewEventPayload {
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum PullRequestReviewEventAction {
-    Submitted,
-    Edited,
-    Dismissed,
+    Created,
 }
 
 /// The change which occurred in an event of type [`PullRequestReviewEventAction::Edited`].
@@ -59,11 +48,7 @@ mod test {
 
     #[test]
     fn should_deserialize_action_from_lowercase() {
-        let actions = vec![
-            (r#""submitted""#, PullRequestReviewEventAction::Submitted),
-            (r#""edited""#, PullRequestReviewEventAction::Edited),
-            (r#""dismissed""#, PullRequestReviewEventAction::Dismissed),
-        ];
+        let actions = vec![(r#""created""#, PullRequestReviewEventAction::Created)];
         for (action_str, action) in actions {
             let deserialized = serde_json::from_str(&action_str).unwrap();
             assert_eq!(action, deserialized);
@@ -91,8 +76,7 @@ mod test {
         let json = include_str!("../../../../tests/resources/pull_request_review_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         if let Some(EventPayload::PullRequestReviewEvent(payload)) = event.payload {
-            assert_eq!(payload.action, PullRequestReviewEventAction::Submitted);
-            assert_eq!(payload.pull_request.id.0, 279147437);
+            assert_eq!(payload.pull_request.id.0, 1237933052);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

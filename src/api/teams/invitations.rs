@@ -13,7 +13,6 @@ pub struct ListTeamInvitationsBuilder<'octo, 'r> {
     page: Option<u32>,
 }
 
-
 impl<'octo, 'r> ListTeamInvitationsBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r TeamHandler<'octo>, slug: String) -> Self {
         Self {

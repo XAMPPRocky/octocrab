@@ -3,14 +3,15 @@
 mod children;
 mod create;
 mod edit;
-mod list;
-mod team_repos;
-mod members;
 mod invitations;
+mod list;
+mod members;
+mod team_repos;
 
 pub use self::{
     children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    list::ListTeamsBuilder, team_repos::TeamRepoHandler, members::ListTeamMembersBuilder, invitations::ListTeamInvitationsBuilder
+    invitations::ListTeamInvitationsBuilder, list::ListTeamsBuilder,
+    members::ListTeamMembersBuilder, team_repos::TeamRepoHandler,
 };
 
 use crate::{models, Octocrab, Result};

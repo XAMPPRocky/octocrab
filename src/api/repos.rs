@@ -15,15 +15,15 @@ mod status;
 mod tags;
 
 use crate::{models, params, Octocrab, Result};
+pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
-pub use file::{GetContentBuilder, UpdateFileBuilder, DeleteFileBuilder};
+pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use branches::ListBranchesBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -240,11 +240,12 @@ impl<'octo> RepoHandler<'octo> {
         message: impl Into<String>,
         content: impl AsRef<[u8]>,
     ) -> UpdateFileBuilder<'_, '_> {
+        use base64::Engine;
         UpdateFileBuilder::new(
             self,
             path.into(),
             message.into(),
-            base64::encode(content),
+            base64::prelude::BASE64_STANDARD.encode(content),
             None,
         )
     }
@@ -284,11 +285,12 @@ impl<'octo> RepoHandler<'octo> {
         content: impl AsRef<[u8]>,
         sha: impl Into<String>,
     ) -> UpdateFileBuilder<'_, '_> {
+        use base64::Engine;
         UpdateFileBuilder::new(
             self,
             path.into(),
             message.into(),
-            base64::encode(content),
+            base64::prelude::BASE64_STANDARD.encode(content),
             Some(sha.into()),
         )
     }
@@ -520,5 +522,17 @@ impl<'octo> RepoHandler<'octo> {
             reference = reference.into(),
         ))?;
         self.crab._get(url, None::<&()>).await
+    }
+
+    /// Check if a user is a repository collaborator
+    pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
+        let url = self.crab.absolute_url(format!(
+            "/repos/{owner}/{repo}/collaborators/{username}",
+            owner = self.owner,
+            repo = self.repo,
+            username = username.as_ref(),
+        ))?;
+        let response = self.crab._get(url, None::<&()>).await?;
+        Ok(response.status().is_success())
     }
 }

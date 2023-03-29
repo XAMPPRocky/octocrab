@@ -4,7 +4,6 @@ use crate::{
     models::events,
     FromResponse, Octocrab, Page,
 };
-use hyperx::header::{ETag, IfNoneMatch, TypedHeaders};
 use reqwest::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
@@ -60,7 +59,7 @@ impl<'octo> EventsBuilder<'octo> {
         let url = format!("{base_url}events", base_url = self.crab.base_url);
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
-            headers.encode(&IfNoneMatch::Items(vec![etag]));
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
         let builder = self
             .crab
@@ -69,11 +68,7 @@ impl<'octo> EventsBuilder<'octo> {
             .headers(headers)
             .query(&self.params);
         let response = self.crab.execute(builder).await?;
-        let etag = response
-            .headers()
-            .decode::<ETag>()
-            .ok()
-            .map(|ETag(tag)| tag);
+        let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })
         } else {

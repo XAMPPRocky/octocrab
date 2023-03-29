@@ -1,4 +1,4 @@
-use crate::{Octocrab, models::InstallationId};
+use crate::{models::InstallationId, Octocrab};
 
 mod installations;
 
@@ -32,7 +32,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// ```
     pub async fn installation(
         &self,
-        installation_id: InstallationId
+        installation_id: InstallationId,
     ) -> crate::Result<crate::models::Installation> {
         let route = format!(
             "app/installations/{installation_id}",

@@ -1,7 +1,6 @@
 use std::slice::Iter;
 
-use hyperx::header::TypedHeaders;
-use snafu::ResultExt;
+use snafu::{GenerateImplicitData, ResultExt};
 use url::Url;
 
 cfg_if::cfg_if! {
@@ -167,7 +166,7 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
             prev,
             next,
             last,
-        } = get_links(&response)?;
+        } = get_links(&response.headers())?;
 
         let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
 
@@ -220,29 +219,43 @@ struct HeaderLinks {
     last: Option<Url>,
 }
 
-fn get_links(response: &reqwest::Response) -> crate::Result<HeaderLinks> {
+fn get_links(headers: &reqwest::header::HeaderMap) -> crate::Result<HeaderLinks> {
     let mut first = None;
     let mut prev = None;
     let mut next = None;
     let mut last = None;
 
-    if let Ok(link_header) = response.headers().decode::<hyperx::header::Link>() {
-        for value in link_header.values() {
-            if let Some(relations) = value.rel() {
-                if relations.contains(&hyperx::header::RelationType::Next) {
-                    next = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?);
-                }
+    if let Some(link) = headers.get("Link") {
+        let links = link.to_str().map_err(|err| crate::Error::Other {
+            source: Box::new(err),
+            backtrace: snafu::Backtrace::generate(),
+        })?;
 
-                if relations.contains(&hyperx::header::RelationType::Prev) {
-                    prev = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?);
-                }
+        for url_with_params in links.split(",") {
+            let mut url_and_params = url_with_params.split(";");
+            let url = url_and_params
+                .next()
+                .expect("url to be present")
+                .trim()
+                .trim_start_matches('<')
+                .trim_end_matches('>');
 
-                if relations.contains(&hyperx::header::RelationType::First) {
-                    first = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?)
-                }
+            for param in url_and_params {
+                if let Some((name, value)) = param.trim().split_once("=") {
+                    let value = value.trim_matches('\"');
 
-                if relations.contains(&hyperx::header::RelationType::Last) {
-                    last = Some(Url::parse(value.link()).context(crate::error::UrlSnafu)?)
+                    if name == "rel" {
+                        match value {
+                            "first" => first = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "prev" => prev = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "next" => next = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            "last" => last = Some(Url::parse(url).context(crate::error::UrlSnafu)?),
+                            other => print!(
+                                "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
+                                other
+                            ),
+                        }
+                    }
                 }
             }
         }
@@ -254,4 +267,75 @@ fn get_links(response: &reqwest::Response) -> crate::Result<HeaderLinks> {
         next,
         last,
     })
+}
+
+#[cfg(test)]
+mod test {
+    use reqwest::Url;
+
+    use super::{get_links, HeaderLinks};
+
+    #[test]
+    fn get_links_extracts_all_required_links_from_link_header() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=3>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last", <https://api.github.com/repositories/1234/releases?page=1>; rel="first", <https://api.github.com/repositories/1234/releases?page=2>; rel="prev""#.parse().unwrap());
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&headers).expect("No error");
+        assert_eq!(
+            first,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=1").unwrap())
+        );
+        assert_eq!(
+            prev,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=2").unwrap())
+        );
+        assert_eq!(
+            next,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=3").unwrap())
+        );
+        assert_eq!(
+            last,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=4").unwrap())
+        );
+    }
+
+    #[test]
+    fn get_links_extracts_partial_links_from_link_header() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Link", r#"<https://api.github.com/repositories/1234/releases?page=2>; rel="next", <https://api.github.com/repositories/1234/releases?page=4>; rel="last""#.parse().unwrap());
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&headers).expect("No error");
+        assert_eq!(first, None);
+        assert_eq!(prev, None);
+        assert_eq!(
+            next,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=2").unwrap())
+        );
+        assert_eq!(
+            last,
+            Some(Url::parse("https://api.github.com/repositories/1234/releases?page=4").unwrap())
+        );
+    }
+
+    #[test]
+    fn get_links_extracts_none_if_link_header_is_not_present() {
+        let HeaderLinks {
+            first,
+            prev,
+            next,
+            last,
+        } = get_links(&reqwest::header::HeaderMap::new()).expect("No error");
+        assert_eq!(first, None);
+        assert_eq!(prev, None);
+        assert_eq!(next, None);
+        assert_eq!(last, None);
+    }
 }

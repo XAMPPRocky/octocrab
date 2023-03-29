@@ -1,4 +1,4 @@
-use octocrab::models::{InstallationToken, InstallationRepositories};
+use octocrab::models::{InstallationRepositories, InstallationToken};
 use octocrab::params::apps::CreateInstallationAccessToken;
 use octocrab::Octocrab;
 
