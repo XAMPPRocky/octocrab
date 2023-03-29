@@ -33,11 +33,11 @@ impl<'octo, 'r> ListTagsBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Tag>> {
-        let url = format!(
-            "repos/{owner}/{repo}/tags",
+        let route = format!(
+            "/repos/{owner}/{repo}/tags",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

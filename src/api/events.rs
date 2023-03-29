@@ -1,10 +1,12 @@
 //! GitHub Events
+
 use crate::{
     etag::{EntityTag, Etagged},
     models::events,
     FromResponse, Octocrab, Page,
 };
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use http::request::Builder;
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
@@ -56,18 +58,20 @@ impl<'octo> EventsBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let url = format!("{base_url}events", base_url = self.crab.base_url);
+        let route = "/events".to_string();
+        let uri = self.crab.parameterized_uri(route, Some(&self.params))?;
+
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
             EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
-        let builder = self
-            .crab
-            .client
-            .request(Method::GET, &url)
-            .headers(headers)
-            .query(&self.params);
-        let response = self.crab.execute(builder).await?;
+        let mut builder = Builder::new().method(Method::GET).uri(uri);
+        for (key, value) in headers.iter() {
+            builder = builder.header(key, value);
+        }
+        let request = self.crab.build_request(builder, None::<&()>)?;
+
+        let response = self.crab.execute(request).await?;
         let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })

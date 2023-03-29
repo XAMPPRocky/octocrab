@@ -1,4 +1,8 @@
+use crate::error::HttpSnafu;
 use crate::{repos::RepoHandler, Error};
+use http::request::Builder;
+use http::Uri;
+use snafu::ResultExt;
 
 #[derive(serde::Serialize)]
 pub struct GenerateRepositoryBuilder<'octo, 'r> {
@@ -53,21 +57,21 @@ impl<'octo, 'r> GenerateRepositoryBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<(), Error> {
-        let url = format!(
-            "repos/{owner}/{repo}/generate",
+        let route = format!(
+            "/repos/{owner}/{repo}/generate",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        let request = self
-            .handler
-            .crab
-            .client
-            .post(self.handler.crab.absolute_url(url)?)
-            .body(serde_json::to_string(&self).unwrap())
-            .header(
-                reqwest::header::ACCEPT,
-                "application/vnd.github.baptiste-preview+json",
-            );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let request = Builder::new().uri(uri).method(http::Method::POST).header(
+            http::header::ACCEPT,
+            "application/vnd.github.baptiste-preview+json",
+        );
+
+        let request = self.handler.crab.build_request(request, Some(&self))?;
 
         let response = self.handler.crab.execute(request).await?;
         crate::map_github_error(response).await.map(drop)

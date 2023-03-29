@@ -30,7 +30,7 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<models::issues::Issue> {
         let route = format!(
-            "repos/{owner}/{repo}/issues",
+            "/repos/{owner}/{repo}/issues",
             owner = self.handler.owner,
             repo = self.handler.repo,
         );
@@ -71,8 +71,8 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.issues("owner", "repo");
         let list = handler

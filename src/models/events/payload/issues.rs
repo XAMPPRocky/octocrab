@@ -1,4 +1,4 @@
-use crate::models::{issues::Issue, Label, Author};
+use crate::models::{issues::Issue, Author, Label};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::IssuesEvent`] type.
@@ -79,7 +79,7 @@ mod test {
             (r#""unlabeled""#, IssuesEventAction::Unlabeled),
         ];
         for (action_str, action) in actions {
-            let deserialized = serde_json::from_str(&action_str).unwrap();
+            let deserialized = serde_json::from_str(action_str).unwrap();
             assert_eq!(action, deserialized);
         }
     }

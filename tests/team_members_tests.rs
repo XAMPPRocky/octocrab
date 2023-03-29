@@ -20,23 +20,20 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/orgs/{}/teams/{}/members", org, team)))
+        .and(path(format!("/orgs/{org}/teams/{team}/members")))
         .respond_with(template)
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!(
-            "GET on /orgs/{}/teams/{}/members was not received",
-            org, team
-        ),
+        &format!("GET on /orgs/{org}/teams/{team}/members was not received"),
     )
     .await;
     mock_server
 }
 
 fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_url(uri).unwrap().build().unwrap()
+    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 const ORG: &str = "org";
@@ -60,11 +57,10 @@ async fn should_return_page_with_users() {
         "expected successful result, got error: {:#?}",
         result
     );
-    match result.unwrap() {
-        Page { items, .. } => {
-            assert_eq!(items.len(), 1);
-            assert_eq!(items[0].login, String::from("octocat"));
-            assert_eq!(items[0].r#type, String::from("User"));
-        }
+    let Page { items, .. } = result.unwrap();
+    {
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].login, String::from("octocat"));
+        assert_eq!(items[0].r#type, String::from("User"));
     }
 }

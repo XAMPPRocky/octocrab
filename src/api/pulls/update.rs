@@ -68,14 +68,14 @@ impl<'octo, 'b> UpdatePullRequestBuilder<'octo, 'b> {
 
     /// Sends the request to update the pull request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::PullRequest> {
-        let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}",
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             pr = self.pull_number,
         );
 
-        self.handler.http_patch(url, Some(&self)).await
+        self.handler.http_patch(route, Some(&self)).await
     }
 }
 

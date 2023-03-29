@@ -17,6 +17,6 @@ pub async fn setup_error_handler(mock_server: &MockServer, message: &str) {
             "errors": None::<Vec<serde_json::Value>>,
             "message": message,
         })))
-        .mount(&mock_server)
+        .mount(mock_server)
         .await;
 }

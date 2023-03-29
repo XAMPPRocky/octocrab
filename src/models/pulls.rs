@@ -289,7 +289,7 @@ impl<'de> Deserialize<'de> for ReviewState {
                     "CHANGES_REQUESTED" | "changes_requested" => ReviewState::ChangesRequested,
                     "COMMENTED" | "commented" => ReviewState::Commented,
                     "DISMISSED" | "dismissed" => ReviewState::Dismissed,
-                    unknown => return Err(E::custom(format!("unknown variant `{}`, expected one of `open`, `approved`, `pending`, `changes_requested`, `commented`, `dismissed`", unknown))),
+                    unknown => return Err(E::custom(format!("unknown variant `{unknown}`, expected one of `open`, `approved`, `pending`, `changes_requested`, `commented`, `dismissed`"))),
                 })
             }
         }

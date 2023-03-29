@@ -1,5 +1,9 @@
 use super::*;
+use crate::error;
+use crate::error::SerdeSnafu;
+use hyper::{body, Response};
 use snafu::ResultExt;
+use url::Url;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -184,7 +188,7 @@ pub struct ContentItems {
 impl ContentItems {
     /// Returns the current set of items, replacing it with an empty Vec.
     pub fn take_items(&mut self) -> Vec<Content> {
-        std::mem::replace(&mut self.items, Vec::new())
+        std::mem::take(&mut self.items)
     }
 }
 
@@ -208,28 +212,32 @@ impl Content {
     /// ```
     pub fn decoded_content(&self) -> Option<String> {
         use base64::Engine;
-        self.content.as_ref().and_then(|c| {
+        self.content.as_ref().map(|c| {
             let mut content = c.as_bytes().to_owned();
             content.retain(|b| !b" \n\t\r\x0b\x0c".contains(b));
             let c = base64::prelude::BASE64_STANDARD.decode(content).unwrap();
-            Some(String::from_utf8_lossy(&c).into_owned())
+            String::from_utf8_lossy(&c).into_owned()
         })
     }
 }
 
 #[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
-    async fn from_response(response: reqwest::Response) -> crate::Result<Self> {
-        let json: serde_json::Value = response.json().await.context(crate::error::HttpSnafu)?;
+    async fn from_response(response: Response<hyper::Body>) -> crate::Result<Self> {
+        let json: serde_json::Value = serde_json::from_slice(
+            body::to_bytes(response.into_body())
+                .await
+                .context(error::HyperSnafu)?
+                .as_ref(),
+        )
+        .context(SerdeSnafu)?;
 
         if json.is_array() {
             Ok(ContentItems {
                 items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
             })
         } else {
-            let mut items = Vec::new();
-
-            items.push(serde_json::from_value(json).context(crate::error::SerdeSnafu)?);
+            let items = vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
 
             Ok(ContentItems { items })
         }

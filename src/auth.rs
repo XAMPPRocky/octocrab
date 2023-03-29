@@ -113,7 +113,7 @@ impl From<OAuthWire> for OAuth {
         OAuth {
             access_token: SecretString::from(value.access_token),
             token_type: value.token_type,
-            scope: value.scope.split(",").map(ToString::to_string).collect(),
+            scope: value.scope.split(',').map(ToString::to_string).collect(),
         }
     }
 }
@@ -124,13 +124,13 @@ impl crate::Octocrab {
     /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow for details.
     ///
     /// Note: To authenticate against public Github, the `Octocrab` that calls this method
-    /// *must* be constructed with `base_url: "https://github.com"` and extra header
+    /// *must* be constructed with `base_uri: "https://github.com"` and extra header
     /// "ACCEPT: application/json". For example:
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// # use reqwest::header::ACCEPT;
+    /// # use http::header::ACCEPT;
     /// let crab = octocrab::Octocrab::builder()
-    /// .base_url("https://github.com")?
+    /// .base_uri("https://github.com")?
     /// .add_header(ACCEPT, "application/json".to_string())
     /// .build()?;
     /// # Ok(())

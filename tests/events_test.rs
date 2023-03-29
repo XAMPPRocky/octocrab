@@ -25,12 +25,12 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .respond_with(template)
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, &"GET on /events was not received").await;
+    setup_error_handler(&mock_server, "GET on /events was not received").await;
     mock_server
 }
 
 fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_url(uri).unwrap().build().unwrap()
+    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
@@ -56,7 +56,7 @@ async fn should_return_page_with_events_and_etag() {
             value: Some(mut page),
         } => {
             assert_eq!(page.take_items(), page_response.items);
-            assert_eq!(etag, EntityTag::strong(expected_etag.replace("\"", "")));
+            assert_eq!(etag, EntityTag::strong(expected_etag.replace('\"', "")));
         }
         unexpected => panic!("expected a page and an etag, got {:#?}", unexpected),
     }
@@ -79,7 +79,7 @@ async fn should_return_no_page_with_events_and_etag_when_response_is_304() {
             etag: Some(etag),
             value: None,
         } => {
-            assert_eq!(etag, EntityTag::strong(expected_etag.replace("\"", "")));
+            assert_eq!(etag, EntityTag::strong(expected_etag.replace('\"', "")));
         }
         unexpected => panic!("expected no page and an etag, got {:#?}", unexpected),
     }

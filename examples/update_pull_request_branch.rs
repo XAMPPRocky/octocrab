@@ -20,7 +20,7 @@ async fn main() -> octocrab::Result<()> {
         .update_branch(200)
         .await?;
 
-    println!("Result of pull request update: {}", update,);
+    println!("Result of pull request update: {update}",);
 
     Ok(())
 }

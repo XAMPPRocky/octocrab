@@ -73,7 +73,7 @@ impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     /// Send the actual request.
     pub async fn send(self) -> Result<models::issues::Issue> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}",
+            "/repos/{owner}/{repo}/issues/{issue}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             issue = self.number,

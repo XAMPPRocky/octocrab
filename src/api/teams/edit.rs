@@ -54,11 +54,11 @@ impl<'octo, 'r> EditTeamBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::teams::Team> {
-        let url = format!(
-            "orgs/{org}/teams/{team}",
+        let route = format!(
+            "/orgs/{org}/teams/{team}",
             org = self.handler.owner,
             team = self.slug,
         );
-        self.handler.crab.patch(url, Some(&self)).await
+        self.handler.crab.patch(route, Some(&self)).await
     }
 }

@@ -22,7 +22,7 @@ mod test {
         events::{payload::EventPayload, Event},
         repos::CommitAuthor,
     };
-    use reqwest::Url;
+    use url::Url;
 
     #[test]
     fn should_deserialize_push_event_with_correct_payload() {
@@ -49,7 +49,7 @@ mod test {
                     }
                 );
                 assert_eq!(commit.message, "Charts Updated");
-                assert_eq!(commit.distinct, true);
+                assert!(commit.distinct);
                 assert_eq!(
                     commit.url,
                     Url::parse("https://api.github.com/repos/user/user/commits/12345").unwrap()

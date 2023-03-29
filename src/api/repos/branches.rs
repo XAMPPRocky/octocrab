@@ -44,11 +44,11 @@ impl<'octo, 'r> ListBranchesBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<crate::Page<models::repos::Branch>> {
-        let url = format!(
-            "repos/{owner}/{repo}/branches",
+        let route = format!(
+            "/repos/{owner}/{repo}/branches",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

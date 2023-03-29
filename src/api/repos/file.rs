@@ -35,13 +35,13 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = path,
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
 
@@ -103,13 +103,13 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.put(url, Some(&self)).await
+        self.handler.crab.put(route, Some(&self)).await
     }
 }
 
@@ -167,13 +167,13 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileDeletion> {
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.delete(url, Some(&self)).await
+        self.handler.crab.delete(route, Some(&self)).await
     }
 }
 
@@ -181,8 +181,8 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
 mod tests {
     use crate::models::repos::CommitAuthor;
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo
@@ -202,11 +202,13 @@ mod tests {
                 email: "ferris@rust-lang.org".to_string(),
             });
 
+        use base64::{engine::general_purpose, Engine as _};
+
         assert_eq!(
             serde_json::to_value(builder).unwrap(),
             serde_json::json!({
                 "message": "Update test.txt",
-                "content": base64::encode("This is a test."),
+                "content": general_purpose::STANDARD.encode("This is a test."),
                 "sha": "testsha",
                 "branch": "not-master",
                 "commiter": {
@@ -221,8 +223,8 @@ mod tests {
         )
     }
 
-    #[test]
-    fn serialize_delete() {
+    #[tokio::test]
+    async fn serialize_delete() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo

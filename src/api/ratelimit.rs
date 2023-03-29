@@ -25,6 +25,6 @@ impl<'octo> RateLimitHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::RateLimit> {
-        self.crab.get("rate_limit", None::<&()>).await
+        self.crab.get("/rate_limit", None::<&()>).await
     }
 }
