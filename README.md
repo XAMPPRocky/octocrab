@@ -16,7 +16,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 Run this command in your terminal to add the latest version of `Octocrab`.
 
 ```bash
-$ cargo add octocrab
+cargo add octocrab
 ```
 
 ## Semantic API
