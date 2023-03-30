@@ -38,7 +38,7 @@ cfg-if = "1.0.0"
 either = "1.8.0"
 hyper = { version = "0.14.13", features = ["client", "http1", "stream", "tcp"] }
 http = "0.2.5"
-tower-http = { version = "0.3.2", features = ["map-response-body", "trace"] }
+tower-http = { version = "0.4.0", features = ["map-response-body", "trace"] }
 hyper-timeout = {version = "0.4.1", optional = true }
 http-body = "0.4.5"
 tower = { version = "0.4.13", default-features = false, features = ["util", "buffer"] }
