@@ -1237,7 +1237,7 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self
-            ._delete(self.parameterized_uri(route, parameters)?, None::<&()>)
+            ._delete(self.parameterized_uri(route, None::<&()>)?, parameters)
             .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
