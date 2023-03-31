@@ -50,7 +50,7 @@ pub struct RepoCommit {
 pub struct RepoCommitPage {
     pub url: Url,
     pub author: Option<GitUserTime>,
-    pub comitter: Option<GitUserTime>,
+    pub committer: Option<GitUserTime>,
     pub message: String,
     pub comment_count: u64,
     pub tree: CommitObject,
