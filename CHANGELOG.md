@@ -1,3 +1,22 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.20.0-alpha.1](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0-alpha.0...v0.20.0-alpha.1) - 2023-03-31
+
+### Other
+- Fix GitHubError / InvalidUri(InvalidFormat)  (#320)
+- Fix the spelling of `committer` in `RepoCommitPage` (#316) (#317)
+- Add update state reason (#290)
+- Add target URL to Status model (#308)
+- *(ci)* add release-plz (#309)
+- Add remove_requested_reviewer function (#312)
+- Make command compatible with copy paste (#318)
+- Update tower-http requirement from 0.3.2 to 0.4.0 (#315)
 # CHANGELOG
 All  Octocrab releases are supported by the community and through
 [GitHub Sponsors][sp].
