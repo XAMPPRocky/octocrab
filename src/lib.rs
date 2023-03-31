@@ -1228,16 +1228,16 @@ impl Octocrab {
         }
     }
 
-    /// Send a `DELETE` request to `route` with optional query parameters,
+    /// Send a `DELETE` request to `route` with optional query body,
     /// returning the body of the response.
-    pub async fn delete<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
+    pub async fn delete<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
     where
         A: AsRef<str>,
-        P: Serialize + ?Sized,
+        B: Serialize + ?Sized,
         R: FromResponse,
     {
         let response = self
-            ._delete(self.parameterized_uri(route, None::<&()>)?, parameters)
+            ._delete(self.parameterized_uri(route, None::<&()>)?, body)
             .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
