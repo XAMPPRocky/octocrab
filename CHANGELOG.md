@@ -19,8 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make command compatible with copy paste (#318)
 - Update tower-http requirement from 0.3.2 to 0.4.0 (#315)
 
-## Unreleased
-
 ### Added Methods
 
 - [`UpdateIssueBuilder::state_reason`] Updates the state reason.
