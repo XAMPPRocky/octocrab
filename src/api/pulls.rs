@@ -289,10 +289,9 @@ impl<'octo> PullRequestHandler<'octo> {
         team_reviewers: impl Into<Vec<String>>,
     ) -> crate::Result<crate::models::pulls::Review> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
             owner = self.owner,
             repo = self.repo,
-            pr = pr
         );
 
         let mut map = serde_json::Map::new();
@@ -321,7 +320,6 @@ impl<'octo> PullRequestHandler<'octo> {
             "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
             owner = self.owner,
             repo = self.repo,
-            pr = pr
         );
 
         let mut map = serde_json::Map::new();
@@ -339,10 +337,9 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # }
     pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/files",
+            "/repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,
             repo = self.repo,
-            pr = pr
         );
 
         self.http_get(route, None::<&()>).await

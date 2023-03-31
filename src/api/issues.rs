@@ -369,7 +369,7 @@ impl<'octo> IssueHandler<'octo> {
         label: impl AsRef<str>,
     ) -> Result<Vec<models::Label>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
+            "/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             issue_number = number,
@@ -395,7 +395,7 @@ impl<'octo> IssueHandler<'octo> {
         labels: &[String],
     ) -> Result<Vec<models::Label>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/labels",
+            "/repos/{owner}/{repo}/issues/{issue}/labels",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -423,7 +423,7 @@ impl<'octo> IssueHandler<'octo> {
         description: impl AsRef<str>,
     ) -> Result<models::Label> {
         let route = format!(
-            "repos/{owner}/{repo}/labels",
+            "/repos/{owner}/{repo}/labels",
             owner = self.owner,
             repo = self.repo,
         );
@@ -452,7 +452,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
         let route = format!(
-            "repos/{owner}/{repo}/labels/{name}",
+            "/repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             name = name.as_ref(),
@@ -473,7 +473,7 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
         let route = format!(
-            "repos/{owner}/{repo}/labels/{name}",
+            "/repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
             repo = self.repo,
             name = name.as_ref(),
@@ -537,7 +537,7 @@ impl<'octo> IssueHandler<'octo> {
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/comments",
+            "/repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.owner,
             repo = self.repo,
             issue = number
@@ -560,10 +560,9 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn get_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
-            comment_id = comment_id
         );
 
         self.crab.get(route, None::<&()>).await
@@ -585,10 +584,9 @@ impl<'octo> IssueHandler<'octo> {
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
-            comment_id = comment_id
         );
 
         self.crab
@@ -605,10 +603,9 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn delete_comment(&self, comment_id: CommentId) -> Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment_id}",
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
             owner = self.owner,
             repo = self.repo,
-            comment_id = comment_id
         );
 
         let uri = Uri::builder()
@@ -707,7 +704,7 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/comments",
+            "/repos/{owner}/{repo}/issues/{issue}/comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
             issue = self.issue_number,
@@ -778,7 +775,7 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments",
+            "/repos/{owner}/{repo}/issues/comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
         );
@@ -862,7 +859,7 @@ impl<'octo, 'r> ListReactionsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}/reactions",
+            "/repos/{owner}/{repo}/issues/{issue}/reactions",
             owner = self.handler.owner,
             repo = self.handler.repo,
             issue = self.issue_number,
@@ -908,7 +905,7 @@ impl<'octo, 'r> ListCommentReactionsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment}/reactions",
+            "/repos/{owner}/{repo}/issues/comments/{comment}/reactions",
             owner = self.handler.owner,
             repo = self.handler.repo,
             comment = self.comment_id,
@@ -935,7 +932,7 @@ impl<'octo> IssueHandler<'octo> {
         content: models::reactions::ReactionContent,
     ) -> Result<models::reactions::Reaction> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue_number}/reactions",
+            "/repos/{owner}/{repo}/issues/{issue_number}/reactions",
             owner = self.owner,
             repo = self.repo,
         );
@@ -961,7 +958,7 @@ impl<'octo> IssueHandler<'octo> {
         content: models::reactions::ReactionContent,
     ) -> Result<models::reactions::Reaction> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions",
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions",
             owner = self.owner,
             repo = self.repo,
             comment_id = comment_id.into(),
@@ -990,7 +987,7 @@ impl<'octo> IssueHandler<'octo> {
         reaction_id: impl Into<ReactionId>,
     ) -> Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
+            "/repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
             owner = self.owner,
             repo = self.repo,
             reaction_id = reaction_id.into(),
@@ -1015,7 +1012,7 @@ impl<'octo> IssueHandler<'octo> {
         reaction_id: impl Into<ReactionId>,
     ) -> Result<()> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}",
+            "/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}",
             owner = self.owner,
             repo = self.repo,
             comment_id = comment_id.into(),

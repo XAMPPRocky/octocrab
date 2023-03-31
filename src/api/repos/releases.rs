@@ -449,7 +449,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
         let route = format!(
-            "repos/{owner}/{repo}/releases/{release_id}",
+            "/repos/{owner}/{repo}/releases/{release_id}",
             owner = self.handler.parent.owner,
             repo = self.handler.parent.repo,
             release_id = self.release_id,
