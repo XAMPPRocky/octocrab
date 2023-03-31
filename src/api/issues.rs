@@ -198,7 +198,7 @@ impl<'octo> IssueHandler<'octo> {
             .build()
             .context(HttpSnafu)?;
 
-        let response = self.crab._delete(uri).await?;
+        let response = self.crab._delete(uri, None::<&()>).await?;
 
         Ok(response.status() == 204)
     }
@@ -616,7 +616,7 @@ impl<'octo> IssueHandler<'octo> {
             .build()
             .context(HttpSnafu)?;
 
-        let response = self.crab._delete(uri).await?;
+        let response = self.crab._delete(uri, None::<&()>).await?;
 
         if response.status() == 204 {
             Ok(())

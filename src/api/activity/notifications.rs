@@ -207,7 +207,7 @@ impl<'octo> NotificationsHandler<'octo> {
             .path_and_query(route)
             .build()
             .context(HttpSnafu)?;
-        let response = self.crab._delete(uri).await?;
+        let response = self.crab._delete(uri, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
     }
 
