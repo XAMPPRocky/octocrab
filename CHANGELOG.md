@@ -1,5 +1,6 @@
 # Changelog
-All notable changes to this project will be documented in this file.
+All  Octocrab releases are supported by the community and through
+[GitHub Sponsors][sp].
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -17,9 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add remove_requested_reviewer function (#312)
 - Make command compatible with copy paste (#318)
 - Update tower-http requirement from 0.3.2 to 0.4.0 (#315)
-# CHANGELOG
-All  Octocrab releases are supported by the community and through
-[GitHub Sponsors][sp].
 
 ## Unreleased
 
