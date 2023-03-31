@@ -302,6 +302,35 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.post(route, Some(&map)).await
     }
 
+    /// Remove a requested reviewer from users or teams.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let review = octocrab::instance().pulls("owner", "repo")
+    ///    .remove_requested_reviewers(101, ["user1".to_string(), "user2".to_string()], ["team1".to_string(), "team2".to_string()])
+    ///  .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_requested_reviewers(
+        &self,
+        pr: u64,
+        reviewers: impl Into<Vec<String>>,
+        team_reviewers: impl Into<Vec<String>>,
+    ) -> crate::Result<crate::models::pulls::Review> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+
+        let mut map = serde_json::Map::new();
+        map.insert("reviewers".to_string(), reviewers.into().into());
+        map.insert("team_reviewers".to_string(), team_reviewers.into().into());
+
+        self.crab.delete(route, Some(&map)).await
+    }
+
     /// List all `FileDiff`s associated with the pull request.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

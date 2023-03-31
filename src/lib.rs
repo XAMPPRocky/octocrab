@@ -1237,19 +1237,22 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self
-            ._delete(self.parameterized_uri(route, parameters)?)
+            ._delete(self.parameterized_uri(route, None::<&()>)?, parameters)
             .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `DELETE` request with no additional post-processing.
-    pub async fn _delete(&self, uri: impl TryInto<Uri>) -> Result<http::Response<hyper::Body>> {
+    pub async fn _delete<B: Serialize + ?Sized>(
+        &self,
+        uri: impl TryInto<Uri>,
+        body: Option<&B>,
+    ) -> Result<http::Response<hyper::Body>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
             .context(UriParseSnafu)?;
-        let request =
-            self.build_request(Builder::new().method(Method::DELETE).uri(uri), None::<&()>)?;
+        let request = self.build_request(Builder::new().method(Method::DELETE).uri(uri), body)?;
 
         self.execute(request).await
     }

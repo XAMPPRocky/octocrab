@@ -127,7 +127,7 @@ impl<'octo> TeamHandler<'octo> {
             .path_and_query(route)
             .build()
             .context(HttpSnafu)?;
-        crate::map_github_error(self.crab._delete(uri).await?)
+        crate::map_github_error(self.crab._delete(uri, None::<&()>).await?)
             .await
             .map(drop)
     }
