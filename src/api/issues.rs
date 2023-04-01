@@ -9,6 +9,7 @@ use crate::error::HttpSnafu;
 use crate::models::{CommentId, ReactionId};
 use crate::{models, params, Octocrab, Result};
 use http::Uri;
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use snafu::ResultExt;
 
 pub use self::{
@@ -373,7 +374,7 @@ impl<'octo> IssueHandler<'octo> {
             owner = self.owner,
             repo = self.repo,
             issue_number = number,
-            name = label.as_ref(),
+            name = utf8_percent_encode(label.as_ref(), NON_ALPHANUMERIC),
         );
 
         self.crab.delete(route, None::<&()>).await
