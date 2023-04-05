@@ -2,6 +2,7 @@
 
 mod list_members;
 mod list_repos;
+mod events;
 
 use crate::error::HttpSnafu;
 use crate::Octocrab;
@@ -10,6 +11,7 @@ use snafu::ResultExt;
 
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
+pub use self::events::ListOrgEventsBuilder;
 
 /// A client to GitHub's organization API.
 ///
@@ -132,6 +134,37 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub fn list_repos(&self) -> list_repos::ListReposBuilder {
         list_repos::ListReposBuilder::new(self)
+    }
+
+    /// List events on this organization.
+    ///
+    /// Takes an optional etag which allows for efficient polling. Here is a quick example to poll a
+    /// organization's events.
+    /// ```no_run
+    /// # use std::convert::TryFrom;
+    /// # use octocrab::{models::events::Event, etag::{Etagged,EntityTag}, Page};
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let mut etag = None;
+    /// loop {
+    ///     let response: Etagged<Page<Event>> = octocrab::instance()
+    ///         .orgs("owner")
+    ///         .events()
+    ///         .etag(etag)
+    ///         .send()
+    ///         .await?;
+    ///     if let Some(page) = response.value {
+    ///         // do something with the page ...
+    ///     } else {
+    ///         println!("No new data received, trying again soon");
+    ///     }
+    ///     etag = response.etag;
+    ///     // add a delay before the next iteration
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn events(&self) -> events::ListOrgEventsBuilder<'_, '_> {
+        events::ListOrgEventsBuilder::new(self)
     }
 
     /// Creates a new webhook for the specified organization.
