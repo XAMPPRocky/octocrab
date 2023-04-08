@@ -162,7 +162,7 @@ impl<'octo> CreateGistBuilder<'octo> {
 
     /// Send the `CreateGist` request to Github for execution.
     pub async fn send(self) -> Result<Gist> {
-        self.crab.post("gists", Some(&self.data)).await
+        self.crab.post("/gists", Some(&self.data)).await
     }
 }
 
