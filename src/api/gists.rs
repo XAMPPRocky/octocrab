@@ -146,6 +146,30 @@ impl<'octo> GistsHandler<'octo> {
             .await
             .map(|_| ())
     }
+
+    /// Unstar the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .unstar("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#unstar-a-gist
+    pub async fn unstar(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // DELETE here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._delete(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
 }
 
 #[derive(Debug)]
