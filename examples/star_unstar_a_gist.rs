@@ -36,16 +36,37 @@ fn parse_argv_or_exit() -> ProgramArguments {
     ProgramArguments { gist_id, star }
 }
 
+/// This example tries to demonstrate interacting with a gists' 'stars'.
+/// It does so by making a program that takes two CLI arguments:
+///
+/// 1) `--star` or `--unstar` to either star/unstar a gist
+/// 2) A `GIST_ID` to identify which gist to operate on
+///
+/// The example will check if a gist is already starred / unstarred, before
+/// performing the operation.
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let token = std::env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN env variable is required");
     let args = parse_argv_or_exit();
     let octocrab = Octocrab::builder().personal_token(token).build()?;
+    let gists_handler = octocrab.gists();
+    let is_starred = gists_handler.is_starred(&args.gist_id).await?;
+
+    if is_starred && args.star {
+        println!("{gist_id} is already starred.", gist_id = &args.gist_id);
+        return Ok(());
+    }
+    if !is_starred && !args.star {
+        println!("{gist_id} is already un-starred.", gist_id = &args.gist_id);
+        return Ok(());
+    }
 
     if args.star {
-        octocrab.gists().star(args.gist_id).await?;
+        gists_handler.star(&args.gist_id).await?;
+        println!("Starred {gist_id}.", gist_id = &args.gist_id)
     } else {
-        octocrab.gists().unstar(args.gist_id).await?;
+        gists_handler.unstar(&args.gist_id).await?;
+        println!("Un-starred {gist_id}.", gist_id = &args.gist_id)
     }
     Ok(())
 }
