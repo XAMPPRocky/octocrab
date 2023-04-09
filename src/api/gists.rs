@@ -122,6 +122,30 @@ impl<'octo> GistsHandler<'octo> {
     pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
         list_commits::ListCommitsBuilder::new(self, gist_id.into())
     }
+
+    /// Star the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .star("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#star-a-gist
+    pub async fn star(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // PUT here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._put(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
 }
 
 #[derive(Debug)]
