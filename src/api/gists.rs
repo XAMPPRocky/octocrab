@@ -79,6 +79,22 @@ impl<'octo> GistsHandler<'octo> {
         self.crab.get(format!("/gists/{id}"), None::<&()>).await
     }
 
+    /// Delete a single gist.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance().gists().delete("00000000000000000000000000000000").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        self.crab
+            ._delete(format!("/gists/{gist_id}"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
+
     /// Get a single gist revision.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
