@@ -1,6 +1,7 @@
 //! The gist API
 mod list_commits;
 
+use http::StatusCode;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -121,6 +122,79 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
         list_commits::ListCommitsBuilder::new(self, gist_id.into())
+    }
+
+    /// Check if the given is gist is already starred by the authenticated user.
+    /// See [GitHub API Documentation][docs] more information about response
+    /// data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let is_starred: bool = octocrab::instance()
+    ///     .gists()
+    ///     .is_starred("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#check-if-a-gist-is-starred
+    pub async fn is_starred(&self, gist_id: impl AsRef<str>) -> Result<bool> {
+        let gist_id = gist_id.as_ref();
+        let response = self
+            .crab
+            ._get(format!("/gists/{gist_id}/star"))
+            .await?;
+        // Gist API returns 204 (NO CONTENT) if a gist is starred
+        Ok(response.status() == StatusCode::NO_CONTENT)
+    }
+
+    /// Star the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .star("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#star-a-gist
+    pub async fn star(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // PUT here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._put(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
+
+    /// Unstar the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .unstar("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#unstar-a-gist
+    pub async fn unstar(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // DELETE here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._delete(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
     }
 }
 
