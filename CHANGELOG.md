@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0-alpha.3](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0-alpha.2...v0.20.0-alpha.3) - 2023-04-12
+
+### Other
+- Handle `DELETE /gists/{gist_id}` (#333)
+
 ## [0.20.0-alpha.2](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0-alpha.1...v0.20.0-alpha.2) - 2023-04-10
 
 ### Other
