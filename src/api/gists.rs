@@ -79,6 +79,22 @@ impl<'octo> GistsHandler<'octo> {
         self.crab.get(format!("/gists/{id}"), None::<&()>).await
     }
 
+    /// Delete a single gist.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance().gists().delete("00000000000000000000000000000000").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        self.crab
+            ._delete(format!("/gists/{gist_id}"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
+
     /// Get a single gist revision.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -141,10 +157,7 @@ impl<'octo> GistsHandler<'octo> {
     /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#check-if-a-gist-is-starred
     pub async fn is_starred(&self, gist_id: impl AsRef<str>) -> Result<bool> {
         let gist_id = gist_id.as_ref();
-        let response = self
-            .crab
-            ._get(format!("/gists/{gist_id}/star"))
-            .await?;
+        let response = self.crab._get(format!("/gists/{gist_id}/star")).await?;
         // Gist API returns 204 (NO CONTENT) if a gist is starred
         Ok(response.status() == StatusCode::NO_CONTENT)
     }
