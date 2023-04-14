@@ -333,3 +333,13 @@ pub struct GitTag {
     pub url: Url,
     pub message: String,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct MergeCommit {
+    pub url: Url,
+    pub sha: String,
+    pub node_id: String,
+    pub html_url: String,
+    pub comments_url: String,
+}

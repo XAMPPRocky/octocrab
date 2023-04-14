@@ -11,6 +11,7 @@ pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+mod merges;
 mod pulls;
 pub mod releases;
 mod stargazers;
@@ -23,6 +24,7 @@ pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
@@ -562,5 +564,26 @@ impl<'octo> RepoHandler<'octo> {
 
         let response = self.crab._get(uri).await?;
         Ok(response.status().is_success())
+    }
+
+    /// Merges `head` into the `base` branch.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// // Merges a feature branch into the master branch.
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .merge("feature", "master")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn merge(
+        &self,
+        head: impl Into<String>,
+        base: impl Into<String>,
+    ) -> MergeBranchBuilder<'octo, '_> {
+        MergeBranchBuilder::new(self, head, base)
     }
 }
