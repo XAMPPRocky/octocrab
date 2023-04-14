@@ -1013,7 +1013,7 @@ impl Octocrab {
         body: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
         self.post(
-            "graphql",
+            "/graphql",
             Some(&serde_json::json!({
                 "query": body,
             })),
