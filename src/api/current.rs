@@ -118,6 +118,11 @@ impl<'octo> CurrentAuthHandler<'octo> {
         // self.crab.get("/gists", None::<&()>).await
         ListGistsForAuthenticatedUserBuilder::new(self.crab)
     }
+
+    /// List gists that were starred by the authenticated user.
+    pub fn list_gists_starred_by_authenticated_user(&self) -> ListStarredGistsBuilder<'octo> {
+        ListStarredGistsBuilder::new(self.crab)
+    }
 }
 
 /// A builder pattern struct for listing starred repositories.
@@ -389,5 +394,58 @@ impl<'octo> ListGistsForAuthenticatedUserBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Gist>> {
         self.crab.get("/gists", Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListStarredGistsBuilder<'octo> {
+    /// Client under use for building the request.
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+
+    /// Number of results to return per page. Maximum supported value is `100`.
+    /// Larger values are clamped to `100`. Defaults to `30`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    /// Page number of the results to fetch. Defaults to `1`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListStarredGistsBuilder<'octo> {
+    pub fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
+    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+        self.since = Some(last_updated);
+        self
+    }
+
+    /// The page number from the result set to fetch.
+    pub fn page(mut self, page_num: u32) -> Self {
+        self.page = Some(page_num);
+        self
+    }
+
+    pub fn per_page(mut self, count: u8) -> Self {
+        self.per_page = Some(count);
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<Gist>> {
+        self.crab.get("/gists/starred", Some(&self)).await
     }
 }
