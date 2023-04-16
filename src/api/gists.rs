@@ -230,6 +230,16 @@ impl<'octo> GistsHandler<'octo> {
     pub fn list_forks(&self, gist_id: impl Into<String>) -> list_forks::ListGistForksBuilder {
         list_forks::ListGistForksBuilder::new(self, gist_id.into())
     }
+
+    /// Create a fork of the given `gist_id` associated with the authenticated
+    /// user's account. See [GitHub API docs][docs] for more information about
+    /// request parameters and response schema.
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#fork-a-gist
+    pub async fn fork(&self, gist_id: impl AsRef<str>) -> Result<Gist> {
+        let route = format!("/gists/{gist_id}/forks", gist_id = gist_id.as_ref());
+        self.crab.post(route, None::<&()>).await
+    }
 }
 
 #[derive(Debug)]
