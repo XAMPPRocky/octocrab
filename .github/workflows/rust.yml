@@ -22,4 +22,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: cargo fmt
+    - run: git diff --exit-code
     - run: cargo clippy
