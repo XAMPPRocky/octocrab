@@ -58,10 +58,7 @@ impl<'octo, 'handler> ListOrgEventsBuilder<'octo, 'handler> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let route = format!(
-            "/orgs/{owner}/events",
-            owner = self.handler.owner
-        );
+        let route = format!("/orgs/{owner}/events", owner = self.handler.owner);
 
         let uri = self
             .handler

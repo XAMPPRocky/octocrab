@@ -1,17 +1,17 @@
 //! The Organization API.
 
+mod events;
 mod list_members;
 mod list_repos;
-mod events;
 
 use crate::error::HttpSnafu;
 use crate::Octocrab;
 use http::Uri;
 use snafu::ResultExt;
 
+pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
-pub use self::events::ListOrgEventsBuilder;
 
 /// A client to GitHub's organization API.
 ///
