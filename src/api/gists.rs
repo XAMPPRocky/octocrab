@@ -1,5 +1,6 @@
 //! The gist API
 mod list_commits;
+mod list_forks;
 
 use http::StatusCode;
 use serde::Serialize;
@@ -208,6 +209,36 @@ impl<'octo> GistsHandler<'octo> {
             ._delete(format!("/gists/{gist_id}/star"), None::<&()>)
             .await
             .map(|_| ())
+    }
+
+    /// Retrieve all the gists that forked the given `gist_id`. See
+    /// [GitHub API Docs][docs] for information about request parameters, and
+    /// response schema.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .list_forks("00000000000000000000000000000000")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gist-forks
+    pub fn list_forks(&self, gist_id: impl Into<String>) -> list_forks::ListGistForksBuilder {
+        list_forks::ListGistForksBuilder::new(self, gist_id.into())
+    }
+
+    /// Create a fork of the given `gist_id` associated with the authenticated
+    /// user's account. See [GitHub API docs][docs] for more information about
+    /// request parameters and response schema.
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#fork-a-gist
+    pub async fn fork(&self, gist_id: impl AsRef<str>) -> Result<Gist> {
+        let route = format!("/gists/{gist_id}/forks", gist_id = gist_id.as_ref());
+        self.crab.post(route, None::<&()>).await
     }
 }
 
