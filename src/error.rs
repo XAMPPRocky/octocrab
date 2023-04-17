@@ -37,7 +37,7 @@ pub enum Error {
     },
 
     InvalidHeaderValue {
-        source: reqwest::header::InvalidHeaderValue,
+        source: http::header::InvalidHeaderValue,
         backtrace: Backtrace,
     },
 
@@ -49,11 +49,6 @@ pub enum Error {
 
     InvalidUtf8 {
         source: FromUtf8Error,
-        backtrace: Backtrace,
-    },
-
-    Url {
-        source: reqwest::Error,
         backtrace: Backtrace,
     },
 

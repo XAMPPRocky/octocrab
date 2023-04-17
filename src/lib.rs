@@ -495,16 +495,6 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         Ok(self)
     }
 
-    #[deprecated(since = "0.19.0", note = "please use `base_uri` instead")]
-    pub fn base_url(self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
-        self.base_uri(
-            base_url
-                .into_url()
-                .context(crate::error::UrlSnafu)?
-                .as_str(),
-        )
-    }
-
     #[cfg(feature = "retry")]
     pub fn set_connector_retry_service<S>(
         &self,
