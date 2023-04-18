@@ -10,6 +10,7 @@ use url::Url;
 
 pub mod activity;
 pub mod apps;
+pub mod checks;
 pub mod commits;
 pub mod events;
 pub mod gists;
@@ -96,6 +97,7 @@ id_type!(
     ArtifactId,
     AssetId,
     CardId,
+    CheckSuiteId,
     CheckRunId,
     CommentId,
     InstallationId,
