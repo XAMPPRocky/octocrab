@@ -11,6 +11,6 @@ pub struct CheckRun {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ListCheckRuns {
-    total_count: u64,
-    check_runs: Vec<CheckRun>,
+    pub total_count: u64,
+    pub check_runs: Vec<CheckRun>,
 }
