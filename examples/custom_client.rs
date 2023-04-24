@@ -1,6 +1,6 @@
 use http::header::USER_AGENT;
 use http::Uri;
-use hyper_tls::HttpsConnector;
+use hyper_rustls::HttpsConnectorBuilder;
 
 use octocrab::service::middleware::base_uri::BaseUriLayer;
 use octocrab::service::middleware::extra_headers::ExtraHeadersLayer;
@@ -9,7 +9,13 @@ use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
-    let client = hyper::Client::builder().build(HttpsConnector::new());
+    let connector = HttpsConnectorBuilder::new()
+        .with_native_roots() // enabled the `rustls-native-certs` feature in hyper-rustls
+        .https_only()
+        .enable_http1()
+        .build();
+
+    let client = hyper::Client::builder().build(connector);
     let octocrab = OctocrabBuilder::new_empty()
         .with_service(client)
         .with_layer(&BaseUriLayer::new(Uri::from_static(

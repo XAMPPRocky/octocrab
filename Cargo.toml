@@ -51,7 +51,6 @@ futures-core = { version = "0.3.15", optional = true }
 futures-util = { version = "0.3.15", optional = true }
 hyper-tls = { version = "0.5.0", optional = true }
 percent-encoding = "2.2.0"
-rustls-pemfile = { version = "1.0.0", optional = true }
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
     "macros",
@@ -62,9 +61,10 @@ tokio-test = "0.4.2"
 wiremock = "0.5.3"
 
 [features]
-default = ["tls", "timeout", "tracing", "retry"]
+default = ["rustls", "timeout", "tracing", "retry"]
 
 retry = ["tower/retry", "futures-util"]
-tls = ["hyper-tls"]
+rustls = ["hyper-rustls"]
+opentls = ["hyper-tls"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 stream = ["futures-core", "futures-util", "hyper/stream"]

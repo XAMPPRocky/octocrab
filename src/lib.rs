@@ -170,7 +170,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use http::{header::HeaderName, StatusCode};
-#[cfg(all(not(feature = "tls")))]
+#[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
 use hyper::client::HttpConnector;
 use hyper::{body, Body, Request, Response};
 
@@ -183,8 +183,11 @@ use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceE
 use bytes::Bytes;
 use http::header::USER_AGENT;
 use http::request::Builder;
-#[cfg(feature = "tls")]
+#[cfg(feature = "opentls")]
 use hyper_tls::HttpsConnector;
+
+#[cfg(feature = "rustls")]
+use hyper_rustls::HttpsConnectorBuilder;
 
 #[cfg(feature = "retry")]
 use tower::retry::{Retry, RetryLayer};
@@ -524,9 +527,17 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     /// Build a [`Client`] instance with the current [`Service`] stack.
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper::Client<_, String> = {
-            #[cfg(all(not(feature = "tls")))]
+            #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
             let mut connector = HttpConnector::new();
-            #[cfg(feature = "tls")]
+
+            #[cfg(all(feature = "rustls", not(feature = "opentls")))]
+            let connector = HttpsConnectorBuilder::new()
+                .with_native_roots() // enabled the `rustls-native-certs` feature in hyper-rustls
+                .https_or_http() //  Disable .https_only() during tests until: https://github.com/LukeMathWalker/wiremock-rs/issues/58 is resolved. Alternatively we can use conditional compilation to only enable this feature in tests, but it becomes rather ugly with integration tests.
+                .enable_http1()
+                .build();
+
+            #[cfg(all(feature = "opentls", not(feature = "rustls")))]
             let connector = HttpsConnector::new();
 
             #[cfg(feature = "timeout")]
