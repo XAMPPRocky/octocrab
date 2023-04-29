@@ -123,9 +123,9 @@ pub struct Commit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub author: Option<Author>,
+    pub author: Option<CommitAuthor>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub committer: Option<Author>,
+    pub committer: Option<CommitAuthor>,
 }
 
 /// The author of a commit, identified by its name and email, as well as (optionally) a time
