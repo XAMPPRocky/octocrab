@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0...v0.21.0) - 2023-04-29
+
+### Other
+- Add an example showing gist creation (#329)
+- Use CommitAuthor for Commit.author (#353)
+- Create release-plz.toml
+- Sort deps in cargo.toml (#352)
+- Enable rustls(and use as default client) (#351)
+- *(ci)* update release-plz version (#350)
+- Add missing pub to struct ListCheckRuns 😅 (#347)
+- Add Checks API skeleton (#345)
+- cargo fmt (#343)
+- Remove reqwest (#342)
+
 ## [0.20.0-alpha.3](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0-alpha.2...v0.20.0-alpha.3) - 2023-04-12
 
 ### Other
