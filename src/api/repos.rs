@@ -1,6 +1,9 @@
 //! The repositories API.
 
-use reqwest::header::ACCEPT;
+use http::header::ACCEPT;
+use http::request::Builder;
+use http::Uri;
+use snafu::ResultExt;
 
 mod branches;
 mod commits;
@@ -8,17 +11,20 @@ pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+mod merges;
 mod pulls;
 pub mod releases;
 mod stargazers;
 mod status;
 mod tags;
 
+use crate::error::HttpSnafu;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use commits::ListCommitsBuilder;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
@@ -47,13 +53,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn license(&self) -> Result<models::repos::Content> {
-        let url = format!(
-            "repos/{owner}/{repo}/license",
+        let route = format!(
+            "/repos/{owner}/{repo}/license",
             owner = self.owner,
             repo = self.repo,
         );
 
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Get's a repository's public key.
@@ -64,13 +70,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn public_key(&self) -> Result<models::PublicKey> {
-        let url = format!(
-            "repos/{owner}/{repo}/actions/secrets/public-key",
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/secrets/public-key",
             owner = self.owner,
             repo = self.repo,
         );
 
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a single repository.
@@ -84,8 +90,12 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo,);
-        self.crab.get(url, None::<&()>).await
+        let route = format!(
+            "/repos/{owner}/{repo}",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a repository's metrics.
@@ -99,12 +109,12 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
-        let url = format!(
-            "repos/{owner}/{repo}/community/profile",
+        let route = format!(
+            "/repos/{owner}/{repo}/community/profile",
             owner = self.owner,
             repo = self.repo,
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches a single reference in the Git database.
@@ -123,13 +133,13 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         reference: &params::repos::Reference,
     ) -> Result<models::repos::Ref> {
-        let url = format!(
-            "repos/{owner}/{repo}/git/ref/{reference}",
+        let route = format!(
+            "/repos/{owner}/{repo}/git/ref/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetches information about a git tag with the given `tag_sha`.
@@ -145,13 +155,13 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
-        let url = format!(
-            "repos/{owner}/{repo}/git/tags/{tag_sha}",
+        let route = format!(
+            "/repos/{owner}/{repo}/git/tags/{tag_sha}",
             owner = self.owner,
             repo = self.repo,
             tag_sha = tag_sha.into(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Creates a new reference for the repository.
@@ -173,14 +183,14 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
         sha: impl Into<String>,
     ) -> Result<models::repos::Ref> {
-        let url = format!(
-            "repos/{owner}/{repo}/git/refs",
+        let route = format!(
+            "/repos/{owner}/{repo}/git/refs",
             owner = self.owner,
             repo = self.repo,
         );
         self.crab
             .post(
-                url,
+                route,
                 Some(&serde_json::json!({
                     "ref": reference.full_ref_url(),
                     "sha": sha.into(),
@@ -210,7 +220,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new file in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Commit to add "crabs/ferris.txt"
     /// octocrab::instance()
@@ -221,11 +231,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         "Thought there’d never be a Rust Rap?\n"
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -253,7 +263,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Given the file blob for "crabs/ferris.txt", commit to update the file.
     /// octocrab::instance()
@@ -265,11 +275,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         blob_sha
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -299,7 +309,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
-    /// use octocrab::models::repos::GitUser;
+    /// use octocrab::models::repos::CommitAuthor;
     ///
     /// // Commit to delete "crabs/ferris.txt"
     /// octocrab::instance()
@@ -310,11 +320,11 @@ impl<'octo> RepoHandler<'octo> {
     ///         blob_sha
     ///     )
     ///     .branch("master")
-    ///     .commiter(GitUser {
+    ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
     ///     })
-    ///     .author(GitUser {
+    ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
     ///     })
@@ -447,18 +457,18 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         reference: &params::repos::Reference,
     ) -> Result<models::CombinedStatus> {
-        let url = format!(
-            "repos/{owner}/{repo}/commits/{reference}/status",
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{reference}/status",
             owner = self.owner,
             repo = self.repo,
             reference = reference.ref_url(),
         );
-        self.crab.get(url, None::<&()>).await
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
-    /// # use reqwest::Response;
+    /// # use http::Response;
     ///  async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .repos("owner", "repo")
@@ -480,17 +490,24 @@ impl<'octo> RepoHandler<'octo> {
         self,
         reference: impl Into<params::repos::Commitish>,
         path: impl AsRef<str>,
-    ) -> Result<reqwest::Response> {
-        let url = self.crab.absolute_url(format!(
-            "repos/{owner}/{repo}/contents/{path}",
+    ) -> Result<http::Response<hyper::Body>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
             repo = self.repo,
             path = path.as_ref(),
-        ))?;
-        let mut request = self.crab.request_builder(url, reqwest::Method::GET);
-        request = request.query(&[("ref", &reference.into().0)]);
-        request = request.header(ACCEPT, "application/vnd.github.v3.raw");
-        self.crab.execute(request).await
+        );
+
+        let uri = self
+            .crab
+            .parameterized_uri(route, Some(&[("ref", &reference.into().0)]))?;
+        let request = Builder::new()
+            .uri(uri)
+            .method(http::Method::GET)
+            .header(ACCEPT, "application/vnd.github.v3.raw");
+        self.crab
+            .execute(self.crab.build_request(request, None::<&()>)?)
+            .await
     }
 
     /// Deletes this repository.
@@ -500,39 +517,73 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete(self) -> Result<()> {
-        let url = format!("repos/{owner}/{repo}", owner = self.owner, repo = self.repo);
-        crate::map_github_error(
-            self.crab
-                ._delete(self.crab.absolute_url(url)?, None::<&()>)
-                .await?,
-        )
-        .await
-        .map(drop)
+        let route = format!(
+            "/repos/{owner}/{repo}",
+            owner = self.owner,
+            repo = self.repo
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        crate::map_github_error(self.crab._delete(uri, None::<&()>).await?)
+            .await
+            .map(drop)
     }
 
     /// Stream the repository contents as a .tar.gz
     pub async fn download_tarball(
         &self,
         reference: impl Into<params::repos::Commitish>,
-    ) -> Result<reqwest::Response> {
-        let url = self.crab.absolute_url(format!(
-            "repos/{owner}/{repo}/tarball/{reference}",
+    ) -> Result<http::Response<hyper::Body>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,
             repo = self.repo,
             reference = reference.into(),
-        ))?;
-        self.crab._get(url, None::<&()>).await
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        self.crab._get(uri).await
     }
 
     /// Check if a user is a repository collaborator
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
-        let url = self.crab.absolute_url(format!(
+        let route = format!(
             "/repos/{owner}/{repo}/collaborators/{username}",
             owner = self.owner,
             repo = self.repo,
             username = username.as_ref(),
-        ))?;
-        let response = self.crab._get(url, None::<&()>).await?;
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._get(uri).await?;
         Ok(response.status().is_success())
+    }
+
+    /// Merges `head` into the `base` branch.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// // Merges a feature branch into the master branch.
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .merge("feature", "master")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn merge(
+        &self,
+        head: impl Into<String>,
+        base: impl Into<String>,
+    ) -> MergeBranchBuilder<'octo, '_> {
+        MergeBranchBuilder::new(self, head, base)
     }
 }

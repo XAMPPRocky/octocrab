@@ -23,19 +23,19 @@ pub struct Gist {
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct GistFile {
-    pub content: String,
+    pub content: Option<String>,
     pub filename: String,
     pub language: Option<String>,
     pub r#type: String,
     pub raw_url: Url,
     pub size: u64,
-    pub truncated: bool,
+    pub truncated: Option<bool>,
 }
 
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct GistCommit {
-    pub user: Option<User>,
+    pub user: Option<Author>,
     pub version: String,
     pub committed_at: DateTime<Utc>,
     pub change_status: GistChangeStatus,

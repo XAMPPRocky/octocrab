@@ -301,8 +301,8 @@ pub mod repos {
     impl Reference {
         pub fn ref_url(&self) -> String {
             match self {
-                Self::Branch(branch) => format!("heads/{}", branch),
-                Self::Tag(tag) => format!("tags/{}", tag),
+                Self::Branch(branch) => format!("heads/{branch}"),
+                Self::Tag(tag) => format!("tags/{tag}"),
                 Self::Commit(sha) => sha.clone(),
             }
         }

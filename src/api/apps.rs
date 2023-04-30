@@ -1,4 +1,6 @@
 use crate::{models::InstallationId, Octocrab};
+use http::request::Builder;
+use http::Method;
 
 mod installations;
 
@@ -34,10 +36,7 @@ impl<'octo> AppsRequestHandler<'octo> {
         &self,
         installation_id: InstallationId,
     ) -> crate::Result<crate::models::Installation> {
-        let route = format!(
-            "app/installations/{installation_id}",
-            installation_id = installation_id,
-        );
+        let route = format!("/app/installations/{installation_id}",);
 
         self.crab.get(&route, None::<&()>).await
     }
@@ -77,12 +76,10 @@ impl<'octo> AppsRequestHandler<'octo> {
         P: serde::Serialize + ?Sized,
         R: crate::FromResponse,
     {
-        let mut request = self.crab.client.get(self.crab.absolute_url(route)?);
-
-        if let Some(parameters) = parameters {
-            request = request.query(parameters);
-        }
-
+        let request = Builder::new()
+            .method(Method::GET)
+            .uri(self.crab.parameterized_uri(route, parameters)?);
+        let request = self.crab.build_request(request, None::<&()>)?;
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
 
@@ -93,7 +90,7 @@ impl<'octo> AppsRequestHandler<'octo> {
         repo: impl AsRef<str>,
     ) -> crate::Result<crate::models::Installation> {
         let route = format!(
-            "repos/{owner}/{repo}/installation",
+            "/repos/{owner}/{repo}/installation",
             owner = owner.as_ref(),
             repo = repo.as_ref(),
         );

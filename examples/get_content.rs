@@ -12,10 +12,7 @@ async fn main() -> octocrab::Result<()> {
         .send()
         .await?;
 
-    println!(
-        "{} files/dirs in the repo root",
-        content.items.into_iter().count()
-    );
+    println!("{} files/dirs in the repo root", content.items.len());
 
     Ok(())
 }

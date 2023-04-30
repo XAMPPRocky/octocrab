@@ -15,6 +15,8 @@ pub struct UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     #[serde(skip_serializing_if = "Option::is_none")]
     state: Option<models::IssueState>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    state_reason: Option<models::issues::IssueStateReason>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     milestone: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     labels: Option<&'e [String]>,
@@ -29,6 +31,7 @@ impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
             body: None,
             assignees: None,
             state: None,
+            state_reason: None,
             milestone: None,
             labels: None,
         }
@@ -58,6 +61,15 @@ impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
         self
     }
 
+    /// The state reason of the issue.
+    pub fn state_reason(
+        mut self,
+        state_reason: impl Into<models::issues::IssueStateReason>,
+    ) -> Self {
+        self.state_reason = Some(state_reason.into());
+        self
+    }
+
     /// The milestone of the issue.
     pub fn milestone(mut self, milestone: impl Into<u64>) -> Self {
         self.milestone = Some(milestone.into());
@@ -73,7 +85,7 @@ impl<'octo, 'a, 'b, 'c, 'd, 'e> UpdateIssueBuilder<'octo, 'a, 'b, 'c, 'd, 'e> {
     /// Send the actual request.
     pub async fn send(self) -> Result<models::issues::Issue> {
         let route = format!(
-            "repos/{owner}/{repo}/issues/{issue}",
+            "/repos/{owner}/{repo}/issues/{issue}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             issue = self.number,
@@ -99,6 +111,7 @@ mod tests {
             .title("Updated title")
             .body("New body")
             .state(crate::models::IssueState::Closed)
+            .state_reason(crate::models::issues::IssueStateReason::Completed)
             .milestone(1234u64)
             .assignees(assignees)
             .labels(labels);
@@ -109,6 +122,7 @@ mod tests {
                 "title": "Updated title",
                 "body": "New body",
                 "state": "closed",
+                "state_reason": "completed",
                 "milestone": 1234,
                 "assignees": ["ferris"],
                 "labels": ["help wanted", "good first issue"],

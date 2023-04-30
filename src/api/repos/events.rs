@@ -5,7 +5,8 @@ use crate::{
     repos::RepoHandler,
     FromResponse, Page,
 };
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use http::request::Builder;
+use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct ListRepoEventsBuilder<'octo, 'handler> {
     handler: &'handler RepoHandler<'octo>,
@@ -57,24 +58,29 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let url = format!(
-            "{base_url}repos/{owner}/{repo}/events",
-            base_url = self.handler.crab.base_url,
+        let route = format!(
+            "/repos/{owner}/{repo}/events",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
+
+        let uri = self
+            .handler
+            .crab
+            .parameterized_uri(route, Some(&self.params))?;
+
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {
             EntityTag::insert_if_none_match_header(&mut headers, etag)?;
         }
-        let builder = self
-            .handler
-            .crab
-            .client
-            .request(Method::GET, &url)
-            .headers(headers)
-            .query(&self.params);
-        let response = self.handler.crab.execute(builder).await?;
+
+        let mut request = Builder::new().uri(uri).method(Method::GET);
+        for (key, value) in headers.iter() {
+            request = request.header(key, value);
+        }
+
+        let request = self.handler.crab.build_request(request, None::<&()>)?;
+        let response = self.handler.crab.execute(request).await?;
         let etag = EntityTag::extract_from_response(&response);
         if response.status() == StatusCode::NOT_MODIFIED {
             Ok(Etagged { etag, value: None })

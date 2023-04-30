@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod activity;
 pub mod apps;
+pub mod checks;
 pub mod commits;
 pub mod current;
 pub mod events;

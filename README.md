@@ -16,7 +16,7 @@ semantic API, and a lower level HTTP API for extending behaviour.
 Run this command in your terminal to add the latest version of `Octocrab`.
 
 ```bash
-$ cargo add octocrab
+cargo add octocrab
 ```
 
 ## Semantic API
@@ -125,14 +125,13 @@ the request.
 
 ```rust
 let octocrab = octocrab::instance();
-let response =  octocrab
-    ._get("https://api.github.com/organizations", None::<&()>)
+let response = octocrab
+    ._get("https://api.github.com/organizations")
     .await?;
 
-// You can also use `Octocrab::absolute_url` if you want to still to go to
-// the same base.
+// You can also use `Uri::builder().authority("<my custom base>").path_and_query("<my custom path>")` if you want to customize the base uri and path.
 let response =  octocrab
-    ._get(octocrab.absolute_url("/organizations")?, None::<&()>)
+    ._get(Uri::builder().path_and_query("/organizations").build().expect("valid uri"))
     .await?;
 ```
 

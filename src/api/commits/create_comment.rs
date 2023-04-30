@@ -29,7 +29,7 @@ impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<models::commits::Comment> {
         let route = format!(
-            "repos/{owner}/{repo}/commits/{commit_sha}/comments",
+            "/repos/{owner}/{repo}/commits/{commit_sha}/comments",
             owner = self.handler.owner,
             repo = self.handler.repo,
             commit_sha = self.sha,
@@ -63,8 +63,8 @@ impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.commits("owner", "repo");
         let list = handler

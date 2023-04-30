@@ -1,6 +1,8 @@
 //! The gist API
 mod list_commits;
+mod list_forks;
 
+use http::StatusCode;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -62,7 +64,7 @@ impl<'octo> GistsHandler<'octo> {
     /// # }
     /// ```
     pub fn update(&self, id: impl AsRef<str>) -> UpdateGistBuilder<'octo> {
-        UpdateGistBuilder::new(self.crab, format!("gists/{id}", id = id.as_ref()))
+        UpdateGistBuilder::new(self.crab, format!("/gists/{id}", id = id.as_ref()))
     }
 
     /// Get a single gist.
@@ -75,7 +77,23 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub async fn get(&self, id: impl AsRef<str>) -> Result<Gist> {
         let id = id.as_ref();
-        self.crab.get(format!("/gists/{}", id), None::<&()>).await
+        self.crab.get(format!("/gists/{id}"), None::<&()>).await
+    }
+
+    /// Delete a single gist.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance().gists().delete("00000000000000000000000000000000").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        self.crab
+            ._delete(format!("/gists/{gist_id}"), None::<&()>)
+            .await
+            .map(|_| ())
     }
 
     /// Get a single gist revision.
@@ -96,7 +114,7 @@ impl<'octo> GistsHandler<'octo> {
         let id = id.as_ref();
         let sha1 = sha1.as_ref();
         self.crab
-            .get(format!("/gists/{}/{}", id, sha1), None::<&()>)
+            .get(format!("/gists/{id}/{sha1}"), None::<&()>)
             .await
     }
 
@@ -121,6 +139,106 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
         list_commits::ListCommitsBuilder::new(self, gist_id.into())
+    }
+
+    /// Check if the given is gist is already starred by the authenticated user.
+    /// See [GitHub API Documentation][docs] more information about response
+    /// data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let is_starred: bool = octocrab::instance()
+    ///     .gists()
+    ///     .is_starred("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#check-if-a-gist-is-starred
+    pub async fn is_starred(&self, gist_id: impl AsRef<str>) -> Result<bool> {
+        let gist_id = gist_id.as_ref();
+        let response = self.crab._get(format!("/gists/{gist_id}/star")).await?;
+        // Gist API returns 204 (NO CONTENT) if a gist is starred
+        Ok(response.status() == StatusCode::NO_CONTENT)
+    }
+
+    /// Star the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .star("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#star-a-gist
+    pub async fn star(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // PUT here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._put(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
+
+    /// Unstar the given gist. See [GitHub API Documentation][docs] more
+    /// information about response data.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .unstar("00000000000000000000000000000000")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#unstar-a-gist
+    pub async fn unstar(&self, gist_id: impl AsRef<str>) -> Result<()> {
+        let gist_id = gist_id.as_ref();
+        // DELETE here returns an empty body, ignore it since it doesn't make
+        // sense to deserialize it as JSON.
+        self.crab
+            ._delete(format!("/gists/{gist_id}/star"), None::<&()>)
+            .await
+            .map(|_| ())
+    }
+
+    /// Retrieve all the gists that forked the given `gist_id`. See
+    /// [GitHub API Docs][docs] for information about request parameters, and
+    /// response schema.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .list_forks("00000000000000000000000000000000")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gist-forks
+    pub fn list_forks(&self, gist_id: impl Into<String>) -> list_forks::ListGistForksBuilder {
+        list_forks::ListGistForksBuilder::new(self, gist_id.into())
+    }
+
+    /// Create a fork of the given `gist_id` associated with the authenticated
+    /// user's account. See [GitHub API docs][docs] for more information about
+    /// request parameters and response schema.
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#fork-a-gist
+    pub async fn fork(&self, gist_id: impl AsRef<str>) -> Result<Gist> {
+        let route = format!("/gists/{gist_id}/forks", gist_id = gist_id.as_ref());
+        self.crab.post(route, None::<&()>).await
     }
 }
 
@@ -162,7 +280,7 @@ impl<'octo> CreateGistBuilder<'octo> {
 
     /// Send the `CreateGist` request to Github for execution.
     pub async fn send(self) -> Result<Gist> {
-        self.crab.post("gists", Some(&self.data)).await
+        self.crab.post("/gists", Some(&self.data)).await
     }
 }
 

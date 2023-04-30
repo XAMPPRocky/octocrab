@@ -35,13 +35,13 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = path,
         );
-        self.handler.crab.get(url, Some(&self)).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
 
@@ -58,9 +58,9 @@ pub struct UpdateFileBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    commiter: Option<models::repos::GitUser>,
+    commiter: Option<models::repos::CommitAuthor>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    author: Option<models::repos::GitUser>,
+    author: Option<models::repos::CommitAuthor>,
 }
 
 impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
@@ -90,26 +90,26 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     }
 
     /// The person that commited the file.
-    pub fn commiter(mut self, commiter: impl Into<models::repos::GitUser>) -> Self {
+    pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
     }
 
     /// The author of the file.
-    pub fn author(mut self, author: impl Into<models::repos::GitUser>) -> Self {
+    pub fn author(mut self, author: impl Into<models::repos::CommitAuthor>) -> Self {
         self.author = Some(author.into());
         self
     }
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.put(url, Some(&self)).await
+        self.handler.crab.put(route, Some(&self)).await
     }
 }
 
@@ -124,9 +124,9 @@ pub struct DeleteFileBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    commiter: Option<models::repos::GitUser>,
+    commiter: Option<models::repos::CommitAuthor>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    author: Option<models::repos::GitUser>,
+    author: Option<models::repos::CommitAuthor>,
 }
 
 impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
@@ -154,35 +154,35 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
     }
 
     /// The person that commited the file.
-    pub fn commiter(mut self, commiter: impl Into<models::repos::GitUser>) -> Self {
+    pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
     }
 
     /// The author of the file.
-    pub fn author(mut self, author: impl Into<models::repos::GitUser>) -> Self {
+    pub fn author(mut self, author: impl Into<models::repos::CommitAuthor>) -> Self {
         self.author = Some(author.into());
         self
     }
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileDeletion> {
-        let url = format!(
-            "repos/{owner}/{repo}/contents/{path}",
+        let route = format!(
+            "/repos/{owner}/{repo}/contents/{path}",
             owner = self.handler.owner,
             repo = self.handler.repo,
             path = self.path,
         );
-        self.handler.crab.delete(url, Some(&self)).await
+        self.handler.crab.delete(route, Some(&self)).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::models::repos::GitUser;
+    use crate::models::repos::CommitAuthor;
 
-    #[test]
-    fn serialize() {
+    #[tokio::test]
+    async fn serialize() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo
@@ -193,20 +193,22 @@ mod tests {
                 "testsha",
             )
             .branch("not-master")
-            .commiter(GitUser {
+            .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
                 email: "octocat@github.com".to_string(),
             })
-            .author(GitUser {
+            .author(CommitAuthor {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
             });
+
+        use base64::{engine::general_purpose, Engine as _};
 
         assert_eq!(
             serde_json::to_value(builder).unwrap(),
             serde_json::json!({
                 "message": "Update test.txt",
-                "content": base64::encode("This is a test."),
+                "content": general_purpose::STANDARD.encode("This is a test."),
                 "sha": "testsha",
                 "branch": "not-master",
                 "commiter": {
@@ -221,18 +223,18 @@ mod tests {
         )
     }
 
-    #[test]
-    fn serialize_delete() {
+    #[tokio::test]
+    async fn serialize_delete() {
         let octocrab = crate::instance();
         let repo = octocrab.repos("owner", "repo");
         let builder = repo
             .delete_file("tests/test.txt", "Update test.txt", "testsha")
             .branch("not-master")
-            .commiter(GitUser {
+            .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
                 email: "octocat@github.com".to_string(),
             })
-            .author(GitUser {
+            .author(CommitAuthor {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
             });

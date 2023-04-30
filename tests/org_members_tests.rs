@@ -2,7 +2,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::User, Octocrab, Page};
+use octocrab::{models::Author, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
@@ -19,27 +19,27 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/orgs/{}/members", org)))
+        .and(path(format!("/orgs/{org}/members")))
         .respond_with(template)
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /orgs/{}/members was not received", org),
+        &format!("GET on /orgs/{org}/members was not received"),
     )
     .await;
     mock_server
 }
 
 fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_url(uri).unwrap().build().unwrap()
+    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 const ORG: &str = "org";
 
 #[tokio::test]
 async fn should_return_page_with_users() {
-    let org_members: User =
+    let org_members: Author =
         serde_json::from_str(include_str!("resources/org_members.json")).unwrap();
     let login: String = org_members.login.clone();
     let page_response = FakePage {
@@ -55,10 +55,9 @@ async fn should_return_page_with_users() {
         "expected successful result, got error: {:#?}",
         result
     );
-    match result.unwrap() {
-        Page { items, .. } => {
-            assert_eq!(items.len(), 1);
-            assert_eq!(items[0].login, login);
-        }
+    let Page { items, .. } = result.unwrap();
+    {
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].login, login);
     }
 }

@@ -21,4 +21,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - run: cargo fmt --all -- --check
     - run: cargo clippy

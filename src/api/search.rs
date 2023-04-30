@@ -70,7 +70,7 @@ impl<'octo> SearchHandler<'octo> {
     pub fn users<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
-    ) -> QueryHandler<'octo, 'query, models::User> {
+    ) -> QueryHandler<'octo, 'query, models::Author> {
         QueryHandler::new(self.crab, "users", query.as_ref())
     }
 
@@ -194,7 +194,7 @@ impl<'octo, 'query, T: serde::de::DeserializeOwned> QueryHandler<'octo, 'query, 
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<T>> {
         self.crab
-            .get(&format!("search/{}", self.route), Some(&self))
+            .get(&format!("/search/{}", self.route), Some(&self))
             .await
     }
 }

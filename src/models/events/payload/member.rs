@@ -1,4 +1,4 @@
-use crate::models::User;
+use crate::models::Author;
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::MemberEvent`] type.
@@ -8,7 +8,7 @@ pub struct MemberEventPayload {
     /// The action this event represents.
     pub action: MemberEventAction,
     /// The user this event corresponds to.
-    pub member: User,
+    pub member: Author,
     /// Only available on webhooks.
     ///
     /// Changes to the collaborator permissions.
@@ -56,7 +56,7 @@ mod test {
             (r#""edited""#, MemberEventAction::Edited),
         ];
         for (action_str, action) in actions {
-            let deserialized = serde_json::from_str(&action_str).unwrap();
+            let deserialized = serde_json::from_str(action_str).unwrap();
             assert_eq!(action, deserialized);
         }
     }

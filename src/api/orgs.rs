@@ -1,10 +1,15 @@
 //! The Organization API.
 
+mod events;
 mod list_members;
 mod list_repos;
 
+use crate::error::HttpSnafu;
 use crate::Octocrab;
+use http::Uri;
+use snafu::ResultExt;
 
+pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
 
@@ -47,15 +52,15 @@ impl<'octo> OrgHandler<'octo> {
         username: impl AsRef<str>,
         role: Option<crate::params::orgs::Role>,
     ) -> crate::Result<crate::models::orgs::MembershipInvitation> {
-        let url = format!(
-            "orgs/{org}/memberships/{username}",
+        let route = format!(
+            "/orgs/{org}/memberships/{username}",
             org = self.owner,
             username = username.as_ref(),
         );
 
         let body = role.map(|role| serde_json::json!({ "role": role }));
 
-        self.crab.post(url, body.as_ref()).await
+        self.crab.post(route, body.as_ref()).await
     }
 
     /// Check if a user is, publicly or privately, a member of the organization.
@@ -68,16 +73,18 @@ impl<'octo> OrgHandler<'octo> {
     /// # }
     /// ```
     pub async fn check_membership(&self, username: impl AsRef<str>) -> crate::Result<bool> {
-        let url = format!(
-            "orgs/{org}/members/{username}",
+        let route = format!(
+            "/orgs/{org}/members/{username}",
             org = self.owner,
             username = username.as_ref(),
         );
 
-        let response = self
-            .crab
-            ._get(self.crab.absolute_url(url)?, None::<&()>)
-            .await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._get(uri).await?;
         let status = response.status();
 
         Ok(status == 204 || status == 301)
@@ -98,7 +105,7 @@ impl<'octo> OrgHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> crate::Result<crate::models::orgs::Organization> {
-        let route = format!("orgs/{org}", org = self.owner);
+        let route = format!("/orgs/{org}", org = self.owner);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -127,6 +134,37 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub fn list_repos(&self) -> list_repos::ListReposBuilder {
         list_repos::ListReposBuilder::new(self)
+    }
+
+    /// List events on this organization.
+    ///
+    /// Takes an optional etag which allows for efficient polling. Here is a quick example to poll a
+    /// organization's events.
+    /// ```no_run
+    /// # use std::convert::TryFrom;
+    /// # use octocrab::{models::events::Event, etag::{Etagged,EntityTag}, Page};
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let mut etag = None;
+    /// loop {
+    ///     let response: Etagged<Page<Event>> = octocrab::instance()
+    ///         .orgs("owner")
+    ///         .events()
+    ///         .etag(etag)
+    ///         .send()
+    ///         .await?;
+    ///     if let Some(page) = response.value {
+    ///         // do something with the page ...
+    ///     } else {
+    ///         println!("No new data received, trying again soon");
+    ///     }
+    ///     etag = response.etag;
+    ///     // add a delay before the next iteration
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn events(&self) -> events::ListOrgEventsBuilder<'_, '_> {
+        events::ListOrgEventsBuilder::new(self)
     }
 
     /// Creates a new webhook for the specified organization.
@@ -161,11 +199,8 @@ impl<'octo> OrgHandler<'octo> {
         &self,
         hook: crate::models::hooks::Hook,
     ) -> crate::Result<crate::models::hooks::Hook> {
-        let route = format!("orgs/{org}/hooks", org = self.owner);
-        let res = self
-            .crab
-            .post(self.crab.absolute_url(route)?, Some(&hook))
-            .await?;
+        let route = format!("/orgs/{org}/hooks", org = self.owner);
+        let res = self.crab.post(route, Some(&hook)).await?;
 
         Ok(res)
     }

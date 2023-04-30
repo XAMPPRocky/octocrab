@@ -1,4 +1,4 @@
-use crate::models::{issues::Issue, Label, User};
+use crate::models::{issues::Issue, Author, Label};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::IssuesEvent`] type.
@@ -15,7 +15,7 @@ pub struct IssuesEventPayload {
     ///
     /// Set when they type is [`IssuesEventAction::Assigned`] or
     /// [`IssuesEventAction::Unassigned`].
-    pub assignee: Option<User>,
+    pub assignee: Option<Author>,
     /// The optional label added or removed from the issue.
     ///
     /// Set when the type is [`IssuesEventAction::Labeled`] or
@@ -79,7 +79,7 @@ mod test {
             (r#""unlabeled""#, IssuesEventAction::Unlabeled),
         ];
         for (action_str, action) in actions {
-            let deserialized = serde_json::from_str(&action_str).unwrap();
+            let deserialized = serde_json::from_str(action_str).unwrap();
             assert_eq!(action, deserialized);
         }
     }

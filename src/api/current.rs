@@ -1,7 +1,7 @@
 //! Get data about the currently authenticated user.
 
 use crate::{
-    models::{self, Repository},
+    models::{self, gists::Gist, Repository},
     Octocrab, Page, Result,
 };
 use chrono::{DateTime, Utc};
@@ -21,8 +21,8 @@ impl<'octo> CurrentAuthHandler<'octo> {
     }
 
     /// Fetches information about the current user.
-    pub async fn user(&self) -> Result<models::User> {
-        self.crab.get("user", None::<&()>).await
+    pub async fn user(&self) -> Result<models::Author> {
+        self.crab.get("/user", None::<&()>).await
     }
 
     /// Fetches information about the currently authenticated app.
@@ -41,7 +41,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     pub async fn app(&self) -> Result<models::App> {
-        self.crab.get("app", None::<&()>).await
+        self.crab.get("/app", None::<&()>).await
     }
 
     /// List repositories starred by current authenticated user.
@@ -77,7 +77,51 @@ impl<'octo> CurrentAuthHandler<'octo> {
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user)
     pub fn list_repos_for_authenticated_user(&self) -> ListReposForAuthenticatedUserBuilder<'octo> {
-        ListReposForAuthenticatedUserBuilder::new(&self.crab)
+        ListReposForAuthenticatedUserBuilder::new(self.crab)
+    }
+
+    /// List gists for the current authenticated user.
+    ///
+    /// # Examples
+    ///
+    /// 1. The following snippet retrieves the most recent gist:
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .current()
+    ///     .list_gists_for_authenticated_user()
+    ///     .per_page(1)
+    ///     .page(1)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// 2. This retrieves the first 100 gists, which is maximum number that
+    ///    can be fetched in a single page:
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .current()
+    ///     .list_gists_for_authenticated_user()
+    ///     .per_page(100)
+    ///     .page(1)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=latest#list-gists-for-the-authenticated-user)
+    pub fn list_gists_for_authenticated_user(&self) -> ListGistsForAuthenticatedUserBuilder<'octo> {
+        // self.crab.get("/gists", None::<&()>).await
+        ListGistsForAuthenticatedUserBuilder::new(self.crab)
+    }
+
+    /// List gists that were starred by the authenticated user.
+    pub fn list_gists_starred_by_authenticated_user(&self) -> ListStarredGistsBuilder<'octo> {
+        ListStarredGistsBuilder::new(self.crab)
     }
 }
 
@@ -149,7 +193,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Repository>> {
-        self.crab.get("user/starred", Some(&self)).await
+        self.crab.get("/user/starred", Some(&self)).await
     }
 }
 
@@ -286,6 +330,122 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Repository>> {
-        self.crab.get("user/repos", (&self).into()).await
+        self.crab.get("/user/repos", (&self).into()).await
+    }
+}
+
+/// A builder struct for initializing query parameters for use with the
+/// `/gists` endpoint.
+///
+/// Created by: [`CurrentAuthHandler::list_gists_for_authenticated_user`].
+///
+/// [`CurrentAuthHandler::list_repos_starred_by_authenticated_user`]: ./struct.CurrentAuthHandler.html#method.list_gists_for_authenticated_user
+#[derive(serde::Serialize)]
+pub struct ListGistsForAuthenticatedUserBuilder<'octo> {
+    /// Client under use for building the request.
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    /// Only show gists that were updated after the given ISO 8601 UTC timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+
+    /// The number of results per page (max 100).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    /// Page number of the results to fetch, starting at 1.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListGistsForAuthenticatedUserBuilder<'octo> {
+    /// Create a new builder using the given client and default options as
+    /// described in GitHub's API docs.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=latest#list-gists-for-the-authenticated-user)
+    pub fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Only show gists that were updated after the given ISO 8601 UTC timestamp.
+    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+        self.since = Some(last_updated);
+        self
+    }
+
+    /// The number of results per page (max 100).
+    pub fn per_page(mut self, count: u8) -> Self {
+        self.per_page = Some(count);
+        self
+    }
+
+    /// Page number of the results to fetch, starting at 1.
+    pub fn page(mut self, page_num: u32) -> Self {
+        self.page = Some(page_num);
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<Gist>> {
+        self.crab.get("/gists", Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListStarredGistsBuilder<'octo> {
+    /// Client under use for building the request.
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+
+    /// Number of results to return per page. Maximum supported value is `100`.
+    /// Larger values are clamped to `100`. Defaults to `30`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    /// Page number of the results to fetch. Defaults to `1`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListStarredGistsBuilder<'octo> {
+    pub fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
+    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+        self.since = Some(last_updated);
+        self
+    }
+
+    /// The page number from the result set to fetch.
+    pub fn page(mut self, page_num: u32) -> Self {
+        self.page = Some(page_num);
+        self
+    }
+
+    pub fn per_page(mut self, count: u8) -> Self {
+        self.per_page = Some(count);
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<Gist>> {
+        self.crab.get("/gists/starred", Some(&self)).await
     }
 }

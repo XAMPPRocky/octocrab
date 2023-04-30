@@ -5,7 +5,7 @@ async fn main() -> octocrab::Result<()> {
         .license()
         .await?;
 
-    println!("{:#?}", license);
+    println!("{license:#?}");
 
     Ok(())
 }

@@ -78,8 +78,8 @@
 //!
 //! ```no_run
 //! # async fn run() -> octocrab::Result<()> {
-//! let user: octocrab::models::User = octocrab::instance()
-//!     .get("user", None::<&()>)
+//! let user: octocrab::models::Author = octocrab::instance()
+//!     .get("/user", None::<&()>)
 //!     .await?;
 //! # Ok(())
 //! # }
@@ -93,16 +93,16 @@
 //! the request.
 //!
 //! ```no_run
+//! # use http::Uri;
 //! # async fn run() -> octocrab::Result<()> {
 //! let octocrab = octocrab::instance();
-//! let response =  octocrab
-//!     ._get("https://api.github.com/organizations", None::<&()>)
+//! let response = octocrab
+//!     ._get("https://api.github.com/organizations")
 //!     .await?;
 //!
-//! // You can also use `Octocrab::absolute_url` if you want to still to go to
-//! // the same base.
+//! // You can also use `Uri::builder().authority("<my custom base>").path_and_query("<my custom path>")` if you want to customize the base uri and path.
 //! let response =  octocrab
-//!     ._get(octocrab.absolute_url("organizations")?, None::<&()>)
+//!     ._get(Uri::builder().path_and_query("/organizations").build().expect("valid uri"))
 //!     .await?;
 //! # Ok(())
 //! # }
@@ -137,15 +137,16 @@
 //! ```
 //! // Initialises the static instance with your configuration and returns an
 //! // instance of the client.
-//! octocrab::initialise(octocrab::Octocrab::builder());
+//! # use octocrab::Octocrab;
+//! tokio_test::block_on(async {
+//! octocrab::initialise(Octocrab::default());
 //! // Gets a instance of `Octocrab` from the static API. If you call this
 //! // without first calling `octocrab::initialise` a default client will be
 //! // initialised and returned instead.
 //! octocrab::instance();
+//! # })
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
-
-const MAX_RETRIES: u32 = 3;
 
 mod api;
 mod error;
@@ -156,37 +157,79 @@ pub mod auth;
 pub mod etag;
 pub mod models;
 pub mod params;
+pub mod service;
+use crate::service::body::BodyStreamExt;
 
+use http::{HeaderMap, HeaderValue, Method, Uri};
+use std::convert::{Infallible, TryInto};
 use std::fmt;
+use std::io::Write;
+use std::marker::PhantomData;
+use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
+
+use http::{header::HeaderName, StatusCode};
+#[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
+use hyper::client::HttpConnector;
+use hyper::{body, Body, Request, Response};
 
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderName, StatusCode, Url};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Serialize;
 use snafu::*;
+use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
+
+use bytes::Bytes;
+use http::header::USER_AGENT;
+use http::request::Builder;
+#[cfg(feature = "opentls")]
+use hyper_tls::HttpsConnector;
+
+#[cfg(feature = "rustls")]
+use hyper_rustls::HttpsConnectorBuilder;
+
+#[cfg(feature = "retry")]
+use tower::retry::{Retry, RetryLayer};
+
+#[cfg(feature = "timeout")]
+use {
+    hyper_timeout::TimeoutConnector,
+    tokio::io::{AsyncRead, AsyncWrite},
+};
+
+use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
+
+#[cfg(feature = "tracing")]
+use {tower_http::trace::TraceLayer, tracing::Span};
+
+use crate::error::{
+    HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
+    UriParseError, UriParseSnafu, UriSnafu,
+};
+
+use crate::service::middleware::base_uri::BaseUriLayer;
+use crate::service::middleware::extra_headers::ExtraHeadersLayer;
+
+use crate::service::middleware::retry::RetryConfig;
 
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
-        actions, activity, apps, commits, current, events, gists, gitignore, issues, licenses,
-        markdown, orgs, pulls, ratelimit, repos, search, teams, workflows,
+        actions, activity, apps, checks, commits, current, events, gists, gitignore, issues,
+        licenses, markdown, orgs, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
     page::Page,
 };
 
-use tracing::{self, field};
-
-const GITHUB_SERVICE: &str = "github.com";
-
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-const GITHUB_BASE_URL: &str = "https://api.github.com";
+const GITHUB_BASE_URI: &str = "https://api.github.com";
 
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
@@ -214,20 +257,27 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
         _ => "",
     };
 
-    format!("application/vnd.github.v3.{}{}", media_type, json_suffix)
+    format!("application/vnd.github.v3.{media_type}{json_suffix}")
 }
 
 /// Maps a GitHub error response into and `Err()` variant if the status is
 /// not a success.
-pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Response> {
+pub async fn map_github_error(
+    response: http::Response<hyper::Body>,
+) -> Result<http::Response<hyper::Body>> {
     if response.status().is_success() {
         Ok(response)
     } else {
-        Err(error::Error::GitHub {
-            source: response
-                .json::<error::GitHubError>()
+        let b: error::GitHubError = serde_json::from_slice(
+            body::to_bytes(response.into_body())
                 .await
-                .context(error::HttpSnafu)?,
+                .context(error::HyperSnafu)?
+                .as_ref(),
+        )
+        .context(error::SerdeSnafu)?;
+
+        Err(error::Error::GitHub {
+            source: b,
             backtrace: Backtrace::generate(),
         })
     }
@@ -236,164 +286,430 @@ pub async fn map_github_error(response: reqwest::Response) -> Result<reqwest::Re
 /// Initialises the static instance using the configuration set by
 /// `builder`.
 /// ```
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let octocrab = octocrab::initialise(octocrab::Octocrab::builder())?;
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let octocrab = octocrab::initialise(octocrab::Octocrab::default());
 /// # Ok(())
 /// # }
 /// ```
-pub fn initialise(builder: OctocrabBuilder) -> Result<Arc<Octocrab>> {
-    Ok(STATIC_INSTANCE.swap(Arc::from(builder.build()?)))
+pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
+    STATIC_INSTANCE.swap(Arc::from(crab))
 }
 
 /// Returns a new instance of [`Octocrab`]. If it hasn't been previously
 /// initialised it returns a default instance with no authentication set.
 /// ```
+/// #[tokio::main]
+/// async fn main() -> () {
 /// let octocrab = octocrab::instance();
+/// }
 /// ```
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
 
-/// RetryPredicate callback type. Receives a request's response status code and returns whether Octocrab should attempt a retry.
-type RetryPredicate = fn(StatusCode) -> bool;
-
-fn default_retry_predicate(code: StatusCode) -> bool {
-    return code == StatusCode::UNAUTHORIZED;
-}
-
 /// A builder struct for `Octocrab`, allowing you to configure the client, such
 /// as using GitHub previews, the github instance, authentication, etc.
 /// ```
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let octocrab = octocrab::OctocrabBuilder::new()
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let octocrab = octocrab::OctocrabBuilder::default()
 ///     .add_preview("machine-man")
-///     .base_url("https://github.example.com")?
+///     .base_uri("https://github.example.com")?
 ///     .build()?;
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Default)]
-pub struct OctocrabBuilder {
+
+//Typed builder, thanks to https://www.greyblake.com/blog/builder-with-typestate-in-rust/ for explaining
+
+/// A builder struct for `Octocrab`.
+/// OctocrabBuilder can be extended with a custom config, see [DefaultOctocrabBuilderConfig] for an example
+pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+    service: Svc,
     auth: Auth,
-    previews: Vec<&'static str>,
-    extra_headers: Vec<(HeaderName, String)>,
-    base_url: Option<Url>,
-    retry_predicate: Option<RetryPredicate>,
+    config: Config,
+    _layer_ready: PhantomData<LayerReady>,
 }
 
-impl OctocrabBuilder {
+//Indicates weather the builder supports config
+pub struct NoConfig {}
+
+//Indicates weather the builder supports service that is already inside builder
+pub struct NoSvc {}
+
+//Indicates weather builder supports with_layer(This is somewhat redundant given NoSvc exists, but we have to use this until specialization is stable)
+pub struct NotLayerReady {}
+pub struct LayerReady {}
+
+//Indicates weather the builder supports auth
+pub struct NoAuth {}
+
+impl OctocrabBuilder<NoSvc, NoConfig, NoAuth, NotLayerReady> {
+    pub fn new_empty() -> Self {
+        OctocrabBuilder {
+            service: NoSvc {},
+            auth: NoAuth {},
+            config: NoConfig {},
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     pub fn new() -> Self {
-        Self::default()
+        OctocrabBuilder::default()
+    }
+}
+
+impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
+    pub fn with_service<Svc>(self, service: Svc) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+        OctocrabBuilder {
+            service,
+            auth: self.auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Add a [`Layer`] to the current [`Service`] stack.
+    pub fn with_layer<L: Layer<Svc>>(
+        self,
+        layer: &L,
+    ) -> OctocrabBuilder<L::Service, Config, Auth, LayerReady> {
+        let Self {
+            service: stack,
+            auth,
+            config,
+            ..
+        } = self;
+        OctocrabBuilder {
+            service: layer.layer(stack),
+            auth,
+            config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl Default for OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    fn default() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+        OctocrabBuilder::new_empty().with_config(DefaultOctocrabBuilderConfig::default())
+    }
+}
+
+impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
+    fn with_config<Config>(self, config: Config) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
+        OctocrabBuilder {
+            service: self.service,
+            auth: self.auth,
+            config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
+where
+    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Build a [`Client`] instance with the current [`Service`] stack.
+    pub fn build(self) -> Result<Octocrab, Infallible> {
+        Ok(Octocrab::new(self.service, self.auth))
+    }
+}
+
+impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
+    pub fn with_auth<Auth>(self, auth: Auth) -> OctocrabBuilder<Svc, Config, Auth, LayerState> {
+        OctocrabBuilder {
+            service: self.service,
+            auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    pub fn add_retry_config(&mut self, retry_config: RetryConfig) -> &mut Self {
+        self.config.retry_config = retry_config;
+        self
     }
 
     /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
-        self.previews.push(preview);
+        self.config.previews.push(preview);
         self
     }
 
     /// Add an additional header to include with every request.
     pub fn add_header(mut self, key: HeaderName, value: String) -> Self {
-        self.extra_headers.push((key, value));
+        self.config.extra_headers.push((key, value));
         self
     }
 
     /// Add a personal token to use for authentication.
     pub fn personal_token(mut self, token: String) -> Self {
-        self.auth = Auth::PersonalToken(SecretString::new(token));
+        self.config.auth = Auth::PersonalToken(SecretString::new(token));
         self
     }
 
     /// Authenticate as a Github App.
     /// `key`: RSA private key in DER or PEM formats.
     pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
-        self.auth = Auth::App(AppAuth { app_id, key });
+        self.config.auth = Auth::App(AppAuth { app_id, key });
         self
     }
 
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.auth = Auth::Basic { username, password };
+        self.config.auth = Auth::Basic { username, password };
         self
     }
 
     /// Authenticate with an OAuth token.
     pub fn oauth(mut self, oauth: auth::OAuth) -> Self {
-        self.auth = Auth::OAuth(oauth);
+        self.config.auth = Auth::OAuth(oauth);
         self
     }
 
     /// Set the base url for `Octocrab`.
-    pub fn base_url(mut self, base_url: impl reqwest::IntoUrl) -> Result<Self> {
-        self.base_url = Some(base_url.into_url().context(crate::error::HttpSnafu)?);
+    pub fn base_uri(mut self, base_uri: impl TryInto<Uri>) -> Result<Self> {
+        self.config.base_uri = Some(
+            base_uri
+                .try_into()
+                .map_err(|_| UriParseError {})
+                .context(UriParseSnafu)?,
+        );
         Ok(self)
     }
 
-    /// Set the predicate callback used to determine if a request should be retried.
-    pub fn retry_predicate(mut self, predicate: RetryPredicate) -> Self {
-        self.retry_predicate = Some(predicate);
-        self
+    #[cfg(feature = "retry")]
+    pub fn set_connector_retry_service<S>(
+        &self,
+        connector: hyper::Client<S, String>,
+    ) -> Retry<RetryConfig, hyper::Client<S, String>> {
+        let retry_layer = RetryLayer::new(self.config.retry_config.clone());
+
+        retry_layer.layer(connector)
     }
 
-    /// Create the `Octocrab` client.
-    pub fn build(self) -> Result<Octocrab> {
-        let mut hmap = reqwest::header::HeaderMap::new();
+    #[cfg(feature = "timeout")]
+    pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
+    where
+        T: Service<Uri> + Send,
+        T::Response: AsyncRead + AsyncWrite + Send + Unpin,
+        T::Future: Send + 'static,
+        T::Error: Into<BoxError>,
+    {
+        let mut connector = TimeoutConnector::new(connector);
+        // Set the timeouts for the client
+        connector.set_connect_timeout(self.config.connect_timeout);
+        connector.set_read_timeout(self.config.read_timeout);
+        connector.set_write_timeout(self.config.write_timeout);
+        connector
+    }
 
-        for preview in &self.previews {
-            hmap.append(
-                reqwest::header::ACCEPT,
-                crate::format_preview(&preview).parse().unwrap(),
-            );
+    /// Build a [`Client`] instance with the current [`Service`] stack.
+    pub fn build(self) -> Result<Octocrab> {
+        let client: hyper::Client<_, String> = {
+            #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
+            let mut connector = HttpConnector::new();
+
+            #[cfg(all(feature = "rustls", not(feature = "opentls")))]
+            let connector = HttpsConnectorBuilder::new()
+                .with_native_roots() // enabled the `rustls-native-certs` feature in hyper-rustls
+                .https_or_http() //  Disable .https_only() during tests until: https://github.com/LukeMathWalker/wiremock-rs/issues/58 is resolved. Alternatively we can use conditional compilation to only enable this feature in tests, but it becomes rather ugly with integration tests.
+                .enable_http1()
+                .build();
+
+            #[cfg(all(feature = "opentls", not(feature = "rustls")))]
+            let connector = HttpsConnector::new();
+
+            #[cfg(feature = "timeout")]
+            let connector = self.set_connect_timeout_service(connector);
+
+            hyper::Client::builder().build(connector)
+        };
+
+        #[cfg(feature = "retry")]
+        let client = self.set_connector_retry_service(client);
+
+        #[cfg(feature = "tracing")]
+        let client = TraceLayer::new_for_http()
+            .make_span_with(|req: &Request<String>| {
+                tracing::debug_span!(
+                    "HTTP",
+                     http.method = %req.method(),
+                     http.url = %req.uri(),
+                     http.status_code = tracing::field::Empty,
+                     otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
+                     otel.kind = "client",
+                     otel.status_code = tracing::field::Empty,
+                )
+            })
+            .on_request(|_req: &Request<String>, _span: &Span| {
+                tracing::debug!("requesting");
+            })
+            .on_response(
+                |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
+                    let status = res.status();
+                    span.record("http.status_code", status.as_u16());
+                    if status.is_client_error() || status.is_server_error() {
+                        span.record("otel.status_code", "ERROR");
+                    }
+                },
+            )
+            // Explicitly disable `on_body_chunk`. The default does nothing.
+            .on_body_chunk(())
+            .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
+                tracing::debug!("stream closed");
+            })
+            .on_failure(
+                |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
+                    // Called when
+                    // - Calling the inner service errored
+                    // - Polling `Body` errored
+                    // - the response was classified as failure (5xx)
+                    // - End of stream was classified as failure
+                    span.record("otel.status_code", "ERROR");
+                    match ec {
+                        ServerErrorsFailureClass::StatusCode(status) => {
+                            span.record("http.status_code", status.as_u16());
+                            tracing::error!("failed with status {}", status)
+                        }
+                        ServerErrorsFailureClass::Error(err) => {
+                            tracing::error!("failed with error {}", err)
+                        }
+                    }
+                },
+            )
+            .layer(client);
+
+        let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
+
+        // Add the user agent header required by GitHub
+        hmap.push((USER_AGENT, HeaderValue::from_str("octocrab").unwrap()));
+
+        for preview in &self.config.previews {
+            hmap.push((
+                http::header::ACCEPT,
+                HeaderValue::from_str(crate::format_preview(preview).as_str()).unwrap(),
+            ));
         }
 
-        let auth_state = match self.auth {
+        let auth_state = match self.config.auth {
             Auth::None => AuthState::None,
             Auth::Basic { username, password } => AuthState::BasicAuth { username, password },
             Auth::PersonalToken(token) => {
-                hmap.append(
-                    reqwest::header::AUTHORIZATION,
-                    (String::from("Bearer ") + token.expose_secret())
-                        .parse()
-                        .unwrap(),
-                );
+                hmap.push((
+                    http::header::AUTHORIZATION,
+                    format!("Bearer {}", token.expose_secret()).parse().unwrap(),
+                ));
                 AuthState::None
             }
             Auth::App(app_auth) => AuthState::App(app_auth),
             Auth::OAuth(device) => {
-                hmap.append(
-                    reqwest::header::AUTHORIZATION,
-                    (device.token_type + " " + &device.access_token.expose_secret())
-                        .parse()
-                        .unwrap(),
-                );
+                hmap.push((
+                    http::header::AUTHORIZATION,
+                    format!(
+                        "{} {}",
+                        device.token_type,
+                        &device.access_token.expose_secret()
+                    )
+                    .parse()
+                    .unwrap(),
+                ));
                 AuthState::None
             }
         };
 
-        for (key, value) in self.extra_headers.into_iter() {
-            hmap.append(key, value.parse().unwrap());
+        for (key, value) in self.config.extra_headers.iter() {
+            hmap.push((
+                key.clone(),
+                HeaderValue::from_str(value.as_str())
+                    .map_err(http::Error::from)
+                    .context(HttpSnafu)?,
+            ));
         }
 
-        let client = reqwest::Client::builder()
-            .user_agent("octocrab")
-            .default_headers(hmap)
-            .build()
-            .context(crate::error::HttpSnafu)?;
+        let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
 
-        Ok(Octocrab {
-            client,
-            base_url: self
-                .base_url
-                .unwrap_or_else(|| Url::parse(GITHUB_BASE_URL).unwrap()),
-            auth_state,
-            retry_predicate: self.retry_predicate.unwrap_or(default_retry_predicate),
+        let client = MapResponseBodyLayer::new(|body| {
+            Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
         })
+        .layer(client);
+
+        let uri = self
+            .config
+            .base_uri
+            .clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
+
+        let client = BaseUriLayer::new(uri).layer(client);
+
+        Ok(Octocrab::new(client, auth_state))
     }
 }
 
+pub struct DefaultOctocrabBuilderConfig {
+    auth: Auth,
+    previews: Vec<&'static str>,
+    extra_headers: Vec<(HeaderName, String)>,
+    #[cfg(feature = "timeout")]
+    connect_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
+    read_timeout: Option<Duration>,
+    #[cfg(feature = "timeout")]
+    write_timeout: Option<Duration>,
+    base_uri: Option<Uri>,
+    #[cfg(feature = "retry")]
+    retry_config: RetryConfig,
+}
+
+impl Default for DefaultOctocrabBuilderConfig {
+    fn default() -> Self {
+        Self {
+            auth: Auth::None,
+            previews: Vec::new(),
+            extra_headers: Vec::new(),
+            #[cfg(feature = "timeout")]
+            connect_timeout: None,
+            #[cfg(feature = "timeout")]
+            read_timeout: None,
+            #[cfg(feature = "timeout")]
+            write_timeout: None,
+            base_uri: None,
+            #[cfg(feature = "retry")]
+            retry_config: RetryConfig::Simple(3),
+        }
+    }
+}
+
+impl DefaultOctocrabBuilderConfig {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+pub type DynBody = dyn http_body::Body<Data = Bytes, Error = BoxError> + Send + Unpin;
+
 /// A cached API access token (which may be None)
-struct CachedToken(RwLock<Option<SecretString>>);
+pub struct CachedToken(RwLock<Option<SecretString>>);
 
 impl CachedToken {
     fn clear(&self) {
@@ -437,7 +753,7 @@ impl Default for CachedToken {
 
 /// State used for authenticate to Github
 #[derive(Debug, Clone)]
-enum AuthState {
+pub enum AuthState {
     /// No state, although Auth::PersonalToken may have caused
     /// an Authorization HTTP header to be set to provide authentication.
     None,
@@ -461,38 +777,64 @@ enum AuthState {
     },
 }
 
+pub type OctocrabService = Buffer<
+    BoxService<http::Request<String>, http::Response<hyper::Body>, BoxError>,
+    http::Request<String>,
+>;
+
 /// The GitHub API client.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Octocrab {
-    client: reqwest::Client,
-    pub base_url: Url,
+    client: OctocrabService,
     auth_state: AuthState,
-    retry_predicate: RetryPredicate,
+}
+
+impl fmt::Debug for Octocrab {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Octocrab")
+            .field("auth_state", &self.auth_state)
+            .finish()
+    }
 }
 
 /// Defaults for Octocrab:
-/// - `base_url`: `https://api.github.com`
+/// - `base_uri`: `https://api.github.com`
 /// - `auth`: `None`
-/// - `client`: reqwest client with the `octocrab` user agent.
+/// - `client`: http client with the `octocrab` user agent.
 impl Default for Octocrab {
     fn default() -> Self {
-        Self {
-            base_url: Url::parse(GITHUB_BASE_URL).unwrap(),
-            client: reqwest::ClientBuilder::new()
-                .user_agent("octocrab")
-                .build()
-                .unwrap(),
-            auth_state: AuthState::None,
-            retry_predicate: default_retry_predicate,
-        }
+        OctocrabBuilder::default().build().unwrap()
     }
 }
 
 /// # Constructors
 impl Octocrab {
     /// Returns a new `OctocrabBuilder`.
-    pub fn builder() -> OctocrabBuilder {
-        OctocrabBuilder::default()
+    pub fn builder() -> OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
+    {
+        OctocrabBuilder::new_empty().with_config(DefaultOctocrabBuilderConfig::default())
+    }
+
+    /// Creates a new `Octocrab`.
+    fn new<S, B>(service: S, auth_state: AuthState) -> Self
+    where
+        S: Service<Request<String>, Response = Response<B>> + Send + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<BoxError>,
+        B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+        B::Error: Into<BoxError>,
+    {
+        // Transform response body to `hyper::Body` and use type erased error to avoid type parameters.
+        let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
+            .layer(service)
+            .map_err(|e| e.into());
+
+        let service = Buffer::new(BoxService::new(service), 1024);
+
+        Self {
+            client: service,
+            auth_state,
+        }
     }
 
     /// Returns a new `Octocrab` based on the current builder but
@@ -510,13 +852,11 @@ impl Octocrab {
         };
         Octocrab {
             client: self.client.clone(),
-            base_url: self.base_url.clone(),
             auth_state: AuthState::Installation {
                 app: app_auth,
                 installation: id,
                 token: CachedToken::default(),
             },
-            retry_predicate: default_retry_predicate,
         }
     }
 
@@ -576,6 +916,7 @@ impl Octocrab {
         issues::IssueHandler::new(self, owner.into(), repo.into())
     }
 
+    /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
     pub fn commits(
         &self,
         owner: impl Into<String>,
@@ -650,6 +991,15 @@ impl Octocrab {
         gists::GistsHandler::new(self)
     }
 
+    /// Creates a [`checks::ChecksHandler`] that allows to access the Checks API.
+    pub fn checks(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> checks::ChecksHandler {
+        checks::ChecksHandler::new(self, owner.into(), repo.into())
+    }
+
     /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
     pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
         ratelimit::RateLimitHandler::new(self)
@@ -695,7 +1045,7 @@ impl Octocrab {
         variables: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
         self.post(
-            "graphql",
+            "/graphql",
             Some(&serde_json::json!({
                 "query": body,
                 "variables": variables,
@@ -715,7 +1065,7 @@ impl Octocrab {
 /// This isn't always ideal when working with GitHub's API and as such there are
 /// additional methods available prefixed with `_` (e.g.  `_get`, `_post`,
 /// etc.) that perform no pre or post processing and directly return the
-/// `reqwest::Response` struct.
+/// `http::Response` struct.
 impl Octocrab {
     /// Send a `POST` request to `route` with an optional body, returning the body
     /// of the response.
@@ -724,22 +1074,24 @@ impl Octocrab {
         route: impl AsRef<str>,
         body: Option<&P>,
     ) -> Result<R> {
-        let response = self._post(self.absolute_url(route)?, body).await?;
+        let response = self
+            ._post(self.parameterized_uri(route, None::<&()>)?, body)
+            .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `POST` request with no additional pre/post-processing.
     pub async fn _post<P: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<http::Uri>,
         body: Option<&P>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.post(url);
-
-        if let Some(body) = body {
-            request = request.json(body);
-        }
-
+    ) -> Result<http::Response<hyper::Body>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let request = Builder::new().method(Method::POST).uri(uri);
+        let request = self.build_request(request, body)?;
         self.execute(request).await
     }
 
@@ -755,12 +1107,39 @@ impl Octocrab {
     }
 
     /// Send a `GET` request with no additional post-processing.
-    pub async fn _get<P: Serialize + ?Sized>(
-        &self,
-        url: impl reqwest::IntoUrl,
-        parameters: Option<&P>,
-    ) -> Result<reqwest::Response> {
-        self._get_with_headers(url, parameters, None).await
+    pub async fn _get(&self, uri: impl TryInto<Uri>) -> Result<http::Response<hyper::Body>> {
+        self._get_with_headers(uri, None).await
+    }
+
+    /// Convenience method to accept any &str, and attempt to convert it to a Uri.
+    /// the method also attempts to serialize any parameters into a query string, and append it to the uri.
+    fn parameterized_uri<A, P>(&self, uri: A, parameters: Option<&P>) -> Result<Uri>
+    where
+        A: AsRef<str>,
+        P: Serialize + ?Sized,
+    {
+        let mut uri = uri.as_ref().to_string();
+        if let Some(parameters) = parameters {
+            if uri.contains('?') {
+                uri = format!("{uri}&");
+            } else {
+                uri = format!("{uri}?");
+            }
+            uri = format!(
+                "{}{}",
+                uri,
+                serde_urlencoded::to_string(parameters)
+                    .context(SerdeUrlEncodedSnafu)?
+                    .as_str()
+            );
+        }
+        let uri = Uri::from_str(uri.as_str()).context(UriSnafu);
+        uri
+    }
+
+    pub async fn body_to_string(&self, res: http::Response<Body>) -> Result<String> {
+        let body_bytes = body::to_bytes(res.into_body()).await.context(HyperSnafu)?;
+        String::from_utf8(body_bytes.to_vec()).context(InvalidUtf8Snafu)
     }
 
     /// Send a `GET` request to `route` with optional query parameters and headers, returning
@@ -769,7 +1148,7 @@ impl Octocrab {
         &self,
         route: A,
         parameters: Option<&P>,
-        headers: Option<reqwest::header::HeaderMap>,
+        headers: Option<http::header::HeaderMap>,
     ) -> Result<R>
     where
         A: AsRef<str>,
@@ -777,28 +1156,28 @@ impl Octocrab {
         R: FromResponse,
     {
         let response = self
-            ._get_with_headers(self.absolute_url(route)?, parameters, headers)
+            ._get_with_headers(self.parameterized_uri(route, parameters)?, headers)
             .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `GET` request including option to set headers, with no additional post-processing.
-    pub async fn _get_with_headers<P: Serialize + ?Sized>(
+    pub async fn _get_with_headers(
         &self,
-        url: impl reqwest::IntoUrl,
-        parameters: Option<&P>,
-        headers: Option<reqwest::header::HeaderMap>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.get(url);
-
-        if let Some(parameters) = parameters {
-            request = request.query(parameters);
-        }
-
+        uri: impl TryInto<Uri>,
+        headers: Option<http::header::HeaderMap>,
+    ) -> Result<http::Response<hyper::Body>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let mut request = Builder::new().method(Method::GET).uri(uri);
         if let Some(headers) = headers {
-            request = request.headers(headers)
+            for (key, value) in headers.iter() {
+                request = request.header(key, value);
+            }
         }
-
+        let request = self.build_request(request, None::<&()>)?;
         self.execute(request).await
     }
 
@@ -810,22 +1189,24 @@ impl Octocrab {
         B: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._patch(self.absolute_url(route)?, body).await?;
+        let response = self
+            ._patch(self.parameterized_uri(route, None::<&()>)?, body)
+            .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _patch<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
-        parameters: Option<&B>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.patch(url);
-
-        if let Some(parameters) = parameters {
-            request = request.json(parameters);
-        }
-
+        uri: impl TryInto<Uri>,
+        body: Option<&B>,
+    ) -> Result<http::Response<hyper::Body>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let request = Builder::new().method(Method::PATCH).uri(uri);
+        let request = self.build_request(request, body)?;
         self.execute(request).await
     }
 
@@ -837,71 +1218,76 @@ impl Octocrab {
         B: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._put(self.absolute_url(route)?, body).await?;
+        let response = self
+            ._put(self.parameterized_uri(route, None::<&()>)?, body)
+            .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `PATCH` request with no additional post-processing.
     pub async fn _put<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
+        uri: impl TryInto<Uri>,
         body: Option<&B>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.put(url);
-
-        if let Some(body) = body {
-            request = request.json(body);
-        }
-
+    ) -> Result<http::Response<hyper::Body>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let request = Builder::new().method(Method::PUT).uri(uri);
+        let request = self.build_request(request, body)?;
         self.execute(request).await
     }
 
-    /// Send a `DELETE` request to `route` with optional query parameters,
+    pub fn build_request<B: Serialize + ?Sized>(
+        &self,
+        mut builder: Builder,
+        body: Option<&B>,
+    ) -> Result<http::Request<String>> {
+        // Since Octocrab doesn't require streamable bodies(aka, file upload) because it is serde::Serialize),
+        // we can just use String body, since it is both http_body::Body(required by Hyper::Client), and Clone(required by BoxService).
+
+        // In case octocrab needs to support cases where body is strictly streamable, it should use something like reqwest::Body,
+        // since it differentiates between retryable bodies, and streams(aka, it implements try_clone(), which is needed for middlewares like retry).
+
+        if let Some(body) = body {
+            builder = builder.header(http::header::CONTENT_TYPE, "application/json");
+            let request = builder
+                .body(serde_json::to_string(body).context(SerdeSnafu)?)
+                .context(HttpSnafu)?;
+            Ok(request)
+        } else {
+            Ok(builder.body(String::new()).context(HttpSnafu)?)
+        }
+    }
+
+    /// Send a `DELETE` request to `route` with optional query body,
     /// returning the body of the response.
-    pub async fn delete<R, A, P>(&self, route: A, parameters: Option<&P>) -> Result<R>
+    pub async fn delete<R, A, B>(&self, route: A, body: Option<&B>) -> Result<R>
     where
         A: AsRef<str>,
-        P: Serialize + ?Sized,
+        B: Serialize + ?Sized,
         R: FromResponse,
     {
-        let response = self._delete(self.absolute_url(route)?, parameters).await?;
+        let response = self
+            ._delete(self.parameterized_uri(route, None::<&()>)?, body)
+            .await?;
         R::from_response(crate::map_github_error(response).await?).await
     }
 
     /// Send a `DELETE` request with no additional post-processing.
-    pub async fn _delete<P: Serialize + ?Sized>(
+    pub async fn _delete<B: Serialize + ?Sized>(
         &self,
-        url: impl reqwest::IntoUrl,
-        parameters: Option<&P>,
-    ) -> Result<reqwest::Response> {
-        let mut request = self.client.delete(url);
-
-        if let Some(parameters) = parameters {
-            request = request.query(parameters);
-        }
+        uri: impl TryInto<Uri>,
+        body: Option<&B>,
+    ) -> Result<http::Response<hyper::Body>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let request = self.build_request(Builder::new().method(Method::DELETE).uri(uri), body)?;
 
         self.execute(request).await
-    }
-
-    /// Construct a `reqwest::RequestBuilder` with the given http method. This can be executed
-    /// with [execute](struct.Octocrab.html#method.execute).
-    ///
-    /// ```no_run
-    /// # async fn doc() -> Result<(), Box<dyn std::error::Error>> {
-    /// let octocrab = octocrab::instance();
-    /// let url = format!("{}/events", octocrab.base_url);
-    /// let builder = octocrab::instance().request_builder(&url, reqwest::Method::GET)
-    ///     .header("if-none-match", "\"73ca617c70cd2bd9b6f009dab5e2d49d\"");
-    /// let response = octocrab.execute(builder).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub fn request_builder(
-        &self,
-        url: impl reqwest::IntoUrl,
-        method: reqwest::Method,
-    ) -> reqwest::RequestBuilder {
-        self.client.request(method, url)
     }
 
     /// Requests a fresh installation auth token and caches it. Returns the token.
@@ -916,136 +1302,131 @@ impl Octocrab {
         } else {
             panic!("Installation not configured");
         };
-        let mut retries = 0;
-        loop {
-            let result = self
-                .client
-                .post(
-                    self.absolute_url(format!("app/installations/{}/access_tokens", installation))?,
-                )
-                .bearer_auth(app.generate_bearer_token()?)
-                .send()
-                .await;
-            let status = match &result {
-                Ok(v) => Some(v.status()),
-                Err(e) => e.status(),
-            };
-            if let Some(StatusCode::UNAUTHORIZED) = status {
-                if retries < MAX_RETRIES {
-                    retries += 1;
-                    continue;
-                }
-            }
-            let response = result.context(error::HttpSnafu)?;
-            let token_object =
-                InstallationToken::from_response(crate::map_github_error(response).await?).await?;
-            token.set(token_object.token.clone());
-            return Ok(SecretString::new(token_object.token));
-        }
+        let mut request = Builder::new();
+        let mut sensitive_value =
+            HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
+                .map_err(http::Error::from)
+                .context(HttpSnafu)?;
+
+        let uri = http::Uri::builder()
+            .path_and_query(format!("/app/installations/{installation}/access_tokens"))
+            .build()
+            .context(HttpSnafu)?;
+
+        sensitive_value.set_sensitive(true);
+        request = request
+            .header(hyper::header::AUTHORIZATION, sensitive_value)
+            .method(http::Method::POST)
+            .uri(uri);
+        let response = self
+            .send(request.body(String::new()).context(HttpSnafu)?)
+            .await?;
+        let _status = response.status();
+
+        let token_object =
+            InstallationToken::from_response(crate::map_github_error(response).await?).await?;
+        token.set(token_object.token.clone());
+        Ok(SecretString::new(token_object.token))
     }
 
-    #[tracing::instrument(
-        level="debug",
-        name="github api call",
-        skip(self, request_builder, attempt),
-        fields(err, url=field::Empty, service.name=field::Empty, http.method=field::Empty, http.url=field::Empty, http.status_code=field::Empty, http.resend_count=field::Empty)
-    )]
-    async fn send_call(
-        &self,
-        request_builder: reqwest::RequestBuilder,
-        attempt: u32,
-    ) -> Result<reqwest::Response, reqwest::Error> {
-        let span = tracing::Span::current();
-        let service = self.base_url.host_str().unwrap_or(GITHUB_SERVICE);
-        span.record("service.name", service);
-        if attempt > 1 {
-            span.record("http.resend_count", attempt);
-        }
-        let request = request_builder.build()?;
-        span.record("http.method", request.method().as_str());
-        span.record("http.url", request.url().as_str());
-        let result = self.client.execute(request).await;
-        match &result {
-            Ok(v) => {
-                span.record("http.status_code", v.status().as_u16());
-            }
-            Err(e) => {
-                let status = e.status().and_then(|s| Some(s.as_u16()));
-                span.record("http.status_code", status);
-            }
-        };
-        result
+    /// Send the given request to the underlying service
+    pub async fn send(&self, request: Request<String>) -> Result<http::Response<hyper::Body>> {
+        let mut svc = self.client.clone();
+        let response: Response<Body> = svc
+            .ready()
+            .await
+            .context(ServiceSnafu)?
+            .call(request)
+            .await
+            .context(ServiceSnafu)?;
+        Ok(response)
+        //todo: attempt to downcast error to something more specific before returning. (Currently having trouble with this because I am not accustomed with snafu)
+        // map_err(|err| {
+        //     // Error decorating request
+        //     err.downcast::<Error>()
+        //         .map(|e| *e)
+        //         // Error requesting
+        //         .or_else(|err| err.downcast::<hyper::Error>().map(|err| Error::HyperError(*err)))
+        //         // Error from another middleware
+        //         .unwrap_or_else(|err| Error::Service(err))
+        // })?;
     }
 
     /// Execute the given `request` using octocrab's Client.
-    pub async fn execute(&self, mut request: reqwest::RequestBuilder) -> Result<reqwest::Response> {
-        let mut retries = 1;
-        loop {
-            // Saved request that we can retry later if necessary
-            let retry_request = request.try_clone().unwrap();
-            match self.auth_state {
-                AuthState::None => (),
-                AuthState::App(ref app) => {
-                    request = request.bearer_auth(app.generate_bearer_token()?);
-                }
-                AuthState::BasicAuth {
-                    ref username,
-                    ref password,
-                } => {
-                    request = request.basic_auth(username, Some(password));
-                }
-                AuthState::Installation { ref token, .. } => {
-                    let token = if let Some(token) = token.get() {
-                        token
-                    } else {
-                        self.request_installation_auth_token().await?
-                    };
-                    request = request.bearer_auth(token.expose_secret());
-                }
-            };
+    pub async fn execute(
+        &self,
+        request: http::Request<String>,
+    ) -> Result<http::Response<hyper::Body>> {
+        let (mut parts, body) = request.into_parts();
+        // Saved request that we can retry later if necessary
+        let auth_header: Option<HeaderValue> = match self.auth_state {
+            AuthState::None => None,
+            AuthState::App(ref app) => Some(
+                HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
+                    .map_err(http::Error::from)
+                    .context(HttpSnafu)?,
+            ),
+            AuthState::BasicAuth {
+                ref username,
+                ref password,
+            } => {
+                // Equivalent implementation of: https://github.com/seanmonstar/reqwest/blob/df2b3baadc1eade54b1c22415792b778442673a4/src/util.rs#L3-L23
+                use base64::prelude::BASE64_STANDARD;
+                use base64::write::EncoderWriter;
 
-            let result = self.send_call(request, retries).await;
-            let status = match &result {
-                Ok(v) => Some(v.status()),
-                Err(e) => e.status(),
-            };
-            if let Some(code) = status {
-                if (self.retry_predicate)(code) {
-                    // If using App installation tokens, try to grab a fresh one if the response is 'unauthorized'.
-                    if code == StatusCode::UNAUTHORIZED {
-                        if let AuthState::Installation { ref token, .. } = self.auth_state {
-                            token.clear();
-                        }
-                    }
-                    if retries < MAX_RETRIES {
-                        retries += 1;
-                        request = retry_request;
-                        continue;
-                    }
+                let mut buf = b"Basic ".to_vec();
+                {
+                    let mut encoder = EncoderWriter::new(&mut buf, &BASE64_STANDARD);
+                    write!(encoder, "{}:{}", username, password)
+                        .expect("writing to a Vec never fails");
                 }
+                Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
-            return result.context(error::HttpSnafu);
+            AuthState::Installation { ref token, .. } => {
+                let token = if let Some(token) = token.get() {
+                    token
+                } else {
+                    self.request_installation_auth_token().await?
+                };
+
+                Some(
+                    HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
+                        .map_err(http::Error::from)
+                        .context(HttpSnafu)?,
+                )
+            }
+        };
+
+        if let Some(mut auth_header) = auth_header {
+            auth_header.set_sensitive(true);
+            parts
+                .headers
+                .insert(hyper::header::AUTHORIZATION, auth_header);
         }
+
+        let request = http::Request::from_parts(parts, body);
+
+        let response = self.send(request).await?;
+
+        let status = response.status();
+        if StatusCode::UNAUTHORIZED == status {
+            if let AuthState::Installation { ref token, .. } = self.auth_state {
+                token.clear();
+            }
+        }
+        Ok(response)
     }
 }
 
 /// # Utility Methods
 impl Octocrab {
-    /// Returns an absolute url version of `url` using the `base_url` (default:
-    /// `https://api.github.com`)
-    pub fn absolute_url(&self, url: impl AsRef<str>) -> Result<Url> {
-        self.base_url
-            .join(url.as_ref())
-            .context(crate::error::UrlSnafu)
-    }
-
     /// A convenience method to get a page of results (if present).
     pub async fn get_page<R: serde::de::DeserializeOwned>(
         &self,
-        url: &Option<Url>,
+        uri: &Option<Uri>,
     ) -> crate::Result<Option<Page<R>>> {
-        match url {
-            Some(url) => self.get(url, None::<&()>).await.map(Some),
+        match uri {
+            Some(uri) => self.get(uri.to_string(), None::<&()>).await.map(Some),
             None => Ok(None),
         }
     }
@@ -1067,58 +1448,20 @@ impl Octocrab {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn absolute_url_escapes() {
-        assert_eq!(
-            crate::instance()
-                .absolute_url("/help wanted")
-                .unwrap()
-                .as_str(),
-            String::from(crate::GITHUB_BASE_URL) + "/help%20wanted"
-        );
-    }
-
-    #[test]
-    fn absolute_url_for_subdir() {
-        assert_eq!(
-            crate::OctocrabBuilder::new()
-                .base_url("https://git.example.com/api/v3/")
-                .unwrap()
-                .build()
-                .unwrap()
-                .absolute_url("/my/api")
-                .unwrap()
-                .as_str(),
-            String::from("https://git.example.com/my/api")
-        );
-    }
-
-    #[test]
-    fn relative_url() {
-        assert_eq!(
-            crate::instance().absolute_url("my/api").unwrap().as_str(),
-            String::from(crate::GITHUB_BASE_URL) + "/my/api"
-        );
-    }
-
-    #[test]
-    fn relative_url_for_subdir() {
-        assert_eq!(
-            crate::OctocrabBuilder::new()
-                .base_url("https://git.example.com/api/v3/")
-                .unwrap()
-                .build()
-                .unwrap()
-                .absolute_url("my/api")
-                .unwrap()
-                .as_str(),
-            String::from("https://git.example.com/api/v3/my/api")
-        );
+    // tokio runtime seems to be needed for tower: https://users.rust-lang.org/t/no-reactor-running-when-calling-runtime-spawn/81256
+    #[tokio::test]
+    async fn parametrize_uri_valid() {
+        //Previously, invalid characters were handled by url lib's parse function.
+        //Todo: should we handle encoding of uri routes ourselves?
+        let uri = crate::instance()
+            .parameterized_uri("/help%20world", None::<&()>)
+            .unwrap();
+        assert_eq!(uri.path(), "/help%20world");
     }
 
     #[tokio::test]
     async fn extra_headers() {
-        use reqwest::header::HeaderName;
+        use http::header::HeaderName;
         use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
         let response = ResponseTemplate::new(304).append_header("etag", "\"abcd\"");
         let mock_server = MockServer::start().await;
@@ -1130,8 +1473,8 @@ mod tests {
             .expect(1)
             .mount(&mock_server)
             .await;
-        crate::OctocrabBuilder::new()
-            .base_url(mock_server.uri())
+        crate::OctocrabBuilder::default()
+            .base_uri(mock_server.uri())
             .unwrap()
             .add_header(HeaderName::from_static("x-test1"), "hello".to_string())
             .add_header(HeaderName::from_static("x-test2"), "goodbye".to_string())
@@ -1142,67 +1485,5 @@ mod tests {
             .send()
             .await
             .unwrap();
-    }
-
-    #[tokio::test]
-    async fn default_retries_on_unauth_only() {
-        use reqwest::StatusCode;
-        use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
-        let mock_server = MockServer::start().await;
-        Mock::given(matchers::method("GET"))
-            .and(matchers::path_regex(".*"))
-            .respond_with(ResponseTemplate::new(StatusCode::INTERNAL_SERVER_ERROR))
-            .expect(1)
-            .mount(&mock_server)
-            .await;
-        let result = crate::OctocrabBuilder::default()
-            .base_url(mock_server.uri())
-            .unwrap()
-            .build()
-            .unwrap()
-            .orgs("hello")
-            .get()
-            .await;
-        assert_eq!(result.is_err(), true);
-
-        let mock_server = MockServer::start().await;
-        Mock::given(matchers::method("GET"))
-            .and(matchers::path_regex(".*"))
-            .respond_with(ResponseTemplate::new(StatusCode::UNAUTHORIZED))
-            .expect(3)
-            .mount(&mock_server)
-            .await;
-        let result = crate::OctocrabBuilder::default()
-            .base_url(mock_server.uri())
-            .unwrap()
-            .build()
-            .unwrap()
-            .orgs("hello")
-            .get()
-            .await;
-        assert_eq!(result.is_err(), true);
-    }
-
-    #[tokio::test]
-    async fn retries_based_on_predicate() {
-        use reqwest::StatusCode;
-        use wiremock::{matchers, Mock, MockServer, ResponseTemplate};
-        let mock_server = MockServer::start().await;
-        Mock::given(matchers::method("GET"))
-            .and(matchers::path_regex(".*"))
-            .respond_with(ResponseTemplate::new(StatusCode::INTERNAL_SERVER_ERROR))
-            .expect(3)
-            .mount(&mock_server)
-            .await;
-        let result = crate::OctocrabBuilder::default()
-            .base_url(mock_server.uri())
-            .unwrap()
-            .retry_predicate(|code| code.is_server_error())
-            .build()
-            .unwrap()
-            .orgs("hello")
-            .get()
-            .await;
-        assert_eq!(result.is_err(), true);
     }
 }

@@ -6,8 +6,12 @@ mod list;
 mod merge;
 mod update;
 
+use http::request::Builder;
+use http::{Method, Uri};
+
 use snafu::ResultExt;
 
+use crate::error::HttpSnafu;
 use crate::{Octocrab, Page};
 
 pub use self::{
@@ -61,15 +65,16 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn is_merged(&self, pr: u64) -> crate::Result<bool> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/merge",
+            "/repos/{owner}/{repo}/pulls/{pr}/merge",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
-        let response = self
-            .crab
-            ._get(self.crab.absolute_url(route)?, None::<&()>)
-            .await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(crate::error::HttpSnafu)?;
+        let response = self.crab._get(uri).await?;
 
         Ok(response.status() == 204)
     }
@@ -85,15 +90,16 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn update_branch(&self, pr: u64) -> crate::Result<bool> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/update-branch",
+            "/repos/{owner}/{repo}/pulls/{pr}/update-branch",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
-        let response = self
-            .crab
-            ._put(self.crab.absolute_url(route)?, None::<&()>)
-            .await?;
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(crate::error::HttpSnafu)?;
+        let response = self.crab._put(uri, None::<&()>).await?;
 
         Ok(response.status() == 202)
     }
@@ -106,14 +112,14 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, pr: u64) -> crate::Result<crate::models::pulls::PullRequest> {
-        let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}",
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Get's a given pull request's `diff`.
@@ -125,21 +131,23 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn get_diff(&self, pr: u64) -> crate::Result<String> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}",
+            "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        let request = self
-            .crab
-            .client
-            .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("diff"));
-
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(crate::error::HttpSnafu)?;
+        let request = Builder::new()
+            .method(Method::GET)
+            .uri(uri)
+            .header(http::header::ACCEPT, crate::format_media_type("diff"));
+        let request = self.crab.build_request(request, None::<&()>)?;
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
-
-        response.text().await.context(crate::error::HttpSnafu)
+        self.crab.body_to_string(response).await
     }
 
     /// Get's a given pull request's patch.
@@ -151,21 +159,24 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub async fn get_patch(&self, pr: u64) -> crate::Result<String> {
         let route = format!(
-            "repos/{owner}/{repo}/pulls/{pr}",
+            "/repos/{owner}/{repo}/pulls/{pr}",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        let request = self
-            .crab
-            .client
-            .get(self.crab.absolute_url(route)?)
-            .header(reqwest::header::ACCEPT, crate::format_media_type("patch"));
-
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(crate::error::HttpSnafu)?;
+        let request = Builder::new()
+            .method("GET")
+            .uri(uri)
+            .header(http::header::ACCEPT, crate::format_media_type("patch"));
+        let request = self.crab.build_request(request, None::<&()>)?;
         let response = crate::map_github_error(self.crab.execute(request).await?).await?;
 
-        response.text().await.context(crate::error::HttpSnafu)
+        self.crab.body_to_string(response).await
     }
 
     /// Create a new pull request.
@@ -252,14 +263,14 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # }
     /// ```
     pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
-        let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/reviews",
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/reviews",
             owner = self.owner,
             repo = self.repo,
             pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Request a review from users or teams.
@@ -277,18 +288,45 @@ impl<'octo> PullRequestHandler<'octo> {
         reviewers: impl Into<Vec<String>>,
         team_reviewers: impl Into<Vec<String>>,
     ) -> crate::Result<crate::models::pulls::Review> {
-        let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
             owner = self.owner,
             repo = self.repo,
-            pr = pr
         );
 
         let mut map = serde_json::Map::new();
         map.insert("reviewers".to_string(), reviewers.into().into());
         map.insert("team_reviewers".to_string(), team_reviewers.into().into());
 
-        self.crab.post(url, Some(&map)).await
+        self.crab.post(route, Some(&map)).await
+    }
+
+    /// Remove a requested reviewer from users or teams.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let review = octocrab::instance().pulls("owner", "repo")
+    ///    .remove_requested_reviewers(101, ["user1".to_string(), "user2".to_string()], ["team1".to_string(), "team2".to_string()])
+    ///  .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_requested_reviewers(
+        &self,
+        pr: u64,
+        reviewers: impl Into<Vec<String>>,
+        team_reviewers: impl Into<Vec<String>>,
+    ) -> crate::Result<crate::models::pulls::Review> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        let mut map = serde_json::Map::new();
+        map.insert("reviewers".to_string(), reviewers.into().into());
+        map.insert("team_reviewers".to_string(), team_reviewers.into().into());
+
+        self.crab.delete(route, Some(&map)).await
     }
 
     /// List all `FileDiff`s associated with the pull request.
@@ -298,14 +336,13 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
-        let url = format!(
-            "repos/{owner}/{repo}/pulls/{pr}/files",
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,
             repo = self.repo,
-            pr = pr
         );
 
-        self.http_get(url, None::<&()>).await
+        self.http_get(route, None::<&()>).await
     }
 
     /// Creates a new `ListCommentsBuilder` that can be configured to list and
@@ -370,18 +407,16 @@ impl<'octo> PullRequestHandler<'octo> {
         P: serde::Serialize + ?Sized,
         R: crate::FromResponse,
     {
-        let mut request = self.crab.client.get(self.crab.absolute_url(route)?);
+        let uri = self.crab.parameterized_uri(route, parameters)?;
 
-        if let Some(parameters) = parameters {
-            request = request.query(parameters);
-        }
-
+        let mut request = Builder::new().uri(uri);
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
-                crate::format_media_type(&media_type.to_string()),
+                http::header::ACCEPT,
+                crate::format_media_type(media_type.to_string()),
             );
         }
+        let request = self.crab.build_request(request, None::<&()>)?;
 
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
@@ -392,9 +427,13 @@ impl<'octo> PullRequestHandler<'octo> {
         P: serde::Serialize + ?Sized,
         R: crate::FromResponse,
     {
-        let mut request = self.crab.client.post(self.crab.absolute_url(route)?);
-
-        request = self.build_request(request, body);
+        let uri = Uri::builder()
+            .path_and_query(route.as_ref())
+            .build()
+            .context(HttpSnafu)?;
+        let mut request = Builder::new().method(Method::POST).uri(uri);
+        request = self.build_request(request);
+        let request = self.crab.build_request(request, body)?;
 
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
@@ -405,9 +444,14 @@ impl<'octo> PullRequestHandler<'octo> {
         P: serde::Serialize + ?Sized,
         R: crate::FromResponse,
     {
-        let mut request = self.crab.client.put(self.crab.absolute_url(route)?);
+        let uri = Uri::builder()
+            .path_and_query(route.as_ref())
+            .build()
+            .context(HttpSnafu)?;
+        let mut request = Builder::new().method(Method::PUT).uri(uri);
 
-        request = self.build_request(request, body);
+        request = self.build_request(request);
+        let request = self.crab.build_request(request, body)?;
 
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
@@ -418,32 +462,25 @@ impl<'octo> PullRequestHandler<'octo> {
         P: serde::Serialize + ?Sized,
         R: crate::FromResponse,
     {
-        let mut request = self.crab.client.patch(self.crab.absolute_url(route)?);
+        let uri = Uri::builder()
+            .path_and_query(route.as_ref())
+            .build()
+            .context(HttpSnafu)?;
+        let mut request = Builder::new().method(Method::PATCH).uri(uri);
 
-        request = self.build_request(request, body);
-
+        request = self.build_request(request);
+        let request = self.crab.build_request(request, body)?;
         R::from_response(crate::map_github_error(self.crab.execute(request).await?).await?).await
     }
 
-    fn build_request<P>(
-        &self,
-        mut request: reqwest::RequestBuilder,
-        body: Option<&P>,
-    ) -> reqwest::RequestBuilder
-    where
-        P: serde::Serialize + ?Sized,
-    {
-        if let Some(body) = body {
-            request = request.json(body);
-        }
-
+    fn build_request(&self, mut request: http::request::Builder) -> http::request::Builder
+where {
         if let Some(media_type) = self.media_type {
             request = request.header(
-                reqwest::header::ACCEPT,
-                crate::format_media_type(&media_type.to_string()),
+                http::header::ACCEPT,
+                crate::format_media_type(media_type.to_string()),
             );
         }
-
         request
     }
 }
