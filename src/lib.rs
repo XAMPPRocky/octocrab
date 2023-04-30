@@ -1013,7 +1013,7 @@ impl Octocrab {
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let response: serde_json::Value = octocrab::instance()
-    ///     .graphql("query { viewer { login }}")
+    ///     .graphql("{ 'query': '{ viewer { login }}' }")
     ///     .await?;
     ///# Ok(())
     ///# }
@@ -1023,33 +1023,8 @@ impl Octocrab {
         payload: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
         self.post(
-            "graphql",
-            Some(&serde_json::json!(payload)),
-        )
-        .await
-    }
-
-    /// Sends a graphql query to GitHub along with any required variables, and deserialises the response
-    /// from JSON.
-    /// ```no_run
-    ///# async fn run() -> octocrab::Result<()> {
-    /// let response: serde_json::Value = octocrab::instance()
-    ///     .graphql_with_variables("query ($count: Int!) { viewer { repositories(last: $count) { nodes { name } } } }", "{ "count": 10 }")
-    ///     .await?;
-    ///# Ok(())
-    ///# }
-    /// ```
-    pub async fn graphql_with_variables<R: crate::FromResponse>(
-        &self,
-        body: &(impl serde::Serialize + ?Sized),
-        variables: &(impl serde::Serialize + ?Sized),
-    ) -> crate::Result<R> {
-        self.post(
             "/graphql",
-            Some(&serde_json::json!({
-                "query": body,
-                "variables": variables,
-            })),
+            Some(&serde_json::json!(payload)),
         )
         .await
     }
