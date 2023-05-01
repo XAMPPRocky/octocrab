@@ -1022,11 +1022,8 @@ impl Octocrab {
         &self,
         payload: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
-        self.post(
-            "/graphql",
-            Some(&serde_json::json!(payload)),
-        )
-        .await
+        self.post("/graphql", Some(&serde_json::json!(payload)))
+            .await
     }
 }
 
