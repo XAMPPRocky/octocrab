@@ -155,7 +155,7 @@ impl crate::Octocrab {
         };
         let codes: DeviceCodes = self
             .post(
-                "login/device/code",
+                "/login/device/code",
                 Some(&DeviceFlow {
                     client_id: client_id.expose_secret(),
                     scope: &scope,
@@ -201,7 +201,7 @@ impl DeviceCodes {
     ) -> Result<Either<OAuth, Continue>> {
         let poll: TokenResponse = crab
             .post(
-                "login/oauth/access_token",
+                "/login/oauth/access_token",
                 Some(&PollForDevice {
                     client_id: client_id.expose_secret(),
                     device_code: &self.device_code,
