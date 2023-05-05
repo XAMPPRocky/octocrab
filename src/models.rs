@@ -120,6 +120,7 @@ id_type!(
     StatusId,
     TeamId,
     ThreadId,
+    UploaderId,
     UserId,
     UserOrOrgId,
     WorkflowId,
