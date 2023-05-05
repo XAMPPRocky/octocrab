@@ -346,6 +346,7 @@ pub struct Uploader {
     pub received_events_url: Url,
     pub r#type: String,
     pub site_admin: bool,
+    pub starred_at: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
