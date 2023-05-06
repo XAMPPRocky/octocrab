@@ -319,7 +319,34 @@ pub struct Asset {
     pub download_count: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub uploader: CommitAuthor,
+    pub uploader: Option<Uploader>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct Uploader {
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub login: String,
+    pub id: UploaderId,
+    pub node_id: String,
+    pub avatar_url: Url,
+    pub gravatar_id: Option<String>,
+    pub url: Url,
+    pub html_url: Url,
+    pub followers_url: Url,
+    pub following_url: Url,
+    pub gists_url: Url,
+    pub starred_url: Url,
+    pub subscriptions_url: Url,
+    pub organizations_url: Url,
+    pub repos_url: Url,
+    pub events_url: Url,
+    pub received_events_url: Url,
+    pub r#type: String,
+    pub site_admin: bool,
+    pub starred_at: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
