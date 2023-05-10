@@ -1,7 +1,7 @@
 //! Get data about the currently authenticated user.
 
 use crate::{
-    models::{self, gists::Gist, Repository},
+    models::{self, gists::Gist, orgs::MembershipInvitation, Repository},
     Octocrab, Page, Result,
 };
 use chrono::{DateTime, Utc};
@@ -122,6 +122,26 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// List gists that were starred by the authenticated user.
     pub fn list_gists_starred_by_authenticated_user(&self) -> ListStarredGistsBuilder<'octo> {
         ListStarredGistsBuilder::new(self.crab)
+    }
+
+    /// Lists organizations that the current authenticated user is a member of.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .current()
+    ///     .list_org_memberships_for_authenticated_user()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user)
+    pub fn list_org_memberships_for_authenticated_user(
+        &self,
+    ) -> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
+        ListOrgMembershipsForAuthenticatedUserBuilder::new(self.crab)
     }
 }
 
@@ -447,5 +467,55 @@ impl<'octo> ListStarredGistsBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Gist>> {
         self.crab.get("/gists/starred", Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for listing organizations the authenticated user is a member of.
+///
+/// Created by [`CurrentAuthHandler::list_org_memberships_for_authenticated_user`].
+///
+/// [`CurrentAuthHandler::list_org_memberships_for_authenticated_user`]: ./struct.CurrentAuthHandler.html#method.list_org_memberships_for_authenticated_user
+#[derive(serde::Serialize)]
+pub struct ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u8>,
+}
+
+impl<'octo> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
+    fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user--parameters)
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user--parameters)
+    pub fn page(mut self, page: impl Into<u8>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<MembershipInvitation>> {
+        self.crab
+            .get("/user/memberships/orgs", (&self).into())
+            .await
     }
 }
