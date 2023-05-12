@@ -211,6 +211,7 @@ use crate::error::{
 use crate::service::middleware::base_uri::BaseUriLayer;
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
+#[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
 
 use auth::{AppAuth, Auth};
@@ -444,6 +445,7 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
 }
 
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    #[cfg(feature = "retry")]
     pub fn add_retry_config(&mut self, retry_config: RetryConfig) -> &mut Self {
         self.config.retry_config = retry_config;
         self
