@@ -546,7 +546,9 @@ impl<'octo> RepoHandler<'octo> {
             .path_and_query(route)
             .build()
             .context(HttpSnafu)?;
-        self.crab.follow_location_to_data(self.crab._get(uri).await?).await
+        self.crab
+            .follow_location_to_data(self.crab._get(uri).await?)
+            .await
     }
 
     /// Check if a user is a repository collaborator
