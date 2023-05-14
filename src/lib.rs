@@ -1395,6 +1395,19 @@ impl Octocrab {
         }
         Ok(response)
     }
+
+    pub async fn follow_location_to_data(
+        &self,
+        response: http::Response<hyper::Body>,
+    ) -> crate::Result<http::Response<hyper::Body>> {
+        if let Some(redirect) = response.headers().get(http::header::LOCATION) {
+            let location = redirect.to_str().expect("Location URL not valid str");
+
+            self._get(location).await
+        } else {
+            Ok(response)
+        }
+    }
 }
 
 /// # Utility Methods

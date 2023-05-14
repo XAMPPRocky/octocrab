@@ -264,13 +264,7 @@ impl<'octo> ActionsHandler<'octo> {
         &self,
         response: http::Response<hyper::Body>,
     ) -> crate::Result<bytes::Bytes> {
-        let data_response = if let Some(redirect) = response.headers().get(http::header::LOCATION) {
-            let location = redirect.to_str().expect("Location URL not valid str");
-
-            self.crab._get(location).await?
-        } else {
-            response
-        };
+        let data_response = self.crab.follow_location_to_data(response).await?;
 
         let body = data_response.into_body();
 
