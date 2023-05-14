@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1](https://github.com/XAMPPRocky/octocrab/compare/v0.21.0...v0.21.1) - 2023-05-14
+
+### Other
+- Handle redirects for download_tarball (#359)
+- Make building without the `retry` feature work. (#358)
+- Add list_org_memberships_for_authenticated_user (#357)
+- add Uploader struct for Asset uploader field (#355)
+
 ## [0.21.0](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0...v0.21.0) - 2023-04-29
 
 ### Other
