@@ -1015,22 +1015,17 @@ impl Octocrab {
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let response: serde_json::Value = octocrab::instance()
-    ///     .graphql("query { viewer { login }}")
+    ///     .graphql("{ 'query': '{ viewer { login }}' }")
     ///     .await?;
     ///# Ok(())
     ///# }
     /// ```
     pub async fn graphql<R: crate::FromResponse>(
         &self,
-        body: &(impl serde::Serialize + ?Sized),
+        payload: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
-        self.post(
-            "/graphql",
-            Some(&serde_json::json!({
-                "query": body,
-            })),
-        )
-        .await
+        self.post("/graphql", Some(&serde_json::json!(payload)))
+            .await
     }
 }
 
