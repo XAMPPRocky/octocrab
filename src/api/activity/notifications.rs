@@ -249,7 +249,7 @@ impl<'octo> NotificationsHandler<'octo> {
     /// # }
     /// ```
     pub fn list(&self) -> ListNotificationsBuilder<'octo> {
-        ListNotificationsBuilder::new(self.crab, "notifications".to_string())
+        ListNotificationsBuilder::new(self.crab, "/notifications".to_string())
     }
 }
 
