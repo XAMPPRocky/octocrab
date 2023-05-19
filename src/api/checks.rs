@@ -61,7 +61,6 @@ impl<'octo> ChecksHandler<'octo> {
         Self { crab, owner, repo }
     }
 
-    /// Get the rate limit.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let check_runs = octocrab::instance()
