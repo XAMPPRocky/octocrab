@@ -22,6 +22,8 @@ pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
@@ -39,6 +41,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
             labels: None,
             sort: None,
             direction: None,
+            since: None,
             per_page: None,
             page: None,
         }
@@ -101,6 +104,12 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
         self
     }
 
+    /// Only return issues updated after the given timestamp.
+    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+        self.since = Some(since.into());
+        self
+    }
+
     /// Results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
@@ -151,6 +160,7 @@ mod tests {
             .labels(&labels)
             .sort(crate::params::issues::Sort::Comments)
             .direction(crate::params::Direction::Ascending)
+            .since(chrono::DateTime::parse_from_rfc3339("2003-07-01T10:52:37Z").unwrap())
             .per_page(100)
             .page(1u8);
 
@@ -165,6 +175,7 @@ mod tests {
                 "labels": "help wanted,good first issue",
                 "sort": "comments",
                 "direction": "asc",
+                "since": "2003-07-01T10:52:37Z",
                 "per_page": 100,
                 "page": 1,
             })
