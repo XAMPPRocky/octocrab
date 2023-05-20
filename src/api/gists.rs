@@ -7,8 +7,8 @@ use http::StatusCode;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
-pub use self::list_gists::ListAllGistsBuilder;
 pub use self::list_commits::ListCommitsBuilder;
+pub use self::list_gists::{ListAllGistsBuilder, ListAllPublicGistsBuilder};
 
 use crate::{
     models::gists::{Gist, GistRevision},
@@ -64,6 +64,36 @@ impl<'octo> GistsHandler<'octo> {
     /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-the-authenticated-user
     pub fn list_all_gists(&self) -> ListAllGistsBuilder<'octo> {
         ListAllGistsBuilder::new(self.crab)
+    }
+
+    /// List public gists sorted by most recently updated to least recently
+    /// updated. This works similarly to the `GistsHandler::list_all_gists`
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /gists/public`
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let yesterday: chrono::DateTime<chrono::Utc> =
+    ///         chrono::Utc::now()
+    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     let all_public_gists = octocrab::instance()
+    ///         .gists()
+    ///         .list_all_recent_public_gists()
+    ///         .since(yesterday)
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    ///
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-public-gists
+    pub fn list_all_recent_public_gists(&self) -> ListAllPublicGistsBuilder<'octo> {
+        ListAllPublicGistsBuilder::new(self.crab)
     }
 
     /// Create a new gist.
