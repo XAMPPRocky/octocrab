@@ -14,7 +14,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub use self::list_commits::ListCommitsBuilder;
-pub use self::list_gists::{ListAllGistsBuilder, ListAllPublicGistsBuilder};
+pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder};
 
 use crate::{
     models::gists::{Gist, GistRevision},
@@ -98,8 +98,8 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     ///
     /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-public-gists
-    pub fn list_all_recent_public_gists(&self) -> ListAllPublicGistsBuilder<'octo> {
-        ListAllPublicGistsBuilder::new(self.crab)
+    pub fn list_all_recent_public_gists(&self) -> ListPublicGistsBuilder<'octo> {
+        ListPublicGistsBuilder::new(self.crab)
     }
 
     /// Create a new gist.
