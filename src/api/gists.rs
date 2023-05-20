@@ -1,4 +1,10 @@
 //! The gist API
+//!
+//! Supports CRUD operations on gists in GitHub.
+//!
+//! [Official documentation][docs]
+//!
+//! [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28
 mod list_commits;
 mod list_forks;
 mod list_gists;
