@@ -1,12 +1,15 @@
 //! The gist API
 mod list_commits;
 mod list_forks;
+mod list_gists;
 
 use http::StatusCode;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
+pub use self::list_gists::ListAllGistsBuilder;
 pub use self::list_commits::ListCommitsBuilder;
+
 use crate::{
     models::gists::{Gist, GistRevision},
     Octocrab, Result,
@@ -22,6 +25,45 @@ pub struct GistsHandler<'octo> {
 impl<'octo> GistsHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
         Self { crab }
+    }
+
+    /// List all gists from GitHub's gist API.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /gists`
+    ///
+    /// # Note
+    /// * Calling with an authentication token will list all the gists of the
+    /// authenticated user
+    ///
+    /// * If no authentication token will list all the public gists from
+    /// GitHub's API. This can potentially produce a lot of results, so care is
+    /// advised.
+    ///
+    /// # Example
+    ///
+    /// 1) This shows one page of (10) results for all public gists created a
+    ///    from the day before:
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let yesterday: chrono::DateTime<chrono::Utc> =
+    ///         chrono::Utc::now()
+    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     octocrab::instance()
+    ///         .gists()
+    ///         .list_all_gists()
+    ///         .since(yesterday)
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-the-authenticated-user
+    pub fn list_all_gists(&self) -> ListAllGistsBuilder<'octo> {
+        ListAllGistsBuilder::new(self.crab)
     }
 
     /// Create a new gist.
