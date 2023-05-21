@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.22.1](https://github.com/XAMPPRocky/octocrab/compare/v0.22.0...v0.22.1) - 2023-05-21
+## [0.23.0](https://github.com/XAMPPRocky/octocrab/compare/v0.22.0...v0.22.1) - 2023-05-21
 
 ### Other
 - Add "updated since" support to ListIssuesBuilder (#373)
