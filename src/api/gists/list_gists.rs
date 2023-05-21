@@ -83,3 +83,59 @@ pub type ListAllGistsBuilder<'octo> = ListGistsBuilder<'octo, AllOrByAuth>;
 ///
 /// Fetches all publicly available gists on the GitHub instance with pagination.
 pub type ListPublicGistsBuilder<'octo> = ListGistsBuilder<'octo, PublicOnly>;
+
+/// Handles query data for the `GET /users/{username}/gists` endpoint.
+#[derive(Debug, serde::Serialize)]
+pub struct ListUserGistsBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip)]
+    /// Username for which to retrieve gists
+    username: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListUserGistsBuilder<'octo> {
+    pub fn new(crab: &'octo Octocrab, username: String) -> Self {
+        Self {
+            crab,
+            username,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+        self.since = Some(last_updated);
+        self
+    }
+
+    pub fn per_page(mut self, count: u8) -> Self {
+        self.per_page = Some(count);
+        self
+    }
+
+    pub fn page(mut self, number: u32) -> Self {
+        self.page = Some(number);
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<crate::Page<Gist>> {
+        self.crab
+            .get(
+                format!("/users/{username}/gists", username = self.username),
+                Some(&self),
+            )
+            .await
+    }
+}

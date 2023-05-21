@@ -14,7 +14,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub use self::list_commits::ListCommitsBuilder;
-pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder};
+pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder, ListUserGistsBuilder};
 
 use crate::{
     models::gists::{Gist, GistRevision},
@@ -100,6 +100,31 @@ impl<'octo> GistsHandler<'octo> {
     /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-public-gists
     pub fn list_all_recent_public_gists(&self) -> ListPublicGistsBuilder<'octo> {
         ListPublicGistsBuilder::new(self.crab)
+    }
+
+    /// List gists for the given username, allowing for pagination.
+    ///
+    /// See [GitHub API Documentation][docs] for details on `GET /users/{username}/gists`
+    ///
+    /// # Examples
+    ///
+    /// * Fetch 10 recent gists for the user with login "foouser":
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     octocrab::instance()
+    ///         .gists()
+    ///         .list_user_gists("foouser")
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-a-user
+    pub fn list_user_gists(&self, username: impl AsRef<str>) -> ListUserGistsBuilder<'octo> {
+        ListUserGistsBuilder::new(self.crab, username.as_ref().to_string())
     }
 
     /// Create a new gist.
