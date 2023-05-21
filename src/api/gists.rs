@@ -1,12 +1,21 @@
 //! The gist API
+//!
+//! Supports CRUD operations on gists in GitHub.
+//!
+//! [Official documentation][docs]
+//!
+//! [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28
 mod list_commits;
 mod list_forks;
+mod list_gists;
 
 use http::StatusCode;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub use self::list_commits::ListCommitsBuilder;
+pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder, ListUserGistsBuilder};
+
 use crate::{
     models::gists::{Gist, GistRevision},
     Octocrab, Result,
@@ -22,6 +31,100 @@ pub struct GistsHandler<'octo> {
 impl<'octo> GistsHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
         Self { crab }
+    }
+
+    /// List all gists from GitHub's gist API.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /gists`
+    ///
+    /// # Note
+    /// * Calling with an authentication token will list all the gists of the
+    /// authenticated user
+    ///
+    /// * If no authentication token will list all the public gists from
+    /// GitHub's API. This can potentially produce a lot of results, so care is
+    /// advised.
+    ///
+    /// # Example
+    ///
+    /// 1) This shows one page of (10) results for all public gists created a
+    ///    from the day before:
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let yesterday: chrono::DateTime<chrono::Utc> =
+    ///         chrono::Utc::now()
+    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     octocrab::instance()
+    ///         .gists()
+    ///         .list_all_gists()
+    ///         .since(yesterday)
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-the-authenticated-user
+    pub fn list_all_gists(&self) -> ListAllGistsBuilder<'octo> {
+        ListAllGistsBuilder::new(self.crab)
+    }
+
+    /// List public gists sorted by most recently updated to least recently
+    /// updated. This works similarly to the `GistsHandler::list_all_gists`
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /gists/public`
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let yesterday: chrono::DateTime<chrono::Utc> =
+    ///         chrono::Utc::now()
+    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     let all_public_gists = octocrab::instance()
+    ///         .gists()
+    ///         .list_all_recent_public_gists()
+    ///         .since(yesterday)
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    ///
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-public-gists
+    pub fn list_all_recent_public_gists(&self) -> ListPublicGistsBuilder<'octo> {
+        ListPublicGistsBuilder::new(self.crab)
+    }
+
+    /// List gists for the given username, allowing for pagination.
+    ///
+    /// See [GitHub API Documentation][docs] for details on `GET /users/{username}/gists`
+    ///
+    /// # Examples
+    ///
+    /// * Fetch 10 recent gists for the user with login "foouser":
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     octocrab::instance()
+    ///         .gists()
+    ///         .list_user_gists("foouser")
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-a-user
+    pub fn list_user_gists(&self, username: impl AsRef<str>) -> ListUserGistsBuilder<'octo> {
+        ListUserGistsBuilder::new(self.crab, username.as_ref().to_string())
     }
 
     /// Create a new gist.
