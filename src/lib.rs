@@ -624,6 +624,13 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 ));
                 AuthState::None
             }
+            Auth::UserAccessToken(token) => {
+                hmap.push((
+                    http::header::AUTHORIZATION,
+                    format!("Bearer {}", token.expose_secret()).parse().unwrap(),
+                ));
+                AuthState::None
+            }
             Auth::App(app_auth) => AuthState::App(app_auth),
             Auth::OAuth(device) => {
                 hmap.push((
