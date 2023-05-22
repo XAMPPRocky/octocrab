@@ -489,6 +489,12 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         self
     }
 
+    /// Authenticate with a user access token.
+    pub fn user_access_token(mut self, token: String) -> Self {
+        self.config.auth = Auth::UserAccessToken(SecretString::new(token));
+        self
+    }
+
     /// Set the base url for `Octocrab`.
     pub fn base_uri(mut self, base_uri: impl TryInto<Uri>) -> Result<Self> {
         self.config.base_uri = Some(
