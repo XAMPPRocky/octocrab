@@ -258,19 +258,18 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Lists all of the `Review`s associated with the pull request.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let reviews = octocrab::instance().pulls("owner", "repo").list_reviews(101).await?;
+    /// let reviews = octocrab::instance()
+    ///     .pulls("owner", "repo")
+    ///     .list_reviews(21u64.into())
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn list_reviews(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::Review>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}/reviews",
-            owner = self.owner,
-            repo = self.repo,
-            pr = pr
-        );
-
-        self.http_get(route, None::<&()>).await
+    pub fn list_reviews(&self, pr_number: u64) -> ListReviewsBuilder<'_, '_> {
+        ListReviewsBuilder::new(self, pr_number)
     }
 
     /// Request a review from users or teams.
@@ -394,6 +393,53 @@ impl<'octo> PullRequestHandler<'octo> {
     pub fn merge(&self, pr: u64) -> merge::MergePullRequestsBuilder {
         merge::MergePullRequestsBuilder::new(self, pr)
     }
+}
+
+impl<'octo, 'r> ListReviewsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r PullRequestHandler<'octo>, pr_number: u64) -> Self {
+        Self {
+            handler,
+            pr_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> crate::Result<crate::Page<crate::models::pulls::Review>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/reviews",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pr = self.pr_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListReviewsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r PullRequestHandler<'octo>,
+    #[serde(skip)]
+    pr_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
 }
 
 impl<'octo> PullRequestHandler<'octo> {
