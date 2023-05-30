@@ -60,6 +60,8 @@ tokio = { version = "1.17.0", default-features = false, features = [
 ] }
 tokio-test = "0.4.2"
 wiremock = "0.5.3"
+crypto_box = { version = "0.8.2", features = ["seal"] }
+base64 = "0.21.2"
 
 [features]
 default = ["rustls", "timeout", "tracing", "retry"]
