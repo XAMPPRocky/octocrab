@@ -321,7 +321,8 @@ pub struct ProjectCard {
     pub column_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_column_name: Option<String>,
-    pub column_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub column_url: Option<Url>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
