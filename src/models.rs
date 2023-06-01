@@ -21,6 +21,7 @@ pub mod pulls;
 pub mod reactions;
 pub mod repos;
 pub mod teams;
+pub mod timelines;
 pub mod workflows;
 
 pub use apps::App;
@@ -119,6 +120,7 @@ id_type!(
     RunId,
     StatusId,
     TeamId,
+    TimelineEventId,
     ThreadId,
     UploaderId,
     UserId,
