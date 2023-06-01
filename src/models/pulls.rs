@@ -233,7 +233,7 @@ pub enum ReviewState {
 #[non_exhaustive]
 pub struct Comment {
     pub url: Url,
-    pub pull_request_review_id: ReviewId,
+    pub pull_request_review_id: Option<ReviewId>,
     pub id: CommentId,
     pub node_id: String,
     pub diff_hunk: String,
