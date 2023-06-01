@@ -785,6 +785,72 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
     }
 }
 
+#[derive(serde::Serialize)]
+pub struct ListTimelineEventsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListTimelineEventsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::timelines::TimelineEvent>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{issue}/timeline",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+// Timeline
+impl<'octo> IssueHandler<'octo> {
+    /// Lists events in the issue timeline.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let timeline = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_timeline_events(21u64.into())
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_timeline_events(&self, issue_number: u64) -> ListTimelineEventsBuilder<'_, '_> {
+        ListTimelineEventsBuilder::new(self, issue_number)
+    }
+}
+
 impl<'octo> IssueHandler<'octo> {
     /// Lists reactions for an issue.
     /// ```no_run

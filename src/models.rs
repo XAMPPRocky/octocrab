@@ -21,6 +21,7 @@ pub mod pulls;
 pub mod reactions;
 pub mod repos;
 pub mod teams;
+pub mod timelines;
 pub mod workflows;
 
 pub use apps::App;
@@ -119,6 +120,7 @@ id_type!(
     RunId,
     StatusId,
     TeamId,
+    TimelineEventId,
     ThreadId,
     UploaderId,
     UserId,
@@ -160,38 +162,112 @@ pub struct Contents {
     pub download_url: Url,
 }
 
+/// Issue events are triggered by activity in issues and pull requests.
+/// https://docs.github.com/en/webhooks-and-events/events/issue-event-types
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Event {
+    /// The issue or pull request was added to a project board.
     AddedToProject,
+    /// The issue or pull request was assigned to a user.
     Assigned,
+    /// GitHub unsuccessfully attempted to automatically change the base branch of the pull request.
+    AutomaticBaseChangeFailed,
+    /// GitHub successfully attempted to automatically change the base branch of the pull request.
+    AutomaticBaseChangeSucceeded,
+    /// The base reference branch of the pull request changed.
+    BaseRefChanged,
+    /// Not documented in the Github issue events documentation.
+    BaseRefForcePushed,
+    /// The issue or pull request was closed. When the commit_id is present, it identifies the commit that closed the issue using "closes / fixes" syntax.
     Closed,
+    /// A comment was added to the issue or pull request.
+    Commented,
+    /// A comment that was removed from the issue or pull request.
+    /// This isn't documented as part of the issues-event-types API but returned by the API.
+    CommentDeleted,
+    /// A commit was added to the pull request's HEAD branch.
+    Committed,
+    /// The issue or pull request was linked to another issue or pull request.
+    Connected,
+    /// The pull request was converted to draft mode.
+    ConvertToDraft,
+    /// The issue was created by converting a note in a project board to an issue.
     ConvertedNoteToIssue,
+    /// The issue was closed and converted to a discussion.
+    ConvertedToDiscussion,
+    /// The issue or pull request was referenced from another issue or pull request.
+    #[serde(rename = "cross-referenced")]
+    CrossReferenced,
+    /// The issue or pull request was removed from a milestone.
     Demilestoned,
+    /// The pull request was deployed.
+    Deployed,
+    /// The pull request deployment environment was changed.
+    DeploymentEnvironmentChanged,
+    /// The issue or pull request was unlinked from another issue or pull request.
+    Disconnected,
+    /// The pull request's HEAD branch was deleted.
     HeadRefDeleted,
+    /// The pull request's HEAD branch was force pushed.
     HeadRefForcePushed,
+    /// The pull request's HEAD branch was restored to the last known commit.
     HeadRefRestored,
+    /// A label was added to the issue or pull request.
     Labeled,
+    /// A comment on a line of source in a pull request. Not documented in the issue and events documentation.
+    #[serde(rename = "line-commented")]
+    LineCommented,
+    /// The issue or pull request was locked.
     Locked,
+    /// The actor was @mentioned in an issue or pull request body.
     Mentioned,
+    /// A user with write permissions marked an issue as a duplicate of another issue, or a pull request as a duplicate of another pull request.
     MarkedAsDuplicate,
+    /// The pull request was merged. The commit_id attribute is the SHA1 of the HEAD commit that was merged. The commit_repository is always the same as the main repository.
     Merged,
+    /// The issue or pull request was added to a milestone.
     Milestoned,
+    /// The issue or pull request was moved between columns in a project board.
     MovedColumnsInProject,
+    /// The issue was pinned.
+    Pinned,
+    /// A draft pull request was marked as ready for review.
+    ReadyForReview,
+    /// The issue was referenced from a commit message. The commit_id attribute is the commit SHA1 of where that happened and the commit_repository is where that commit was pushed.
     Referenced,
+    /// The issue or pull request was removed from a project board.
     RemovedFromProject,
+    /// The issue or pull request title was changed.
     Renamed,
+    /// The issue or pull request was reopened.
     Reopened,
+    /// The pull request review was dismissed.
     ReviewDismissed,
+    /// A pull request review was requested.
     ReviewRequested,
+    /// A pull request review request was removed.
     ReviewRequestRemoved,
+    /// The pull request was reviewed.
+    Reviewed,
+    /// Someone subscribed to receive notifications for an issue or pull request.
     Subscribed,
+    /// The issue was transferred to another repository.
     Transferred,
+    /// A user was unassigned from the issue.
     Unassigned,
+    /// A label was removed from the issue.
     Unlabeled,
+    /// The issue was unlocked.
     Unlocked,
+    /// An issue that a user had previously marked as a duplicate of another issue is no longer considered a duplicate, or a pull request that a user had previously marked as a duplicate of another pull request is no longer considered a duplicate.
     UnmarkedAsDuplicate,
+    /// The issue was unpinned.
+    Unpinned,
+    /// Someone unsubscribed from receiving notifications for an issue or pull request.
+    Unsubscribed,
+    /// An organization owner blocked a user from the organization.
     UserBlocked,
 }
 
@@ -245,7 +321,8 @@ pub struct ProjectCard {
     pub column_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_column_name: Option<String>,
-    pub column_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub column_url: Option<Url>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
