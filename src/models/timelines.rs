@@ -78,7 +78,7 @@ pub struct TimelineEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pull_request_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requested_reviewers: Option<Vec<Author>>,
+    pub requested_reviewer: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub review_requester: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
