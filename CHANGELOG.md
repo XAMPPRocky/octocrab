@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1](https://github.com/XAMPPRocky/octocrab/compare/v0.23.0...v0.23.1) - 2023-06-02
+
+### Fixed
+- the API returns one reviewer not reviewers ([#390](https://github.com/XAMPPRocky/octocrab/pull/390))
+- wrap pull_request_review_id in an Option ([#388](https://github.com/XAMPPRocky/octocrab/pull/388))
+
+### Other
+- Add Issue Timeline API ([#389](https://github.com/XAMPPRocky/octocrab/pull/389))
+- add some of the missing fields to PullRequest ([#386](https://github.com/XAMPPRocky/octocrab/pull/386))
+- Builder for list_reviews for pulls ([#387](https://github.com/XAMPPRocky/octocrab/pull/387))
+- Link to `gists` documentation in  README ([#383](https://github.com/XAMPPRocky/octocrab/pull/383))
+
 ## [0.23.0](https://github.com/XAMPPRocky/octocrab/compare/v0.22.0...v0.22.1) - 2023-05-21
 
 ### Other
