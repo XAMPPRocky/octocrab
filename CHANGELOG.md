@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.23.1](https://github.com/XAMPPRocky/octocrab/compare/v0.23.0...v0.23.1) - 2023-06-02
+## [0.24.0](https://github.com/XAMPPRocky/octocrab/compare/v0.23.0...v0.23.1) - 2023-06-02
 
 ### Fixed
 - the API returns one reviewer not reviewers ([#390](https://github.com/XAMPPRocky/octocrab/pull/390))
