@@ -608,6 +608,10 @@ pub struct Repository {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_merge_commit: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_update_branch: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_forking: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub subscribers_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_count: Option<i64>,
