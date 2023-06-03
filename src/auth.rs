@@ -45,6 +45,8 @@ pub enum Auth {
     App(AppAuth),
     /// Authenticate as a Github OAuth App
     OAuth(OAuth),
+    /// Authenticate using a User Access Token
+    UserAccessToken(SecretString),
 }
 
 impl Default for Auth {
