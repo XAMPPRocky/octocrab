@@ -1,4 +1,5 @@
 use super::*;
+pub mod secrets;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
