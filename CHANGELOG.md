@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0](https://github.com/XAMPPRocky/octocrab/compare/v0.24.0...v0.25.0) - 2023-06-03
+
+### Other
+- Add User Access Authentication ([#375](https://github.com/XAMPPRocky/octocrab/pull/375))
+- Add allow_forking & allow_update_branch in Repository model ([#379](https://github.com/XAMPPRocky/octocrab/pull/379))
+- added org secrets api ([#384](https://github.com/XAMPPRocky/octocrab/pull/384))
+
 ## [0.24.0](https://github.com/XAMPPRocky/octocrab/compare/v0.23.0...v0.23.1) - 2023-06-02
 
 ### Fixed
