@@ -68,6 +68,7 @@ default = ["rustls", "timeout", "tracing", "retry"]
 
 retry = ["tower/retry", "futures-util"]
 rustls = ["hyper-rustls"]
+rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
 opentls = ["hyper-tls"]
 stream = ["futures-core", "futures-util", "hyper/stream"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
