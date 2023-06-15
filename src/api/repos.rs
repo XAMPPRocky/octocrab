@@ -397,7 +397,7 @@ impl<'octo> RepoHandler<'octo> {
     /// List collaborators from a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let teams = octocrab::instance().repos("owner", "repo").list_teams().send().await?;
+    /// let collaborators = octocrab::instance().repos("owner", "repo").list_collaborators().send().await?;
     /// # Ok(())
     /// # }
     /// ```
