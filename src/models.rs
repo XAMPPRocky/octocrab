@@ -411,7 +411,6 @@ pub struct Collaborator {
     pub permissions: Permissions,
 }
 
-
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct StarGazer {
