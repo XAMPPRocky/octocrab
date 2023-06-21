@@ -5,6 +5,8 @@ use hyper::{body, Response};
 use snafu::ResultExt;
 use url::Url;
 
+pub mod secrets;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]

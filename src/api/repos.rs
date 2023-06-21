@@ -17,6 +17,7 @@ pub mod releases;
 mod stargazers;
 mod status;
 mod tags;
+mod secrets;
 
 use crate::error::HttpSnafu;
 use crate::{models, params, Octocrab, Result};
@@ -30,6 +31,7 @@ pub use releases::ReleasesHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
+pub use secrets::RepoSecretsHandler;
 
 /// Handler for GitHub's repository API.
 ///
@@ -587,5 +589,10 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle secrets on the repository
+    pub fn secrets(&self) -> RepoSecretsHandler<'_> {
+        RepoSecretsHandler::new(self)
     }
 }
