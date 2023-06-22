@@ -42,9 +42,10 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let repo = octocrab.repos("owner", "repo");
-    /// let secrets = repo.secrets();
-    /// let public_key = secrets.get_public_key().await?;
+    /// let public_key = octocrab.repos("owner", "repo")
+    ///     .secrets()
+    ///     .get_public_key()
+    ///     .await?;
     /// # Ok(())
     /// # }
     pub async fn get_public_key(&self) -> crate::Result<crate::models::PublicKey> {
@@ -58,9 +59,10 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let repo = octocrab.repos("owner", "repo");
-    /// let secrets = repo.secrets();
-    /// let secret_info = secrets.get_secret("TOKEN").await?;
+    /// let secret_info = octocrab.repos("owner", "repo")
+    ///     .secrets()
+    ///     .get_secret("TOKEN")
+    ///     .await?;
     /// # Ok(())
     /// # }
     pub async fn get_secret(
@@ -85,12 +87,13 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// use octocrab::models::repos::secrets::{CreateRepositorySecret, CreateRepositorySecretResponse};
     ///
-    /// let repo = octocrab.repos("owner", "repo");
-    /// let secrets = repo.secrets();
-    /// let result = secrets.create_or_update_secret("GH_TOKEN", &CreateRepositorySecret{
-    ///    key_id: "123456",
-    ///    encrypted_value: "some-b64-encrypted-string",
-    /// }).await?;
+    /// let result = octocrab.repos("owner", "repo")
+    ///     .secrets()
+    ///     .create_or_update_secret("GH_TOKEN", &CreateRepositorySecret{
+    ///         key_id: "123456",
+    ///         encrypted_value: "some-b64-encrypted-string",
+    ///     })
+    ///     .await?;
     ///
     /// match result {
     ///    CreateRepositorySecretResponse::Created => println!("Created secret!"),
