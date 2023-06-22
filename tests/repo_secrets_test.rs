@@ -64,10 +64,11 @@ async fn should_return_repo_secrets() {
 
     let template = ResponseTemplate::new(200).set_body_json(&repo_secrets);
     let mock_server = setup_get_api(template, "").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let repo = client.repos(OWNER.to_owned(), REPO.to_owned());
-    let secrets = repo.secrets();
-    let result = secrets.get_secrets().await;
+    let result = setup_octocrab(&mock_server.uri())
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets()
+        .get_secrets()
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -98,10 +99,11 @@ async fn should_return_repo_public_key() {
 
     let template = ResponseTemplate::new(200).set_body_json(&repo_secrets);
     let mock_server = setup_get_api(template, "/public-key").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let repo = client.repos(OWNER.to_owned(), REPO.to_owned());
-    let secrets = repo.secrets();
-    let result = secrets.get_public_key().await;
+    let result = setup_octocrab(&mock_server.uri())
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets()
+        .get_public_key()
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -123,10 +125,11 @@ async fn should_return_repo_secret() {
 
     let template = ResponseTemplate::new(200).set_body_json(&repo_secrets);
     let mock_server = setup_get_api(template, "/GH_TOKEN").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let repo = client.repos(OWNER.to_owned(), REPO.to_owned());
-    let secrets = repo.secrets();
-    let result = secrets.get_secret("GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets()
+        .get_secret("GH_TOKEN")
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -151,10 +154,9 @@ async fn should_return_repo_secret() {
 async fn should_add_secret() {
     let template = ResponseTemplate::new(201);
     let mock_server = setup_put_api(template, "/GH_TOKEN").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let repo = client.repos(OWNER.to_owned(), REPO.to_owned());
-    let secrets = repo.secrets();
-    let result = secrets
+    let result = setup_octocrab(&mock_server.uri())
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets()
         .create_or_update_secret(
             "GH_TOKEN",
             &CreateRepositorySecret {

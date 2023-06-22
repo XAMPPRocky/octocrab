@@ -22,9 +22,10 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let repo = octocrab.repos("owner", "repo");
-    /// let secrets = repo.secrets();
-    /// let all_secrets = secrets.get_secrets().await?;
+    /// let all_secrets = octocrab.repos("owner", "repo")
+    ///     .secrets()
+    ///     .get_secrets()
+    ///     .await?;
     /// # Ok(())
     /// # }
     pub async fn get_secrets(
@@ -138,10 +139,10 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// let repo = octocrab.repos("owner", "repo");
-    /// let secrets = repo.secrets();
-    ///
-    /// secrets.delete_secret("GH_TOKEN").await?;
+    /// let repo = octocrab.repos("owner", "repo")
+    ///     .secrets()
+    ///     .delete_secret("GH_TOKEN")
+    ///     .await?;
     ///
     /// # Ok(())
     /// # }
