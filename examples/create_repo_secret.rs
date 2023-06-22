@@ -1,9 +1,6 @@
 use base64::{engine::general_purpose::STANDARD as B64, Engine};
 use crypto_box::{self, aead::OsRng, PublicKey};
-use octocrab::{
-    models::repos::secrets::CreateRepositorySecret,
-    Octocrab,
-};
+use octocrab::{models::repos::secrets::CreateRepositorySecret, Octocrab};
 use std::convert::TryInto;
 
 #[tokio::main]

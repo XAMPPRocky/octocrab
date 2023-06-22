@@ -7,7 +7,7 @@ use octocrab::{
     models::{
         repos::secrets::{
             CreateRepositorySecret, CreateRepositorySecretResponse, RepositorySecret,
-            RepositorySecrets
+            RepositorySecrets,
         },
         PublicKey,
     },
@@ -25,7 +25,9 @@ async fn setup_get_api(template: ResponseTemplate, secrets_path: &str) -> MockSe
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/repos/{OWNER}/{REPO}/actions/secrets{secrets_path}")))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/actions/secrets{secrets_path}"
+        )))
         .respond_with(template)
         .mount(&mock_server)
         .await;
@@ -41,7 +43,9 @@ async fn setup_put_api(template: ResponseTemplate, secrets_path: &str) -> MockSe
     let mock_server = MockServer::start().await;
 
     Mock::given(method("PUT"))
-        .and(path(format!("/repos/{OWNER}/{REPO}/actions/secrets{secrets_path}")))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/actions/secrets{secrets_path}"
+        )))
         .respond_with(template)
         .mount(&mock_server)
         .await;
@@ -77,16 +81,26 @@ async fn should_return_repo_secrets() {
     let item = result.unwrap();
 
     assert_eq!(item.total_count, 2);
-    assert_eq!(item.secrets,vec![
+    assert_eq!(
+        item.secrets,
+        vec![
             RepositorySecret {
                 name: String::from("GH_TOKEN"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z").unwrap().into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z").unwrap().into(),
+                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
+                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
             },
             RepositorySecret {
                 name: String::from("GIST_ID"),
-                created_at: DateTime::parse_from_rfc3339("2020-01-10T10:59:22Z").unwrap().into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-11T11:59:22Z").unwrap().into(),
+                created_at: DateTime::parse_from_rfc3339("2020-01-10T10:59:22Z")
+                    .unwrap()
+                    .into(),
+                updated_at: DateTime::parse_from_rfc3339("2020-01-11T11:59:22Z")
+                    .unwrap()
+                    .into(),
             },
         ]
     );

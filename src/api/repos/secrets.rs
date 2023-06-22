@@ -31,7 +31,11 @@ impl<'octo> RepoSecretsHandler<'octo> {
     pub async fn get_secrets(
         &self,
     ) -> crate::Result<crate::models::repos::secrets::RepositorySecrets> {
-        let route = format!("/repos/{owner}/{repo}/actions/secrets", owner = self.repo.owner, repo = self.repo.repo);
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/secrets",
+            owner = self.repo.owner,
+            repo = self.repo.repo
+        );
         self.repo.crab.get(route, None::<&()>).await
     }
 
@@ -50,7 +54,11 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn get_public_key(&self) -> crate::Result<crate::models::PublicKey> {
-        let route = format!("/repos/{owner}/{repo}/actions/secrets/public-key", owner = self.repo.owner, repo = self.repo.repo);
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/secrets/public-key",
+            owner = self.repo.owner,
+            repo = self.repo.repo
+        );
         self.repo.crab.get(route, None::<&()>).await
     }
 
@@ -127,7 +135,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
                     "Unexpected status code from request: {}",
                     status_code.as_str()
                 )
-                    .into(),
+                .into(),
                 backtrace: snafu::Backtrace::generate(),
             }),
         }

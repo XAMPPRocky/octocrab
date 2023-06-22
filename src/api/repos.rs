@@ -14,10 +14,10 @@ mod generate;
 mod merges;
 mod pulls;
 pub mod releases;
+mod secrets;
 mod stargazers;
 mod status;
 mod tags;
-mod secrets;
 
 use crate::error::HttpSnafu;
 use crate::{models, params, Octocrab, Result};
@@ -28,10 +28,10 @@ pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
+pub use secrets::RepoSecretsHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
-pub use secrets::RepoSecretsHandler;
 
 /// Handler for GitHub's repository API.
 ///
