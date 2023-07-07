@@ -1,6 +1,9 @@
 //! The commit API.
+mod associated_pull_requests;
 mod compare_commit;
 mod create_comment;
+
+pub use associated_pull_requests::PullRequestTarget;
 
 pub use self::create_comment::CreateCommentBuilder;
 use crate::{models, Octocrab, Result};
@@ -26,6 +29,13 @@ impl<'octo> CommitHandler<'octo> {
         head: impl Into<String>,
     ) -> compare_commit::CompareCommitsBuilder<'_, '_> {
         compare_commit::CompareCommitsBuilder::new(self, base.into(), head.into())
+    }
+
+    pub fn associated_pull_requests(
+        &self,
+        target: PullRequestTarget,
+    ) -> associated_pull_requests::AssociatedPullRequestsBuilder<'_, '_> {
+        associated_pull_requests::AssociatedPullRequestsBuilder::new(self, target)
     }
 
     pub fn create_comment(
