@@ -1,4 +1,5 @@
 //! The commit API.
+mod compare_commit;
 mod create_comment;
 
 pub use self::create_comment::CreateCommentBuilder;
@@ -18,6 +19,14 @@ impl<'octo> CommitHandler<'octo> {
     // pub fn create(&self, title: impl Into<String>) -> create::CreateIssueBuilder<'_, '_> {
     //     create::CreateIssueBuilder::new(self, title.into())
     // }
+
+    pub fn compare(
+        &self,
+        base: impl Into<String>,
+        head: impl Into<String>,
+    ) -> compare_commit::CompareCommitsBuilder<'_, '_> {
+        compare_commit::CompareCommitsBuilder::new(self, base.into(), head.into())
+    }
 
     pub fn create_comment(
         &self,
