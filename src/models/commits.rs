@@ -95,14 +95,14 @@ pub enum FileStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommitFile {
     pub additions: i64,
-    pub blob_url: String,
+    pub blob_url: Option<String>,
     pub changes: i64,
     pub contents_url: String,
     pub deletions: i64,
     pub filename: String,
     pub patch: Option<String>,
     pub previous_filename: Option<String>,
-    pub raw_url: String,
+    pub raw_url: Option<String>,
     pub sha: String,
     pub status: FileStatus,
 }
