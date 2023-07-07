@@ -95,6 +95,7 @@ pub enum FileStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommitFile {
     pub additions: i64,
+    // unlike the schema online, this can be null
     pub blob_url: Option<String>,
     pub changes: i64,
     pub contents_url: String,
@@ -102,6 +103,7 @@ pub struct CommitFile {
     pub filename: String,
     pub patch: Option<String>,
     pub previous_filename: Option<String>,
+    // unlike the schema online, this can be null
     pub raw_url: Option<String>,
     pub sha: String,
     pub status: FileStatus,
