@@ -39,8 +39,21 @@ impl<'octo, 'r> CompareCommitsBuilder<'octo, 'r> {
         self
     }
 
+    // /// Sends the actual request.
+    // pub async fn send(self) -> crate::Result<crate::Page<models::commits::CommitComparison>> {
+    //     let route = format!(
+    //         "/repos/{owner}/{repo}/compare/{base}...{head}",
+    //         owner = self.handler.owner,
+    //         repo = self.handler.repo,
+    //         base = self.base,
+    //         head = self.head,
+    //     );
+
+    //     self.handler.crab.get(route, None::<&()>).await
+    // }
+
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<crate::Page<models::commits::CommitComparison>> {
+    pub async fn send(self) -> crate::Result<models::commits::CommitComparison> {
         let route = format!(
             "/repos/{owner}/{repo}/compare/{base}...{head}",
             owner = self.handler.owner,
