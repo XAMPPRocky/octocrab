@@ -6,6 +6,7 @@ use http::Uri;
 use snafu::ResultExt;
 
 mod branches;
+mod collaborators;
 mod commits;
 pub mod events;
 mod file;
@@ -18,10 +19,12 @@ mod secrets;
 mod stargazers;
 mod status;
 mod tags;
+mod teams;
 
 use crate::error::HttpSnafu;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
+pub use collaborators::ListCollaboratorsBuilder;
 pub use commits::ListCommitsBuilder;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
@@ -32,6 +35,7 @@ pub use secrets::RepoSecretsHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
+pub use teams::ListTeamsBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -379,6 +383,28 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
         ListCommitsBuilder::new(self)
+    }
+
+    /// List teams from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let teams = octocrab::instance().repos("owner", "repo").list_teams().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_teams(&self) -> ListTeamsBuilder<'_, '_> {
+        ListTeamsBuilder::new(self)
+    }
+
+    /// List collaborators from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let collaborators = octocrab::instance().repos("owner", "repo").list_collaborators().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_collaborators(&self) -> ListCollaboratorsBuilder<'_, '_> {
+        ListCollaboratorsBuilder::new(self)
     }
 
     /// List star_gazers from a repository.

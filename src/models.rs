@@ -403,6 +403,14 @@ pub struct Author {
     pub site_admin: bool,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Collaborator {
+    #[serde(flatten)]
+    pub author: Author,
+    pub permissions: Permissions,
+}
+
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct StarGazer {
