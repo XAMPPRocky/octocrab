@@ -14,6 +14,7 @@ mod generate;
 mod merges;
 mod pulls;
 pub mod releases;
+mod secrets;
 mod stargazers;
 mod status;
 mod tags;
@@ -27,6 +28,7 @@ pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use releases::ReleasesHandler;
+pub use secrets::RepoSecretsHandler;
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
@@ -587,5 +589,10 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle secrets on the repository
+    pub fn secrets(&self) -> RepoSecretsHandler<'_> {
+        RepoSecretsHandler::new(self)
     }
 }
