@@ -140,7 +140,8 @@ pub struct Step {
     pub name: String,
     pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conclusion: Option<String>,
+    // TODO: can a step's conclusion be skipped?
+    pub conclusion: Option<Conclusion>,
     pub number: i64,
     // Github might set null here during Step startup...
     pub started_at: Option<chrono::DateTime<chrono::Utc>>,
