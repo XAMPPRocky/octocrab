@@ -27,10 +27,7 @@ impl<'octo> CommitHandler<'octo> {
         create_comment::CreateCommentBuilder::new(self, sha.into(), body.into())
     }
 
-    pub async fn get(
-        &self,
-        reference: impl Into<String>,
-    ) -> Result<models::repos::RepoCommit> {
+    pub async fn get(&self, reference: impl Into<String>) -> Result<models::repos::RepoCommit> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{reference}",
             owner = self.owner,

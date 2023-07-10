@@ -6,7 +6,10 @@ async fn main() -> octocrab::Result<()> {
 
     let octocrab = Octocrab::builder().personal_token(token).build()?;
 
-    let commit = octocrab.commits("XAMPPRocky", "octocrab").get("15c0e31").await?;
+    let commit = octocrab
+        .commits("XAMPPRocky", "octocrab")
+        .get("15c0e31")
+        .await?;
 
     for file in commit.files.unwrap() {
         println!(
