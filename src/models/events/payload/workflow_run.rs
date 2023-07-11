@@ -34,7 +34,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/workflow_run_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::WorkflowRunEvent(payload)) = event.payload {
+        if let Some(EventPayload::WorkflowRunEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.workflow_run.run_number, 1185);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
@@ -46,7 +48,9 @@ mod test {
         let json =
             include_str!("../../../../tests/resources/workflow_run_event_no_organization.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::WorkflowRunEvent(payload)) = event.payload {
+        if let Some(EventPayload::WorkflowRunEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.workflow_run.run_number, 1185);
             assert_eq!(payload.organization, None);
         } else {

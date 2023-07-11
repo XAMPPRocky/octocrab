@@ -148,7 +148,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/pull_request_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::PullRequestEvent(payload)) = event.payload {
+        if let Some(EventPayload::PullRequestEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.action, PullRequestEventAction::Opened);
             assert_eq!(payload.number, 8);
             assert_eq!(payload.pull_request.id.0, 558121796);

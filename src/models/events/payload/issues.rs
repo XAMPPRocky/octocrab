@@ -120,7 +120,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/issues_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::IssuesEvent(payload)) = event.payload {
+        if let Some(EventPayload::IssuesEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.action, IssuesEventAction::Opened);
             assert_eq!(payload.issue.id.0, 786747990);
         } else {

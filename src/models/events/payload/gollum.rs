@@ -55,7 +55,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/gollum_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::GollumEvent(payload)) = event.payload {
+        if let Some(EventPayload::GollumEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.pages[0].page_name, "Home");
             assert_eq!(payload.pages[0].title, "Home");
             assert_eq!(payload.pages[0].action, GollumEventPageAction::Created);
