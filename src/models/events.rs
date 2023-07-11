@@ -157,6 +157,7 @@ impl<'de> Deserialize<'de> for Event {
 #[cfg(test)]
 mod test {
     use super::{Event, EventPayload, EventType};
+    use pretty_assertions::assert_eq;
     use url::Url;
 
     #[test]
