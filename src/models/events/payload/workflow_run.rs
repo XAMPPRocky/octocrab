@@ -12,9 +12,6 @@ pub struct WorkflowRunEventPayload {
     pub action: WorkflowRunEventAction,
     pub workflow_run: Run,
     pub workflow: WorkFlow,
-    pub organization: Option<Organization>,
-    pub repository: Repository,
-    pub sender: Author,
 }
 
 /// The action on a pull request this event corresponds to.
@@ -52,7 +49,7 @@ mod test {
             event.payload.as_ref().unwrap().specific
         {
             assert_eq!(payload.workflow_run.run_number, 1185);
-            assert_eq!(payload.organization, None);
+            assert_eq!(event.payload.as_ref().unwrap().organization, None);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

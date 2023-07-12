@@ -30,6 +30,8 @@ pub use workflow_run::*;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
+use crate::models::{orgs::Organization, Author, Repository};
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EventInstallationPayload {
     pub id: InstallationId,
@@ -38,6 +40,9 @@ pub struct EventInstallationPayload {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WrappedEventPayload {
     pub installation: Option<EventInstallationPayload>,
+    pub organization: Option<Organization>,
+    pub repository: Option<Repository>,
+    pub sender: Option<Author>,
     #[serde(flatten)]
     pub specific: Option<EventPayload>,
 }

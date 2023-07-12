@@ -140,6 +140,9 @@ impl<'de> Deserialize<'de> for Event {
         #[derive(Deserialize)]
         struct IntermediatePayload {
             installation: Option<EventInstallationPayload>,
+            organization: Option<crate::models::orgs::Organization>,
+            repository: Option<crate::models::Repository>,
+            sender: Option<crate::models::Author>,
             #[serde(flatten)]
             specific: Option<serde_json::Value>,
         }
@@ -153,6 +156,9 @@ impl<'de> Deserialize<'de> for Event {
             .map_err(|e| Error::custom(e.to_string()))?;
             Ok(Some(WrappedEventPayload {
                 installation: data.installation,
+                organization: data.organization,
+                repository: data.repository,
+                sender: data.sender,
                 specific,
             }))
         })?;
