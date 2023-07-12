@@ -84,7 +84,9 @@ mod test {
         let json =
             include_str!("../../../../tests/resources/pull_request_review_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::PullRequestReviewCommentEvent(payload)) = event.payload {
+        if let Some(EventPayload::PullRequestReviewCommentEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.action, PullRequestReviewCommentEventAction::Created);
             assert_eq!(payload.pull_request.id.0, 558121796);
             assert_eq!(payload.comment.id.0, 560976245);

@@ -29,7 +29,7 @@ mod test {
         let json = include_str!("../../../../tests/resources/push_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
+        let payload = event.payload.unwrap().specific.unwrap();
         match payload {
             EventPayload::PushEvent(payload) => {
                 assert_eq!(payload.push_id.0, 6080608029);

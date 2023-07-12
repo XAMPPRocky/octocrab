@@ -21,7 +21,7 @@ mod test {
         let json = include_str!("../../../../tests/resources/create_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
+        let payload = event.payload.unwrap().specific.unwrap();
         match payload {
             EventPayload::CreateEvent(payload) => {
                 assert_eq!(payload.r#ref, Some("url-normalisation".to_string()));
@@ -43,7 +43,7 @@ mod test {
             include_str!("../../../../tests/resources/create_event_with_null_description.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.payload.is_some());
-        let payload = event.payload.unwrap();
+        let payload = event.payload.unwrap().specific.unwrap();
         match payload {
             EventPayload::CreateEvent(payload) => assert_eq!(payload.description, None),
             _ => panic!("unexpected event deserialized"),

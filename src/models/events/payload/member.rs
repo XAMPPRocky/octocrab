@@ -83,7 +83,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/member_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::MemberEvent(payload)) = event.payload {
+        if let Some(EventPayload::MemberEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.action, MemberEventAction::Added);
             assert_eq!(payload.member.id.0, 58522265);
         } else {

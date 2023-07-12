@@ -1,6 +1,6 @@
 [package]
 name = "octocrab"
-version = "0.25.1"
+version = "0.26.0"
 authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
 readme = "README.md"
@@ -62,6 +62,7 @@ tokio-test = "0.4.2"
 wiremock = "0.5.3"
 crypto_box = { version = "0.8.2", features = ["seal"] }
 base64 = "0.21.2"
+pretty_assertions = "1.4.0"
 
 [features]
 default = ["rustls", "timeout", "tracing", "retry"]

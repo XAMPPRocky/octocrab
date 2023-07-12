@@ -1,10 +1,12 @@
 pub mod payload;
 
+use crate::models::events::payload::EventInstallationPayload;
+
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PullRequestReviewEventPayload,
-    PushEventPayload, WorkflowRunEventPayload,
+    PushEventPayload, WorkflowRunEventPayload, WrappedEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -22,7 +24,7 @@ pub struct Event {
     pub repo: Repository,
     pub public: bool,
     pub created_at: DateTime<Utc>,
-    pub payload: Option<EventPayload>,
+    pub payload: Option<WrappedEventPayload>,
     pub org: Option<Org>,
 }
 
@@ -133,12 +135,32 @@ impl<'de> Deserialize<'de> for Event {
             public: bool,
             created_at: DateTime<Utc>,
             org: Option<Org>,
-            payload: Option<serde_json::Value>,
+            payload: Option<IntermediatePayload>,
+        }
+        #[derive(Deserialize)]
+        struct IntermediatePayload {
+            installation: Option<EventInstallationPayload>,
+            organization: Option<crate::models::orgs::Organization>,
+            repository: Option<crate::models::Repository>,
+            sender: Option<crate::models::Author>,
+            #[serde(flatten)]
+            specific: Option<serde_json::Value>,
         }
         let intermediate = Intermediate::deserialize(deserializer)?;
         let event_type = deserialize_event_type(intermediate.typ.as_ref());
         let payload = intermediate.payload.map_or(Ok(None), |data| {
-            deserialize_payload(&event_type, data).map_err(|e| Error::custom(e.to_string()))
+            let specific = deserialize_payload(
+                &event_type,
+                data.specific.unwrap_or(serde_json::Value::Null),
+            )
+            .map_err(|e| Error::custom(e.to_string()))?;
+            Ok(Some(WrappedEventPayload {
+                installation: data.installation,
+                organization: data.organization,
+                repository: data.repository,
+                sender: data.sender,
+                specific,
+            }))
         })?;
         let event = Event {
             id: intermediate.id,
@@ -157,6 +179,7 @@ impl<'de> Deserialize<'de> for Event {
 #[cfg(test)]
 mod test {
     use super::{Event, EventPayload, EventType};
+    use pretty_assertions::assert_eq;
     use url::Url;
 
     #[test]
@@ -206,6 +229,10 @@ mod test {
         let json = include_str!("../../tests/resources/workflow_run_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::WorkflowRunEvent);
+        assert_eq!(
+            event.payload.unwrap().installation.unwrap().id,
+            crate::models::InstallationId(18995746)
+        )
     }
 
     #[test]
@@ -268,7 +295,7 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         assert!(event.payload.is_some());
         let payload = event.payload.unwrap();
-        match payload {
+        match payload.specific.unwrap() {
             EventPayload::UnknownEvent(json) => {
                 assert!(json.is_object());
                 let map = json.as_object().unwrap();

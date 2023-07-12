@@ -18,7 +18,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/delete_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::DeleteEvent(payload)) = event.payload {
+        if let Some(EventPayload::DeleteEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.r#ref, "test2");
             assert_eq!(payload.ref_type, "branch");
         } else {

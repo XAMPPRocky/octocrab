@@ -17,7 +17,9 @@ mod test {
     fn should_deserialize_with_correct_payload() {
         let json = include_str!("../../../../tests/resources/commit_comment_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
-        if let Some(EventPayload::CommitCommentEvent(payload)) = event.payload {
+        if let Some(EventPayload::CommitCommentEvent(ref payload)) =
+            event.payload.as_ref().unwrap().specific
+        {
             assert_eq!(payload.comment.id.0, 46377107);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
