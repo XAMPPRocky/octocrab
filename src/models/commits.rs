@@ -77,7 +77,6 @@ pub struct Verification {
 }
 
 /// Diff Entry
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FileStatus {
@@ -124,7 +123,6 @@ pub struct CommitStats {
 }
 
 /// Commit
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Commit {
     pub author: Option<Author>,
