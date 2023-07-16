@@ -102,10 +102,15 @@ pub struct Job {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Conclusion {
-    Success,
-    Failure,
+    #[serde(rename = "action_required")]
+    ActionRequired,
     Cancelled,
+    Failure,
+    Neutral,
     Skipped,
+    Success,
+    #[serde(rename = "timed_out")]
+    TimedOut,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -124,7 +129,6 @@ pub struct Step {
     pub name: String,
     pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
-    // TODO: can a step's conclusion be skipped?
     pub conclusion: Option<Conclusion>,
     pub number: i64,
     // Github might set null here during Step startup...
