@@ -19,6 +19,6 @@ async fn main() -> octocrab::Result<()> {
         .public(false)
         .send()
         .await?;
-    println!("Done, created: {url}", url = gist.html_url.to_string());
+    println!("Done, created: {url}", url = gist.html_url);
     Ok(())
 }

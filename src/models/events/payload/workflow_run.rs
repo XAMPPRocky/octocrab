@@ -1,7 +1,5 @@
 use crate::models::{
-    orgs::Organization,
     workflows::{Run, WorkFlow},
-    Author, Repository,
 };
 use serde::{Deserialize, Serialize};
 

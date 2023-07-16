@@ -29,7 +29,7 @@ async fn main() -> octocrab::Result<()> {
         println!(
             "{id} | {url} | [{files}] | {description}",
             id = gist.id,
-            url = gist.html_url.to_string(),
+            url = gist.html_url,
             files = gist.files.into_keys().collect::<Vec<_>>().join(", "),
             description = gist
                 .description
