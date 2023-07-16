@@ -102,14 +102,12 @@ pub struct Job {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Conclusion {
-    #[serde(rename = "action_required")]
     ActionRequired,
     Cancelled,
     Failure,
     Neutral,
     Skipped,
     Success,
-    #[serde(rename = "timed_out")]
     TimedOut,
 }
 
