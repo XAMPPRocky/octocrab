@@ -54,7 +54,7 @@ impl<'octo, 'r> AssociatedPullRequestsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<crate::Page<Vec<models::pulls::PullRequest>>> {
+    pub async fn send(self) -> crate::Result<crate::Page<models::pulls::PullRequest>> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{target}/pulls",
             owner = self.handler.owner,
