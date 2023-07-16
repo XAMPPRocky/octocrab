@@ -1,6 +1,4 @@
-use crate::models::{
-    workflows::{Run, WorkFlow},
-};
+use crate::models::workflows::{Run, WorkFlow};
 use serde::{Deserialize, Serialize};
 
 /// The payload in a [`super::EventPayload::WorkflowRunEvent`] type.
