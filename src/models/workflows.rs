@@ -63,28 +63,6 @@ pub struct HeadCommit {
     pub committer: super::repos::CommitAuthor,
 }
 
-// #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-// #[non_exhaustive]
-// pub struct Job {
-//     pub id: JobId,
-//     pub run_id: RunId,
-//     pub node_id: String,
-//     pub head_sha: String,
-//     pub status: String,
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub conclusion: Option<String>,
-//     // Github has been seen to set null here during Job startup
-//     pub started_at: Option<chrono::DateTime<chrono::Utc>>,
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
-//     pub name: String,
-//     pub url: Url,
-//     pub html_url: Url,
-//     pub run_url: Url,
-//     pub check_run_url: Url,
-//     pub steps: Vec<Step>,
-// }
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Job {
@@ -100,17 +78,23 @@ pub struct Job {
     pub url: Url,
     pub html_url: Url,
     pub status: Status,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<Conclusion>,
     pub created_at: DateTime<Utc>,
     pub started_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<DateTime<Utc>>,
     pub name: String,
     pub steps: Vec<Step>,
     pub check_run_url: String,
     pub labels: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub runner_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub runner_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub runner_group_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub runner_group_name: Option<String>,
 }
 
