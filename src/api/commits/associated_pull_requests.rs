@@ -54,7 +54,7 @@ impl<'octo, 'r> AssociatedPullRequestsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<Vec<models::pulls::PullRequest>> {
+    pub async fn send(self) -> crate::Result<crate::Page<Vec<models::pulls::PullRequest>>> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{target}/pulls",
             owner = self.handler.owner,
@@ -62,14 +62,15 @@ impl<'octo, 'r> AssociatedPullRequestsBuilder<'octo, 'r> {
             target = self.target.to_string(),
         );
 
-        self.handler.crab.get(route, None::<&()>).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    #[tokio::test]
-    async fn associated_pull_requests_serializes_correctly() {
+
+    #[test]
+    fn associated_pull_requests_serializes_correctly() {
         use super::PullRequestTarget;
 
         let octocrab = crate::Octocrab::default();
@@ -78,7 +79,7 @@ mod tests {
             handler.associated_pull_requests(PullRequestTarget::Sha("commit_sha".to_string()));
 
         assert_eq!(
-            serde_json::to_value(&associated_prs).unwrap(),
+            serde_json::to_value(associated_prs).unwrap(),
             serde_json::json!({
                 "target": "commit_sha"
             })
