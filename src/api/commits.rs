@@ -2,7 +2,7 @@
 mod create_comment;
 
 pub use self::create_comment::CreateCommentBuilder;
-use crate::{models, Octocrab};
+use crate::{models, Octocrab, Result};
 
 pub struct CommitHandler<'octo> {
     crab: &'octo Octocrab,
@@ -25,5 +25,15 @@ impl<'octo> CommitHandler<'octo> {
         body: impl Into<String>,
     ) -> create_comment::CreateCommentBuilder<'_, '_> {
         create_comment::CreateCommentBuilder::new(self, sha.into(), body.into())
+    }
+
+    pub async fn get(&self, reference: impl Into<String>) -> Result<models::repos::RepoCommit> {
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{reference}",
+            owner = self.owner,
+            repo = self.repo,
+            reference = reference.into(),
+        );
+        self.crab.get(route, None::<&()>).await
     }
 }
