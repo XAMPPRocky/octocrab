@@ -68,30 +68,66 @@ pub struct HeadCommit {
 pub struct Job {
     pub id: JobId,
     pub run_id: RunId,
+    pub workflow_name: String,
+    pub head_branch: String,
+    pub run_url: Url,
+    pub run_attempt: u32,
+
     pub node_id: String,
     pub head_sha: String,
-    pub status: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub conclusion: Option<String>,
-    // Github has been seen to set null here during Job startup
-    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub name: String,
     pub url: Url,
     pub html_url: Url,
-    pub run_url: Url,
-    pub check_run_url: Url,
+    pub status: Status,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub conclusion: Option<Conclusion>,
+    pub created_at: DateTime<Utc>,
+    pub started_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<DateTime<Utc>>,
+    pub name: String,
     pub steps: Vec<Step>,
+    pub check_run_url: String,
+    pub labels: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_group_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_group_name: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Conclusion {
+    ActionRequired,
+    Cancelled,
+    Failure,
+    Neutral,
+    Skipped,
+    Success,
+    TimedOut,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Status {
+    Queued,
+    InProgress,
+    Completed,
+    Failed,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Step {
     pub name: String,
-    pub status: String,
+    pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conclusion: Option<String>,
+    pub conclusion: Option<Conclusion>,
     pub number: i64,
     // Github might set null here during Step startup...
     pub started_at: Option<chrono::DateTime<chrono::Utc>>,

@@ -18,13 +18,13 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/user/memberships/orgs")))
+        .and(path("/user/memberships/orgs".to_string()))
         .respond_with(template)
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /user/membership/orgs was not received"),
+        &"GET on /user/membership/orgs was not received".to_string(),
     )
     .await;
     mock_server
