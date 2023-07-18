@@ -1,6 +1,6 @@
 pub mod payload;
 
-use crate::models::events::payload::EventInstallationPayload;
+use crate::models::events::payload::EventInstallation;
 
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
@@ -15,6 +15,10 @@ use serde::{de::Error, Deserialize, Serialize};
 use url::Url;
 
 /// A GitHub event.
+///
+/// If you want to deserialize a webhook payload received in a Github Application, you
+/// must directly deserialize the body into a [`WrappedEventPayload`](WrappedEventPayload).
+/// For webhooks, the event type is stored in the `X-GitHub-Event` header.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[non_exhaustive]
 pub struct Event {
@@ -139,7 +143,7 @@ impl<'de> Deserialize<'de> for Event {
         }
         #[derive(Deserialize)]
         struct IntermediatePayload {
-            installation: Option<EventInstallationPayload>,
+            installation: Option<EventInstallation>,
             organization: Option<crate::models::orgs::Organization>,
             repository: Option<crate::models::Repository>,
             sender: Option<crate::models::Author>,
@@ -230,8 +234,13 @@ mod test {
         let event: Event = serde_json::from_str(json).unwrap();
         assert_eq!(event.r#type, EventType::WorkflowRunEvent);
         assert_eq!(
-            event.payload.unwrap().installation.unwrap().id,
-            crate::models::InstallationId(18995746)
+            event.payload.unwrap().installation.unwrap(),
+            crate::models::events::payload::EventInstallation::Minimal(Box::new(
+                crate::models::events::payload::EventInstallationId {
+                    id: 18995746.into(),
+                    node_id: "MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uMTg5OTU3NDY=".to_string()
+                }
+            ))
         )
     }
 
