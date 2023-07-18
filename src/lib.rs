@@ -1035,7 +1035,7 @@ impl Octocrab {
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let response: serde_json::Value = octocrab::instance()
-    ///     .graphql("{ 'query': '{ viewer { login }}' }")
+    ///     .graphql(&serde_json::json!({ "query": "{ viewer { login }}" }))
     ///     .await?;
     ///# Ok(())
     ///# }
