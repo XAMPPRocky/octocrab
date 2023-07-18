@@ -137,8 +137,10 @@ impl<'octo> WorkflowDispatchBuilder<'octo> {
             .build()
             .context(HttpSnafu)?;
 
-        // this entry point doesn't actually return anything sensible
-        self.crab._post(uri, Some(&self.data)).await?;
+        let response = self.crab._post(uri, Some(&self.data)).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
 
         Ok(())
     }
