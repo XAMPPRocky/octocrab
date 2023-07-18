@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0](https://github.com/XAMPPRocky/octocrab/compare/v0.26.0...v0.26.1) - 2023-07-18
+
+### Other
+- Handle errors when kicking off github workflows ([#409](https://github.com/XAMPPRocky/octocrab/pull/409))
+- Update license field following https://doc.rust-lang.org/cargo/reference/manifest.html#the-license-and-license-file-fields ([#412](https://github.com/XAMPPRocky/octocrab/pull/412))
+- cargo clippy --tests ([#416](https://github.com/XAMPPRocky/octocrab/pull/416))
+- Improve workflow job types  ([#414](https://github.com/XAMPPRocky/octocrab/pull/414))
+- Fix graphql example ([#404](https://github.com/XAMPPRocky/octocrab/pull/404))
+
 ## [0.25.1](https://github.com/XAMPPRocky/octocrab/compare/v0.25.0...v0.25.1) - 2023-06-06
 
 ### Other
