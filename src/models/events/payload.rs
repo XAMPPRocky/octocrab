@@ -3,6 +3,9 @@ mod create;
 mod delete;
 mod fork;
 mod gollum;
+mod installation;
+mod installation_repositories;
+mod installation_target;
 mod issue_comment;
 mod issues;
 mod member;
@@ -12,12 +15,14 @@ mod pull_request_review_comment;
 mod push;
 mod workflow_run;
 
-use crate::models::{repos::CommitAuthor, InstallationId};
 pub use commit_comment::*;
 pub use create::*;
 pub use delete::*;
 pub use fork::*;
 pub use gollum::*;
+pub use installation::*;
+pub use installation_repositories::*;
+pub use installation_target::*;
 pub use issue_comment::*;
 pub use issues::*;
 pub use member::*;
@@ -30,16 +35,29 @@ pub use workflow_run::*;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::models::{orgs::Organization, Author, Repository};
+use crate::models::{
+    orgs::Organization, repos::CommitAuthor, Author, Installation, InstallationId, Repository,
+    RepositoryId,
+};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct EventInstallationPayload {
+#[serde(untagged)]
+pub enum EventInstallation {
+    /// A full installation object which is present for `Installation*` related webhook events.
+    Full(Box<Installation>),
+    /// The minimal installation object is present for all other event types.
+    Minimal(Box<EventInstallationId>),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EventInstallationId {
     pub id: InstallationId,
+    pub node_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WrappedEventPayload {
-    pub installation: Option<EventInstallationPayload>,
+    pub installation: Option<EventInstallation>,
     pub organization: Option<Organization>,
     pub repository: Option<Repository>,
     pub sender: Option<Author>,
@@ -59,6 +77,9 @@ pub enum EventPayload {
     PushEvent(Box<PushEventPayload>),
     CreateEvent(Box<CreateEventPayload>),
     DeleteEvent(Box<DeleteEventPayload>),
+    InstallationEvent(Box<InstallationEventPayload>),
+    InstallationRepositoriesEvent(Box<InstallationRepositoriesEventPayload>),
+    InstallationTargetEvent(Box<InstallationTargetEventPayload>),
     IssuesEvent(Box<IssuesEventPayload>),
     IssueCommentEvent(Box<IssueCommentEventPayload>),
     CommitCommentEvent(Box<CommitCommentEventPayload>),
@@ -81,4 +102,77 @@ pub struct Commit {
     pub message: String,
     pub distinct: bool,
     pub url: Url,
+}
+
+/// A repository in installation related webhook events.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct InstallationEventRepository {
+    pub id: RepositoryId,
+    pub node_id: String,
+    pub name: String,
+    pub full_name: String,
+    pub private: bool,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_deserialize_installation_event() {
+        // The payload has been extracted as the `payload` key from a webhook installation event.
+        let json = include_str!("../../../tests/resources/installation_event.json");
+        let event: WrappedEventPayload = serde_json::from_str(json).unwrap();
+
+        let installation = event.installation.unwrap();
+        let specific = event.specific.unwrap();
+
+        match installation {
+            EventInstallation::Full(install) => {
+                assert_eq!(install.id, 7777777.into());
+                assert_eq!(install.repository_selection.unwrap(), "all");
+            }
+            EventInstallation::Minimal(_) => {
+                panic!("expected a Full installation payload for the event.")
+            }
+        };
+
+        match specific {
+            EventPayload::InstallationEvent(install) => {
+                let repos = install.repositories;
+                assert_eq!(repos.len(), 3);
+                assert!(
+                    repos.iter().any(|repo| repo.name == "ViscoElRebound"),
+                    "ViscoElRebound should be in the list of repositories"
+                );
+                assert!(
+                    repos.iter().any(|repo| repo.name == "OSSU"),
+                    "OSSU should be in the list of repositories"
+                );
+                assert!(
+                    repos.iter().any(|repo| repo.name == "octocrab"),
+                    "octocrab should be in the list of repositories"
+                );
+            }
+            EventPayload::PushEvent(_)
+            | EventPayload::CreateEvent(_)
+            | EventPayload::DeleteEvent(_)
+            | EventPayload::InstallationRepositoriesEvent(_)
+            | EventPayload::InstallationTargetEvent(_)
+            | EventPayload::IssuesEvent(_)
+            | EventPayload::IssueCommentEvent(_)
+            | EventPayload::CommitCommentEvent(_)
+            | EventPayload::ForkEvent(_)
+            | EventPayload::GollumEvent(_)
+            | EventPayload::MemberEvent(_)
+            | EventPayload::PullRequestEvent(_)
+            | EventPayload::PullRequestReviewEvent(_)
+            | EventPayload::PullRequestReviewCommentEvent(_)
+            | EventPayload::WorkflowRunEvent(_)
+            | EventPayload::UnknownEvent(_) => {
+                panic!("Expected an installation event, got {:?}", specific)
+            }
+        }
+    }
 }
