@@ -115,18 +115,6 @@ impl<'octo> SearchHandler<'octo> {
     }
 }
 
-#[derive(Clone, Debug)]
-pub enum ContentType {
-    TextMatch,
-    Default,
-}
-
-impl Default for ContentType {
-    fn default() -> Self {
-        Self::Default
-    }
-}
-
 /// A handler for handling search queries to GitHub.
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct QueryHandler<'octo, 'query, T> {
@@ -136,8 +124,6 @@ pub struct QueryHandler<'octo, 'query, T> {
     crab: &'octo Octocrab,
     #[serde(skip)]
     route: &'static str,
-    #[serde(skip)]
-    content_type: ContentType,
     #[serde(rename = "q")]
     query: &'query str,
     per_page: Option<u8>,
@@ -151,7 +137,6 @@ pub struct QueryHandler<'octo, 'query, T> {
 impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
     pub(crate) fn new(crab: &'octo Octocrab, route: &'static str, query: &'query str) -> Self {
         Self {
-            content_type: ContentType::Default,
             crab,
             order: None,
             page: None,
