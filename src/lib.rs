@@ -541,9 +541,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             #[cfg(all(feature = "rustls", not(feature = "opentls")))]
             let connector = {
                 let builder = HttpsConnectorBuilder::new();
-                #[cfg(all(feature = "rustls-webpki-tokio"))]
+                #[cfg(feature = "rustls-webpki-tokio")]
                 let builder = builder.with_webpki_roots();
-                #[cfg(all(not(feature = "rustls-webpki-tokio")))]
+                #[cfg(not(feature = "rustls-webpki-tokio"))]
                 let builder = builder.with_native_roots(); // enabled the `rustls-native-certs` feature in hyper-rustls
 
                 builder
