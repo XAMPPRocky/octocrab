@@ -12,7 +12,7 @@ pub struct Team {
     pub name: String,
     pub slug: String,
     pub description: Option<String>,
-    pub privacy: String,
+    pub privacy: TeamPrivacy,
     pub permission: String,
     pub members_url: Url,
     pub repositories_url: Url,
@@ -49,7 +49,7 @@ pub struct RequestedTeam {
     pub slug: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub privacy: String,
+    pub privacy: TeamPrivacy,
     pub permission: String,
     pub members_url: Url,
     pub repositories_url: Url,
@@ -75,4 +75,13 @@ pub struct TeamInvitation {
     pub team_count: u32,
     pub node_id: String,
     pub invitation_teams_url: String,
+}
+
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum TeamPrivacy {
+    Open,
+    Closed,
+    Secret,
 }

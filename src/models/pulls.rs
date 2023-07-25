@@ -78,7 +78,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<Box<Links>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub author_association: Option<String>,
+    pub author_association: Option<AuthorAssociation>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -255,13 +255,13 @@ pub struct Comment {
     pub commit_id: String,
     pub original_commit_id: String,
     #[serde(default)]
-    pub in_reply_to_id: Option<u64>,
+    pub in_reply_to_id: Option<CommentId>,
     pub user: Option<Author>,
     pub body: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
     pub html_url: String,
-    pub author_association: String,
+    pub author_association: AuthorAssociation,
     #[serde(rename = "_links")]
     pub links: Links,
     pub start_line: Option<u64>,
@@ -270,6 +270,14 @@ pub struct Comment {
     pub line: Option<u64>,
     pub original_line: Option<u64>,
     pub side: Option<String>,
+}
+
+/// A Thread in a pull request review
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Thread {
+    pub comments: Vec<Comment>,
+    pub node_id: String,
 }
 
 // This is rather annoying, but Github uses both SCREAMING_SNAKE_CASE and snake_case
