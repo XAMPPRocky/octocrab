@@ -69,8 +69,8 @@ impl<'octo, 'r> AssociatedPullRequestsBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn associated_pull_requests_serializes_correctly() {
+    #[tokio::test]
+    async fn associated_pull_requests_serializes_correctly() {
         use super::PullRequestTarget;
 
         let octocrab = crate::Octocrab::default();

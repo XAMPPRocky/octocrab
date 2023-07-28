@@ -56,8 +56,8 @@ impl<'octo, 'r> CompareCommitsBuilder<'octo, 'r> {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn compare_commits_serializes_correctly() {
+    #[tokio::test]
+    async fn compare_commits_serializes_correctly() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.commits("owner", "repo");
         let comparison = handler.compare("base", "head");
