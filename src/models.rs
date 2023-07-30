@@ -22,6 +22,7 @@ pub mod reactions;
 pub mod repos;
 pub mod teams;
 pub mod timelines;
+pub mod webhook_events;
 pub mod workflows;
 
 pub use apps::App;
@@ -97,6 +98,7 @@ id_type!(
     AppId,
     ArtifactId,
     AssetId,
+    BranchProtectionRuleId,
     CardId,
     CheckSuiteId,
     CheckRunId,
@@ -105,6 +107,7 @@ id_type!(
     IssueEventId,
     IssueId,
     JobId,
+    HookId,
     LabelId,
     MilestoneId,
     NotificationId,
@@ -401,6 +404,22 @@ pub struct Author {
     pub received_events_url: Url,
     pub r#type: String,
     pub site_admin: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[non_exhaustive]
+pub enum AuthorAssociation {
+    Collaborator,
+    Contributor,
+    FirstTimer,
+    FirstTimeContributor,
+    Mannequin,
+    Member,
+    None,
+    Owner,
+    #[serde(untagged)]
+    Other(String),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

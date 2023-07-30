@@ -130,7 +130,7 @@ pub struct Commit {
     pub committer: Option<CommitAuthor>,
 }
 
-/// The author of a commit, identified by its name and email, as well as (optionally) a time
+/// The author of a commit, identified by its name and email, as well as (optionally) a time and a github username
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GitUserTime {
     #[serde(flatten)]
@@ -138,6 +138,9 @@ pub struct GitUserTime {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub username: Option<String>,
 }
 
 /// The author of a commit, identified by its name and email.

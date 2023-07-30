@@ -15,10 +15,6 @@ use serde::{de::Error, Deserialize, Serialize};
 use url::Url;
 
 /// A GitHub event.
-///
-/// If you want to deserialize a webhook payload received in a Github Application, you
-/// must directly deserialize the body into a [`WrappedEventPayload`](WrappedEventPayload).
-/// For webhooks, the event type is stored in the `X-GitHub-Event` header.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[non_exhaustive]
 pub struct Event {

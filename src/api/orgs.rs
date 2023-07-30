@@ -178,11 +178,11 @@ impl<'octo> OrgHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// use octocrab::models::hooks::{Hook, Config as HookConfig};
+    /// use octocrab::models::hooks::{Hook, Config as HookConfig, ContentType as HookContentType};
     ///
     /// let config = HookConfig {
     ///   url: "https://example.com".to_string(),
-    ///   content_type: Some("json".to_string()),
+    ///   content_type: Some(HookContentType::Json),
     ///   insecure_ssl: None,
     ///   secret: None
     /// };
