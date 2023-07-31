@@ -84,6 +84,7 @@ pub use self::{
 
 use serde::{Deserialize, Serialize};
 
+/// The specific part of the payload in a webhook event
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum WebhookEventPayload {

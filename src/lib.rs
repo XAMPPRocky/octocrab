@@ -146,6 +146,36 @@
 //! octocrab::instance();
 //! # })
 //! ```
+//!
+//! ## GitHub webhook application support
+//!
+//! `octocrab` provides [deserializable datatypes](crate::models::webhook_events)
+//! for the payloads received by a GitHub application [responding to
+//! webhooks](https://docs.github.com/en/apps/creating-github-apps/writing-code-for-a-github-app/building-a-github-app-that-responds-to-webhook-events).
+//! This allows you to write a typesafe application using Rust with
+//! pattern-matching/enum-dispatch to respond to events.
+//!
+//! **Note**: Webhook support in `octocrab` is still beta, not all known webhook events are
+//! strongly typed.
+//!
+//! ```no_run
+//! # use http::request::Request;
+//! # use tracing::{warn, info};
+//! # use octocrab::models::webhook_events::*;
+//! # let request_from_github = Request::post("https://my-webhook-url.com").body(vec![0_u8]).unwrap();
+//! // request_from_github is the HTTP request your webhook handler received
+//! let (parts, body) = request_from_github.into_parts();
+//! let header = parts.headers.get("X-GitHub-Event").unwrap().to_str().unwrap();
+//!
+//! let event = WebhookEvent::try_from_header_and_body(header, &body).unwrap();
+//! // Now you can match on event type and call any specific handling logic
+//! match event.kind {
+//!     WebhookEventType::Ping => info!("Received a ping"),
+//!     WebhookEventType::PullRequest => info!("Received a pull request event"),
+//!     // ...
+//!     _ => warn!("Ignored event"),
+//! };
+//! ```
 #![cfg_attr(test, recursion_limit = "512")]
 
 mod api;
