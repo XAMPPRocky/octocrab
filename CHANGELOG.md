@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0](https://github.com/XAMPPRocky/octocrab/compare/v0.28.0...v0.29.0) - 2023-07-31
+
+### Other
+- Rename WebhookEventPayload variants
+- Add documentation to Webhook event types and main library
+- Add webhook event deserialization ([#427](https://github.com/XAMPPRocky/octocrab/pull/427))
+- Update changelog for v0.28.0 ([#428](https://github.com/XAMPPRocky/octocrab/pull/428))
+- Add associated pull requests and commit compare functionality  ([#413](https://github.com/XAMPPRocky/octocrab/pull/413))
+- Fix clippy 1.71 warnings ([#424](https://github.com/XAMPPRocky/octocrab/pull/424))
+
 ## [0.28.0](https://github.com/XAMPPRocky/octocrab/compare/v0.27.0...v0.28.0) - 2023-07-19
 
 ### Other
