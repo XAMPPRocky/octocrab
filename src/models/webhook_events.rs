@@ -49,7 +49,7 @@
 //!
 //! let event = WebhookEvent::try_from_header_and_body(event_name, json)?;
 //! assert_eq!(event.kind, WebhookEventType::Ping);
-//! let WebhookEventPayload::PingWebhookEvent(ping_event) = event.specific else { panic!("checked for event.kind type before unwrapping") };
+//! let WebhookEventPayload::Ping(ping_event) = event.specific else { panic!("checked for event.kind type before unwrapping") };
 //! assert_eq!(ping_event.hook.unwrap().app_id.unwrap(), AppId(360617));
 //! # Ok::<(), serde_json::Error>(())
 //! ```
@@ -725,257 +725,221 @@ impl WebhookEventType {
         data: serde_json::Value,
     ) -> Result<WebhookEventPayload, serde_json::Error> {
         match self {
-            WebhookEventType::BranchProtectionRule => {
-                Ok(WebhookEventPayload::BranchProtectionRuleWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::CheckRun => Ok(WebhookEventPayload::CheckRunWebhookEvent(Box::new(
+            WebhookEventType::BranchProtectionRule => Ok(
+                WebhookEventPayload::BranchProtectionRule(Box::new(serde_json::from_value(data)?)),
+            ),
+            WebhookEventType::CheckRun => Ok(WebhookEventPayload::CheckRun(Box::new(
                 serde_json::from_value(data)?,
             ))),
-            WebhookEventType::CheckSuite => Ok(WebhookEventPayload::CheckSuiteWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::CodeScanningAlert => {
-                Ok(WebhookEventPayload::CodeScanningAlertWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::CommitComment => Ok(WebhookEventPayload::CommitCommentWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::Create => Ok(WebhookEventPayload::CreateWebhookEvent(Box::new(
+            WebhookEventType::CheckSuite => Ok(WebhookEventPayload::CheckSuite(Box::new(
                 serde_json::from_value(data)?,
             ))),
-            WebhookEventType::Delete => Ok(WebhookEventPayload::DeleteWebhookEvent(Box::new(
+            WebhookEventType::CodeScanningAlert => Ok(WebhookEventPayload::CodeScanningAlert(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::CommitComment => Ok(WebhookEventPayload::CommitComment(Box::new(
                 serde_json::from_value(data)?,
             ))),
-            WebhookEventType::DependabotAlert => {
-                Ok(WebhookEventPayload::DependabotAlertWebhookEvent(Box::new(
-                    serde_json::from_value(data)?,
-                )))
-            }
-            WebhookEventType::DeployKey => Ok(WebhookEventPayload::DeployKeyWebhookEvent(
+            WebhookEventType::Create => Ok(WebhookEventPayload::Create(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Delete => Ok(WebhookEventPayload::Delete(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::DependabotAlert => Ok(WebhookEventPayload::DependabotAlert(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::Deployment => Ok(WebhookEventPayload::DeploymentWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
+            WebhookEventType::DeployKey => Ok(WebhookEventPayload::DeployKey(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Deployment => Ok(WebhookEventPayload::Deployment(Box::new(
+                serde_json::from_value(data)?,
+            ))),
             WebhookEventType::DeploymentProtectionRule => {
-                Ok(WebhookEventPayload::DeploymentProtectionRuleWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::DeploymentStatus => {
-                Ok(WebhookEventPayload::DeploymentStatusWebhookEvent(Box::new(
+                Ok(WebhookEventPayload::DeploymentProtectionRule(Box::new(
                     serde_json::from_value(data)?,
                 )))
             }
-            WebhookEventType::Discussion => Ok(WebhookEventPayload::DiscussionWebhookEvent(
+            WebhookEventType::DeploymentStatus => Ok(WebhookEventPayload::DeploymentStatus(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::DiscussionComment => {
-                Ok(WebhookEventPayload::DiscussionCommentWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Fork => Ok(WebhookEventPayload::ForkWebhookEvent(Box::new(
+            WebhookEventType::Discussion => Ok(WebhookEventPayload::Discussion(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::DiscussionComment => Ok(WebhookEventPayload::DiscussionComment(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::Fork => Ok(WebhookEventPayload::Fork(Box::new(
                 serde_json::from_value(data)?,
             ))),
             WebhookEventType::GithubAppAuthorization => {
-                Ok(WebhookEventPayload::GithubAppAuthorizationWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Gollum => Ok(WebhookEventPayload::GollumWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Installation => Ok(WebhookEventPayload::InstallationWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::InstallationRepositories => {
-                Ok(WebhookEventPayload::InstallationRepositoriesWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::InstallationTarget => {
-                Ok(WebhookEventPayload::InstallationTargetWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::IssueComment => Ok(WebhookEventPayload::IssueCommentWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::Issues => Ok(WebhookEventPayload::IssuesWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Label => Ok(WebhookEventPayload::LabelWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::MarketplacePurchase => {
-                Ok(WebhookEventPayload::MarketplacePurchaseWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Member => Ok(WebhookEventPayload::MemberWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Membership => Ok(WebhookEventPayload::MembershipWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::MergeGroup => Ok(WebhookEventPayload::MergeGroupWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::Meta => Ok(WebhookEventPayload::MetaWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Milestone => Ok(WebhookEventPayload::MilestoneWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::OrgBlock => Ok(WebhookEventPayload::OrgBlockWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Organization => Ok(WebhookEventPayload::OrganizationWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::Package => Ok(WebhookEventPayload::PackageWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::PageBuild => Ok(WebhookEventPayload::PageBuildWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::PersonalAccessTokenRequest => {
-                Ok(WebhookEventPayload::PersonalAccessTokenRequestWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Ping => Ok(WebhookEventPayload::PingWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::ProjectCard => Ok(WebhookEventPayload::ProjectCardWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::Project => Ok(WebhookEventPayload::ProjectWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::ProjectColumn => Ok(WebhookEventPayload::ProjectColumnWebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::ProjectsV2 => Ok(WebhookEventPayload::ProjectsV2WebhookEvent(
-                Box::new(serde_json::from_value(data)?),
-            )),
-            WebhookEventType::ProjectsV2Item => {
-                Ok(WebhookEventPayload::ProjectsV2ItemWebhookEvent(Box::new(
+                Ok(WebhookEventPayload::GithubAppAuthorization(Box::new(
                     serde_json::from_value(data)?,
                 )))
             }
-            WebhookEventType::Public => Ok(WebhookEventPayload::PublicWebhookEvent(Box::new(
+            WebhookEventType::Gollum => Ok(WebhookEventPayload::Gollum(Box::new(
                 serde_json::from_value(data)?,
             ))),
-            WebhookEventType::PullRequest => Ok(WebhookEventPayload::PullRequestWebhookEvent(
+            WebhookEventType::Installation => Ok(WebhookEventPayload::Installation(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::InstallationRepositories => {
+                Ok(WebhookEventPayload::InstallationRepositories(Box::new(
+                    serde_json::from_value(data)?,
+                )))
+            }
+            WebhookEventType::InstallationTarget => Ok(WebhookEventPayload::InstallationTarget(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::PullRequestReview => {
-                Ok(WebhookEventPayload::PullRequestReviewWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
+            WebhookEventType::IssueComment => Ok(WebhookEventPayload::IssueComment(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Issues => Ok(WebhookEventPayload::Issues(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Label => Ok(WebhookEventPayload::Label(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::MarketplacePurchase => Ok(WebhookEventPayload::MarketplacePurchase(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::Member => Ok(WebhookEventPayload::Member(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Membership => Ok(WebhookEventPayload::Membership(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::MergeGroup => Ok(WebhookEventPayload::MergeGroup(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Meta => Ok(WebhookEventPayload::Meta(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Milestone => Ok(WebhookEventPayload::Milestone(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::OrgBlock => Ok(WebhookEventPayload::OrgBlock(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Organization => Ok(WebhookEventPayload::Organization(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Package => Ok(WebhookEventPayload::Package(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::PageBuild => Ok(WebhookEventPayload::PageBuild(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::PersonalAccessTokenRequest => {
+                Ok(WebhookEventPayload::PersonalAccessTokenRequest(Box::new(
+                    serde_json::from_value(data)?,
+                )))
             }
+            WebhookEventType::Ping => Ok(WebhookEventPayload::Ping(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::ProjectCard => Ok(WebhookEventPayload::ProjectCard(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Project => Ok(WebhookEventPayload::Project(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::ProjectColumn => Ok(WebhookEventPayload::ProjectColumn(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::ProjectsV2 => Ok(WebhookEventPayload::ProjectsV2(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::ProjectsV2Item => Ok(WebhookEventPayload::ProjectsV2Item(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Public => Ok(WebhookEventPayload::Public(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::PullRequest => Ok(WebhookEventPayload::PullRequest(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::PullRequestReview => Ok(WebhookEventPayload::PullRequestReview(
+                Box::new(serde_json::from_value(data)?),
+            )),
             WebhookEventType::PullRequestReviewComment => {
-                Ok(WebhookEventPayload::PullRequestReviewCommentWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
+                Ok(WebhookEventPayload::PullRequestReviewComment(Box::new(
+                    serde_json::from_value(data)?,
+                )))
             }
             WebhookEventType::PullRequestReviewThread => {
-                Ok(WebhookEventPayload::PullRequestReviewThreadWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Push => Ok(WebhookEventPayload::PushWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::RegistryPackage => {
-                Ok(WebhookEventPayload::RegistryPackageWebhookEvent(Box::new(
+                Ok(WebhookEventPayload::PullRequestReviewThread(Box::new(
                     serde_json::from_value(data)?,
                 )))
             }
-            WebhookEventType::Release => Ok(WebhookEventPayload::ReleaseWebhookEvent(Box::new(
+            WebhookEventType::Push => Ok(WebhookEventPayload::Push(Box::new(
                 serde_json::from_value(data)?,
             ))),
-            WebhookEventType::RepositoryAdvisory => {
-                Ok(WebhookEventPayload::RepositoryAdvisoryWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Repository => Ok(WebhookEventPayload::RepositoryWebhookEvent(
+            WebhookEventType::RegistryPackage => Ok(WebhookEventPayload::RegistryPackage(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::RepositoryDispatch => {
-                Ok(WebhookEventPayload::RepositoryDispatchWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::RepositoryImport => {
-                Ok(WebhookEventPayload::RepositoryImportWebhookEvent(Box::new(
+            WebhookEventType::Release => Ok(WebhookEventPayload::Release(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::RepositoryAdvisory => Ok(WebhookEventPayload::RepositoryAdvisory(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::Repository => Ok(WebhookEventPayload::Repository(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::RepositoryDispatch => Ok(WebhookEventPayload::RepositoryDispatch(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::RepositoryImport => Ok(WebhookEventPayload::RepositoryImport(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::RepositoryVulnerabilityAlert => {
+                Ok(WebhookEventPayload::RepositoryVulnerabilityAlert(Box::new(
                     serde_json::from_value(data)?,
                 )))
             }
-            WebhookEventType::RepositoryVulnerabilityAlert => Ok(
-                WebhookEventPayload::RepositoryVulnerabilityAlertWebhookEvent(Box::new(
-                    serde_json::from_value(data)?,
-                )),
-            ),
-            WebhookEventType::SecretScanningAlert => {
-                Ok(WebhookEventPayload::SecretScanningAlertWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::SecretScanningAlertLocation => Ok(
-                WebhookEventPayload::SecretScanningAlertLocationWebhookEvent(Box::new(
-                    serde_json::from_value(data)?,
-                )),
-            ),
-            WebhookEventType::SecurityAdvisory => {
-                Ok(WebhookEventPayload::SecurityAdvisoryWebhookEvent(Box::new(
+            WebhookEventType::SecretScanningAlert => Ok(WebhookEventPayload::SecretScanningAlert(
+                Box::new(serde_json::from_value(data)?),
+            )),
+            WebhookEventType::SecretScanningAlertLocation => {
+                Ok(WebhookEventPayload::SecretScanningAlertLocation(Box::new(
                     serde_json::from_value(data)?,
                 )))
             }
-            WebhookEventType::SecurityAndAnalysis => {
-                Ok(WebhookEventPayload::SecurityAndAnalysisWebhookEvent(
-                    Box::new(serde_json::from_value(data)?),
-                ))
-            }
-            WebhookEventType::Sponsorship => Ok(WebhookEventPayload::SponsorshipWebhookEvent(
+            WebhookEventType::SecurityAdvisory => Ok(WebhookEventPayload::SecurityAdvisory(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::Star => Ok(WebhookEventPayload::StarWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Status => Ok(WebhookEventPayload::StatusWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::TeamAdd => Ok(WebhookEventPayload::TeamAddWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Team => Ok(WebhookEventPayload::TeamWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::Watch => Ok(WebhookEventPayload::WatchWebhookEvent(Box::new(
-                serde_json::from_value(data)?,
-            ))),
-            WebhookEventType::WorkflowDispatch => {
-                Ok(WebhookEventPayload::WorkflowDispatchWebhookEvent(Box::new(
-                    serde_json::from_value(data)?,
-                )))
-            }
-            WebhookEventType::WorkflowJob => Ok(WebhookEventPayload::WorkflowJobWebhookEvent(
+            WebhookEventType::SecurityAndAnalysis => Ok(WebhookEventPayload::SecurityAndAnalysis(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::WorkflowRun => Ok(WebhookEventPayload::WorkflowRunWebhookEvent(
+            WebhookEventType::Sponsorship => Ok(WebhookEventPayload::Sponsorship(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Star => Ok(WebhookEventPayload::Star(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Status => Ok(WebhookEventPayload::Status(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::TeamAdd => Ok(WebhookEventPayload::TeamAdd(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Team => Ok(WebhookEventPayload::Team(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Watch => Ok(WebhookEventPayload::Watch(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::WorkflowDispatch => Ok(WebhookEventPayload::WorkflowDispatch(
                 Box::new(serde_json::from_value(data)?),
             )),
-            WebhookEventType::Unknown(_) => {
-                Ok(WebhookEventPayload::UnknownWebhookEvent(Box::new(data)))
-            }
+            WebhookEventType::WorkflowJob => Ok(WebhookEventPayload::WorkflowJob(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::WorkflowRun => Ok(WebhookEventPayload::WorkflowRun(Box::new(
+                serde_json::from_value(data)?,
+            ))),
+            WebhookEventType::Unknown(_) => Ok(WebhookEventPayload::Unknown(Box::new(data))),
         }
     }
 }
@@ -1017,7 +981,7 @@ mod tests {
         let event = WebhookEventType::Installation
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::InstallationWebhookEvent(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Installation(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_event.action,
             InstallationWebhookEventAction::Created
@@ -1032,7 +996,7 @@ mod tests {
         let event = WebhookEventType::Installation
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::InstallationWebhookEvent(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Installation(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_event.action,
             InstallationWebhookEventAction::Deleted
@@ -1049,7 +1013,7 @@ mod tests {
         let event = WebhookEventType::InstallationRepositories
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::InstallationRepositoriesWebhookEvent(install_repositories_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::InstallationRepositories(install_repositories_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_repositories_event.action,
             InstallationRepositoriesWebhookEventAction::Removed
@@ -1067,7 +1031,7 @@ mod tests {
         let event = WebhookEventType::IssueComment
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::IssueCommentWebhookEvent(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Created
@@ -1081,7 +1045,7 @@ mod tests {
         let event = WebhookEventType::IssueComment
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::IssueCommentWebhookEvent(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Deleted
@@ -1094,7 +1058,7 @@ mod tests {
         let event = WebhookEventType::IssueComment
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::IssueCommentWebhookEvent(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Edited
@@ -1108,7 +1072,7 @@ mod tests {
         let event = WebhookEventType::Issues
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::IssuesWebhookEvent(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Issues(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(issues_event.action, IssuesWebhookEventAction::Labeled);
     }
 
@@ -1118,7 +1082,7 @@ mod tests {
         let event = WebhookEventType::Issues
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::IssuesWebhookEvent(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Issues(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(issues_event.action, IssuesWebhookEventAction::Opened);
     }
 
@@ -1128,7 +1092,7 @@ mod tests {
         let event = WebhookEventType::Ping
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::PingWebhookEvent(ping_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Ping(ping_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(ping_event.hook.unwrap().id, 423885699);
     }
 
@@ -1138,7 +1102,7 @@ mod tests {
         let event = WebhookEventType::PullRequest
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::PullRequestWebhookEvent(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Closed
@@ -1152,7 +1116,7 @@ mod tests {
         let event = WebhookEventType::PullRequest
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::PullRequestWebhookEvent(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Opened
@@ -1166,7 +1130,7 @@ mod tests {
         let event = WebhookEventType::PullRequest
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::PullRequestWebhookEvent(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Synchronize
@@ -1179,7 +1143,7 @@ mod tests {
         let event = WebhookEventType::Repository
             .parse_specific_payload(serde_json::from_str(json).unwrap())
             .unwrap();
-        let WebhookEventPayload::RepositoryWebhookEvent(repository_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let WebhookEventPayload::Repository(repository_event) = event else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             repository_event.action,
             RepositoryWebhookEventAction::Deleted
