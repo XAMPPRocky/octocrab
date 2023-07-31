@@ -65,7 +65,7 @@
 //! but the API needs to change according to actual usage in order to refine the different payloads
 //! received.
 
-mod payload;
+pub mod payload;
 
 use super::{orgs::Organization, Author, Installation, InstallationId, Repository, RepositoryId};
 use serde::{Deserialize, Serialize};
