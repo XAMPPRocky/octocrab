@@ -109,8 +109,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix typo in POST /gists endpoint (#327)
 - Update hyper-rustls requirement from 0.23.2 to 0.24.0 (#324)
 - Percent encode label name in remove_label to avoid InvalidUri(InvalidUriChar) error (#323)
-- Update CHANGELOG.md
-- Update CHANGELOG.md
 
 ## [0.20.0-alpha.1](https://github.com/XAMPPRocky/octocrab/compare/v0.20.0-alpha.0...v0.20.0-alpha.1) - 2023-03-31
 
