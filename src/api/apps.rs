@@ -97,4 +97,14 @@ impl<'octo> AppsRequestHandler<'octo> {
 
         self.crab.get(&route, None::<&()>).await
     }
+
+    /// Get an organization installation for the authenticated app.
+    pub async fn get_org_installation(
+        &self,
+        owner: impl AsRef<str>,
+    ) -> crate::Result<crate::models::Installation> {
+        let route = format!("/orgs/{owner}/installation", owner = owner.as_ref(),);
+
+        self.crab.get(&route, None::<&()>).await
+    }
 }
