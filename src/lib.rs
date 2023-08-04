@@ -188,6 +188,7 @@ pub mod etag;
 pub mod models;
 pub mod params;
 pub mod service;
+
 use crate::service::body::BodyStreamExt;
 
 use http::{HeaderMap, HeaderValue, Method, Uri};
@@ -371,6 +372,7 @@ pub struct NoSvc {}
 
 //Indicates weather builder supports with_layer(This is somewhat redundant given NoSvc exists, but we have to use this until specialization is stable)
 pub struct NotLayerReady {}
+
 pub struct LayerReady {}
 
 //Indicates weather the builder supports auth
@@ -761,33 +763,73 @@ impl DefaultOctocrabBuilderConfig {
 pub type DynBody = dyn http_body::Body<Data = Bytes, Error = BoxError> + Send + Unpin;
 
 /// A cached API access token (which may be None)
-pub struct CachedToken(RwLock<Option<SecretString>>);
+pub struct CachedToken(RwLock<Option<SecretInstallationToken>>);
+
+type SecretInstallationToken = secrecy::Secret<ActiveInstallationToken>;
+
+/// Wrapper for [InstallationToken] that provideds implementations required to
+/// hold secret data.
+///
+/// See [secrecy::ClonableSecret] and [secrecy::DebugSecret] for more information.
+#[derive(Clone, Debug)]
+struct ActiveInstallationToken(InstallationToken);
+
+// This implementation of Zeroize only zeroizes the token itself.
+impl secrecy::Zeroize for ActiveInstallationToken {
+    fn zeroize(&mut self) {
+        self.0.token.zeroize()
+    }
+}
+
+impl secrecy::CloneableSecret for ActiveInstallationToken {}
+
+impl secrecy::DebugSecret for ActiveInstallationToken {}
 
 impl CachedToken {
+    fn new(token: InstallationToken) -> Self {
+        Self(RwLock::new(Some(SecretInstallationToken::new(
+            ActiveInstallationToken(token),
+        ))))
+    }
     fn clear(&self) {
         *self.0.write().unwrap() = None;
     }
-    fn get(&self) -> Option<SecretString> {
-        self.0.read().unwrap().clone()
+    fn get(&self) -> Option<InstallationToken> {
+        self.0
+            .read()
+            .unwrap()
+            .as_ref()
+            .filter(|token| filter_expired_token(token))
+            .map(|secret| secret.expose_secret().0.clone())
     }
-    fn set(&self, value: String) {
-        *self.0.write().unwrap() = Some(SecretString::new(value));
+    fn set(&self, value: InstallationToken) {
+        *self.0.write().unwrap() =
+            Some(SecretInstallationToken::new(ActiveInstallationToken(value)));
     }
+}
+
+/// Used with [CachedToken::get] to filter out tokens before they expire.
+fn filter_expired_token(token: &SecretInstallationToken) -> bool {
+    let Some(expires_at) = token.expose_secret().0.expires_at.as_deref() else {
+        return true;
+    };
+    let expires_at = match chrono::DateTime::parse_from_rfc3339(expires_at) {
+        Err(err) => {
+            #[cfg(feature = "tracing")]
+            {
+                tracing::info!(error = ?err, "Failed to parse installation access token's expiration as an RFC3339 timestamp");
+            }
+            return true;
+        }
+        Ok(time) => time,
+    };
+
+    expires_at > (chrono::Utc::now() + chrono::Duration::minutes(1))
 }
 
 impl fmt::Debug for CachedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.read().unwrap().fmt(f)
-    }
-}
-
-impl fmt::Display for CachedToken {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let option = self.0.read().unwrap();
-        option
-            .as_ref()
-            .map(|s| s.expose_secret().fmt(f))
-            .unwrap_or_else(|| write!(f, "<none>"))
     }
 }
 
@@ -891,40 +933,97 @@ impl Octocrab {
 
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via a specific installation ID.
+    ///
     /// Typically you will first construct an `Octocrab` using
     /// `OctocrabBuilder::app` to authenticate as your Github App,
     /// then obtain an installation ID, and then pass that here to
     /// obtain a new `Octocrab` with which you can make API calls
     /// with the permissions of that installation.
-    pub fn installation(&self, id: InstallationId) -> Octocrab {
+    ///
+    /// ## Constructing an installation client using a known token
+    ///
+    /// You can construct an installation client with a known token.
+    /// If the token has expired, the client will automatically
+    /// fetch a new one.
+    ///
+    /// ```rust
+    /// # use octocrab::models::{InstallationId, InstallationToken};
+    /// #
+    /// # async fn to_octocrab_installation_client(app_client: octocrab::Octocrab, my_known_token: InstallationToken) -> octocrab::Result<()> {
+    /// // Create an installation client using the app client
+    /// let installation_client = app_client
+    ///     .installation(123.into())
+    ///     .with_token(my_known_token)
+    ///     .build();
+    ///
+    /// // Do something with the client
+    /// let repo = installation_client.repos("foo", "bar").get().await?;
+    /// eprintln!("Found {name}", name = repo.name);
+    ///
+    /// // Extract the token the client is using, either the same one as previously,
+    /// // or a new token that was generated when fetching repository data.
+    /// let my_known_token = installation_client.installation_token(false).await?;
+    /// # }
+    /// ```
+    pub fn installation(&self, id: InstallationId) -> InstallationClientBuilder {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
             panic!("Github App authorization is required to target an installation");
         };
+
+        InstallationClientBuilder {
+            id,
+            token: Default::default(),
+            app_auth,
+            crab: self,
+        }
+    }
+
+    /// Emit an installation token authenticating the client.
+    ///
+    /// If there is no token, it has expired, or if `force_refetch` is set, a
+    /// new token will be fetched.
+    ///
+    /// See also https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation
+    pub async fn installation_token(&self, force_refetch: bool) -> Result<InstallationToken> {
+        let AuthState::Installation { token: cached_token ,.. } = &self.auth_state else {
+            panic!("Not authorized as an installation");
+        };
+
+        Ok(match cached_token.get() {
+            Some(token) if !force_refetch => token,
+            _ => self.request_installation_auth_token().await?,
+        })
+    }
+}
+
+pub struct InstallationClientBuilder<'octo> {
+    id: InstallationId,
+    token: CachedToken,
+    app_auth: AppAuth,
+    crab: &'octo Octocrab,
+}
+
+impl<'octo> InstallationClientBuilder<'octo> {
+    pub fn build(self) -> Octocrab {
         Octocrab {
-            client: self.client.clone(),
+            client: self.crab.client.clone(),
             auth_state: AuthState::Installation {
-                app: app_auth,
-                installation: id,
-                token: CachedToken::default(),
+                app: self.app_auth,
+                installation: self.id,
+                token: self.token,
             },
         }
     }
 
-    /// Similar to `installation`, but also eagerly caches the installation
-    /// token and returns the token. The returned token can be used to make
-    /// https git requests to e.g. clone repositories that the installation
-    /// has access to.
+    /// Set the installation token to use for the client.
     ///
-    /// See also https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation
-    pub async fn installation_and_token(
-        &self,
-        id: InstallationId,
-    ) -> Result<(Octocrab, SecretString)> {
-        let crab = self.installation(id);
-        let token = crab.request_installation_auth_token().await?;
-        Ok((crab, token))
+    /// When the token expires, or if the token has already expired, the client
+    /// will automatically re-fetch a new installation token.
+    pub fn with_token(mut self, token: InstallationToken) -> Self {
+        self.token = CachedToken::new(token);
+        self
     }
 }
 
@@ -1315,7 +1414,7 @@ impl Octocrab {
     }
 
     /// Requests a fresh installation auth token and caches it. Returns the token.
-    async fn request_installation_auth_token(&self) -> Result<SecretString> {
+    async fn request_installation_auth_token(&self) -> Result<InstallationToken> {
         let (app, installation, token) = if let AuthState::Installation {
             ref app,
             installation,
@@ -1348,9 +1447,9 @@ impl Octocrab {
         let _status = response.status();
 
         let token_object =
-            InstallationToken::from_response(crate::map_github_error(response).await?).await?;
-        token.set(token_object.token.clone());
-        Ok(SecretString::new(token_object.token))
+            InstallationToken::from_response(map_github_error(response).await?).await?;
+        token.set(token_object.clone());
+        Ok(token_object)
     }
 
     /// Send the given request to the underlying service
@@ -1407,14 +1506,15 @@ impl Octocrab {
                 Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
             AuthState::Installation { ref token, .. } => {
-                let token = if let Some(token) = token.get() {
-                    token
+                // Get the raw token value from any contained token, or fetch a new one.
+                let installation_token = if let Some(token) = token.get() {
+                    token.token.clone()
                 } else {
-                    self.request_installation_auth_token().await?
+                    self.request_installation_auth_token().await?.token.clone()
                 };
 
                 Some(
-                    HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
+                    HeaderValue::from_str(format!("Bearer {}", installation_token).as_str())
                         .map_err(http::Error::from)
                         .context(HttpSnafu)?,
                 )
