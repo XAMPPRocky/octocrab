@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Allow extract the installation token from the client.
+- Allow building clients with installation tokens.
+
+### Changed
+- `octocrab::Octocrab::installation` now returns a builder type.
+
 ## [0.29.1](https://github.com/XAMPPRocky/octocrab/compare/v0.29.0...v0.29.1) - 2023-07-31
 
 ### Other
