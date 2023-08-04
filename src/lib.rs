@@ -963,6 +963,7 @@ impl Octocrab {
     /// // Extract the token the client is using, either the same one as previously,
     /// // or a new token that was generated when fetching repository data.
     /// let my_known_token = installation_client.installation_token(false).await?;
+    /// # Ok(())
     /// # }
     /// ```
     pub fn installation(&self, id: InstallationId) -> InstallationClientBuilder {
