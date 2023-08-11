@@ -1,6 +1,6 @@
-use chrono::{DateTime, Utc};
 use crate::models::{CheckRunId, CheckSuiteId};
 use crate::{models, Octocrab, Result};
+use chrono::{DateTime, Utc};
 
 /// Handler for GitHub's Checks API.
 ///
@@ -30,7 +30,7 @@ pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     external_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<CheckRunStatus>
+    status: Option<CheckRunStatus>,
 }
 
 impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
@@ -41,7 +41,7 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
             head_sha,
             details_url: None,
             external_id: None,
-            status: None
+            status: None,
         }
     }
 
@@ -96,7 +96,7 @@ pub struct UpdateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     completed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    output: Option<String>
+    output: Option<serde_json::Value>,
 }
 
 impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
@@ -111,7 +111,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
             status: None,
             conclusion: None,
             completed_at: None,
-            output: None
+            output: None,
         }
     }
 
@@ -164,9 +164,8 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     /// Check runs can accept a variety of data in the output object,
     /// including a title and summary and can optionally provide
     /// descriptive details about the run.
-    /// TODO: Make this a better type than String
-    pub fn output(mut self, output: impl Into<String>) -> Self {
-        self.output = Some(output.into());
+    pub fn output(mut self, output: serde_json::Value) -> Self {
+        self.output = Some(output);
         self
     }
 
@@ -285,10 +284,7 @@ impl<'octo> ChecksHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn update_check_run(
-        &self,
-        check_run_id: CheckRunId,
-    ) -> UpdateCheckRunBuilder<'_, '_> {
+    pub fn update_check_run(&self, check_run_id: CheckRunId) -> UpdateCheckRunBuilder<'_, '_> {
         UpdateCheckRunBuilder::new(self, check_run_id)
     }
 }
