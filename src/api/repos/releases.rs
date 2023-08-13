@@ -98,7 +98,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     pub async fn get_asset(&self, asset_id: AssetId) -> crate::Result<models::repos::Asset> {
         let route = format!(
-            "/repos/{owner}/{repo}/assets/{asset_id}",
+            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             asset_id = asset_id,
