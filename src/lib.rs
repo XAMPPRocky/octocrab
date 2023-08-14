@@ -199,6 +199,7 @@ use std::marker::PhantomData;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
+use tracing::debug;
 
 use http::{header::HeaderName, StatusCode};
 #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
@@ -1395,6 +1396,8 @@ impl Octocrab {
                 })
             })
             .transpose()?;
+
+        debug!("Token expires at: {:?}", expiration);
 
         token.set(token_object.token.clone(), expiration);
 
