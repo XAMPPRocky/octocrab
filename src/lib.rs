@@ -190,6 +190,7 @@ pub mod params;
 pub mod service;
 use crate::service::body::BodyStreamExt;
 
+use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
 use std::convert::{Infallible, TryInto};
 use std::fmt;
@@ -760,18 +761,53 @@ impl DefaultOctocrabBuilderConfig {
 
 pub type DynBody = dyn http_body::Body<Data = Bytes, Error = BoxError> + Send + Unpin;
 
+#[derive(Debug, Clone)]
+struct CachedTokenInner {
+    expiration: Option<DateTime<Utc>>,
+    secret: SecretString,
+}
+
+impl CachedTokenInner {
+    fn new(secret: SecretString, expiration: Option<DateTime<Utc>>) -> Self {
+        Self { secret, expiration }
+    }
+
+    fn expose_secret(&self) -> &str {
+        self.secret.expose_secret()
+    }
+}
+
 /// A cached API access token (which may be None)
-pub struct CachedToken(RwLock<Option<SecretString>>);
+pub struct CachedToken(RwLock<Option<CachedTokenInner>>);
 
 impl CachedToken {
     fn clear(&self) {
         *self.0.write().unwrap() = None;
     }
-    fn get(&self) -> Option<SecretString> {
-        self.0.read().unwrap().clone()
+
+    fn get_token(&self) -> Option<SecretString> {
+        self.0.read().unwrap().as_ref().map(|s| s.secret.clone())
     }
-    fn set(&self, value: String) {
-        *self.0.write().unwrap() = Some(SecretString::new(value));
+
+    fn get_valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
+        if let Some(expiration) = self.0.read().unwrap().as_ref().and_then(|s| s.expiration) {
+            if expiration - Utc::now() > buffer {
+                self.get_token()
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn get_valid_token(&self) -> Option<SecretString> {
+        self.get_valid_token_with_buffer(chrono::Duration::seconds(30))
+    }
+
+    fn set(&self, token: String, expiration: Option<DateTime<Utc>>) {
+        *self.0.write().unwrap() =
+            Some(CachedTokenInner::new(SecretString::new(token), expiration));
     }
 }
 
@@ -1349,7 +1385,19 @@ impl Octocrab {
 
         let token_object =
             InstallationToken::from_response(crate::map_github_error(response).await?).await?;
-        token.set(token_object.token.clone());
+
+        let expiration = token_object
+            .expires_at
+            .map(|time| {
+                DateTime::<Utc>::from_str(&time).map_err(|e| error::Error::Other {
+                    source: Box::new(e),
+                    backtrace: snafu::Backtrace::generate(),
+                })
+            })
+            .transpose()?;
+
+        token.set(token_object.token.clone(), expiration);
+
         Ok(SecretString::new(token_object.token))
     }
 
@@ -1407,7 +1455,7 @@ impl Octocrab {
                 Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
             AuthState::Installation { ref token, .. } => {
-                let token = if let Some(token) = token.get() {
+                let token = if let Some(token) = token.get_valid_token() {
                     token
                 } else {
                     self.request_installation_auth_token().await?
