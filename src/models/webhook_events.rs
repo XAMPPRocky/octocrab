@@ -609,6 +609,12 @@ pub enum WebhookEventType {
     /// **Note:** This event is deprecated. see the
     /// [`DependabotAlert`](WebhookEventType::DependabotAlert) event instead.
     RepositoryVulnerabilityAlert,
+    /// The schedule event allows you to trigger a workflow at a scheduled time.
+    ///
+    /// You can schedule a workflow to run at specific UTC times using POSIX cron syntax. Scheduled
+    /// workflows run on the latest commit on the default or base branch. The shortest interval you
+    /// can run scheduled workflows is once every 5 minutes.
+    Schedule,
     /// This event occurs when there is activity relating to a secret scanning alert. For more
     /// information about secret scanning, see "About secret scanning."
     ///
@@ -898,6 +904,9 @@ impl WebhookEventType {
                     serde_json::from_value(data)?,
                 )))
             }
+            WebhookEventType::Schedule => Ok(WebhookEventPayload::Schedule(Box::new(
+                serde_json::from_value(data)?,
+            ))),
             WebhookEventType::SecretScanningAlert => Ok(WebhookEventPayload::SecretScanningAlert(
                 Box::new(serde_json::from_value(data)?),
             )),

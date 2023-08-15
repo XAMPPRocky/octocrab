@@ -51,6 +51,7 @@ mod repository_advisory;
 mod repository_dispatch;
 mod repository_import;
 mod repository_vulnerability_alert;
+mod schedule;
 mod secret_scanning_alert;
 mod secret_scanning_alert_location;
 mod security_advisory;
@@ -77,9 +78,10 @@ pub use self::{
     pull_request::*, pull_request_review::*, pull_request_review_comment::*,
     pull_request_review_thread::*, push::*, registry_package::*, release::*, repository::*,
     repository_advisory::*, repository_dispatch::*, repository_import::*,
-    repository_vulnerability_alert::*, secret_scanning_alert::*, secret_scanning_alert_location::*,
-    security_advisory::*, security_and_analysis::*, sponsorship::*, star::*, status::*, team::*,
-    team_add::*, watch::*, workflow_dispatch::*, workflow_job::*, workflow_run::*,
+    repository_vulnerability_alert::*, schedule::*, secret_scanning_alert::*,
+    secret_scanning_alert_location::*, security_advisory::*, security_and_analysis::*,
+    sponsorship::*, star::*, status::*, team::*, team_add::*, watch::*, workflow_dispatch::*,
+    workflow_job::*, workflow_run::*,
 };
 
 use serde::{Deserialize, Serialize};
@@ -141,6 +143,7 @@ pub enum WebhookEventPayload {
     RepositoryDispatch(Box<RepositoryDispatchWebhookEventPayload>),
     RepositoryImport(Box<RepositoryImportWebhookEventPayload>),
     RepositoryVulnerabilityAlert(Box<RepositoryVulnerabilityAlertWebhookEventPayload>),
+    Schedule(Box<ScheduleWebhookEventPayload>),
     SecretScanningAlert(Box<SecretScanningAlertWebhookEventPayload>),
     SecretScanningAlertLocation(Box<SecretScanningAlertLocationWebhookEventPayload>),
     SecurityAdvisory(Box<SecurityAdvisoryWebhookEventPayload>),
