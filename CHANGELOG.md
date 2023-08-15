@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.3](https://github.com/XAMPPRocky/octocrab/compare/v0.29.2...v0.29.3) - 2023-08-15
+
+### Other
+- add `WebhookEventType::Schedule` variant
+
 ## [0.29.2](https://github.com/XAMPPRocky/octocrab/compare/v0.29.1...v0.29.2) - 2023-08-14
 
 ### Fixed
