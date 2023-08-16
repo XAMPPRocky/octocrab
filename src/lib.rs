@@ -1614,12 +1614,10 @@ mod tests {
     }
 
     #[test]
-    fn get_valid_token_within_buffer() {
+    fn no_token_when_expired() {
         let cache = CachedToken(RwLock::new(None));
-        let expiration = Utc::now() + Duration::seconds(10);
+        let expiration = Utc::now() + Duration::seconds(9);
         cache.set("secret".to_string(), Some(expiration));
-
-        sleep(Duration::seconds(5).to_std().unwrap()); // sleep for 5 seconds
 
         assert!(
             cache
@@ -1640,20 +1638,6 @@ mod tests {
                 .get_valid_token_with_buffer(Duration::seconds(10))
                 .is_some(),
             "Token should still be valid outside of buffer."
-        );
-    }
-
-    #[test]
-    fn no_token_when_expired() {
-        let cache = CachedToken(RwLock::new(None));
-        let expiration = Utc::now() + Duration::seconds(9);
-        cache.set("secret".to_string(), Some(expiration));
-
-        assert!(
-            cache
-                .get_valid_token_with_buffer(Duration::seconds(10))
-                .is_none(),
-            "Token should not be valid when inside buffer."
         );
     }
 
