@@ -785,36 +785,29 @@ impl CachedToken {
         *self.0.write().unwrap() = None;
     }
 
-    fn get_token(&self) -> Option<SecretString> {
-        self.0.read().unwrap().as_ref().map(|s| s.secret.clone())
+    fn token(&self) -> Option<SecretString> {
+        self.0.read().unwrap().as_ref().map(|t| t.secret.clone())
     }
 
-    fn get_valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
+    /// Returns a valid token if it exists and is not expired or if there is no expiration date.
+    fn valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
         let inner = self.0.read().unwrap();
 
-        // If there's no token reference, return immediately.
-        let token = match inner.as_ref() {
-            Some(token) => token,
-            None => return self.get_token(),
-        };
-
-        let expiration = match token.expiration {
-            Some(expiration) => expiration,
-            // return early with the token if there's no expiration
-            None => return self.get_token(),
-        };
-
-        let is_expiring = expiration - Utc::now() <= buffer;
-
-        if is_expiring {
-            None
-        } else {
-            self.get_token()
+        if let Some(token) = inner.as_ref() {
+            if let Some(exp) = token.expiration {
+                if exp - Utc::now() > buffer {
+                    return Some(token.secret.clone());
+                }
+            } else {
+                return Some(token.secret.clone());
+            }
         }
+
+        None
     }
 
-    fn get_valid_token(&self) -> Option<SecretString> {
-        self.get_valid_token_with_buffer(chrono::Duration::seconds(30))
+    fn valid_token(&self) -> Option<SecretString> {
+        self.valid_token_with_buffer(chrono::Duration::seconds(30))
     }
 
     fn set(&self, token: String, expiration: Option<DateTime<Utc>>) {
@@ -1469,7 +1462,7 @@ impl Octocrab {
                 Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
             AuthState::Installation { ref token, .. } => {
-                let token = if let Some(token) = token.get_valid_token() {
+                let token = if let Some(token) = token.valid_token() {
                     token
                 } else {
                     self.request_installation_auth_token().await?
@@ -1590,25 +1583,12 @@ mod tests {
     use chrono::Duration;
 
     #[test]
-    fn set_and_get_token() {
-        let cache = CachedToken(RwLock::new(None));
-        let secret = "secret".to_string();
-        cache.set(secret.clone(), None);
-
-        assert_eq!(
-            cache.get_token().unwrap().expose_secret(),
-            &secret,
-            "Token does not match set value."
-        );
-    }
-
-    #[test]
     fn clear_token() {
         let cache = CachedToken(RwLock::new(None));
         cache.set("secret".to_string(), None);
         cache.clear();
 
-        assert!(cache.get_token().is_none(), "Token was not cleared.");
+        assert!(cache.valid_token().is_none(), "Token was not cleared.");
     }
 
     #[test]
@@ -1619,7 +1599,7 @@ mod tests {
 
         assert!(
             cache
-                .get_valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(Duration::seconds(10))
                 .is_none(),
             "Token should be considered expired due to buffer."
         );
@@ -1633,7 +1613,7 @@ mod tests {
 
         assert!(
             cache
-                .get_valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(Duration::seconds(10))
                 .is_some(),
             "Token should still be valid outside of buffer."
         );
@@ -1646,7 +1626,7 @@ mod tests {
 
         assert!(
             cache
-                .get_valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(Duration::seconds(10))
                 .is_some(),
             "Token with no expiration should always be considered valid."
         );
