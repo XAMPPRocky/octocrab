@@ -785,10 +785,6 @@ impl CachedToken {
         *self.0.write().unwrap() = None;
     }
 
-    fn token(&self) -> Option<SecretString> {
-        self.0.read().unwrap().as_ref().map(|t| t.secret.clone())
-    }
-
     /// Returns a valid token if it exists and is not expired or if there is no expiration date.
     fn valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
         let inner = self.0.read().unwrap();
