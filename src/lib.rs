@@ -791,14 +791,26 @@ impl CachedToken {
     }
 
     fn get_valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
-        if let Some(expiration) = self.0.read().unwrap().as_ref().and_then(|s| s.expiration) {
-            if expiration - Utc::now() > buffer {
-                self.get_token()
-            } else {
-                None
-            }
-        } else {
+        let inner = self.0.read().unwrap();
+
+        // If there's no token reference, return immediately.
+        let token = match inner.as_ref() {
+            Some(token) => token,
+            None => return self.get_token(),
+        };
+
+        let expiration = match token.expiration {
+            Some(expiration) => expiration,
+            // return early with the token if there's no expiration
+            None => return self.get_token(),
+        };
+
+        let is_expiring = expiration - Utc::now() <= buffer;
+
+        if is_expiring {
             None
+        } else {
+            self.get_token()
         }
     }
 
@@ -1573,5 +1585,88 @@ mod tests {
             .send()
             .await
             .unwrap();
+    }
+
+    use super::*;
+    use chrono::Duration;
+    use std::thread::sleep;
+
+    #[test]
+    fn set_and_get_token() {
+        let cache = CachedToken(RwLock::new(None));
+        let secret = "secret".to_string();
+        cache.set(secret.clone(), None);
+
+        assert_eq!(
+            cache.get_token().unwrap().expose_secret(),
+            &secret,
+            "Token does not match set value."
+        );
+    }
+
+    #[test]
+    fn clear_token() {
+        let cache = CachedToken(RwLock::new(None));
+        cache.set("secret".to_string(), None);
+        cache.clear();
+
+        assert!(cache.get_token().is_none(), "Token was not cleared.");
+    }
+
+    #[test]
+    fn get_valid_token_within_buffer() {
+        let cache = CachedToken(RwLock::new(None));
+        let expiration = Utc::now() + Duration::seconds(10);
+        cache.set("secret".to_string(), Some(expiration));
+
+        sleep(Duration::seconds(5).to_std().unwrap()); // sleep for 5 seconds
+
+        assert!(
+            cache
+                .get_valid_token_with_buffer(Duration::seconds(10))
+                .is_none(),
+            "Token should be considered expired due to buffer."
+        );
+    }
+
+    #[test]
+    fn get_valid_token_outside_buffer() {
+        let cache = CachedToken(RwLock::new(None));
+        let expiration = Utc::now() + Duration::seconds(12);
+        cache.set("secret".to_string(), Some(expiration));
+
+        assert!(
+            cache
+                .get_valid_token_with_buffer(Duration::seconds(10))
+                .is_some(),
+            "Token should still be valid outside of buffer."
+        );
+    }
+
+    #[test]
+    fn no_token_when_expired() {
+        let cache = CachedToken(RwLock::new(None));
+        let expiration = Utc::now() + Duration::seconds(9);
+        cache.set("secret".to_string(), Some(expiration));
+
+        assert!(
+            cache
+                .get_valid_token_with_buffer(Duration::seconds(10))
+                .is_none(),
+            "Token should not be valid when inside buffer."
+        );
+    }
+
+    #[test]
+    fn get_valid_token_without_expiration() {
+        let cache = CachedToken(RwLock::new(None));
+        cache.set("secret".to_string(), None);
+
+        assert!(
+            cache
+                .get_valid_token_with_buffer(Duration::seconds(10))
+                .is_some(),
+            "Token with no expiration should always be considered valid."
+        );
     }
 }
