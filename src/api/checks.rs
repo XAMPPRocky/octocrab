@@ -306,6 +306,7 @@ impl<'octo> ChecksHandler<'octo> {
     ///      .send()
     ///      .await?;
     /// # Ok(())
+    /// # }
     pub fn list_check_runs_for_git_ref(
         &self,
         git_ref: Commitish,
