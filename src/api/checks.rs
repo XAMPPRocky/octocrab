@@ -1,4 +1,5 @@
 use crate::models::{CheckRunId, CheckSuiteId};
+use crate::params::repos::Commitish;
 use crate::{models, Octocrab, Result};
 use chrono::{DateTime, Utc};
 
@@ -182,7 +183,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
 }
 
 #[derive(serde::Serialize)]
-pub struct ListCheckRunsinCheckSuiteBuilder<'octo, 'r> {
+pub struct ListCheckRunsInCheckSuiteBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r ChecksHandler<'octo>,
     check_suite_id: CheckSuiteId,
@@ -192,7 +193,7 @@ pub struct ListCheckRunsinCheckSuiteBuilder<'octo, 'r> {
     page: Option<u32>,
 }
 
-impl<'octo, 'r> ListCheckRunsinCheckSuiteBuilder<'octo, 'r> {
+impl<'octo, 'r> ListCheckRunsInCheckSuiteBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_suite_id: CheckSuiteId) -> Self {
         Self {
             handler,
@@ -227,6 +228,53 @@ impl<'octo, 'r> ListCheckRunsinCheckSuiteBuilder<'octo, 'r> {
     }
 }
 
+#[derive(serde::Serialize)]
+pub struct ListCheckRunsForGitRefBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    #[serde(skip)]
+    git_ref: Commitish,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListCheckRunsForGitRefBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, git_ref: Commitish) -> Self {
+        Self {
+            handler,
+            git_ref,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<models::checks::ListCheckRuns> {
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{ref}/check-runs",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            ref = self.git_ref,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
 impl<'octo> ChecksHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
         Self { crab, owner, repo }
@@ -245,8 +293,24 @@ impl<'octo> ChecksHandler<'octo> {
     pub fn list_check_runs_in_a_check_suite(
         &self,
         suite_id: CheckSuiteId,
-    ) -> ListCheckRunsinCheckSuiteBuilder<'_, '_> {
-        ListCheckRunsinCheckSuiteBuilder::new(self, suite_id)
+    ) -> ListCheckRunsInCheckSuiteBuilder<'_, '_> {
+        ListCheckRunsInCheckSuiteBuilder::new(self, suite_id)
+    }
+
+    /// ```no_run
+    /// # use octocrab::params::repos::Commitish;
+    ///  async fn run() -> octocrab::Result<()> {
+    ///    let check_runs = octocrab::instance()
+    ///      .checks("owner", "repo")
+    ///      .list_check_runs_for_git_ref(Commitish("ref".to_string()))
+    ///      .send()
+    ///      .await?;
+    /// # Ok(())
+    pub fn list_check_runs_for_git_ref(
+        &self,
+        git_ref: Commitish,
+    ) -> ListCheckRunsForGitRefBuilder<'_, '_> {
+        ListCheckRunsForGitRefBuilder::new(self, git_ref)
     }
 
     /// ```no_run
