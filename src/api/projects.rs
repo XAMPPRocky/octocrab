@@ -54,12 +54,12 @@ impl<'octo> ProjectHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {  
-    /// let body = serde_json::json!({ "name": "Week One Sprint", "state": "open" })
+    /// let body = serde_json::json!({ "name": "Week One Sprint", "state": "open" });
     /// let project_id: u32 = 1002604;
     /// let project = octocrab::instance()
     ///     .projects()
     ///     .update_project(project_id)
-    ///     .body(body)
+    ///     .body(&body)
     ///     .send()
     ///     .await?;
     /// # Ok(())
@@ -102,7 +102,7 @@ impl<'octo> ProjectHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let username = "octocat";
-    /// let description = "Project Overview"
+    /// let description = "Project Overview";
     /// let project = octocrab::instance()
     ///     .projects()
     ///     .create_user_project(username)
@@ -124,7 +124,7 @@ impl<'octo> ProjectHandler<'octo> {
     ///   
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let username = "octocat"
+    /// let username = "octocat";
     /// let project = octocrab::instance()
     ///     .projects()
     ///     .list_user_projects(username)
@@ -147,15 +147,15 @@ impl<'octo> ProjectHandler<'octo> {
     /// * `org` - name of the organization
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()>
-    /// let org = "octocrab"
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let org = "octocrab";
     /// let projects = octocrab::instance()
     ///     .projects()
     ///     .list_organization_projects(org)
     ///     .state("all")
     ///     .send()
     ///     .await?;
-    /// # OK(())
+    /// # Ok(())
     /// # }
     /// ```
     pub fn list_organization_projects(
@@ -230,8 +230,8 @@ impl<'octo> ProjectHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let owner = "octocat"
-    /// let repo = "octocrab"
+    /// let owner = "octocat";
+    /// let repo = "octocrab";
     /// let tags = octocrab::instance()
     ///     .projects()
     ///     .list_repository_projects("owner", "repo")
