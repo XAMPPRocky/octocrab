@@ -35,7 +35,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn should_update_project_name() {
+async fn should_create_user_project() {
     let org_project: Project =
         serde_json::from_str(include_str!("resources/project.json")).unwrap();
 

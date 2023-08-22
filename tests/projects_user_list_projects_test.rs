@@ -37,7 +37,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn should_get_projects_by_its_id() {
+async fn should_list_user_projects() {
     let org_project: Vec<Project> =
         serde_json::from_str(include_str!("resources/user_projects.json")).unwrap();
 
