@@ -133,7 +133,7 @@ impl<'octo, 'r> CreateUserProjectBuilder<'octo, 'r> {
     }
 }
 
-/// Helper builder struct to list a user project given the username of the user.
+/// Helper builder struct to list user projects given the username of the user.
 ///
 /// Used by [`Octocrab::projects`].
 #[derive(serde::Serialize)]
@@ -177,7 +177,7 @@ impl<'octo, 'r> ListUserProjectsBuilder<'octo, 'r> {
 
 /// Helper builder struct to get a paged list of an organization's projects.
 ///
-/// Used by [`Octocrab::orgs`].
+/// Used by [`Octocrab::projects`].
 #[derive(serde::Serialize)]
 pub struct ListOrgProjectsBuilder<'octo, 'r> {
     #[serde(skip)]
@@ -231,7 +231,7 @@ impl<'octo, 'r> ListOrgProjectsBuilder<'octo, 'r> {
 
 /// Helper builder struct to create an organization project.
 ///
-/// Used by [`Octocrab::orgs`].
+/// Used by [`Octocrab::projects`].
 #[derive(serde::Serialize)]
 pub struct CreateOrgProjectsBuilder<'octo, 'r> {
     #[serde(skip)]
@@ -266,7 +266,7 @@ impl<'octo, 'r> CreateOrgProjectsBuilder<'octo, 'r> {
 
 /// Helper builder struct to get a paged list of repository projects
 ///
-/// Used by [`Octocrab::repos`].
+/// Used by [`Octocrab::projects`].
 #[derive(serde::Serialize)]
 pub struct ListRepositoryProjectsBuilder<'octo, 'r> {
     #[serde(skip)]
@@ -318,7 +318,7 @@ pub struct NotNamed;
 
 /// Helper builder struct to get create a repository project
 ///
-/// Used by [`Octocrab::repos`].
+/// Used by [`Octocrab::projects`].
 #[derive(serde::Serialize)]
 pub struct CreateRepositoryProjectsBuilder<'octo, 'r, S> {
     #[serde(skip)]
