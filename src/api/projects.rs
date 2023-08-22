@@ -174,14 +174,14 @@ impl<'octo> ProjectHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let org = "octocrab",
-    /// let name = "Organization Roadmap"
+    /// let org = "octocrab";
+    /// let name = "Organization Roadmap";
     /// let project = octocrab::instance()
     ///     .projects()
     ///     .create_organization_project(org, name)
     ///     .send()
     ///     .await?;
-    /// # OK(())
+    /// # Ok(())
     /// # }
     /// ```
     pub fn create_organization_project(
@@ -201,8 +201,10 @@ impl<'octo> ProjectHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let owner = "octocat"
-    /// let repo = "octocrab"
+    /// let owner = "octocat";
+    /// let repo = "octocrab";
+    /// let name = "My Project";
+    /// let description = "Project Overview";
     /// let tags = octocrab::instance()
     ///     .projects()
     ///     .create_repository_project("owner", "repo")
