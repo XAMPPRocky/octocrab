@@ -987,10 +987,8 @@ mod tests {
     #[test]
     fn deserialize_installation_created() {
         let json = include_str!("../../tests/resources/installation_created_webhook_event.json");
-        let event = WebhookEventType::Installation
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Installation(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("installation", json).unwrap();
+        let WebhookEventPayload::Installation(install_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_event.action,
             InstallationWebhookEventAction::Created
@@ -1002,10 +1000,8 @@ mod tests {
     #[test]
     fn deserialize_installation_deleted() {
         let json = include_str!("../../tests/resources/installation_deleted_webhook_event.json");
-        let event = WebhookEventType::Installation
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Installation(install_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("installation", json).unwrap();
+        let WebhookEventPayload::Installation(install_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_event.action,
             InstallationWebhookEventAction::Deleted
@@ -1019,10 +1015,9 @@ mod tests {
         let json = include_str!(
             "../../tests/resources/installation_repositories_removed_webhook_event.json"
         );
-        let event = WebhookEventType::InstallationRepositories
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::InstallationRepositories(install_repositories_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event =
+            WebhookEvent::try_from_header_and_body("installation_repositories", json).unwrap();
+        let WebhookEventPayload::InstallationRepositories(install_repositories_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             install_repositories_event.action,
             InstallationRepositoriesWebhookEventAction::Removed
@@ -1037,10 +1032,8 @@ mod tests {
     #[test]
     fn deserialize_issue_comment_created() {
         let json = include_str!("../../tests/resources/issue_comment_created_webhook_event.json");
-        let event = WebhookEventType::IssueComment
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("issue_comment", json).unwrap();
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Created
@@ -1051,10 +1044,8 @@ mod tests {
     #[test]
     fn deserialize_issue_comment_deleted() {
         let json = include_str!("../../tests/resources/issue_comment_deleted_webhook_event.json");
-        let event = WebhookEventType::IssueComment
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("issue_comment", json).unwrap();
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Deleted
@@ -1064,10 +1055,8 @@ mod tests {
     #[test]
     fn deserialize_issue_comment_edited() {
         let json = include_str!("../../tests/resources/issue_comment_edited_webhook_event.json");
-        let event = WebhookEventType::IssueComment
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::IssueComment(issue_comment_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("issue_comment", json).unwrap();
+        let WebhookEventPayload::IssueComment(issue_comment_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             issue_comment_event.action,
             IssueCommentWebhookEventAction::Edited
@@ -1078,40 +1067,32 @@ mod tests {
     #[test]
     fn deserialize_issues_labeled() {
         let json = include_str!("../../tests/resources/issues_labeled_webhook_event.json");
-        let event = WebhookEventType::Issues
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Issues(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("issues", json).unwrap();
+        let WebhookEventPayload::Issues(issues_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(issues_event.action, IssuesWebhookEventAction::Labeled);
     }
 
     #[test]
     fn deserialize_issues_opened() {
         let json = include_str!("../../tests/resources/issues_opened_webhook_event.json");
-        let event = WebhookEventType::Issues
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Issues(issues_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("issues", json).unwrap();
+        let WebhookEventPayload::Issues(issues_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(issues_event.action, IssuesWebhookEventAction::Opened);
     }
 
     #[test]
     fn deserialize_ping() {
         let json = include_str!("../../tests/resources/ping_webhook_event.json");
-        let event = WebhookEventType::Ping
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Ping(ping_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("ping", json).unwrap();
+        let WebhookEventPayload::Ping(ping_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(ping_event.hook.unwrap().id, 423885699);
     }
 
     #[test]
     fn deserialize_pull_request_closed() {
         let json = include_str!("../../tests/resources/pull_request_closed_webhook_event.json");
-        let event = WebhookEventType::PullRequest
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("pull_request", json).unwrap();
+        let WebhookEventPayload::PullRequest(pull_request_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Closed
@@ -1122,10 +1103,8 @@ mod tests {
     #[test]
     fn deserialize_pull_request_opened() {
         let json = include_str!("../../tests/resources/pull_request_opened_webhook_event.json");
-        let event = WebhookEventType::PullRequest
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("pull_request", json).unwrap();
+        let WebhookEventPayload::PullRequest(pull_request_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Opened
@@ -1136,10 +1115,8 @@ mod tests {
     fn deserialize_pull_request_synchronize() {
         let json =
             include_str!("../../tests/resources/pull_request_synchronize_webhook_event.json");
-        let event = WebhookEventType::PullRequest
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::PullRequest(pull_request_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("pull_request", json).unwrap();
+        let WebhookEventPayload::PullRequest(pull_request_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             pull_request_event.action,
             PullRequestWebhookEventAction::Synchronize
@@ -1149,10 +1126,8 @@ mod tests {
     #[test]
     fn deserialize_repository_deleted() {
         let json = include_str!("../../tests/resources/repository_deleted_webhook_event.json");
-        let event = WebhookEventType::Repository
-            .parse_specific_payload(serde_json::from_str(json).unwrap())
-            .unwrap();
-        let WebhookEventPayload::Repository(repository_event) = event else {panic!(" event is of the wrong type {:?}", event)};
+        let event = WebhookEvent::try_from_header_and_body("repository", json).unwrap();
+        let WebhookEventPayload::Repository(repository_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
         assert_eq!(
             repository_event.action,
             RepositoryWebhookEventAction::Deleted
