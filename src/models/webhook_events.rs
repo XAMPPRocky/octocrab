@@ -1133,4 +1133,12 @@ mod tests {
             RepositoryWebhookEventAction::Deleted
         );
     }
+
+    #[test]
+    fn deserialize_push() {
+        let json = include_str!("../../tests/resources/push_webhook_event.json");
+        let event = WebhookEvent::try_from_header_and_body("push", json).unwrap();
+        let WebhookEventPayload::Push(push_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
+        assert!(push_event.created);
+    }
 }
