@@ -7,7 +7,8 @@ use crate::models::webhook_events::InstallationEventRepository;
 pub struct InstallationWebhookEventPayload {
     pub action: InstallationWebhookEventAction,
     pub enterprise: Option<serde_json::Value>,
-    pub repositories: Vec<InstallationEventRepository>,
+    #[serde(default)]
+    pub repositories: Option<Vec<InstallationEventRepository>>,
     pub requester: Option<serde_json::Value>,
 }
 
