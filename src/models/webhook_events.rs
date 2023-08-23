@@ -981,6 +981,8 @@ pub struct InstallationEventRepository {
 
 #[cfg(test)]
 mod tests {
+    use chrono::TimeZone;
+
     use super::payload::*;
     use super::*;
 
@@ -993,8 +995,8 @@ mod tests {
             install_event.action,
             InstallationWebhookEventAction::Created
         );
-        assert_eq!(install_event.repositories.len(), 3);
-        assert_eq!(install_event.repositories[2].name, "octocrab");
+        assert_eq!(install_event.repositories.as_ref().unwrap().len(), 3);
+        assert_eq!(install_event.repositories.unwrap()[2].name, "octocrab");
     }
 
     #[test]
@@ -1006,8 +1008,35 @@ mod tests {
             install_event.action,
             InstallationWebhookEventAction::Deleted
         );
-        assert_eq!(install_event.repositories.len(), 3);
-        assert_eq!(install_event.repositories[2].name, "octocrab");
+        assert_eq!(install_event.repositories.as_ref().unwrap().len(), 3);
+        assert_eq!(install_event.repositories.unwrap()[2].name, "octocrab");
+    }
+
+    #[test]
+    fn deserialize_installation_new_permissions_accepted() {
+        let json = include_str!(
+            "../../tests/resources/installation_new_permissions_accepted_webhook_event.json"
+        );
+        let event = WebhookEvent::try_from_header_and_body("installation", json).unwrap();
+        let WebhookEventPayload::Installation(ref install_event) = event.specific else {panic!(" event is of the wrong type {:?}", event)};
+        let Some(EventInstallation::Full(installation)) = event.installation else {panic!("event is missing a fully described installation object {:?}", event)};
+        assert_eq!(
+            install_event.action,
+            InstallationWebhookEventAction::NewPermissionsAccepted
+        );
+        assert_eq!(
+            installation.updated_at.unwrap(),
+            chrono::Utc
+                .with_ymd_and_hms(2023, 8, 18, 13, 28, 4)
+                .unwrap()
+        );
+        assert_eq!(
+            installation.created_at.unwrap(),
+            chrono::Utc
+                .with_ymd_and_hms(2023, 7, 13, 9, 35, 31)
+                .unwrap()
+        );
+        assert_eq!(installation.events.len(), 12);
     }
 
     #[test]
