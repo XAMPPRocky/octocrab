@@ -19,6 +19,7 @@
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`orgs`] GitHub Organisations
+//! - [`projects`] GitHub Projects
 //! - [`pulls`] Pull Requests
 //! - [`repos`] Repositories
 //! - [`repos::forks`] Repositories
@@ -250,7 +251,7 @@ use models::{AppId, InstallationId, InstallationToken};
 pub use self::{
     api::{
         actions, activity, apps, checks, commits, current, events, gists, gitignore, issues,
-        licenses, markdown, orgs, pulls, ratelimit, repos, search, teams, workflows,
+        licenses, markdown, orgs, projects, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1007,6 +1008,12 @@ impl Octocrab {
     /// that allows you to access GitHub's repository API.
     pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
         repos::RepoHandler::new(self, owner.into(), repo.into())
+    }
+
+    /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
+    /// projects API (classic).
+    pub fn projects(&self) -> projects::ProjectHandler {
+        projects::ProjectHandler::new(self)
     }
 
     /// Creates a [`search::SearchHandler`] that allows you to construct general queries
