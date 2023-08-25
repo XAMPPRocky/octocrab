@@ -54,7 +54,7 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     }
 
     /// A reference for the run on the integrator's system.
-    pub fn external_url(mut self, external_id: impl Into<String>) -> Self {
+    pub fn external_id(mut self, external_id: impl Into<String>) -> Self {
         self.external_id = Some(external_id.into());
         self
     }
@@ -320,7 +320,7 @@ impl<'octo> ChecksHandler<'octo> {
     ///    .checks("owner", "repo")
     ///    .create_check_run("name", "head_sha")
     ///    .details_url("https://example.com")
-    ///    .external_url("external_id")
+    ///    .external_id("external_id")
     ///    .status(octocrab::checks::CheckRunStatus::InProgress)
     ///    .send()
     ///    .await?;
