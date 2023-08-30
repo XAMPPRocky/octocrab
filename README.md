@@ -40,6 +40,7 @@ Currently, the following modules are available as of version `0.17`.
 - [`search`] GitHub's search API.
 - [`teams`] Teams.
 - [`gists`] GitHub's gists API
+- [`users`] Users.
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
@@ -58,6 +59,7 @@ Currently, the following modules are available as of version `0.17`.
 [`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
 [`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
 [`gists`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.GistsHandler.html
+[`users`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.UsersHandler.html
 
 #### Getting a Pull Request
 ```rust

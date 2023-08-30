@@ -17,4 +17,5 @@ pub mod ratelimit;
 pub mod repos;
 pub mod search;
 pub mod teams;
+pub mod users;
 pub mod workflows;
