@@ -1,4 +1,5 @@
 //! The commit API.
+mod associated_check_runs;
 mod associated_pull_requests;
 mod compare_commit;
 mod create_comment;
@@ -6,6 +7,7 @@ mod create_comment;
 pub use associated_pull_requests::PullRequestTarget;
 
 pub use self::create_comment::CreateCommentBuilder;
+use crate::params::repos::Reference;
 use crate::{models, Octocrab, Result};
 
 pub struct CommitHandler<'octo> {
@@ -29,6 +31,13 @@ impl<'octo> CommitHandler<'octo> {
         head: impl Into<String>,
     ) -> compare_commit::CompareCommitsBuilder<'_, '_> {
         compare_commit::CompareCommitsBuilder::new(self, base.into(), head.into())
+    }
+
+    pub fn associated_check_runs(
+        &self,
+        reference: impl Into<Reference>,
+    ) -> associated_check_runs::AssociatedCheckRunsBuilder<'_, '_> {
+        associated_check_runs::AssociatedCheckRunsBuilder::new(self, reference)
     }
 
     pub fn associated_pull_requests(
