@@ -26,6 +26,7 @@
 //! - [`repos::releases`] Repositories
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
+//! - [`users`] Users
 //!
 //! #### Getting a Pull Request
 //! ```no_run
@@ -246,6 +247,7 @@ use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 #[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
 
+use crate::api::users;
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
 
@@ -1063,6 +1065,11 @@ impl Octocrab {
     /// you to access GitHub's teams API.
     pub fn teams(&self, owner: impl Into<String>) -> teams::TeamHandler {
         teams::TeamHandler::new(self, owner.into())
+    }
+
+    /// Creates a [`users::UserHandler`] for the specified user
+    pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
+        users::UserHandler::new(self, user.into())
     }
 
     /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows
