@@ -1,4 +1,4 @@
-use super::*;
+use super::{reactions::ReactionContent, *};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -20,7 +20,20 @@ pub struct Comment {
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub author_association: String,
+    pub author_association: AuthorAssociation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reactions: Option<CommentReactions>,
+}
+
+/// Reactions summary of a comment
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub struct CommentReactions {
+    pub url: Url,
+    pub total_count: u64,
+    #[serde(flatten)]
+    pub reactions: Option<HashMap<ReactionContent, u64>>,
 }
 
 /// Commit Comparison
