@@ -1411,6 +1411,7 @@ impl Octocrab {
             })
             .transpose()?;
 
+        #[cfg(feature = "tracing")]
         tracing::debug!("Token expires at: {:?}", expiration);
 
         token.set(token_object.token.clone(), expiration);
