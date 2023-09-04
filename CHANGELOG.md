@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.1](https://github.com/XAMPPRocky/octocrab/compare/v0.30.0...v0.30.1) - 2023-09-04
+
+### Other
+- add tracing debug only when tracing feature is enabled ([#454](https://github.com/XAMPPRocky/octocrab/pull/454))
+
 ## [0.30.0](https://github.com/XAMPPRocky/octocrab/compare/v0.29.3...v0.30.0) - 2023-09-01
 
 ### Other
