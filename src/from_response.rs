@@ -6,6 +6,16 @@ pub trait FromResponse: Sized {
     async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self>;
 }
 
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
+pub struct NoBody;
+
+#[async_trait::async_trait]
+impl FromResponse for NoBody {
+    async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self> {
+        Ok(Self)
+    }
+}
+
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> FromResponse for T {
     async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self> {

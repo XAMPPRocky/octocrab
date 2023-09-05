@@ -472,7 +472,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
+    pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/labels/{name}",
             owner = self.owner,
@@ -480,7 +480,9 @@ impl<'octo> IssueHandler<'octo> {
             name = name.as_ref(),
         );
 
-        self.crab.delete(route, None::<&()>).await
+        let _: crate::from_response::NoBody = self.crab.delete(route, None::<&()>).await?;
+
+        Ok(())
     }
 
     /// List labels from an issue on a repository.
