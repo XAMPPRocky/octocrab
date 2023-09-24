@@ -10,8 +10,8 @@ pub struct CheckRun {
     pub url: String,
     pub html_url: Option<String>,
     pub conclusion: Option<String>,
-    pub started_at: Option<DateTime<Utc>>,
-    pub completed_at: Option<DateTime<Utc>>,
+    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub name: String,
 }
 

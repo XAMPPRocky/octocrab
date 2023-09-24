@@ -1468,11 +1468,6 @@ impl Octocrab {
         }
     }
 
-    /// A convenience method to get the current authentication state.
-    pub fn get_auth_state(&self) -> &AuthState {
-        &self.auth_state
-    }
-
     /// A convenience method to get all the results starting at a given
     /// page.
     pub async fn all_pages<R: serde::de::DeserializeOwned>(
