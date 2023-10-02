@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.0](https://github.com/XAMPPRocky/octocrab/compare/v0.30.1...v0.31.0) - 2023-10-02
+
+### Other
+- Add WatchEvent ([#462](https://github.com/XAMPPRocky/octocrab/pull/462))
+- Checks API ([#461](https://github.com/XAMPPRocky/octocrab/pull/461))
+- Fix `github_app_authentication.rs` ([#458](https://github.com/XAMPPRocky/octocrab/pull/458))
+
 ## [0.30.1](https://github.com/XAMPPRocky/octocrab/compare/v0.30.0...v0.30.1) - 2023-09-04
 
 ### Other
