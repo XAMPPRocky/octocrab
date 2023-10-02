@@ -6,7 +6,7 @@ use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
     PullRequestEventPayload, PullRequestReviewCommentEventPayload, PullRequestReviewEventPayload,
-    PushEventPayload, WorkflowRunEventPayload, WrappedEventPayload,
+    PushEventPayload, WatchEventPayload, WorkflowRunEventPayload, WrappedEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -85,6 +85,7 @@ event_type! {
     (PullRequestEvent, PullRequestEventPayload),
     (PullRequestReviewEvent, PullRequestReviewEventPayload),
     (PullRequestReviewCommentEvent, PullRequestReviewCommentEventPayload),
+    (WatchEvent, WatchEventPayload),
     (WorkflowRunEvent, WorkflowRunEventPayload)
 }
 
@@ -276,6 +277,13 @@ mod test {
     }
 
     #[test]
+    fn should_deserialize_watch_event() {
+        let json = include_str!("../../tests/resources/watch_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::WatchEvent);
+    }
+
+    #[test]
     fn should_deserialize_with_org_when_present() {
         let json = include_str!("../../tests/resources/create_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
@@ -358,6 +366,10 @@ mod test {
             (
                 "CommitCommentEvent",
                 include_str!("../../tests/resources/commit_comment_event.json"),
+            ),
+            (
+                "WatchEvent",
+                include_str!("../../tests/resources/watch_event.json"),
             ),
             (
                 "WorkflowRunEvent",
