@@ -13,6 +13,7 @@ mod pull_request;
 mod pull_request_review;
 mod pull_request_review_comment;
 mod push;
+mod watch;
 mod workflow_run;
 
 pub use commit_comment::*;
@@ -30,6 +31,7 @@ pub use pull_request::*;
 pub use pull_request_review::*;
 pub use pull_request_review_comment::*;
 pub use push::*;
+pub use watch::*;
 pub use workflow_run::*;
 
 use serde::{Deserialize, Serialize};
@@ -89,6 +91,7 @@ pub enum EventPayload {
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewEvent(Box<PullRequestReviewEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
+    WatchEvent(Box<WatchEventPayload>),
     WorkflowRunEvent(Box<WorkflowRunEventPayload>),
     UnknownEvent(Box<serde_json::Value>),
 }
@@ -170,6 +173,7 @@ mod tests {
             | EventPayload::PullRequestReviewEvent(_)
             | EventPayload::PullRequestReviewCommentEvent(_)
             | EventPayload::WorkflowRunEvent(_)
+            | EventPayload::WatchEvent(_)
             | EventPayload::UnknownEvent(_) => {
                 panic!("Expected an installation event, got {:?}", specific)
             }
