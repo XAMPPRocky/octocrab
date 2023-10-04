@@ -1332,7 +1332,10 @@ impl Octocrab {
                 .context(HttpSnafu)?;
             Ok(request)
         } else {
-            Ok(builder.body(String::new()).context(HttpSnafu)?)
+            Ok(builder
+                .header(http::header::CONTENT_LENGTH, "0")
+                .body(String::new())
+                .context(HttpSnafu)?)
         }
     }
 
@@ -1390,11 +1393,11 @@ impl Octocrab {
 
         sensitive_value.set_sensitive(true);
         request = request
-            .header(hyper::header::AUTHORIZATION, sensitive_value)
+            .header(http::header::AUTHORIZATION, sensitive_value)
             .method(http::Method::POST)
             .uri(uri);
         let response = self
-            .send(request.body(String::new()).context(HttpSnafu)?)
+            .send(request.body("{}".to_string()).context(HttpSnafu)?)
             .await?;
         let _status = response.status();
 
@@ -1491,7 +1494,7 @@ impl Octocrab {
             auth_header.set_sensitive(true);
             parts
                 .headers
-                .insert(hyper::header::AUTHORIZATION, auth_header);
+                .insert(http::header::AUTHORIZATION, auth_header);
         }
 
         let request = http::Request::from_parts(parts, body);
