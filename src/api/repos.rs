@@ -36,6 +36,7 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
+use crate::repos::file::GetReadmeBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -221,6 +222,24 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn get_content(&self) -> GetContentBuilder<'_, '_> {
         GetContentBuilder::new(self)
+    }
+
+    /// Get repository readme.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_readme()
+    ///     .path("path/to/file")
+    ///     .r#ref("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_readme(&self) -> GetReadmeBuilder<'_, '_> {
+        GetReadmeBuilder::new(self)
     }
 
     /// Creates a new file in the repository.
