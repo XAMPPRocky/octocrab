@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.1](https://github.com/XAMPPRocky/octocrab/compare/v0.31.0...v0.31.1) - 2023-10-08
+
+### Other
+- add get_readme for RepoHandler ([#465](https://github.com/XAMPPRocky/octocrab/pull/465))
+
 ## [0.31.0](https://github.com/XAMPPRocky/octocrab/compare/v0.30.1...v0.31.0) - 2023-10-02
 
 ### Other
