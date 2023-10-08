@@ -22,6 +22,7 @@ mod tags;
 mod teams;
 
 use crate::error::HttpSnafu;
+use crate::repos::file::GetReadmeBuilder;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
@@ -221,6 +222,24 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn get_content(&self) -> GetContentBuilder<'_, '_> {
         GetContentBuilder::new(self)
+    }
+
+    /// Get repository readme.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_readme()
+    ///     .path("path/to/file")
+    ///     .r#ref("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_readme(&self) -> GetReadmeBuilder<'_, '_> {
+        GetReadmeBuilder::new(self)
     }
 
     /// Creates a new file in the repository.
