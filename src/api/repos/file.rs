@@ -45,7 +45,6 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     }
 }
 
-
 #[derive(serde::Serialize)]
 pub struct GetReadmeBuilder<'octo, 'r> {
     #[serde(skip)]
@@ -91,7 +90,6 @@ impl<'octo, 'r> GetReadmeBuilder<'octo, 'r> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
-
 
 #[derive(serde::Serialize)]
 pub struct UpdateFileBuilder<'octo, 'r> {

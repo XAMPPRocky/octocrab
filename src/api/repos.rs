@@ -22,6 +22,7 @@ mod tags;
 mod teams;
 
 use crate::error::HttpSnafu;
+use crate::repos::file::GetReadmeBuilder;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
@@ -36,7 +37,6 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
-use crate::repos::file::GetReadmeBuilder;
 
 /// Handler for GitHub's repository API.
 ///
