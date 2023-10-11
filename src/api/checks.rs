@@ -20,6 +20,66 @@ pub enum CheckRunStatus {
     Completed,
 }
 
+/// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
+/// `skipped`, `stale` or `action_required`.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CheckRunConclusion {
+    Success,
+    Failure,
+    Neutral,
+    Cancelled,
+    TimedOut,
+    Skipped,
+    Stale,
+    ActionRequired
+}
+
+#[derive(serde::Serialize)]
+pub struct CheckRunOutput {
+    title: String,
+    summary: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    text: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    annotations: Vec<CheckRunOutputAnnotation>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    images: Vec<CheckRunOutputImage>
+}
+
+#[derive(serde::Serialize)]
+pub struct CheckRunOutputAnnotation {
+    path: String,
+    start_line: u32,
+    end_line: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    start_column: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    end_column: Option<u32>,
+    annotation_level: CheckRunOutputAnnotationLevel,
+    message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    raw_details: Option<String>
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CheckRunOutputAnnotationLevel {
+    Notice,
+    Warning,
+    Failure
+}
+
+#[derive(serde::Serialize)]
+pub struct CheckRunOutputImage {
+    image_url: String,
+    alt: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    caption: Option<String>
+}
+
 #[derive(serde::Serialize)]
 pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip)]
@@ -33,11 +93,11 @@ pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     status: Option<CheckRunStatus>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    conclusion: Option<String>,
+    conclusion: Option<CheckRunConclusion>,
     #[serde(skip_serializing_if = "Option::is_none")]
     completed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    output: Option<serde_json::Value>,
+    output: Option<CheckRunOutput>,
 }
 
 impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
@@ -78,8 +138,8 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     /// The final conclusion of the check.
     /// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
     /// `skipped`, `stale` or `action_required`.
-    pub fn conclusion(mut self, conclusion: impl Into<String>) -> Self {
-        self.conclusion = Some(conclusion.into());
+    pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
+        self.conclusion = Some(conclusion);
         self
     }
 
@@ -92,7 +152,7 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     /// Check runs can accept a variety of data in the output object,
     /// including a title and summary and can optionally provide
     /// descriptive details about the run.
-    pub fn output(mut self, output: serde_json::Value) -> Self {
+    pub fn output(mut self, output: CheckRunOutput) -> Self {
         self.output = Some(output);
         self
     }
@@ -124,11 +184,11 @@ pub struct UpdateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     status: Option<CheckRunStatus>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    conclusion: Option<String>,
+    conclusion: Option<CheckRunConclusion>,
     #[serde(skip_serializing_if = "Option::is_none")]
     completed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    output: Option<serde_json::Value>,
+    output: Option<CheckRunOutput>,
 }
 
 impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
@@ -182,8 +242,8 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     /// The final conclusion of the check.
     /// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
     /// `skipped`, `stale` or `action_required`.
-    pub fn conclusion(mut self, conclusion: impl Into<String>) -> Self {
-        self.conclusion = Some(conclusion.into());
+    pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
+        self.conclusion = Some(conclusion);
         self
     }
 
@@ -196,7 +256,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     /// Check runs can accept a variety of data in the output object,
     /// including a title and summary and can optionally provide
     /// descriptive details about the run.
-    pub fn output(mut self, output: serde_json::Value) -> Self {
+    pub fn output(mut self, output: CheckRunOutput) -> Self {
         self.output = Some(output);
         self
     }
