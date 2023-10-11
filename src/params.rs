@@ -84,6 +84,76 @@ pub mod apps {
     }
 }
 
+pub mod checks {
+    //! Parameter types for the checks API.
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunStatus {
+        Queued,
+        InProgress,
+        Completed,
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunConclusion {
+        Success,
+        Failure,
+        Neutral,
+        Cancelled,
+        TimedOut,
+        Skipped,
+        Stale,
+        ActionRequired
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutput {
+        title: String,
+        summary: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        text: Option<String>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        annotations: Vec<CheckRunOutputAnnotation>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        images: Vec<CheckRunOutputImage>
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutputAnnotation {
+        path: String,
+        start_line: u32,
+        end_line: u32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        start_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        end_column: Option<u32>,
+        annotation_level: CheckRunOutputAnnotationLevel,
+        message: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        title: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        raw_details: Option<String>
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunOutputAnnotationLevel {
+        Notice,
+        Warning,
+        Failure
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutputImage {
+        image_url: String,
+        alt: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        caption: Option<String>
+    }
+}
+
 pub mod issues {
     //! Parameter types for the issues API.
 
