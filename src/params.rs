@@ -105,7 +105,7 @@ pub mod checks {
         TimedOut,
         Skipped,
         Stale,
-        ActionRequired
+        ActionRequired,
     }
 
     #[derive(serde::Serialize)]
@@ -117,7 +117,7 @@ pub mod checks {
         #[serde(skip_serializing_if = "Vec::is_empty")]
         pub annotations: Vec<CheckRunOutputAnnotation>,
         #[serde(skip_serializing_if = "Vec::is_empty")]
-        pub images: Vec<CheckRunOutputImage>
+        pub images: Vec<CheckRunOutputImage>,
     }
 
     #[derive(serde::Serialize)]
@@ -134,7 +134,7 @@ pub mod checks {
         #[serde(skip_serializing_if = "Option::is_none")]
         pub title: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        pub raw_details: Option<String>
+        pub raw_details: Option<String>,
     }
 
     #[derive(Debug, Clone, Copy, serde::Serialize)]
@@ -142,7 +142,7 @@ pub mod checks {
     pub enum CheckRunOutputAnnotationLevel {
         Notice,
         Warning,
-        Failure
+        Failure,
     }
 
     #[derive(serde::Serialize)]
@@ -150,7 +150,7 @@ pub mod checks {
         pub image_url: String,
         pub alt: String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        pub caption: Option<String>
+        pub caption: Option<String>,
     }
 }
 

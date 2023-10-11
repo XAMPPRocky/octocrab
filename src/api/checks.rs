@@ -1,6 +1,6 @@
 use crate::models::{CheckRunId, CheckSuiteId};
-use crate::params::repos::Commitish;
 use crate::params::checks::{CheckRunConclusion, CheckRunOutput, CheckRunStatus};
+use crate::params::repos::Commitish;
 use crate::{models, Octocrab, Result};
 use chrono::{DateTime, Utc};
 
