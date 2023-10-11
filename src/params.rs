@@ -110,31 +110,31 @@ pub mod checks {
 
     #[derive(serde::Serialize)]
     pub struct CheckRunOutput {
-        title: String,
-        summary: String,
+        pub title: String,
+        pub summary: String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        text: Option<String>,
+        pub text: Option<String>,
         #[serde(skip_serializing_if = "Vec::is_empty")]
-        annotations: Vec<CheckRunOutputAnnotation>,
+        pub annotations: Vec<CheckRunOutputAnnotation>,
         #[serde(skip_serializing_if = "Vec::is_empty")]
-        images: Vec<CheckRunOutputImage>
+        pub images: Vec<CheckRunOutputImage>
     }
 
     #[derive(serde::Serialize)]
     pub struct CheckRunOutputAnnotation {
-        path: String,
-        start_line: u32,
-        end_line: u32,
+        pub path: String,
+        pub start_line: u32,
+        pub end_line: u32,
         #[serde(skip_serializing_if = "Option::is_none")]
-        start_column: Option<u32>,
+        pub start_column: Option<u32>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        end_column: Option<u32>,
-        annotation_level: CheckRunOutputAnnotationLevel,
-        message: String,
+        pub end_column: Option<u32>,
+        pub annotation_level: CheckRunOutputAnnotationLevel,
+        pub message: String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        title: Option<String>,
+        pub title: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        raw_details: Option<String>
+        pub raw_details: Option<String>
     }
 
     #[derive(Debug, Clone, Copy, serde::Serialize)]
@@ -147,10 +147,10 @@ pub mod checks {
 
     #[derive(serde::Serialize)]
     pub struct CheckRunOutputImage {
-        image_url: String,
-        alt: String,
+        pub image_url: String,
+        pub alt: String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        caption: Option<String>
+        pub caption: Option<String>
     }
 }
 
