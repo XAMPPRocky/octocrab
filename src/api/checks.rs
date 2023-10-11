@@ -20,8 +20,6 @@ pub enum CheckRunStatus {
     Completed,
 }
 
-/// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
-/// `skipped`, `stale` or `action_required`.
 #[derive(serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CheckRunConclusion {
@@ -136,8 +134,6 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The final conclusion of the check.
-    /// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
-    /// `skipped`, `stale` or `action_required`.
     pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
         self.conclusion = Some(conclusion);
         self
@@ -240,8 +236,6 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The final conclusion of the check.
-    /// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
-    /// `skipped`, `stale` or `action_required`.
     pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
         self.conclusion = Some(conclusion);
         self
