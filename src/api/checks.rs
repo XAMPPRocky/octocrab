@@ -341,7 +341,7 @@ impl<'octo> ChecksHandler<'octo> {
     ///    .create_check_run("name", "head_sha")
     ///    .details_url("https://example.com")
     ///    .external_id("external_id")
-    ///    .status(octocrab::checks::CheckRunStatus::InProgress)
+    ///    .status(octocrab::params::checks::CheckRunStatus::InProgress)
     ///    .send()
     ///    .await?;
     /// # Ok(())
@@ -363,7 +363,7 @@ impl<'octo> ChecksHandler<'octo> {
     /// .name("name")
     /// .details_url("https://example.com")
     /// .external_url("external_id")
-    /// .status(octocrab::checks::CheckRunStatus::InProgress)
+    /// .status(octocrab::params::checks::CheckRunStatus::InProgress)
     /// .send()
     /// .await?;
     /// # Ok(())
