@@ -649,6 +649,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             )
             .layer(client);
 
+        #[cfg(feature = "follow-redirect")]
+        let client = tower_http::follow_redirect::FollowRedirectLayer::new().layer(client);
+
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
         // Add the user agent header required by GitHub
