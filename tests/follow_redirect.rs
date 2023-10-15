@@ -1,5 +1,3 @@
-#![cfg(feature = "follow-redirect")]
-
 // Tests for calls to the /repos/{owner}/{repo}/stargazers API.
 mod mock_error;
 
@@ -56,6 +54,7 @@ const OWNER: &str = "old-owner";
 const REPO: &str = "repo";
 
 #[tokio::test]
+#[cfg_attr(not(feature = "follow-redirect"), ignore)]
 async fn should_return_page_with_users() {
     let star_gazers: Vec<StarGazer> =
         serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
