@@ -65,8 +65,9 @@ base64 = "0.21.2"
 pretty_assertions = "1.4.0"
 
 [features]
-default = ["rustls", "timeout", "tracing", "retry"]
+default = ["follow-redirect", "retry", "rustls", "timeout", "tracing"]
 
+follow-redirect = ["tower-http/follow-redirect"]
 retry = ["tower/retry", "futures-util"]
 rustls = ["hyper-rustls"]
 rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
