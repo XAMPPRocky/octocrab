@@ -25,6 +25,8 @@ pub struct PullRequest {
     pub comments_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statuses_url: Option<Url>,
+    /// The pull request number.  Note that GitHub's REST API
+    /// considers every pull-request an issue with the same number.
     pub number: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<IssueState>,
