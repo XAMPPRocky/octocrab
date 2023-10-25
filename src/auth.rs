@@ -100,6 +100,9 @@ pub struct OAuth {
     pub access_token: SecretString,
     pub token_type: String,
     pub scope: Vec<String>,
+    pub expires_in: Option<usize>,
+    pub refresh_token: Option<SecretString>,
+    pub refresh_token_expires_in: Option<usize>,
 }
 
 /// The wire format of the OAuth struct.
@@ -108,6 +111,9 @@ struct OAuthWire {
     access_token: String,
     token_type: String,
     scope: String,
+    expires_in: Option<usize>,
+    refresh_token: Option<String>,
+    refresh_token_expires_in: Option<usize>,
 }
 
 impl From<OAuthWire> for OAuth {
@@ -116,6 +122,9 @@ impl From<OAuthWire> for OAuth {
             access_token: SecretString::from(value.access_token),
             token_type: value.token_type,
             scope: value.scope.split(',').map(ToString::to_string).collect(),
+            expires_in: value.expires_in,
+            refresh_token: value.refresh_token.map(|t| SecretString::from(t)),
+            refresh_token_expires_in: value.refresh_token_expires_in,
         }
     }
 }
