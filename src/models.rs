@@ -177,6 +177,10 @@ pub enum Event {
     AddedToProject,
     /// The issue or pull request was assigned to a user.
     Assigned,
+    /// Auto merge was disabled for a pull request.
+    AutoMergeDisabled,
+    /// Auto merge was enabled for a pull request.
+    AutoMergeEnabled,
     /// GitHub unsuccessfully attempted to automatically change the base branch of the pull request.
     AutomaticBaseChangeFailed,
     /// GitHub successfully attempted to automatically change the base branch of the pull request.
