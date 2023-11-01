@@ -44,7 +44,7 @@ async fn should_list_repo_projects() {
         serde_json::from_str(include_str!("resources/projects.json")).unwrap();
 
     let test_login = repo_project[0].creator.login.clone();
-    let test_id = repo_project[1].id.clone();
+    let test_id = repo_project[1].id;
 
     let page_response = FakePage {
         items: repo_project,

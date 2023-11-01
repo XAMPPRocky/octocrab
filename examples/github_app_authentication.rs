@@ -1,4 +1,3 @@
-use octocrab::models::InstallationRepositories;
 use octocrab::Octocrab;
 
 #[tokio::main]
