@@ -18,15 +18,11 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!("/user/projects")))
+        .and(path("/user/projects"))
         .respond_with(template)
         .mount(&mock_server)
         .await;
-    setup_error_handler(
-        &mock_server,
-        &format!("POST on /users/projects was not received"),
-    )
-    .await;
+    setup_error_handler(&mock_server, "POST on /users/projects was not received").await;
     mock_server
 }
 

@@ -149,8 +149,8 @@ pub struct ListUserProjectsBuilder<'octo, 'r> {
 impl<'octo, 'r> ListUserProjectsBuilder<'octo, 'r> {
     pub fn new(handler: &'r ProjectHandler<'octo>, username: String) -> Self {
         Self {
-            handler: handler,
-            username: username,
+            handler,
+            username,
             per_page: None,
             page: None,
         }
@@ -198,7 +198,7 @@ impl<'octo, 'r> ListOrgProjectsBuilder<'octo, 'r> {
             per_page: None,
             page: None,
             state: None,
-            org: org,
+            org,
         }
     }
 
@@ -247,8 +247,8 @@ impl<'octo, 'r> CreateOrgProjectsBuilder<'octo, 'r> {
         Self {
             handler,
             body: None,
-            name: name,
-            org: org,
+            name,
+            org,
         }
     }
 
@@ -285,8 +285,8 @@ impl<'octo, 'r> ListRepositoryProjectsBuilder<'octo, 'r> {
             handler,
             per_page: None,
             page: None,
-            owner: owner,
-            repo: repo,
+            owner,
+            repo,
         }
     }
 
@@ -342,10 +342,10 @@ impl<'octo, 'r> CreateRepositoryProjectsBuilder<'octo, 'r, NotNamed> {
             per_page: None,
             page: None,
             body: None,
-            owner: owner,
-            repo: repo,
+            owner,
+            repo,
             project_name: None,
-            _named: PhantomData::default(),
+            _named: PhantomData,
         }
     }
 
@@ -361,7 +361,7 @@ impl<'octo, 'r> CreateRepositoryProjectsBuilder<'octo, 'r, NotNamed> {
             owner: self.owner,
             repo: self.repo,
             project_name: Some(name.into()),
-            _named: PhantomData::default(),
+            _named: PhantomData,
         }
     }
 }
@@ -376,7 +376,7 @@ impl<'octo, 'r> CreateRepositoryProjectsBuilder<'octo, 'r, Named> {
             owner: repo_builder.owner,
             repo: repo_builder.repo,
             project_name: repo_builder.project_name,
-            _named: PhantomData::default(),
+            _named: PhantomData,
         }
     }
 
