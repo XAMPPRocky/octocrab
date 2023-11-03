@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use url::Url;
 
+pub mod actions;
 pub mod activity;
 pub mod apps;
 pub mod checks;
@@ -123,6 +124,9 @@ id_type!(
     RepositoryId,
     ReviewId,
     RunId,
+    RunnerId,
+    RunnerGroupId,
+    RunnerLabelId,
     StatusId,
     TeamId,
     TimelineEventId,

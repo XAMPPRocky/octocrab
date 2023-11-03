@@ -1,11 +1,15 @@
 //! GitHub Actions
 use snafu::ResultExt;
 
+pub mod self_hosted_runners;
+
+use self::self_hosted_runners::{CreateJitRunnerConfigBuilder, ListSelfHostedRunnersBuilder};
 use crate::error::{HttpSnafu, HyperSnafu};
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
     workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
 };
+use crate::models::{RunnerGroupId, RunnerId};
 use crate::{params, FromResponse, Octocrab, Page};
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode, Uri};
@@ -442,6 +446,396 @@ impl<'octo> ActionsHandler<'octo> {
             workflow_id.into(),
             r#ref.into(),
         )
+    }
+
+    /// List all self-hosted runners configured in an organization.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let runners = octocrab.actions()
+    ///    .list_org_self_hosted_runners("org")
+    ///    // optional
+    ///    .name("my-runner") // filter by name
+    ///    .per_page(15)
+    ///    .page(2u32)
+    ///    .send()
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub fn list_org_self_hosted_runners(
+        &self,
+        org: impl Into<String>,
+    ) -> ListSelfHostedRunnersBuilder<'_, '_> {
+        ListSelfHostedRunnersBuilder::new_org(self, org.into())
+    }
+
+    /// Generates a configuration that can be passed to the runner application
+    /// at startup.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// The `labels` member of the `CreateJitRunnerConfig` must have between
+    /// 1 and 100 labels, inclusive.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let jit_config = octocrab
+    ///     .actions()
+    ///     .create_repo_jit_runner_config(
+    ///         "owner",
+    ///         "repo_name",
+    ///         "my_runner_name",
+    ///         2.into(),
+    ///         ["label-1".into(), "label-2".into()],
+    ///     )
+    ///     .send()
+    ///     .await?;
+    /// // jit_config.encoded_jit_config contains the base64-encoded runner configuration
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn create_org_jit_runner_config(
+        &self,
+        org: impl Into<String>,
+        name: impl Into<String>,
+        runner_group_id: RunnerGroupId,
+        labels: impl Into<Vec<String>>,
+    ) -> CreateJitRunnerConfigBuilder<'_, '_> {
+        CreateJitRunnerConfigBuilder::new_org(
+            self,
+            org.into(),
+            name.into(),
+            runner_group_id,
+            labels.into(),
+        )
+    }
+
+    /// Returns a token that you can pass to the self-hosted runner config
+    /// script to register a self-hosted runner with an organization. The token
+    /// expires after one hour.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let token_resp = octocrab.actions()
+    ///    .create_org_runner_registration_token("org")
+    ///    .await?;
+    /// // token_resp.token contains the token
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn create_org_runner_registration_token(
+        &self,
+        org: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerToken> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/registration-token",
+            org = org.as_ref()
+        );
+
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Returns a token that you can pass to the self-hosted runner config
+    /// script to remove a self-hosted runner from an organization. The token
+    /// expires after one hour.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let token_resp = octocrab.actions()
+    ///    .create_org_runner_remove_token("org")
+    ///    .await?;
+    /// // token_resp.token contains the token
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn create_org_runner_remove_token(
+        &self,
+        org: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerToken> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/remove-token",
+            org = org.as_ref()
+        );
+
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Gets a specific self-hosted runner configured in an organization.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let runner = octocrab.actions()
+    ///    .get_org_runner("org", 27.into())
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn get_org_runner(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunner> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}",
+            org = org.as_ref()
+        );
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Forces the removal of a self-hosted runner from an organization. You
+    /// can use this endpoint to completely remove the runner when the machine
+    /// you were using no longer exists.
+    ///
+    /// You must authenticate using an access token with the `admin:org` scope
+    /// to use this endpoint. GitHub Apps must have the
+    /// `organization_self_hosted_runners` permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.actions()
+    ///    .delete_org_runner("org", 27.into())
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn delete_org_runner(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: RunnerId,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}",
+            org = org.as_ref()
+        );
+
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// List all self-hosted runners configured in a repository.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission for repositories to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let runners = octocrab.actions()
+    ///    .list_repo_self_hosted_runners("owner", "repo")
+    ///    // optional
+    ///    .name("my-runner") // filter by name
+    ///    .per_page(15)
+    ///    .page(2u32)
+    ///    .send()
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub fn list_repo_self_hosted_runners(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> ListSelfHostedRunnersBuilder<'_, '_> {
+        ListSelfHostedRunnersBuilder::new_repo(self, owner.into(), repo.into())
+    }
+
+    /// Generates a configuration that can be passed to the runner application
+    /// at startup.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission for repositories to use this endpoint.
+    ///
+    /// The `labels` member of the `CreateJitRunnerConfig` must have between
+    /// 1 and 100 labels, inclusive.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let jit_config = octocrab
+    ///     .actions()
+    ///     .create_org_jit_runner_config(
+    ///         "org",
+    ///         "my_runner_name",
+    ///         2.into(),
+    ///         ["label-1".into(), "label-2".into()],
+    ///     )
+    ///     .send()
+    ///     .await?;
+    /// // jit_config.encoded_jit_config contains the base64-encoded runner configuration
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn create_repo_jit_runner_config(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+        name: impl Into<String>,
+        runner_group_id: RunnerGroupId,
+        labels: impl Into<Vec<String>>,
+    ) -> CreateJitRunnerConfigBuilder<'_, '_> {
+        CreateJitRunnerConfigBuilder::new_repo(
+            self,
+            owner.into(),
+            repo.into(),
+            name.into(),
+            runner_group_id,
+            labels.into(),
+        )
+    }
+
+    /// Returns a token that you can pass to the self-hosted runner config
+    /// script to register a self-hosted runner with an organization. The token
+    /// expires after one hour.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let token_resp = octocrab.actions()
+    ///    .create_repo_runner_registration_token("owner", "repo")
+    ///    .await?;
+    /// // token_resp.token contains the token
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn create_repo_runner_registration_token(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerToken> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/registration-token",
+            owner = owner.as_ref(),
+            repo = repo.as_ref()
+        );
+
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Returns a token that you can pass to the self-hosted runner config
+    /// script to remove a self-hosted runner from an organization. The token
+    /// expires after one hour.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let token_resp = octocrab.actions()
+    ///    .create_repo_runner_registration_token("owner", "repo")
+    ///    .await?;
+    /// // token_resp.token contains the token
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn create_repo_runner_remove_token(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerToken> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/remove-token",
+            owner = owner.as_ref(),
+            repo = repo.as_ref()
+        );
+
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Gets a specific self-hosted runner configured in an organization.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let runner = octocrab.actions()
+    ///    .get_repo_runner("owner", "repo", 27.into())
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn get_repo_runner(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunner> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref()
+        );
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Forces the removal of a self-hosted runner from an organization. You
+    /// can use this endpoint to completely remove the runner when the machine
+    /// you were using no longer exists.
+    ///
+    /// You must authenticate using an access token with the `repo` scope
+    /// to use this endpoint. GitHub Apps must have the `administration`
+    /// permission to use this endpoint.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.actions()
+    ///    .delete_repo_runner("owner", "repo", 27.into())
+    ///    .await?;
+    /// # return Ok(());
+    /// # }
+    /// ```
+    pub async fn delete_repo_runner(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: RunnerId,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref()
+        );
+
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
     }
 }
 
