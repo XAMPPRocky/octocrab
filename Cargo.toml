@@ -63,6 +63,7 @@ wiremock = "0.5.3"
 crypto_box = { version = "0.8.2", features = ["seal"] }
 base64 = "0.21.2"
 pretty_assertions = "1.4.0"
+graphql_client = "0.13.0"
 
 [features]
 default = ["follow-redirect", "retry", "rustls", "timeout", "tracing"]
