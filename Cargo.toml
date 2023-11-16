@@ -31,7 +31,7 @@ futures = { version = "0.3.15" }
 futures-core = { version = "0.3.15", optional = true }
 futures-util = { version = "0.3.15", optional = true }
 jsonwebtoken = "9"
-http = "0.2.5"
+http = "1.0.0"
 http-body = "0.4.5"
 hyper = { version = "0.14.13", features = ["client", "http1", "stream", "tcp"] }
 hyper-rustls = { version = "0.24.0", optional = true }
