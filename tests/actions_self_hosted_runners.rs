@@ -108,7 +108,7 @@ async fn test_context(
     };
     let server = setup_api(scope, method_name, actions_uri, None::<()>, template).await;
     let client = Octocrab::builder()
-        .base_uri(&server.uri())
+        .base_uri(server.uri())
         .unwrap()
         .build()
         .unwrap();
@@ -137,7 +137,7 @@ async fn test_context_with_request_body(
     )
     .await;
     let client = Octocrab::builder()
-        .base_uri(&server.uri())
+        .base_uri(server.uri())
         .unwrap()
         .build()
         .unwrap();
@@ -224,7 +224,7 @@ async fn should_return_org_jit_config() {
     let test_context = test_context_with_request_body(
         Scope::Org,
         "POST",
-        &format!("/actions/runners/generate-jitconfig"),
+        "/actions/runners/generate-jitconfig",
         StatusCode::CREATED,
         jit_config_req.clone(),
         Some(expected_response.clone()),
@@ -263,7 +263,7 @@ async fn should_return_repo_jit_config() {
     let test_context = test_context_with_request_body(
         Scope::Repo,
         "POST",
-        &format!("/actions/runners/generate-jitconfig"),
+        "/actions/runners/generate-jitconfig",
         StatusCode::CREATED,
         jit_config_req.clone(),
         Some(expected_response.clone()),
@@ -298,7 +298,7 @@ async fn should_return_org_registration_token() {
     let test_context = test_context(
         Scope::Org,
         "POST",
-        &format!("/actions/runners/registration-token"),
+        "/actions/runners/registration-token",
         StatusCode::CREATED,
         Some(expected_token.clone()),
     )
@@ -324,7 +324,7 @@ async fn should_return_repo_registration_token() {
     let test_context = test_context(
         Scope::Repo,
         "POST",
-        &format!("/actions/runners/registration-token"),
+        "/actions/runners/registration-token",
         StatusCode::CREATED,
         Some(expected_token.clone()),
     )
@@ -350,7 +350,7 @@ async fn should_return_org_remove_token() {
     let test_context = test_context(
         Scope::Org,
         "POST",
-        &format!("/actions/runners/remove-token"),
+        "/actions/runners/remove-token",
         StatusCode::CREATED,
         Some(expected_token.clone()),
     )
@@ -376,7 +376,7 @@ async fn should_return_repo_remove_token() {
     let test_context = test_context(
         Scope::Repo,
         "POST",
-        &format!("/actions/runners/remove-token"),
+        "/actions/runners/remove-token",
         StatusCode::CREATED,
         Some(expected_token.clone()),
     )

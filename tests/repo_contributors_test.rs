@@ -56,7 +56,7 @@ async fn should_return_repo_contributors() {
 
     let contributors = result.unwrap();
 
-    assert!(contributors.items.len() > 0);
+    assert!(!contributors.items.is_empty());
 
     let Contributor {
         author: Author { login, .. },
