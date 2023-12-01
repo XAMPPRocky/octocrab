@@ -7,6 +7,7 @@ use snafu::ResultExt;
 
 mod branches;
 mod collaborators;
+mod contributors;
 mod commits;
 pub mod events;
 mod file;
@@ -37,6 +38,7 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
+use crate::repos::contributors::ListContributorsBuilder;
 
 /// Handler for GitHub's repository API.
 ///
@@ -424,6 +426,17 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_collaborators(&self) -> ListCollaboratorsBuilder<'_, '_> {
         ListCollaboratorsBuilder::new(self)
+    }
+
+    /// List contributors from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let contributors = octocrab::instance().repos("owner", "repo").list_contributors().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_contributors(&self) -> ListContributorsBuilder<'_, '_> {
+        ListContributorsBuilder::new(self)
     }
 
     /// List star_gazers from a repository.
