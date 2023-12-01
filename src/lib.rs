@@ -485,6 +485,27 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         self
     }
 
+    /// Set the connect timeout.
+    #[cfg(feature = "timeout")]
+    pub fn set_connect_timeout(mut self, timeout: Option<Duration>) -> Self {
+        self.config.connect_timeout = timeout;
+        self
+    }
+
+    /// Set the read timeout.
+    #[cfg(feature = "timeout")]
+    pub fn set_read_timeout(mut self, timeout: Option<Duration>) -> Self {
+        self.config.read_timeout = timeout;
+        self
+    }
+
+    /// Set the write timeout.
+    #[cfg(feature = "timeout")]
+    pub fn set_write_timeout(mut self, timeout: Option<Duration>) -> Self {
+        self.config.write_timeout = timeout;
+        self
+    }
+
     /// Enable a GitHub preview.
     pub fn add_preview(mut self, preview: &'static str) -> Self {
         self.config.previews.push(preview);
