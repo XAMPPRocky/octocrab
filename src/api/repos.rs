@@ -7,8 +7,8 @@ use snafu::ResultExt;
 
 mod branches;
 mod collaborators;
-mod contributors;
 mod commits;
+mod contributors;
 pub mod events;
 mod file;
 pub mod forks;
@@ -28,6 +28,7 @@ use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use commits::ListCommitsBuilder;
+pub use contributors::ListContributorsBuilder;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
@@ -38,7 +39,6 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
-use crate::repos::contributors::ListContributorsBuilder;
 
 /// Handler for GitHub's repository API.
 ///
