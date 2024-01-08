@@ -443,6 +443,14 @@ pub struct Collaborator {
     pub permissions: Permissions,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Contributor {
+    #[serde(flatten)]
+    pub author: Author,
+    pub contributions: u32,
+}
+
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct StarGazer {

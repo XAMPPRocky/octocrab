@@ -8,6 +8,7 @@ use snafu::ResultExt;
 mod branches;
 mod collaborators;
 mod commits;
+mod contributors;
 pub mod events;
 mod file;
 pub mod forks;
@@ -27,6 +28,7 @@ use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use commits::ListCommitsBuilder;
+pub use contributors::ListContributorsBuilder;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
@@ -424,6 +426,17 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_collaborators(&self) -> ListCollaboratorsBuilder<'_, '_> {
         ListCollaboratorsBuilder::new(self)
+    }
+
+    /// List contributors from a repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let contributors = octocrab::instance().repos("owner", "repo").list_contributors().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_contributors(&self) -> ListContributorsBuilder<'_, '_> {
+        ListContributorsBuilder::new(self)
     }
 
     /// List star_gazers from a repository.
