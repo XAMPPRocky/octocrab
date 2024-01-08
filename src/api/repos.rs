@@ -287,6 +287,17 @@ impl<'octo> RepoHandler<'octo> {
         )
     }
 
+    /// Update an existing file.
+    ///
+    /// - `path`: the path of the updated file.
+    /// - `message`: the message of the commit used to update the file
+    /// - `content`: the updated contents of the file (base64 encoding is done
+    ///   automatically).
+    /// - `sha`: the blob SHA of the file being updated. This can be obtained
+    ///   using the [RepoHandler::get_content] function.
+    ///
+    /// [GitHub API documentation](https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#create-or-update-file-contents)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let blob_sha = "";
