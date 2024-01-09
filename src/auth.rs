@@ -93,7 +93,7 @@ impl AppAuth {
     }
 }
 
-/// The data necessary to authenticate as a github OAtuh app.
+/// The data necessary to authenticate as a GitHub OAuth app.
 #[derive(Clone, Deserialize)]
 #[serde(from = "OAuthWire")]
 pub struct OAuth {
