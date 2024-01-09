@@ -90,7 +90,7 @@ pub struct TimelineEvent {
 pub struct DismissedReview {
     state: pulls::ReviewState,
     review_id: ReviewId,
-    dismissal_message: String,
+    dismissal_message: Option<String>,
     dismissal_commit_id: Option<String>,
 }
 
