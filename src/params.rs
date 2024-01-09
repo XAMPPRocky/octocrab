@@ -84,6 +84,76 @@ pub mod apps {
     }
 }
 
+pub mod checks {
+    //! Parameter types for the checks API.
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunStatus {
+        Queued,
+        InProgress,
+        Completed,
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunConclusion {
+        Success,
+        Failure,
+        Neutral,
+        Cancelled,
+        TimedOut,
+        Skipped,
+        Stale,
+        ActionRequired,
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutput {
+        pub title: String,
+        pub summary: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub text: Option<String>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        pub annotations: Vec<CheckRunOutputAnnotation>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        pub images: Vec<CheckRunOutputImage>,
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutputAnnotation {
+        pub path: String,
+        pub start_line: u32,
+        pub end_line: u32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub start_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub end_column: Option<u32>,
+        pub annotation_level: CheckRunOutputAnnotationLevel,
+        pub message: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub title: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub raw_details: Option<String>,
+    }
+
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum CheckRunOutputAnnotationLevel {
+        Notice,
+        Warning,
+        Failure,
+    }
+
+    #[derive(serde::Serialize)]
+    pub struct CheckRunOutputImage {
+        pub image_url: String,
+        pub alt: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub caption: Option<String>,
+    }
+}
+
 pub mod issues {
     //! Parameter types for the issues API.
 

@@ -1,4 +1,5 @@
 use crate::models::{CheckRunId, CheckSuiteId};
+use crate::params::checks::{CheckRunConclusion, CheckRunOutput, CheckRunStatus};
 use crate::params::repos::Commitish;
 use crate::{models, Octocrab, Result};
 use chrono::{DateTime, Utc};
@@ -13,14 +14,6 @@ pub struct ChecksHandler<'octo> {
 }
 
 #[derive(serde::Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum CheckRunStatus {
-    Queued,
-    InProgress,
-    Completed,
-}
-
-#[derive(serde::Serialize)]
 pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r ChecksHandler<'octo>,
@@ -32,6 +25,12 @@ pub struct CreateCheckRunBuilder<'octo, 'r> {
     external_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     status: Option<CheckRunStatus>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    conclusion: Option<CheckRunConclusion>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    completed_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    output: Option<CheckRunOutput>,
 }
 
 impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
@@ -43,6 +42,9 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
             details_url: None,
             external_id: None,
             status: None,
+            conclusion: None,
+            completed_at: None,
+            output: None,
         }
     }
 
@@ -63,6 +65,26 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     /// Can be one of `queued`, `in_progress`, or `completed`.
     pub fn status(mut self, status: CheckRunStatus) -> Self {
         self.status = Some(status);
+        self
+    }
+
+    /// The final conclusion of the check.
+    pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
+        self.conclusion = Some(conclusion);
+        self
+    }
+
+    /// The time that the check run completed.
+    pub fn completed_at(mut self, completed_at: DateTime<Utc>) -> Self {
+        self.completed_at = Some(completed_at);
+        self
+    }
+
+    /// Check runs can accept a variety of data in the output object,
+    /// including a title and summary and can optionally provide
+    /// descriptive details about the run.
+    pub fn output(mut self, output: CheckRunOutput) -> Self {
+        self.output = Some(output);
         self
     }
 
@@ -93,11 +115,11 @@ pub struct UpdateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     status: Option<CheckRunStatus>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    conclusion: Option<String>,
+    conclusion: Option<CheckRunConclusion>,
     #[serde(skip_serializing_if = "Option::is_none")]
     completed_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    output: Option<serde_json::Value>,
+    output: Option<CheckRunOutput>,
 }
 
 impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
@@ -149,10 +171,8 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The final conclusion of the check.
-    /// Can be one of `success`, `failure`, `neutral`, `cancelled`, `timed_out`,
-    /// `skipped`, `stale` or `action_required`.
-    pub fn conclusion(mut self, conclusion: impl Into<String>) -> Self {
-        self.conclusion = Some(conclusion.into());
+    pub fn conclusion(mut self, conclusion: CheckRunConclusion) -> Self {
+        self.conclusion = Some(conclusion);
         self
     }
 
@@ -165,7 +185,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     /// Check runs can accept a variety of data in the output object,
     /// including a title and summary and can optionally provide
     /// descriptive details about the run.
-    pub fn output(mut self, output: serde_json::Value) -> Self {
+    pub fn output(mut self, output: CheckRunOutput) -> Self {
         self.output = Some(output);
         self
     }
@@ -321,7 +341,7 @@ impl<'octo> ChecksHandler<'octo> {
     ///    .create_check_run("name", "head_sha")
     ///    .details_url("https://example.com")
     ///    .external_id("external_id")
-    ///    .status(octocrab::checks::CheckRunStatus::InProgress)
+    ///    .status(octocrab::params::checks::CheckRunStatus::InProgress)
     ///    .send()
     ///    .await?;
     /// # Ok(())
@@ -343,7 +363,7 @@ impl<'octo> ChecksHandler<'octo> {
     /// .name("name")
     /// .details_url("https://example.com")
     /// .external_url("external_id")
-    /// .status(octocrab::checks::CheckRunStatus::InProgress)
+    /// .status(octocrab::params::checks::CheckRunStatus::InProgress)
     /// .send()
     /// .await?;
     /// # Ok(())
