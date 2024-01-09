@@ -123,7 +123,7 @@ impl From<OAuthWire> for OAuth {
             token_type: value.token_type,
             scope: value.scope.split(',').map(ToString::to_string).collect(),
             expires_in: value.expires_in,
-            refresh_token: value.refresh_token.map(|t| SecretString::from(t)),
+            refresh_token: value.refresh_token.map(SecretString::from),
             refresh_token_expires_in: value.refresh_token_expires_in,
         }
     }
