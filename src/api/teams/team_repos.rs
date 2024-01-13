@@ -132,6 +132,12 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        self.crab.delete(route, None::<&()>).await
+        self.crab
+            ._delete(
+                self.crab.parameterized_uri(route, None::<&()>)?,
+                None::<&()>,
+            )
+            .await?;
+        Ok(())
     }
 }
