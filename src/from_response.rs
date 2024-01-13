@@ -17,16 +17,3 @@ impl<T: serde::de::DeserializeOwned> FromResponse for T {
         return serde_path_to_error::deserialize(de).context(crate::error::JsonSnafu);
     }
 }
-
-#[derive(Debug)]
-pub struct TwoOhFourResponse;
-
-#[async_trait::async_trait]
-impl FromResponse for TwoOhFourResponse {
-    async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self> {
-        if http::StatusCode::NO_CONTENT != response.status() {
-            panic!("The response code was not 204: {:#?}", response);
-        }
-        return Ok(Self {});
-    }
-}

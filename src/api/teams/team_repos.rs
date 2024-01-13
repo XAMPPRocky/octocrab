@@ -1,6 +1,6 @@
 use crate::error::HttpSnafu;
 use crate::params;
-use crate::{models, FromResponse, Octocrab, Result, TwoOhFourResponse};
+use crate::{models, FromResponse, Octocrab, Result};
 use http::header::ACCEPT;
 use http::request::Builder;
 use http::{StatusCode, Uri};
@@ -124,7 +124,7 @@ impl<'octo> TeamRepoHandler<'octo> {
         &self,
         repo_owner: impl Into<String>,
         repo_name: impl Into<String>,
-    ) -> Result<TwoOhFourResponse> {
+    ) -> Result<()> {
         let route = format!(
             "/orgs/{org}/teams/{team}/repos/{owner}/{repo}",
             org = self.org,
@@ -132,13 +132,12 @@ impl<'octo> TeamRepoHandler<'octo> {
             owner = repo_owner.into(),
             repo = repo_name.into(),
         );
-        let response = self
-            .crab
+        self.crab
             ._delete(
                 self.crab.parameterized_uri(route, None::<&()>)?,
                 None::<&()>,
             )
             .await?;
-        TwoOhFourResponse::from_response(crate::map_github_error(response).await?).await
+        Ok(())
     }
 }

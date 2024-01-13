@@ -257,7 +257,7 @@ pub use self::{
         licenses, markdown, orgs, projects, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
-    from_response::{FromResponse, TwoOhFourResponse},
+    from_response::FromResponse,
     page::Page,
 };
 

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed two functions which return 204s and have no body, which throws serde errors
+  - `octocrab.issues().delete_label()`
+  - `octocrab.teams().repos().remove()`
+
+### Other
+
+- Added tests for the above functions
+- Also added tests for `octocrab.teams().repos().add_or_update()`
+- Also added tests for `octocrab.issues().remove_label()`
+
 ## [0.32.0](https://github.com/XAMPPRocky/octocrab/compare/v0.31.2...v0.31.3) - 2023-11-01
 
 ### Other
