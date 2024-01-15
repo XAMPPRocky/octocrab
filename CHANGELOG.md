@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0](https://github.com/XAMPPRocky/octocrab/compare/v0.32.0...v0.33.0) - 2024-01-15
+
+### Added
+- add methods to builder for changing timeouts ([#498](https://github.com/XAMPPRocky/octocrab/pull/498))
+
+### Other
+- Always set http request header `CONTENT-LENGTH` ([#464](https://github.com/XAMPPRocky/octocrab/pull/464))
+- Add link to `Content::decoded_content` ([#514](https://github.com/XAMPPRocky/octocrab/pull/514))
+- Repairing two 204-related serde errors, and adding some simple tests. ([#503](https://github.com/XAMPPRocky/octocrab/pull/503))
+- Add CheckRunOutput ([#515](https://github.com/XAMPPRocky/octocrab/pull/515))
+- cargo clippy --tests --examples --fix ([#496](https://github.com/XAMPPRocky/octocrab/pull/496))
+- make dismissal_message optional ([#501](https://github.com/XAMPPRocky/octocrab/pull/501))
+- Add conclusion, completed_at and output fields to create check api ([#467](https://github.com/XAMPPRocky/octocrab/pull/467))
+- Fix typo in docs ([#508](https://github.com/XAMPPRocky/octocrab/pull/508))
+- [docs] Improve the update_file docs ([#513](https://github.com/XAMPPRocky/octocrab/pull/513))
+- added repos/list_contributors ([#500](https://github.com/XAMPPRocky/octocrab/pull/500))
+- Make user information optional
+- Use graphql_client to get stronger typing
+- add fields for refresh token and expiry timestamps ([#477](https://github.com/XAMPPRocky/octocrab/pull/477))
+
 ### Fixed
 
 - Fixed two functions which return 204s and have no body, which throws serde errors
