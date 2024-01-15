@@ -172,7 +172,8 @@ pub struct Content {
     pub path: String,
     pub sha: String,
     pub encoding: Option<String>,
-    /// File content, Base64 encoded
+    /// File content, Base64 encoded. See also
+    /// [Content::decoded_content].
     pub content: Option<String>,
     pub size: i64,
     pub url: String,
