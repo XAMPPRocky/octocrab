@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.1](https://github.com/XAMPPRocky/octocrab/compare/v0.33.0...v0.33.1) - 2024-01-15
+
+### Fixed
+- fixed timeout methods not being feature gated ([#519](https://github.com/XAMPPRocky/octocrab/pull/519))
+
 ## [0.33.0](https://github.com/XAMPPRocky/octocrab/compare/v0.32.0...v0.33.0) - 2024-01-15
 
 ### Added
