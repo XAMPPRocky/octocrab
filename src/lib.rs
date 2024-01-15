@@ -225,7 +225,6 @@ use hyper_rustls::HttpsConnectorBuilder;
 #[cfg(feature = "retry")]
 use tower::retry::{Retry, RetryLayer};
 
-#[cfg(feature = "timeout")]
 use {
     hyper_timeout::TimeoutConnector,
     tokio::io::{AsyncRead, AsyncWrite},
@@ -486,21 +485,18 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Set the connect timeout.
-    #[cfg(feature = "timeout")]
     pub fn set_connect_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.connect_timeout = timeout;
         self
     }
 
     /// Set the read timeout.
-    #[cfg(feature = "timeout")]
     pub fn set_read_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.read_timeout = timeout;
         self
     }
 
     /// Set the write timeout.
-    #[cfg(feature = "timeout")]
     pub fn set_write_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.write_timeout = timeout;
         self
@@ -571,7 +567,6 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         retry_layer.layer(connector)
     }
 
-    #[cfg(feature = "timeout")]
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
         T: Service<Uri> + Send,
@@ -610,7 +605,6 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             #[cfg(all(feature = "opentls", not(feature = "rustls")))]
             let connector = HttpsConnector::new();
 
-            #[cfg(feature = "timeout")]
             let connector = self.set_connect_timeout_service(connector);
 
             hyper::Client::builder().build(connector)
@@ -750,11 +744,8 @@ pub struct DefaultOctocrabBuilderConfig {
     auth: Auth,
     previews: Vec<&'static str>,
     extra_headers: Vec<(HeaderName, String)>,
-    #[cfg(feature = "timeout")]
     connect_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
     read_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>,
     #[cfg(feature = "retry")]
@@ -767,11 +758,8 @@ impl Default for DefaultOctocrabBuilderConfig {
             auth: Auth::None,
             previews: Vec::new(),
             extra_headers: Vec::new(),
-            #[cfg(feature = "timeout")]
             connect_timeout: None,
-            #[cfg(feature = "timeout")]
             read_timeout: None,
-            #[cfg(feature = "timeout")]
             write_timeout: None,
             base_uri: None,
             #[cfg(feature = "retry")]
