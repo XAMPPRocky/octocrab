@@ -1,4 +1,5 @@
 use super::*;
+use crate::models::workflows::HeadCommit;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -31,4 +32,27 @@ pub struct CheckRun {
 pub struct ListCheckRuns {
     pub total_count: u64,
     pub check_runs: Vec<CheckRun>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CheckSuite {
+    pub id: CheckSuiteId,
+    pub node_id: String,
+    pub head_branch: String,
+    pub head_sha: String,
+    pub status: Option<String>,
+    pub conclusion: Option<String>,
+    pub url: String,
+    pub before: String,
+    pub after: String,
+    app: Option<App>,
+    pub repository: Repository,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub head_commit: HeadCommit,
+    latest_check_runs_count: i64,
+    check_runs_url: String,
+    rerequestable: Option<bool>,
+    runs_rerequestable: Option<bool>,
 }

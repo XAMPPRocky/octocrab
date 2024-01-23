@@ -372,4 +372,43 @@ impl<'octo> ChecksHandler<'octo> {
     pub fn update_check_run(&self, check_run_id: CheckRunId) -> UpdateCheckRunBuilder<'_, '_> {
         UpdateCheckRunBuilder::new(self, check_run_id)
     }
+
+    /// ```no_run
+    /// async fn run() -> octocrab::Result<()> {
+    ///   let check_suite_run = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .create_check_suite("head_sha")
+    ///    .send()
+    ///    .await?;
+    /// }
+    /// ```
+    pub fn create_check_suite(
+        &self,
+        head_sha: impl Into<String>,
+    ) -> CreateCheckSuiteBuilder<'_, '_> {
+        CreateCheckSuiteBuilder::new(self, head_sha.into())
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct CreateCheckSuiteBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    head_sha: String,
+}
+
+impl<'octo, 'r> CreateCheckSuiteBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, head_sha: String) -> Self {
+        Self { handler, head_sha }
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<models::checks::CheckSuite> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-suites",
+            owner = self.handler.owner,
+            repo = self.handler.repo
+        );
+        self.handler.crab.post(route, Some(&self)).await
+    }
 }
