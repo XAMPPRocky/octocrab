@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed a bug in `repos().issues().delete_reaction()` which didn't account for HTTP 204 cases.
+
 ### Other
 - Added a test case for `repos().is_collaborator()` to cover both 204 and 404 cases.
+- Added a test case for `repos().issues().delete_reaction()` to cover HTTP 204 cases.
 
 ## [0.33.1](https://github.com/XAMPPRocky/octocrab/compare/v0.33.0...v0.33.1) - 2024-01-15
 

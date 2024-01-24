@@ -1061,7 +1061,9 @@ impl<'octo> IssueHandler<'octo> {
             reaction_id = reaction_id.into(),
         );
 
-        self.crab.delete(route, None::<&()>).await
+        self.crab._delete(route, None::<&()>).await?;
+
+        Ok(())
     }
 
     /// Deletes a reaction for an issue comment.
