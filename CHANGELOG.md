@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.2](https://github.com/XAMPPRocky/octocrab/compare/v0.33.1...v0.33.2) - 2024-01-24
+
+### Other
+- Resolving issue with deleting reactions from issues. ([#555](https://github.com/XAMPPRocky/octocrab/pull/555))
+- Added a test for `repos().is_collaborator()`. The 204 case is good! ([#553](https://github.com/XAMPPRocky/octocrab/pull/553))
+
 ### Other
 - Added a test case for `repos().is_collaborator()` to cover both 204 and 404 cases.
 
