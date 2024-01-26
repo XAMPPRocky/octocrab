@@ -193,6 +193,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
             .header(http::header::ACCEPT, "application/octet-stream");
         let request = self.parent.crab.build_request(builder, None::<&()>)?;
         let response = self.parent.crab.execute(request).await?;
+        let response = self.parent.crab.follow_location_to_data(response).await?;
         Ok(response
             .into_body()
             .map_err(|source| crate::error::Error::Hyper {
