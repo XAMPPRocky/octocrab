@@ -1,6 +1,6 @@
 [package]
 name = "octocrab"
-version = "0.33.2"
+version = "0.33.3"
 authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
 readme = "README.md"
