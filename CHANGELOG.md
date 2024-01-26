@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.3](https://github.com/XAMPPRocky/octocrab/compare/v0.33.2...v0.33.3) - 2024-01-26
+
+### Other
+- Handle redirects in ReleasesHandler::stream_asset(). ([#556](https://github.com/XAMPPRocky/octocrab/pull/556))
+- Tests for locking and unlocking issue comments ([#557](https://github.com/XAMPPRocky/octocrab/pull/557))
+
 ## [0.33.2](https://github.com/XAMPPRocky/octocrab/compare/v0.33.1...v0.33.2) - 2024-01-24
 
 ### Other
