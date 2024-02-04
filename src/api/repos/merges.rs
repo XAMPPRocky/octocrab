@@ -1,4 +1,5 @@
 use super::*;
+use crate::from_response::FromResponse;
 
 #[derive(serde::Serialize)]
 pub struct MergeBranchBuilder<'octo, 'r> {
@@ -31,12 +32,21 @@ impl<'octo, 'r> MergeBranchBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> Result<models::repos::MergeCommit> {
+    pub async fn send(self) -> Result<Option<models::repos::MergeCommit>> {
         let route = format!(
             "/repos/{owner}/{repo}/merges",
             owner = self.handler.owner,
             repo = self.handler.repo
         );
-        self.handler.crab.post(route, Some(&self)).await
+        let post_response = self.handler.crab._post(route, Some(&self)).await?;
+
+        if post_response.status() == http::StatusCode::NO_CONTENT {
+            return Ok(None);
+        }
+
+        match FromResponse::from_response(crate::map_github_error(post_response).await?).await {
+            Ok(res) => Ok(Some(res)),
+            Err(e) => Err(e),
+        }
     }
 }
