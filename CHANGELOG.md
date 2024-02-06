@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.4](https://github.com/XAMPPRocky/octocrab/compare/v0.33.3...v0.33.4) - 2024-02-06
+
+### Other
+- Don't send Authorization headers to third-party services. ([#562](https://github.com/XAMPPRocky/octocrab/pull/562))
+- Added tests for `repos().merges()` ([#560](https://github.com/XAMPPRocky/octocrab/pull/560))
+
 ## [0.33.3](https://github.com/XAMPPRocky/octocrab/compare/v0.33.2...v0.33.3) - 2024-01-26
 
 ### Other
