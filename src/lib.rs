@@ -194,6 +194,7 @@ use crate::service::body::BodyStreamExt;
 
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
+use service::middleware::auth_header::AuthHeaderLayer;
 use std::convert::{Infallible, TryInto};
 use std::fmt;
 use std::io::Write;
@@ -685,27 +686,22 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             ));
         }
 
-        let auth_state = match self.config.auth {
-            Auth::None => AuthState::None,
-            Auth::Basic { username, password } => AuthState::BasicAuth { username, password },
-            Auth::PersonalToken(token) => {
-                hmap.push((
-                    http::header::AUTHORIZATION,
-                    format!("Bearer {}", token.expose_secret()).parse().unwrap(),
-                ));
-                AuthState::None
+        let (auth_header, auth_state): (Option<HeaderValue>, _) = match self.config.auth {
+            Auth::None => (None, AuthState::None),
+            Auth::Basic { username, password } => {
+                (None, AuthState::BasicAuth { username, password })
             }
-            Auth::UserAccessToken(token) => {
-                hmap.push((
-                    http::header::AUTHORIZATION,
-                    format!("Bearer {}", token.expose_secret()).parse().unwrap(),
-                ));
-                AuthState::None
-            }
-            Auth::App(app_auth) => AuthState::App(app_auth),
-            Auth::OAuth(device) => {
-                hmap.push((
-                    http::header::AUTHORIZATION,
+            Auth::PersonalToken(token) => (
+                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                AuthState::None,
+            ),
+            Auth::UserAccessToken(token) => (
+                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                AuthState::None,
+            ),
+            Auth::App(app_auth) => (None, AuthState::App(app_auth)),
+            Auth::OAuth(device) => (
+                Some(
                     format!(
                         "{} {}",
                         device.token_type,
@@ -713,9 +709,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                     )
                     .parse()
                     .unwrap(),
-                ));
-                AuthState::None
-            }
+                ),
+                AuthState::None,
+            ),
         };
 
         for (key, value) in self.config.extra_headers.iter() {
@@ -741,6 +737,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
         let client = BaseUriLayer::new(uri).layer(client);
+
+        let client = AuthHeaderLayer::new(auth_header).layer(client);
 
         Ok(Octocrab::new(client, auth_state))
     }
@@ -1515,10 +1513,16 @@ impl Octocrab {
         };
 
         if let Some(mut auth_header) = auth_header {
-            auth_header.set_sensitive(true);
-            parts
-                .headers
-                .insert(http::header::AUTHORIZATION, auth_header);
+            // Only set the auth_header if the authority (host) is empty (destined for
+            // GitHub). Otherwise, leave it off as we could have been redirected
+            // away from GitHub (via follow_location_to_data()), and we don't
+            // want to give our credentials to third-party services.
+            if parts.uri.authority().is_none() {
+                auth_header.set_sensitive(true);
+                parts
+                    .headers
+                    .insert(http::header::AUTHORIZATION, auth_header);
+            }
         }
 
         let request = http::Request::from_parts(parts, body);
