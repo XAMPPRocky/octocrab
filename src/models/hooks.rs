@@ -63,3 +63,18 @@ pub enum ContentType {
     #[serde(untagged)]
     Other(String),
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Delivery {
+    pub id: HookDeliveryId,
+    pub guid: String,
+    pub delivered_at: DateTime<Utc>,
+    pub duration: f64,
+    pub status: String,
+    pub status_code: usize,
+    pub event: Option<WebhookEventType>,
+    pub action: Option<String>,
+    pub installation_id: Option<InstallationId>,
+    pub repository_id: Option<InstallationId>,
+}

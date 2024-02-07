@@ -19,3 +19,5 @@ pub mod search;
 pub mod teams;
 pub mod users;
 pub mod workflows;
+
+pub mod hooks;

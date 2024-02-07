@@ -244,7 +244,7 @@ use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 #[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
 
-use crate::api::users;
+use crate::api::{hooks, users};
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken};
 
@@ -1146,6 +1146,11 @@ impl Octocrab {
     pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
         ratelimit::RateLimitHandler::new(self)
     }
+
+    /// Creates a [`hooks::HooksHandler`] that returns the API hooks
+    pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler {
+        hooks::HooksHandler::new(self, owner.into())
+    }
 }
 
 /// # GraphQL API.
@@ -1543,12 +1548,21 @@ impl Octocrab {
             // GitHub). Otherwise, leave it off as we could have been redirected
             // away from GitHub (via follow_location_to_data()), and we don't
             // want to give our credentials to third-party services.
-            if parts.uri.authority().is_none() {
-                auth_header.set_sensitive(true);
-                parts
-                    .headers
-                    .insert(http::header::AUTHORIZATION, auth_header);
-            }
+            // println!("Got authority: {:?}", parts.uri.authority().is_none());
+            auth_header.set_sensitive(true);
+            parts
+                .headers
+                .insert(http::header::AUTHORIZATION, auth_header);
+            // if parts.uri.authority().is_none() {
+            //     println!("Should set headers");
+            // }
+            // if parts.uri.authority().is_none() {
+            //     println!("Header set!");
+            //     auth_header.set_sensitive(true);
+            //     parts
+            //         .headers
+            //         .insert(http::header::AUTHORIZATION, auth_header);
+            // }
         }
 
         let request = http::Request::from_parts(parts, body);
