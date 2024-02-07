@@ -1,9 +1,10 @@
+use bytes::Bytes;
 use http::Uri;
-use hyper::body;
+use http_body::Body;
+use http_body_util::BodyExt;
 use std::slice::Iter;
 use std::str::FromStr;
 
-use crate::error;
 use crate::error::{SerdeSnafu, UriSnafu};
 use snafu::{GenerateImplicitData, ResultExt};
 use url::form_urlencoded;
@@ -166,7 +167,10 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
 
 #[async_trait::async_trait]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
-    async fn from_response(response: http::Response<hyper::Body>) -> crate::Result<Self> {
+    async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+    where
+        B: Body<Data = Bytes, Error = crate::Error> + Send,
+    {
         let HeaderLinks {
             first,
             prev,
@@ -174,13 +178,9 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
             last,
         } = get_links(response.headers())?;
 
-        let json: serde_json::Value = serde_json::from_slice(
-            body::to_bytes(response.into_body())
-                .await
-                .context(error::HyperSnafu)?
-                .as_ref(),
-        )
-        .context(SerdeSnafu)?;
+        let json: serde_json::Value =
+            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                .context(SerdeSnafu)?;
 
         if json.is_array() {
             Ok(Self {
