@@ -10,12 +10,14 @@ use std::sync::Arc;
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let connector = HttpsConnectorBuilder::new()
-        .with_native_roots() // enabled the `rustls-native-certs` feature in hyper-rustls
+        .with_native_roots()
+        .unwrap() // enabled the `rustls-native-certs` feature in hyper-rustls
         .https_only()
         .enable_http1()
         .build();
 
-    let client = hyper::Client::builder().build(connector);
+    let client = hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+        .build(connector);
     let octocrab = OctocrabBuilder::new_empty()
         .with_service(client)
         .with_layer(&BaseUriLayer::new(Uri::from_static(
