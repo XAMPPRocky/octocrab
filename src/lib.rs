@@ -203,7 +203,6 @@ use std::marker::PhantomData;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use tower_http::trace::ResponseBody;
 
 use http::{header::HeaderName, StatusCode};
 #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
@@ -731,11 +730,10 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
 
-        let client =
-            MapResponseBodyLayer::new(|body: ResponseBody<hyper::body::Incoming, _, _, _, _>| {
-                body.map_err(|e| HyperSnafu.into_error(e)).boxed()
-            })
-            .layer(client);
+        let client = MapResponseBodyLayer::new(|body| {
+            BodyExt::map_err(body, |e| HyperSnafu.into_error(e)).boxed()
+        })
+        .layer(client);
 
         let uri = self
             .config
