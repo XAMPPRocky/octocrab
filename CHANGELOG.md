@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0](https://github.com/XAMPPRocky/octocrab/compare/v0.33.4...v0.34.0) - 2024-02-07
+
+### Other
+- Upgrade http/hyper 1.0 ([#564](https://github.com/XAMPPRocky/octocrab/pull/564))
+
 ## [0.33.4](https://github.com/XAMPPRocky/octocrab/compare/v0.33.3...v0.33.4) - 2024-02-06
 
 ### Other
