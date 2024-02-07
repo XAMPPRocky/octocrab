@@ -10,8 +10,8 @@ use std::sync::Arc;
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
     let connector = HttpsConnectorBuilder::new()
-        .with_native_roots()
-        .unwrap() // enabled the `rustls-native-certs` feature in hyper-rustls
+        .with_native_roots() // enabled the `rustls-native-certs` feature in hyper-rustls
+        .unwrap()
         .https_only()
         .enable_http1()
         .build();
