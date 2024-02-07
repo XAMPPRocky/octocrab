@@ -1,10 +1,13 @@
 //! GitHub Actions
+use bytes::Bytes;
+use http_body_util::combinators::BoxBody;
+use http_body_util::{BodyExt, Collected};
 use snafu::ResultExt;
 
 pub mod self_hosted_runners;
 
 use self::self_hosted_runners::{CreateJitRunnerConfigBuilder, ListSelfHostedRunnersBuilder};
-use crate::error::{HttpSnafu, HyperSnafu};
+use crate::error::HttpSnafu;
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
     workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
@@ -13,7 +16,6 @@ use crate::models::{RunnerGroupId, RunnerId};
 use crate::{params, FromResponse, Octocrab, Page};
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode, Uri};
-use hyper::body;
 
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
@@ -268,13 +270,13 @@ impl<'octo> ActionsHandler<'octo> {
 
     async fn follow_location_to_data(
         &self,
-        response: http::Response<hyper::Body>,
+        response: http::Response<BoxBody<Bytes, crate::Error>>,
     ) -> crate::Result<bytes::Bytes> {
         let data_response = self.crab.follow_location_to_data(response).await?;
 
         let body = data_response.into_body();
 
-        body::to_bytes(body).await.context(HyperSnafu)
+        body.collect().await.map(Collected::to_bytes)
     }
 
     /// Downloads and returns the raw data representing a zip of the logs from

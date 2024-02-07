@@ -64,7 +64,7 @@ pub struct EntityTag {
 }
 
 impl EntityTag {
-    pub fn extract_from_response(response: &http::Response<hyper::Body>) -> Option<EntityTag> {
+    pub fn extract_from_response<B>(response: &http::Response<B>) -> Option<EntityTag> {
         response
             .headers()
             .get("ETag")

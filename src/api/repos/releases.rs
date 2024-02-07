@@ -194,12 +194,8 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         let request = self.parent.crab.build_request(builder, None::<&()>)?;
         let response = self.parent.crab.execute(request).await?;
         let response = self.parent.crab.follow_location_to_data(response).await?;
-        Ok(response
-            .into_body()
-            .map_err(|source| crate::error::Error::Hyper {
-                source,
-                backtrace: snafu::Backtrace::generate(),
-            }))
+        Ok(http_body_util::BodyStream::new(response.into_body())
+            .try_filter_map(|frame| futures_util::future::ok(frame.into_data().ok())))
     }
 }
 

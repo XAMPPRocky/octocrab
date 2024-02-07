@@ -103,8 +103,8 @@ async fn test_context(
     resp_body: Option<impl Serialize>,
 ) -> TestContext {
     let template = match resp_body {
-        Some(resp_body) => ResponseTemplate::new(response_code).set_body_json(resp_body),
-        None => ResponseTemplate::new(response_code),
+        Some(resp_body) => ResponseTemplate::new(response_code.as_u16()).set_body_json(resp_body),
+        None => ResponseTemplate::new(response_code.as_u16()),
     };
     let server = setup_api(scope, method_name, actions_uri, None::<()>, template).await;
     let client = Octocrab::builder()
@@ -127,7 +127,7 @@ async fn test_context_with_request_body(
     request_body: impl Serialize,
     resp_body: Option<impl Serialize>,
 ) -> TestContext {
-    let template = ResponseTemplate::new(response_code).set_body_json(resp_body);
+    let template = ResponseTemplate::new(response_code.as_u16()).set_body_json(resp_body);
     let server = setup_api(
         scope,
         method_name,

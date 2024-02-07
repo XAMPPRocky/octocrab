@@ -1,8 +1,10 @@
 //! The repositories API.
 
+use bytes::Bytes;
 use http::header::ACCEPT;
 use http::request::Builder;
 use http::Uri;
+use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
 mod branches;
@@ -561,7 +563,7 @@ impl<'octo> RepoHandler<'octo> {
         self,
         reference: impl Into<params::repos::Commitish>,
         path: impl AsRef<str>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let route = format!(
             "/repos/{owner}/{repo}/contents/{path}",
             owner = self.owner,
@@ -606,7 +608,7 @@ impl<'octo> RepoHandler<'octo> {
     pub async fn download_tarball(
         &self,
         reference: impl Into<params::repos::Commitish>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let route = format!(
             "/repos/{owner}/{repo}/tarball/{reference}",
             owner = self.owner,
