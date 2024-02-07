@@ -1,6 +1,6 @@
 use futures_util::future;
 use http::{Request, Response};
-use hyper::{Body, Error};
+use hyper_util::client::legacy::Error;
 use tower::retry::Policy;
 
 #[derive(Clone)]
@@ -9,13 +9,13 @@ pub enum RetryConfig {
     Simple(usize),
 }
 
-impl Policy<Request<String>, Response<hyper::Body>, hyper::Error> for RetryConfig {
+impl<B> Policy<Request<String>, Response<B>, Error> for RetryConfig {
     type Future = futures_util::future::Ready<Self>;
 
     fn retry(
         &self,
         _req: &Request<String>,
-        result: Result<&Response<Body>, &Error>,
+        result: Result<&Response<B>, &Error>,
     ) -> Option<Self::Future> {
         match self {
             RetryConfig::None => None,

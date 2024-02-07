@@ -190,10 +190,11 @@ pub mod etag;
 pub mod models;
 pub mod params;
 pub mod service;
-use crate::service::body::BodyStreamExt;
 
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
+use http_body_util::combinators::BoxBody;
+use http_body_util::BodyExt;
 use service::middleware::auth_header::AuthHeaderLayer;
 use std::convert::{Infallible, TryInto};
 use std::fmt;
@@ -202,11 +203,12 @@ use std::marker::PhantomData;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
+use tower_http::trace::ResponseBody;
 
 use http::{header::HeaderName, StatusCode};
 #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
 use hyper::client::HttpConnector;
-use hyper::{body, Body, Request, Response};
+use hyper::{Request, Response};
 
 use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
@@ -227,10 +229,7 @@ use hyper_rustls::HttpsConnectorBuilder;
 use tower::retry::{Retry, RetryLayer};
 
 #[cfg(feature = "timeout")]
-use {
-    hyper_timeout::TimeoutConnector,
-    tokio::io::{AsyncRead, AsyncWrite},
-};
+use hyper_timeout::TimeoutConnector;
 
 use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
 
@@ -299,18 +298,14 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
 /// Maps a GitHub error response into and `Err()` variant if the status is
 /// not a success.
 pub async fn map_github_error(
-    response: http::Response<hyper::Body>,
-) -> Result<http::Response<hyper::Body>> {
+    response: http::Response<BoxBody<Bytes, crate::Error>>,
+) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
     if response.status().is_success() {
         Ok(response)
     } else {
-        let b: error::GitHubError = serde_json::from_slice(
-            body::to_bytes(response.into_body())
-                .await
-                .context(error::HyperSnafu)?
-                .as_ref(),
-        )
-        .context(error::SerdeSnafu)?;
+        let b: error::GitHubError =
+            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                .context(error::SerdeSnafu)?;
 
         Err(error::Error::GitHub {
             source: b,
@@ -459,12 +454,19 @@ where
     Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
     Svc::Error: Into<BoxError>,
-    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
     B::Error: Into<BoxError>,
 {
     /// Build a [`Client`] instance with the current [`Service`] stack.
     pub fn build(self) -> Result<Octocrab, Infallible> {
-        Ok(Octocrab::new(self.service, self.auth))
+        // Transform response body to `BoxBody<Bytes, crate::Error>` and use type erased error to avoid type parameters.
+        let service = MapResponseBodyLayer::new(|b: B| {
+            b.map_err(|e| ServiceSnafu.into_error(e.into())).boxed()
+        })
+        .layer(self.service)
+        .map_err(|e| e.into());
+
+        Ok(Octocrab::new(service, self.auth))
     }
 }
 
@@ -565,8 +567,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     #[cfg(feature = "retry")]
     pub fn set_connector_retry_service<S>(
         &self,
-        connector: hyper::Client<S, String>,
-    ) -> Retry<RetryConfig, hyper::Client<S, String>> {
+        connector: hyper_util::client::legacy::Client<S, String>,
+    ) -> Retry<RetryConfig, hyper_util::client::legacy::Client<S, String>> {
         let retry_layer = RetryLayer::new(self.config.retry_config.clone());
 
         retry_layer.layer(connector)
@@ -576,7 +578,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
         T: Service<Uri> + Send,
-        T::Response: AsyncRead + AsyncWrite + Send + Unpin,
+        T::Response: hyper::rt::Read + hyper::rt::Write + Send + Unpin,
         T::Future: Send + 'static,
         T::Error: Into<BoxError>,
     {
@@ -590,7 +592,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
     pub fn build(self) -> Result<Octocrab> {
-        let client: hyper::Client<_, String> = {
+        let client: hyper_util::client::legacy::Client<_, String> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
             let mut connector = HttpConnector::new();
 
@@ -600,7 +602,10 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 #[cfg(feature = "rustls-webpki-tokio")]
                 let builder = builder.with_webpki_roots();
                 #[cfg(not(feature = "rustls-webpki-tokio"))]
-                let builder = builder.with_native_roots(); // enabled the `rustls-native-certs` feature in hyper-rustls
+                let builder = builder
+                    .with_native_roots()
+                    .map_err(Into::into)
+                    .context(error::OtherSnafu)?; // enabled the `rustls-native-certs` feature in hyper-rustls
 
                 builder
                     .https_or_http() //  Disable .https_only() during tests until: https://github.com/LukeMathWalker/wiremock-rs/issues/58 is resolved. Alternatively we can use conditional compilation to only enable this feature in tests, but it becomes rather ugly with integration tests.
@@ -614,7 +619,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             #[cfg(feature = "timeout")]
             let connector = self.set_connect_timeout_service(connector);
 
-            hyper::Client::builder().build(connector)
+            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .build(connector)
         };
 
         #[cfg(feature = "retry")]
@@ -637,7 +643,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 tracing::debug!("requesting");
             })
             .on_response(
-                |res: &Response<hyper::Body>, _latency: Duration, span: &Span| {
+                |res: &Response<hyper::body::Incoming>, _latency: Duration, span: &Span| {
                     let status = res.status();
                     span.record("http.status_code", status.as_u16());
                     if status.is_client_error() || status.is_server_error() {
@@ -725,10 +731,11 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
 
-        let client = MapResponseBodyLayer::new(|body| {
-            Box::new(http_body::Body::map_err(body, BoxError::from)) as Box<DynBody>
-        })
-        .layer(client);
+        let client =
+            MapResponseBodyLayer::new(|body: ResponseBody<hyper::body::Incoming, _, _, _, _>| {
+                body.map_err(|e| HyperSnafu.into_error(e)).boxed()
+            })
+            .layer(client);
 
         let uri = self
             .config
@@ -783,8 +790,6 @@ impl DefaultOctocrabBuilderConfig {
         Self::default()
     }
 }
-
-pub type DynBody = dyn http_body::Body<Data = Bytes, Error = BoxError> + Send + Unpin;
 
 #[derive(Debug, Clone)]
 struct CachedTokenInner {
@@ -892,7 +897,7 @@ pub enum AuthState {
 }
 
 pub type OctocrabService = Buffer<
-    BoxService<http::Request<String>, http::Response<hyper::Body>, BoxError>,
+    BoxService<http::Request<String>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
     http::Request<String>,
 >;
 
@@ -930,20 +935,15 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab`.
-    fn new<S, B>(service: S, auth_state: AuthState) -> Self
+    fn new<S>(service: S, auth_state: AuthState) -> Self
     where
-        S: Service<Request<String>, Response = Response<B>> + Send + 'static,
+        S: Service<Request<String>, Response = Response<BoxBody<Bytes, crate::Error>>>
+            + Send
+            + 'static,
         S::Future: Send + 'static,
         S::Error: Into<BoxError>,
-        B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
-        B::Error: Into<BoxError>,
     {
-        // Transform response body to `hyper::Body` and use type erased error to avoid type parameters.
-        let service = MapResponseBodyLayer::new(|b: B| Body::wrap_stream(b.into_stream()))
-            .layer(service)
-            .map_err(|e| e.into());
-
-        let service = Buffer::new(BoxService::new(service), 1024);
+        let service = Buffer::new(BoxService::new(service.map_err(Into::into)), 1024);
 
         Self {
             client: service,
@@ -1182,7 +1182,7 @@ impl Octocrab {
         &self,
         uri: impl TryInto<http::Uri>,
         body: Option<&P>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
@@ -1204,7 +1204,10 @@ impl Octocrab {
     }
 
     /// Send a `GET` request with no additional post-processing.
-    pub async fn _get(&self, uri: impl TryInto<Uri>) -> Result<http::Response<hyper::Body>> {
+    pub async fn _get(
+        &self,
+        uri: impl TryInto<Uri>,
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         self._get_with_headers(uri, None).await
     }
 
@@ -1234,8 +1237,11 @@ impl Octocrab {
         uri
     }
 
-    pub async fn body_to_string(&self, res: http::Response<Body>) -> Result<String> {
-        let body_bytes = body::to_bytes(res.into_body()).await.context(HyperSnafu)?;
+    pub async fn body_to_string(
+        &self,
+        res: http::Response<BoxBody<Bytes, crate::Error>>,
+    ) -> Result<String> {
+        let body_bytes = res.into_body().collect().await?.to_bytes();
         String::from_utf8(body_bytes.to_vec()).context(InvalidUtf8Snafu)
     }
 
@@ -1263,7 +1269,7 @@ impl Octocrab {
         &self,
         uri: impl TryInto<Uri>,
         headers: Option<http::header::HeaderMap>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
@@ -1297,7 +1303,7 @@ impl Octocrab {
         &self,
         uri: impl TryInto<Uri>,
         body: Option<&B>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
@@ -1326,7 +1332,7 @@ impl Octocrab {
         &self,
         uri: impl TryInto<Uri>,
         body: Option<&B>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
@@ -1380,7 +1386,7 @@ impl Octocrab {
         &self,
         uri: impl TryInto<Uri>,
         body: Option<&B>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let uri = uri
             .try_into()
             .map_err(|_| UriParseError {})
@@ -1445,9 +1451,12 @@ impl Octocrab {
     }
 
     /// Send the given request to the underlying service
-    pub async fn send(&self, request: Request<String>) -> Result<http::Response<hyper::Body>> {
+    pub async fn send(
+        &self,
+        request: Request<String>,
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let mut svc = self.client.clone();
-        let response: Response<Body> = svc
+        let response: Response<BoxBody<Bytes, crate::Error>> = svc
             .ready()
             .await
             .context(ServiceSnafu)?
@@ -1471,7 +1480,7 @@ impl Octocrab {
     pub async fn execute(
         &self,
         request: http::Request<String>,
-    ) -> Result<http::Response<hyper::Body>> {
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let (mut parts, body) = request.into_parts();
         // Saved request that we can retry later if necessary
         let auth_header: Option<HeaderValue> = match self.auth_state {
@@ -1540,8 +1549,8 @@ impl Octocrab {
 
     pub async fn follow_location_to_data(
         &self,
-        response: http::Response<hyper::Body>,
-    ) -> crate::Result<http::Response<hyper::Body>> {
+        response: http::Response<BoxBody<Bytes, Error>>,
+    ) -> crate::Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         if let Some(redirect) = response.headers().get(http::header::LOCATION) {
             let location = redirect.to_str().expect("Location URL not valid str");
 
