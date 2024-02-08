@@ -1089,6 +1089,8 @@ impl<'octo> IssueHandler<'octo> {
             reaction_id = reaction_id.into(),
         );
 
-        self.crab.delete(route, None::<&()>).await
+        crate::map_github_error(self.crab._delete(route, None::<&()>).await?).await?;
+
+        Ok(())
     }
 }
