@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1](https://github.com/XAMPPRocky/octocrab/compare/v0.34.0...v0.34.1) - 2024-02-09
+
+### Other
+- Added tests to prove `repos().secrets().delete_secret()` ([#570](https://github.com/XAMPPRocky/octocrab/pull/570))
+- Adding test for `issues().delete_comment()` ([#569](https://github.com/XAMPPRocky/octocrab/pull/569))
+- Fixed `issues().delete_comment_reaction()` ([#566](https://github.com/XAMPPRocky/octocrab/pull/566))
+
 ## [0.34.0](https://github.com/XAMPPRocky/octocrab/compare/v0.33.4...v0.34.0) - 2024-02-07
 
 ### Other
