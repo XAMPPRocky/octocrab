@@ -25,10 +25,8 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .respond_with(
             ResponseTemplate::new(301).append_header(
                 "location",
-                HeaderValue::from_bytes(
-                    format!("/repos/{new_owner}/{repo}/stargazers").into_bytes(),
-                )
-                .unwrap(),
+                HeaderValue::from_bytes(format!("/repos/{new_owner}/{repo}/stargazers").as_bytes())
+                    .unwrap(),
             ),
         )
         .mount(&mock_server)
