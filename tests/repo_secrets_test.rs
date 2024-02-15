@@ -207,6 +207,30 @@ async fn should_add_secret() {
 }
 
 #[tokio::test]
+async fn should_update_secret_204() {
+    let template = ResponseTemplate::new(204);
+    let mock_server = setup_put_api(template, "/GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets()
+        .create_or_update_secret(
+            "GH_TOKEN",
+            &CreateRepositorySecret {
+                key_id: "123456",
+                encrypted_value: "some-b64-string",
+            },
+        )
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let item = result.unwrap();
+    assert_eq!(item, CreateRepositorySecretResponse::Updated);
+}
+
+#[tokio::test]
 async fn should_delete_secret() {
     let template = ResponseTemplate::new(204);
     let mock_server = setup_delete_api(template, "/GH_TOKEN").await;
