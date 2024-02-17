@@ -1,8 +1,10 @@
+use chrono::{DateTime, Utc};
+
+use crate::models::checks::{AutoTriggerCheck, CheckSuitePreferences};
 use crate::models::{CheckRunId, CheckSuiteId};
 use crate::params::checks::{CheckRunConclusion, CheckRunOutput, CheckRunStatus};
 use crate::params::repos::Commitish;
 use crate::{models, Octocrab, Result};
-use chrono::{DateTime, Utc};
 
 /// Handler for GitHub's Checks API.
 ///
@@ -373,6 +375,7 @@ impl<'octo> ChecksHandler<'octo> {
         UpdateCheckRunBuilder::new(self, check_run_id)
     }
 
+    /// Creates a check suite manually. see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite
     /// ```no_run
     /// async fn run() -> octocrab::Result<()> {
     ///   let check_suite_run = octocrab::instance()
@@ -387,6 +390,28 @@ impl<'octo> ChecksHandler<'octo> {
         head_sha: impl Into<String>,
     ) -> CreateCheckSuiteBuilder<'_, '_> {
         CreateCheckSuiteBuilder::new(self, head_sha.into())
+    }
+
+    /// Changes the default automatic flow when creating check suites. By default, a check suite is automatically created each time code is pushed to a repository. When you disable the automatic creation of check suites, you can manually Create a check suite. You must have admin permissions in the repository to set preferences for check suites.
+    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites
+    /// ```no_run
+    /// use octocrab::models::{AppId, checks::AutoTriggerCheck};
+    ///  async fn run() -> octocrab::Result<()> {
+    ///   let check_suite_run = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .update_preferences(
+    ///       vec![ AutoTriggerCheck {app_id: AppId(23874), setting: false},
+    ///             AutoTriggerCheck {app_id: AppId(42), setting: false} ]
+    ///     )
+    ///    .send()
+    ///    .await?;
+    /// }
+    /// ```
+    pub fn update_preferences(
+        &self,
+        auto_trigger_checks: Vec<AutoTriggerCheck>,
+    ) -> CheckSuitePreferencesBuilder<'_, '_> {
+        CheckSuitePreferencesBuilder::new(self, auto_trigger_checks)
     }
 }
 
@@ -410,5 +435,37 @@ impl<'octo, 'r> CreateCheckSuiteBuilder<'octo, 'r> {
             repo = self.handler.repo
         );
         self.handler.crab.post(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct CheckSuitePreferencesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    auto_trigger_checks: Vec<AutoTriggerCheck>,
+}
+
+impl<'octo, 'r> CheckSuitePreferencesBuilder<'octo, 'r> {
+    pub(crate) fn new(
+        handler: &'r ChecksHandler<'octo>,
+        auto_trigger_checks: Vec<AutoTriggerCheck>,
+    ) -> Self {
+        Self {
+            handler,
+            auto_trigger_checks,
+        }
+    }
+
+    /// Sends the actual request of [`ChecksHandler.update_preferences()`]
+    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites
+    ///
+    /// [`ChecksHandler.update_preferences()`]: ChecksHandler#method.update_preferences()
+    pub async fn send(self) -> Result<CheckSuitePreferences> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-suites/preferences",
+            owner = self.handler.owner,
+            repo = self.handler.repo
+        );
+        self.handler.crab.patch(route, Some(&self)).await
     }
 }

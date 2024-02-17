@@ -56,3 +56,24 @@ pub struct CheckSuite {
     rerequestable: Option<bool>,
     runs_rerequestable: Option<bool>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CheckSuitePreferences {
+    pub preferences: CheckSuiteUpdatePreferences,
+    pub repository: Repository,
+    
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CheckSuiteUpdatePreferences {
+    pub auto_trigger_checks: Vec<AutoTriggerCheck>,
+    
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AutoTriggerCheck {
+    /// Enables or disables automatic creation of CheckSuite events upon pushes to the repository.
+    pub app_id: AppId,
+    pub setting: bool,
+}
