@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 
-use crate::models::checks::{AutoTriggerCheck, CheckSuitePreferences};
+use crate::{models, Octocrab, Result};
 use crate::models::{CheckRunId, CheckSuiteId};
+use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
 use crate::params::checks::{CheckRunConclusion, CheckRunOutput, CheckRunStatus};
 use crate::params::repos::Commitish;
-use crate::{models, Octocrab, Result};
 
 /// Handler for GitHub's Checks API.
 ///
@@ -413,6 +413,22 @@ impl<'octo> ChecksHandler<'octo> {
     ) -> CheckSuitePreferencesBuilder<'_, '_> {
         CheckSuitePreferencesBuilder::new(self, auto_trigger_checks)
     }
+
+    /// Gets a single check suite using its id.
+    /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
+    /// ```no_run
+    /// use octocrab::models::CheckSuiteId;
+    ///  async fn run() -> octocrab::Result<()> {
+    ///   let check_suite_run = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .get_check_suite(CheckSuiteId(42))
+    ///    .send()
+    ///    .await?;
+    /// }
+    /// ```
+    pub fn get_check_suite(&self, check_suite_id: CheckSuiteId) -> GetCheckSuiteBuilder<'_, '_> {
+        GetCheckSuiteBuilder::new(self, check_suite_id)
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -467,5 +483,35 @@ impl<'octo, 'r> CheckSuitePreferencesBuilder<'octo, 'r> {
             repo = self.handler.repo
         );
         self.handler.crab.patch(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct GetCheckSuiteBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    check_suite_id: CheckSuiteId,
+}
+
+impl<'octo, 'r> GetCheckSuiteBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_suite_id: CheckSuiteId) -> Self {
+        Self {
+            handler,
+            check_suite_id,
+        }
+    }
+    
+    /// Sends the actual request of [`ChecksHandler.get_check_suite()`]
+    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
+    ///
+    /// [`ChecksHandler.get_check_suite()`]: ChecksHandler#method.get_check_suite()
+    pub async fn send(self) -> Result<CheckSuite> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-suites/{check_suite_id}",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            check_suite_id = self.check_suite_id
+        );
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
