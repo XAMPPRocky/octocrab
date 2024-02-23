@@ -35,22 +35,46 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn should_delete_project() {
-    let org_project: Project =
-        serde_json::from_str(include_str!("resources/project.json")).unwrap();
-
-    let page_response = FakeProject(org_project);
-
-    let template = ResponseTemplate::new(200).set_body_json(&page_response);
+async fn should_delete_project_204() {
+    let template = ResponseTemplate::new(204);
     let mock_server = setup_api(template).await;
 
     let client = setup_octocrab(&mock_server.uri());
-    let project = client
-        .projects()
-        .delete_project(PROJECT_ID)
-        .send()
-        .await
-        .unwrap();
+    let result = client.projects().delete_project(PROJECT_ID).send().await;
 
-    assert_eq!(project.creator.login, "octocat");
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn should_delete_project_410() {
+    let template = ResponseTemplate::new(410);
+    let mock_server = setup_api(template).await;
+
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client.projects().delete_project(PROJECT_ID).send().await;
+
+    assert!(
+        result.is_err(),
+        "expected error result, got success somehow: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn should_delete_project_500() {
+    let template = ResponseTemplate::new(500);
+    let mock_server = setup_api(template).await;
+
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client.projects().delete_project(PROJECT_ID).send().await;
+
+    assert!(
+        result.is_err(),
+        "expected error result, got success somehow: {:#?}",
+        result
+    );
 }
