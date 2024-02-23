@@ -1,11 +1,7 @@
 [package]
 name = "octocrab"
-<<<<<<< HEAD
 version = "0.38.0"
 resolver = "2"
-=======
-version = "0.33.6"
->>>>>>> dd60c3a (feat: implement hook deliveries)
 authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
 readme = "README.md"

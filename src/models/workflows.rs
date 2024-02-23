@@ -125,6 +125,7 @@ pub enum Status {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Step {
+    pub id: Option<String>,
     pub name: String,
     pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
