@@ -5,8 +5,9 @@ use crate::models::events::payload::EventInstallation;
 use self::payload::{
     CommitCommentEventPayload, CreateEventPayload, DeleteEventPayload, EventPayload,
     ForkEventPayload, GollumEventPayload, IssueCommentEventPayload, IssuesEventPayload,
-    PullRequestEventPayload, PullRequestReviewCommentEventPayload, PullRequestReviewEventPayload,
-    PushEventPayload, WatchEventPayload, WorkflowRunEventPayload, WrappedEventPayload,
+    PublicEventPayload, PullRequestEventPayload, PullRequestReviewCommentEventPayload,
+    PullRequestReviewEventPayload, PushEventPayload, ReleaseEventPayload, WatchEventPayload,
+    WorkflowRunEventPayload, WrappedEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
 use chrono::{DateTime, Utc};
@@ -82,9 +83,11 @@ event_type! {
     (ForkEvent, ForkEventPayload),
     (GollumEvent, GollumEventPayload),
     (MemberEvent, MemberEventPayload),
+    (PublicEvent, PublicEventPayload),
     (PullRequestEvent, PullRequestEventPayload),
     (PullRequestReviewEvent, PullRequestReviewEventPayload),
     (PullRequestReviewCommentEvent, PullRequestReviewCommentEventPayload),
+    (ReleaseEvent, ReleaseEventPayload),
     (WatchEvent, WatchEventPayload),
     (WorkflowRunEvent, WorkflowRunEventPayload)
 }
@@ -226,6 +229,13 @@ mod test {
     }
 
     #[test]
+    fn should_deserialize_release_event() {
+        let json = include_str!("../../tests/resources/release_event.json");
+        let event: Event = serde_json::from_str(json).unwrap();
+        assert_eq!(event.r#type, EventType::ReleaseEvent);
+    }
+
+    #[test]
     fn should_deserialize_workflow_run_event() {
         let json = include_str!("../../tests/resources/workflow_run_event.json");
         let event: Event = serde_json::from_str(json).unwrap();
@@ -362,6 +372,10 @@ mod test {
             (
                 "PullRequestReviewCommentEvent",
                 include_str!("../../tests/resources/pull_request_review_comment_event.json"),
+            ),
+            (
+                "ReleaseEvent",
+                include_str!("../../tests/resources/release_event.json"),
             ),
             (
                 "CommitCommentEvent",

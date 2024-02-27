@@ -9,10 +9,12 @@ mod installation_target;
 mod issue_comment;
 mod issues;
 mod member;
+mod public;
 mod pull_request;
 mod pull_request_review;
 mod pull_request_review_comment;
 mod push;
+mod release;
 mod watch;
 mod workflow_run;
 
@@ -27,10 +29,12 @@ pub use installation_target::*;
 pub use issue_comment::*;
 pub use issues::*;
 pub use member::*;
+pub use public::*;
 pub use pull_request::*;
 pub use pull_request_review::*;
 pub use pull_request_review_comment::*;
 pub use push::*;
+pub use release::*;
 pub use watch::*;
 pub use workflow_run::*;
 
@@ -88,9 +92,11 @@ pub enum EventPayload {
     ForkEvent(Box<ForkEventPayload>),
     GollumEvent(Box<GollumEventPayload>),
     MemberEvent(Box<MemberEventPayload>),
+    PublicEvent(Box<PublicEventPayload>),
     PullRequestEvent(Box<PullRequestEventPayload>),
     PullRequestReviewEvent(Box<PullRequestReviewEventPayload>),
     PullRequestReviewCommentEvent(Box<PullRequestReviewCommentEventPayload>),
+    ReleaseEvent(Box<ReleaseEventPayload>),
     WatchEvent(Box<WatchEventPayload>),
     WorkflowRunEvent(Box<WorkflowRunEventPayload>),
     UnknownEvent(Box<serde_json::Value>),
@@ -169,9 +175,11 @@ mod tests {
             | EventPayload::ForkEvent(_)
             | EventPayload::GollumEvent(_)
             | EventPayload::MemberEvent(_)
+            | EventPayload::PublicEvent(_)
             | EventPayload::PullRequestEvent(_)
             | EventPayload::PullRequestReviewEvent(_)
             | EventPayload::PullRequestReviewCommentEvent(_)
+            | EventPayload::ReleaseEvent(_)
             | EventPayload::WorkflowRunEvent(_)
             | EventPayload::WatchEvent(_)
             | EventPayload::UnknownEvent(_) => {
