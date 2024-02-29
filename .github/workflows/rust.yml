@@ -17,6 +17,18 @@ jobs:
     - run: cargo build --verbose --all-targets
     - run: cargo test
 
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            target: wasm32-unknown-unknown
+    - run: cargo build --verbose --target=wasm32-unknown-unknown --no-default-features
+
   clippy:
     runs-on: ubuntu-latest
     steps:
