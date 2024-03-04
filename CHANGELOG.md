@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.2](https://github.com/XAMPPRocky/octocrab/compare/v0.34.1...v0.34.2) - 2024-03-04
+
+### Other
+- Update base64 requirement from 0.21.0 to 0.22.0 ([#592](https://github.com/XAMPPRocky/octocrab/pull/592))
+- Add Public and Release events ([#589](https://github.com/XAMPPRocky/octocrab/pull/589))
+- Adding tests for `actions().remove_selected_repo_from_org_secret()` ([#586](https://github.com/XAMPPRocky/octocrab/pull/586))
+- Fixed the `projects().delete_project().send() function ([#587](https://github.com/XAMPPRocky/octocrab/pull/587))
+- Added more tests, for `repos().delete()` ([#585](https://github.com/XAMPPRocky/octocrab/pull/585))
+- Adding test for actions().actions_delete_workflow_run_logs_test() ([#584](https://github.com/XAMPPRocky/octocrab/pull/584))
+- Fixing `snafu` version update ([#580](https://github.com/XAMPPRocky/octocrab/pull/580))
+- Fixing the test that `wiremock@v0.6.0` breaks. ([#579](https://github.com/XAMPPRocky/octocrab/pull/579))
+- Added some more tests ([#578](https://github.com/XAMPPRocky/octocrab/pull/578))
+- Added a test ([#577](https://github.com/XAMPPRocky/octocrab/pull/577))
+
 ## [0.34.1](https://github.com/XAMPPRocky/octocrab/compare/v0.34.0...v0.34.1) - 2024-02-09
 
 ### Other
