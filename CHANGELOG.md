@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.3](https://github.com/XAMPPRocky/octocrab/compare/v0.34.2...v0.34.3) - 2024-03-05
+
+### Other
+- Add delete_ref in RepoHandler ([#573](https://github.com/XAMPPRocky/octocrab/pull/573))
+- Adding tests to `orgs().secrets().create_or_update_secret()` ([#590](https://github.com/XAMPPRocky/octocrab/pull/590))
+
 ## [0.34.2](https://github.com/XAMPPRocky/octocrab/compare/v0.34.1...v0.34.2) - 2024-03-04
 
 ### Other
