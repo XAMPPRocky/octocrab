@@ -187,3 +187,30 @@ async fn should_add_secret() {
     let item = result.unwrap();
     assert_eq!(item, CreateOrganizationSecretResponse::Created);
 }
+
+#[tokio::test]
+async fn should_add_secret_204() {
+    let template = ResponseTemplate::new(204);
+    let mock_server = setup_put_api(template, "/GH_TOKEN").await;
+    let client = setup_octocrab(&mock_server.uri());
+    let org = client.orgs(ORG.to_owned());
+    let secrets = org.secrets();
+    let result = secrets
+        .create_or_update_secret(
+            "GH_TOKEN",
+            &CreateOrganizationSecret {
+                key_id: "123456",
+                encrypted_value: "some-b64-string",
+                visibility: Visibility::Selected,
+                selected_repository_ids: None,
+            },
+        )
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let item = result.unwrap();
+    assert_eq!(item, CreateOrganizationSecretResponse::Updated);
+}
