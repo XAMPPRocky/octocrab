@@ -210,6 +210,32 @@ impl<'octo> RepoHandler<'octo> {
             .await
     }
 
+    /// Deletes an existing reference from the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let master_sha = "";
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// // Deletes the "heads/temporary-branch" reference.
+    /// octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .delete_ref(&Reference::Branch("temporary-branch".to_string()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_ref(&self, reference: &params::repos::Reference) -> Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/git/refs/{ref}",
+            owner = self.owner,
+            repo = self.repo,
+            ref = reference.ref_url()
+        );
+        crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
+    }
+
     /// Get repository content.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
