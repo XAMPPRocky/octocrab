@@ -377,3 +377,6 @@ pub struct MergeCommit {
     pub html_url: String,
     pub comments_url: String,
 }
+
+/// A HashMap of languages and the number of bytes of code written in that language.
+pub type Languages = std::collections::HashMap<String, i64>;
