@@ -3,7 +3,7 @@ use http::Response;
 use hyper::body::Body;
 
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
-use crate::models::{CheckRunId, CheckSuiteId};
+use crate::models::{AppId, CheckRunId, CheckSuiteId};
 use crate::params::checks::{
     CheckRunAnnotation, CheckRunConclusion, CheckRunOutput, CheckRunStatus,
 };
@@ -307,11 +307,24 @@ pub struct ListCheckSuitesForGitRefBuilder<'octo, 'r> {
     handler: &'r ChecksHandler<'octo>,
     #[serde(skip)]
     git_ref: Commitish,
+    per_page: Option<u8>,
+    page: Option<u32>,
+    ///Filters check suites by GitHub App id.
+    app_id: Option<AppId>,
+    ///Returns check runs with the specified name.
+    check_name: Option<String>,
 }
 
 impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r ChecksHandler<'octo>, git_ref: Commitish) -> Self {
-        Self { handler, git_ref }
+        Self {
+            handler,
+            git_ref,
+            page: None,
+            per_page: None,
+            app_id: None,
+            check_name: None,
+        }
     }
 
     /// Send the actual request to /repos/{owner}/{repo}/commits/{ref}/check-suites
@@ -325,6 +338,30 @@ impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
         );
 
         self.handler.crab.get(route, Some(&self)).await
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+    
+    /// Filters check suites by GitHub App id.
+    pub fn app_id(mut self, app_id: impl Into<AppId>) -> Self {
+        self.app_id = Some(app_id.into());
+        self
+    }
+    
+    /// Returns check runs with the specified name.
+    pub fn check_name(mut self, check_name: impl Into<String>) -> Self {
+        self.check_name = Some(check_name.into());
+        self
     }
 }
 
@@ -709,6 +746,8 @@ pub struct CheckRunAnnotationsBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r ChecksHandler<'octo>,
     check_run_id: CheckRunId,
+    per_page: Option<u8>,
+    page: Option<u32>,
 }
 
 impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
@@ -716,6 +755,8 @@ impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
         Self {
             handler,
             check_run_id,
+            page: None,
+            per_page: None,
         }
     }
 
@@ -731,5 +772,18 @@ impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
             check_run_id = self.check_run_id
         );
         self.handler.crab.get(route, Some(&self)).await
+    }
+    
+    
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+    
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
     }
 }
