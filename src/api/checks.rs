@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use http::Response;
 use hyper::body::Body;
 
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
@@ -697,7 +696,7 @@ impl<'octo, 'r> crate::checks::RerequestCheckSuiteBuilder<'octo, 'r> {
             repo = self.handler.repo,
             check_suite_id = self.check_suite_id
         );
-        let response: Response<Body> = self.handler.crab._post(route, Some(&self)).await?;
+        let response = self.handler.crab._post(route, Some(&self)).await?;
         if !response.status().is_success() {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
@@ -732,7 +731,7 @@ impl<'octo, 'r> crate::checks::RerequestCheckRunBuilder<'octo, 'r> {
             repo = self.handler.repo,
             check_run_id = self.check_run_id
         );
-        let response: Response<Body> = self.handler.crab._post(route, Some(&self)).await?;
+        let response = self.handler.crab._post(route, Some(&self)).await?;
         if !response.status().is_success() {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
