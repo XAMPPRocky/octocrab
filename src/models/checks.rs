@@ -1,5 +1,6 @@
-use super::*;
 use crate::models::workflows::HeadCommit;
+
+use super::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -59,16 +60,21 @@ pub struct CheckSuite {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct ListCheckSuites {
+    pub total_count: u32,
+    pub check_suites: Vec<CheckSuite>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CheckSuitePreferences {
     pub preferences: CheckSuiteUpdatePreferences,
     pub repository: Repository,
-    
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CheckSuiteUpdatePreferences {
     pub auto_trigger_checks: Vec<AutoTriggerCheck>,
-    
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
