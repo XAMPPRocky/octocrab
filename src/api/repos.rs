@@ -489,6 +489,29 @@ impl<'octo> RepoHandler<'octo> {
         ListStarGazersBuilder::new(self)
     }
 
+    /// Lists languages for the specified repository.
+    /// The value shown for each language is the number of bytes of code written in that language.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///
+    /// // Get the languages used in the repository
+    /// let languages = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .list_languages()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn list_languages(&self) -> Result<models::repos::Languages> {
+        let route = format!(
+            "/repos/{owner}/{repo}/languages",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// Creates a `ReleasesHandler` for the specified repository.
     pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
         releases::ReleasesHandler::new(self)
