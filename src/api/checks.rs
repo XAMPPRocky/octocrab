@@ -5,7 +5,7 @@ use hyper::body::Body;
 use crate::{models, Octocrab, Result};
 use crate::models::{CheckRunId, CheckSuiteId};
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
-use crate::params::checks::{CheckRunConclusion, CheckRunOutput, CheckRunStatus};
+use crate::params::checks::{CheckRunAnnotation, CheckRunConclusion, CheckRunOutput, CheckRunStatus};
 use crate::params::repos::Commitish;
 
 /// Handler for GitHub's Checks API.
@@ -477,6 +477,27 @@ impl<'octo> ChecksHandler<'octo> {
     ) -> crate::api::checks::RerequestCheckRunBuilder<'_, '_> {
         RerequestCheckRunBuilder::new(self, check_run_id)
     }
+    
+    ///Lists annotations for a check run using the annotation id.
+    ///See https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations
+    ///```no_run
+    /// use octocrab::models::CheckRunId;
+    /// use octocrab::params::checks::CheckRunAnnotation;
+    ///  async fn run() -> octocrab::Result<Vec<CheckRunAnnotation>> {
+    ///   let check_run_annotations_result = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .list_annotations(CheckRunId(42))
+    ///    .send()
+    ///    .await;
+    ///     check_run_annotations_result
+    /// }
+    /// ```
+    pub fn list_annotations(
+        &self,
+        check_run_id: CheckRunId,
+    ) -> crate::api::checks::CheckRunAnnotationsBuilder<'_, '_> {
+        CheckRunAnnotationsBuilder::new(self, check_run_id)
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -631,5 +652,35 @@ impl<'octo, 'r> crate::checks::RerequestCheckRunBuilder<'octo, 'r> {
         }
 
         Ok(())
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct CheckRunAnnotationsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    check_run_id: CheckRunId,
+}
+
+impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_run_id: CheckRunId) -> Self {
+        Self {
+            handler,
+            check_run_id,
+        }
+    }
+
+    /// Sends the actual request of [`ChecksHandler.list_annotations()`]
+    /// see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations
+    ///
+    /// [`ChecksHandler.list_annotations()`]: ChecksHandler#method.list_annotations()
+    pub async fn send(self) -> Result<Vec<CheckRunAnnotation>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-runs/{check_run_id}/annotations",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            check_run_id = self.check_run_id
+        );
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

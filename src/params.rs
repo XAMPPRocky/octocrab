@@ -71,9 +71,9 @@ pub mod actions {
 
 pub mod apps {
     //! Parameter types for the apps API.
-
+    
     use crate::models::RepositoryId;
-
+    
     /// https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app
     #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize, Default)]
     #[serde(rename_all = "snake_case")]
@@ -152,6 +152,26 @@ pub mod checks {
         #[serde(skip_serializing_if = "Option::is_none")]
         pub caption: Option<String>,
     }
+    
+    #[derive(serde::Serialize, serde::Deserialize, Debug)]
+    pub struct CheckRunAnnotation {
+        pub path: String,
+        pub start_line: u32,
+        pub end_line: u32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub start_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub end_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub annotation_level: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub title: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub message: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub raw_details: Option<String>,
+        pub blob_href: String,
+    }
 }
 
 pub mod issues {
@@ -200,7 +220,7 @@ pub mod issues {
     #[cfg(test)]
     mod tests {
         use super::*;
-
+        
         #[test]
         fn serialize() {
             assert_eq!(

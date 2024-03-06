@@ -183,3 +183,33 @@ async fn should_trigger_rerequest_check_run() {
         result
     );
 }
+
+#[tokio::test]
+async fn should_list_annotations() {
+    // mock infrastructure
+    let mock_server = MockServer::start().await;
+    let response = ResponseTemplate::new(200).set_body_string(include_str!("resources/check_run_annotations.json"));
+    
+    const CHECK_RUN_ID: i32 = 42;
+    let mock = Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/check-runs/{CHECK_RUN_ID}/annotations"
+        )))
+        .respond_with(response.clone());
+    mock_server.register(mock).await;
+    let client = setup_octocrab(&mock_server.uri());
+    
+    let result = client
+        .checks(OWNER, REPO)
+        .list_annotations(CheckRunId(42))
+        .send()
+        .await;
+    
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let list_annotations_result = result.unwrap();
+    assert_eq!(list_annotations_result.len(), 1);
+}
