@@ -351,13 +351,13 @@ impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
         self.page = Some(page.into());
         self
     }
-    
+
     /// Filters check suites by GitHub App id.
     pub fn app_id(mut self, app_id: impl Into<AppId>) -> Self {
         self.app_id = Some(app_id.into());
         self
     }
-    
+
     /// Returns check runs with the specified name.
     pub fn check_name(mut self, check_name: impl Into<String>) -> Self {
         self.check_name = Some(check_name.into());
@@ -773,14 +773,13 @@ impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
         );
         self.handler.crab.get(route, Some(&self)).await
     }
-    
-    
+
     /// Results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
-    
+
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
