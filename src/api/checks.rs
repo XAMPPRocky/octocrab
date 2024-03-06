@@ -2,11 +2,13 @@ use chrono::{DateTime, Utc};
 use http::Response;
 use hyper::body::Body;
 
-use crate::{models, Octocrab, Result};
-use crate::models::{CheckRunId, CheckSuiteId};
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
-use crate::params::checks::{CheckRunAnnotation, CheckRunConclusion, CheckRunOutput, CheckRunStatus};
+use crate::models::{CheckRunId, CheckSuiteId};
+use crate::params::checks::{
+    CheckRunAnnotation, CheckRunConclusion, CheckRunOutput, CheckRunStatus,
+};
 use crate::params::repos::Commitish;
+use crate::{models, Octocrab, Result};
 
 /// Handler for GitHub's Checks API.
 ///
@@ -299,6 +301,33 @@ impl<'octo, 'r> ListCheckRunsForGitRefBuilder<'octo, 'r> {
     }
 }
 
+#[derive(serde::Serialize)]
+pub struct ListCheckSuitesForGitRefBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    #[serde(skip)]
+    git_ref: Commitish,
+}
+
+impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, git_ref: Commitish) -> Self {
+        Self { handler, git_ref }
+    }
+
+    /// Send the actual request to /repos/{owner}/{repo}/commits/{ref}/check-suites
+    /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference
+    pub async fn send(self) -> Result<models::checks::ListCheckSuites> {
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{ref}/check-suites",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            ref = self.git_ref,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
 impl<'octo> ChecksHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
         Self { crab, owner, repo }
@@ -336,6 +365,26 @@ impl<'octo> ChecksHandler<'octo> {
         git_ref: Commitish,
     ) -> ListCheckRunsForGitRefBuilder<'_, '_> {
         ListCheckRunsForGitRefBuilder::new(self, git_ref)
+    }
+
+    ///Lists check suites for a commit ref.
+    ///See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference
+    ///```no_run
+    /// use octocrab::models::checks::ListCheckSuites;
+    /// use octocrab::params::repos::Commitish;
+    ///  async fn run() -> octocrab::Result<ListCheckSuites> {
+    ///    let check_suites = octocrab::instance()
+    ///      .checks("owner", "repo")
+    ///      .list_check_suites_for_git_ref(Commitish("ref".to_string()))
+    ///      .send()
+    ///      .await;
+    ///     check_suites
+    /// }
+    pub fn list_check_suites_for_git_ref(
+        &self,
+        git_ref: Commitish,
+    ) -> ListCheckSuitesForGitRefBuilder<'_, '_> {
+        ListCheckSuitesForGitRefBuilder::new(self, git_ref)
     }
 
     /// ```no_run
@@ -477,7 +526,7 @@ impl<'octo> ChecksHandler<'octo> {
     ) -> crate::api::checks::RerequestCheckRunBuilder<'_, '_> {
         RerequestCheckRunBuilder::new(self, check_run_id)
     }
-    
+
     ///Lists annotations for a check run using the annotation id.
     ///See https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations
     ///```no_run
@@ -615,7 +664,7 @@ impl<'octo, 'r> crate::checks::RerequestCheckSuiteBuilder<'octo, 'r> {
         if !response.status().is_success() {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
-        
+
         Ok(())
     }
 }
