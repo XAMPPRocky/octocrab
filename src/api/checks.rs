@@ -1,4 +1,6 @@
 use chrono::{DateTime, Utc};
+use http::Response;
+use hyper::body::Body;
 
 use crate::{models, Octocrab, Result};
 use crate::models::{CheckRunId, CheckSuiteId};
@@ -377,12 +379,14 @@ impl<'octo> ChecksHandler<'octo> {
 
     /// Creates a check suite manually. see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite
     /// ```no_run
-    /// async fn run() -> octocrab::Result<()> {
-    ///   let check_suite_run = octocrab::instance()
+    /// use octocrab::models::checks::CheckSuite;
+    ///  async fn run() -> octocrab::Result<CheckSuite> {
+    ///   let check_suite_create_result = octocrab::instance()
     ///    .checks("owner", "repo")
     ///    .create_check_suite("head_sha")
     ///    .send()
-    ///    .await?;
+    ///    .await;
+    ///     check_suite_create_result
     /// }
     /// ```
     pub fn create_check_suite(
@@ -396,7 +400,8 @@ impl<'octo> ChecksHandler<'octo> {
     /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites
     /// ```no_run
     /// use octocrab::models::{AppId, checks::AutoTriggerCheck};
-    ///  async fn run() -> octocrab::Result<()> {
+    /// use octocrab::models::checks::CheckSuitePreferences;
+    ///  async fn run() -> octocrab::Result<CheckSuitePreferences> {
     ///   let check_suite_run = octocrab::instance()
     ///    .checks("owner", "repo")
     ///    .update_preferences(
@@ -404,7 +409,8 @@ impl<'octo> ChecksHandler<'octo> {
     ///             AutoTriggerCheck {app_id: AppId(42), setting: false} ]
     ///     )
     ///    .send()
-    ///    .await?;
+    ///    .await;
+    /// check_suite_run
     /// }
     /// ```
     pub fn update_preferences(
@@ -417,17 +423,59 @@ impl<'octo> ChecksHandler<'octo> {
     /// Gets a single check suite using its id.
     /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
     /// ```no_run
+    /// use octocrab::models::checks::CheckSuite;
     /// use octocrab::models::CheckSuiteId;
-    ///  async fn run() -> octocrab::Result<()> {
-    ///   let check_suite_run = octocrab::instance()
+    ///  async fn run() -> octocrab::Result<CheckSuite> {
+    ///   let get_check_suite_result = octocrab::instance()
     ///    .checks("owner", "repo")
     ///    .get_check_suite(CheckSuiteId(42))
     ///    .send()
-    ///    .await?;
+    ///    .await;
+    ///     get_check_suite_result
     /// }
     /// ```
     pub fn get_check_suite(&self, check_suite_id: CheckSuiteId) -> GetCheckSuiteBuilder<'_, '_> {
         GetCheckSuiteBuilder::new(self, check_suite_id)
+    }
+
+    ///Triggers GitHub to rerequest an existing check suite, without pushing new code to a repository.
+    ///See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite
+    ///```no_run
+    /// use octocrab::models::CheckSuiteId;
+    ///  async fn run() -> octocrab::Result<()> {
+    ///   let rerequest_check_suite_result = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .rerequest_check_suite(CheckSuiteId(42))
+    ///    .send()
+    ///    .await;
+    ///     rerequest_check_suite_result
+    /// }
+    /// ```
+    pub fn rerequest_check_suite(
+        &self,
+        check_suite_id: CheckSuiteId,
+    ) -> crate::api::checks::RerequestCheckSuiteBuilder<'_, '_> {
+        RerequestCheckSuiteBuilder::new(self, check_suite_id)
+    }
+
+    ///Triggers GitHub to rerequest an existing check run, without pushing new code to a repository.
+    ///See https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run
+    ///```no_run
+    /// use octocrab::models::CheckRunId;
+    ///  async fn run() -> octocrab::Result<()> {
+    ///   let rerequest_check_run_result = octocrab::instance()
+    ///    .checks("owner", "repo")
+    ///    .rerequest_check_run(CheckRunId(42))
+    ///    .send()
+    ///    .await;
+    ///     rerequest_check_run_result
+    /// }
+    /// ```
+    pub fn rerequest_check_run(
+        &self,
+        check_run_id: CheckRunId,
+    ) -> crate::api::checks::RerequestCheckRunBuilder<'_, '_> {
+        RerequestCheckRunBuilder::new(self, check_run_id)
     }
 }
 
@@ -500,7 +548,7 @@ impl<'octo, 'r> GetCheckSuiteBuilder<'octo, 'r> {
             check_suite_id,
         }
     }
-    
+
     /// Sends the actual request of [`ChecksHandler.get_check_suite()`]
     /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
     ///
@@ -513,5 +561,75 @@ impl<'octo, 'r> GetCheckSuiteBuilder<'octo, 'r> {
             check_suite_id = self.check_suite_id
         );
         self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct RerequestCheckSuiteBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    check_suite_id: CheckSuiteId,
+}
+
+impl<'octo, 'r> crate::checks::RerequestCheckSuiteBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_suite_id: CheckSuiteId) -> Self {
+        Self {
+            handler,
+            check_suite_id,
+        }
+    }
+
+    /// Sends the actual request of [`ChecksHandler.rerequest_check_suite()`]
+    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite
+    ///
+    /// [`ChecksHandler.rerequest_check_suite()`]: ChecksHandler#method.rerequest_check_suite()
+    pub async fn send(self) -> Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            check_suite_id = self.check_suite_id
+        );
+        let response: Response<Body> = self.handler.crab._post(route, Some(&self)).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        
+        Ok(())
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct RerequestCheckRunBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    check_run_id: CheckRunId,
+}
+
+impl<'octo, 'r> crate::checks::RerequestCheckRunBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_run_id: CheckRunId) -> Self {
+        Self {
+            handler,
+            check_run_id,
+        }
+    }
+
+    /// Sends the actual request of [`ChecksHandler.rerequest_check_run()`]
+    /// see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run
+    ///
+    /// [`ChecksHandler.rerequest_check_run()`]: ChecksHandler#method.rerequest_check_run()
+    pub async fn send(self) -> Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-runs/{check_run_id}/rerequest",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            check_run_id = self.check_run_id
+        );
+        let response: Response<Body> = self.handler.crab._post(route, Some(&self)).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+
+        Ok(())
     }
 }
