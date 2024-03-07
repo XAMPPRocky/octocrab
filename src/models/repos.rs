@@ -151,6 +151,8 @@ pub struct GitUserTime {
 pub struct CommitAuthor {
     pub name: String,
     pub email: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
