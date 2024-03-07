@@ -152,6 +152,26 @@ pub mod checks {
         #[serde(skip_serializing_if = "Option::is_none")]
         pub caption: Option<String>,
     }
+
+    #[derive(serde::Serialize, serde::Deserialize, Debug)]
+    pub struct CheckRunAnnotation {
+        pub path: String,
+        pub start_line: u32,
+        pub end_line: u32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub start_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub end_column: Option<u32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub annotation_level: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub title: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub message: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub raw_details: Option<String>,
+        pub blob_href: String,
+    }
 }
 
 pub mod issues {
