@@ -1,3 +1,5 @@
+use crate::models;
+
 use super::{reactions::ReactionContent, *};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -158,4 +160,18 @@ pub enum GithubCommitStatus {
     Behind,
     Diverged,
     Identical,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitCommitObject {
+    pub sha: String,
+    pub node_id: String,
+    pub url: String,
+    pub author: models::repos::CommitAuthor,
+    pub committer: repos::CommitAuthor,
+    pub message: String,
+    pub tree: models::repos::CommitObject,
+    pub parents: Vec<models::repos::Commit>,
+    pub verification: models::repos::Verification,
+    pub html_url: String,
 }

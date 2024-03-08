@@ -25,6 +25,8 @@ mod tags;
 mod teams;
 
 use crate::error::HttpSnafu;
+use crate::models::commits::GitCommitObject;
+use crate::models::repos;
 use crate::repos::file::GetReadmeBuilder;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
@@ -289,10 +291,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
+    ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
+    ///         date: None,
     ///     })
     ///     .send()
     ///     .await?;
@@ -344,10 +348,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
+    ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
+    ///         date: None,
     ///     })
     ///     .send()
     ///     .await?;
@@ -389,10 +395,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
     ///         email: "octocat@github.com".to_string(),
+    ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
     ///         email: "ferris@rust-lang.org".to_string(),
+    ///         date: None,
     ///     })
     ///     .send()
     ///     .await?;
@@ -714,5 +722,113 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets on the repository
     pub fn secrets(&self) -> RepoSecretsHandler<'_> {
         RepoSecretsHandler::new(self)
+    }
+
+    /// Creates a new Git commit object.
+    /// See https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit
+    /// ```no_run
+    /// # use octocrab::models::commits::GitCommitObject;
+    /// use octocrab::models::repos::CommitAuthor;
+    ///  async fn run() -> octocrab::Result<(GitCommitObject)> {
+    ///
+    /// let git_commit_object = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .create_git_commit_object("message", "tree")
+    ///     .signature("signature")
+    ///     .author(CommitAuthor{
+    ///             name: "name".to_owned(),
+    ///             email: "email".to_owned(),
+    ///             date: None
+    ///         })
+    ///     .send()
+    ///     .await;
+    /// #   git_commit_object
+    /// # }
+    /// ```
+    pub fn create_git_commit_object(
+        &self,
+        message: impl Into<String>,
+        tree: impl Into<String>,
+    ) -> CreateGitCommitObjectBuilder<'_, '_> {
+        CreateGitCommitObjectBuilder::new(
+            self,
+            self.owner.clone(),
+            self.repo.clone(),
+            message.into().to_owned(),
+            tree.into().to_owned(),
+        )
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct CreateGitCommitObjectBuilder<'octo, 'req> {
+    #[serde(skip)]
+    handler: &'octo RepoHandler<'req>,
+    owner: String,
+    repo: String,
+    message: String,
+    tree: String,
+    parents: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    author: Option<repos::CommitAuthor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    committer: Option<repos::CommitAuthor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    signature: Option<String>,
+}
+
+impl<'octo, 'req> CreateGitCommitObjectBuilder<'octo, 'req> {
+    pub(crate) fn new(
+        handler: &'octo RepoHandler<'req>,
+        owner: String,
+        repo: String,
+        message: String,
+        tree: String,
+    ) -> Self {
+        Self {
+            handler,
+            owner,
+            repo,
+            message,
+            tree,
+            parents: Vec::new(),
+            author: None,
+            committer: None,
+            signature: None,
+        }
+    }
+
+    /// The author of the commit.
+    pub fn author(mut self, author: impl Into<repos::CommitAuthor>) -> Self {
+        self.author = Some(author.into());
+        self
+    }
+
+    /// The committer of the commit.
+    pub fn committer(mut self, committer: impl Into<repos::CommitAuthor>) -> Self {
+        self.committer = Some(committer.into());
+        self
+    }
+
+    /// The signature of the commit.
+    pub fn signature(mut self, signature: impl Into<String>) -> Self {
+        self.signature = Some(signature.into());
+        self
+    }
+
+    /// The parents of the commit.
+    pub fn parents(mut self, parents: Vec<String>) -> Self {
+        self.parents = parents;
+        self
+    }
+
+    /// Sends the request
+    pub async fn send(&self) -> Result<GitCommitObject> {
+        let route = format!(
+            "/repos/{owner}/{repo}/git/commits",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        self.handler.crab.post(route, Some(&self)).await
     }
 }
