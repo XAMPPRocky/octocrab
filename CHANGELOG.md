@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.0](https://github.com/XAMPPRocky/octocrab/compare/v0.34.3...v0.35.0) - 2024-03-10
+
+### Added
+- add repository list language support ([#595](https://github.com/XAMPPRocky/octocrab/pull/595))
+
+### Other
+- Added test for `actions().create_workflow_dispatch()` ([#603](https://github.com/XAMPPRocky/octocrab/pull/603))
+- added "Create a new Git commit object" ([#600](https://github.com/XAMPPRocky/octocrab/pull/600))
+- Added `check-suites` endpoints ([#596](https://github.com/XAMPPRocky/octocrab/pull/596))
+- Adding org secrets tests ([#599](https://github.com/XAMPPRocky/octocrab/pull/599))
+
 ## [0.34.3](https://github.com/XAMPPRocky/octocrab/compare/v0.34.2...v0.34.3) - 2024-03-05
 
 ### Other
