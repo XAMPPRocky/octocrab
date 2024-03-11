@@ -373,13 +373,14 @@ impl<'octo> PullRequestHandler<'octo> {
     // to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
     /// ```no_run
     ///  use octocrab::models::CommentId;
-    ///  async fn run() -> octocrab::Result<CommentId> {
+    /// use octocrab::models::pulls::Comment;
+    ///  async fn run() -> octocrab::Result<Comment> {
     ///     let octocrab = octocrab::Octocrab::default();
     ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(21)).delete();
     ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(42)).update("new comment");
-    ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get();
+    ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get().await;
     ///
-    ///     Ok(comment)
+    ///     comment
     ///  }
     /// ```
     pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder {
