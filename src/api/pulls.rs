@@ -1,23 +1,23 @@
 //! The pull request API.
 
-mod comment;
-mod create;
-mod list;
-mod merge;
-mod update;
-
 use http::request::Builder;
 use http::{Method, Uri};
-
 use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
+use crate::models::CommentId;
 use crate::{Octocrab, Page};
 
 pub use self::{
     create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
+
+mod comment;
+mod create;
+mod list;
+mod merge;
+mod update;
 
 /// A client to GitHub's pull request API.
 ///
@@ -367,6 +367,23 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn list_comments(&self, pr: Option<u64>) -> comment::ListCommentsBuilder {
         comment::ListCommentsBuilder::new(self, pr)
+    }
+
+    //creates a new `CommentBuilder` for GET/PATCH/DELETE requests
+    // to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
+    /// ```no_run
+    ///  use octocrab::models::CommentId;
+    ///  async fn run() -> octocrab::Result<CommentId> {
+    ///     let octocrab = octocrab::Octocrab::default();
+    ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(21)).delete();
+    ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(42)).update("new comment");
+    ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get();
+    ///
+    ///     Ok(comment)
+    ///  }
+    /// ```
+    pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder {
+        comment::CommentBuilder::new(self, comment_id)
     }
 
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
