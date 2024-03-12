@@ -6,6 +6,7 @@ use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
 use crate::models::CommentId;
+use crate::pulls::specific_pr::SpecificPullRequestBuilder;
 use crate::{Octocrab, Page};
 
 pub use self::{
@@ -17,6 +18,7 @@ mod comment;
 mod create;
 mod list;
 mod merge;
+mod specific_pr;
 mod update;
 
 /// A client to GitHub's pull request API.
@@ -369,8 +371,8 @@ impl<'octo> PullRequestHandler<'octo> {
         comment::ListCommentsBuilder::new(self, pr)
     }
 
-    //creates a new `CommentBuilder` for GET/PATCH/DELETE requests
-    // to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
+    ///creates a new `CommentBuilder` for GET/PATCH/DELETE requests
+    /// to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
     /// ```no_run
     ///  use octocrab::models::CommentId;
     /// use octocrab::models::pulls::Comment;
@@ -385,6 +387,19 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder {
         comment::CommentBuilder::new(self, comment_id)
+    }
+
+    /// creates a builder for the `/repos/{owner}/{repo}/pulls/{pull_number}/......` endpoint
+    /// working with particular pull request, e.g.
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/commits
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
+    ///
+    pub fn pull_number(&self, pull_nr: u64) -> SpecificPullRequestBuilder {
+        SpecificPullRequestBuilder::new(self, pull_nr)
     }
 
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
