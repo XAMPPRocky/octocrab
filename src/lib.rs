@@ -835,8 +835,7 @@ impl CachedToken {
     }
 
     fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<DateTime<Utc>>) {
-        *self.0.write().unwrap() =
-            Some(CachedTokenInner::new(token.into(), expiration));
+        *self.0.write().unwrap() = Some(CachedTokenInner::new(token.into(), expiration));
     }
 }
 
