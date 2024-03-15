@@ -211,7 +211,7 @@ use hyper::{Request, Response};
 
 use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use snafu::*;
 use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
 
@@ -294,6 +294,13 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
     format!("application/vnd.github.v3.{media_type}{json_suffix}")
 }
 
+#[derive(Debug, Deserialize)]
+struct GitHubErrorBody {
+    pub documentation_url: Option<String>,
+    pub errors: Option<Vec<serde_json::Value>>,
+    pub message: String,
+}
+
 /// Maps a GitHub error response into and `Err()` variant if the status is
 /// not a success.
 pub async fn map_github_error(
@@ -302,12 +309,21 @@ pub async fn map_github_error(
     if response.status().is_success() {
         Ok(response)
     } else {
-        let b: error::GitHubError =
-            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
-                .context(error::SerdeSnafu)?;
+        let (parts, body) = response.into_parts();
+        let GitHubErrorBody {
+            documentation_url,
+            errors,
+            message,
+        } = serde_json::from_slice(body.collect().await?.to_bytes().as_ref())
+            .context(error::SerdeSnafu)?;
 
         Err(error::Error::GitHub {
-            source: b,
+            source: GitHubError {
+                status_code: parts.status,
+                documentation_url,
+                errors,
+                message,
+            },
             backtrace: Backtrace::generate(),
         })
     }

@@ -1,5 +1,6 @@
 use http::uri::InvalidUri;
 
+use http::StatusCode;
 use snafu::{Backtrace, Snafu};
 
 use std::fmt;
@@ -97,12 +98,13 @@ pub enum Error {
 }
 
 /// An error returned from GitHub's API.
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[non_exhaustive]
 pub struct GitHubError {
     pub documentation_url: Option<String>,
     pub errors: Option<Vec<serde_json::Value>>,
     pub message: String,
+    pub status_code: StatusCode,
 }
 
 impl fmt::Display for GitHubError {
