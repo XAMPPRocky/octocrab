@@ -1,5 +1,5 @@
-use wiremock::{Mock, MockServer, ResponseTemplate};
 use wiremock::matchers::{method, path};
+use wiremock::{Mock, MockServer, ResponseTemplate};
 
 use octocrab::models::pulls::Review;
 use octocrab::Octocrab;
