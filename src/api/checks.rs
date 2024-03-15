@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use hyper::body::Body;
 
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
 use crate::models::{AppId, CheckRunId, CheckSuiteId};

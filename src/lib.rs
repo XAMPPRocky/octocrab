@@ -537,8 +537,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Add a personal token to use for authentication.
-    pub fn personal_token(mut self, token: String) -> Self {
-        self.config.auth = Auth::PersonalToken(SecretString::new(token));
+    pub fn personal_token<S: Into<SecretString>>(mut self, token: S) -> Self {
+        self.config.auth = Auth::PersonalToken(token.into());
         self
     }
 
@@ -563,8 +563,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Authenticate with a user access token.
-    pub fn user_access_token(mut self, token: String) -> Self {
-        self.config.auth = Auth::UserAccessToken(SecretString::new(token));
+    pub fn user_access_token<S: Into<SecretString>>(mut self, token: S) -> Self {
+        self.config.auth = Auth::UserAccessToken(token.into());
         self
     }
 
@@ -850,9 +850,8 @@ impl CachedToken {
         self.valid_token_with_buffer(chrono::Duration::seconds(30))
     }
 
-    fn set(&self, token: String, expiration: Option<DateTime<Utc>>) {
-        *self.0.write().unwrap() =
-            Some(CachedTokenInner::new(SecretString::new(token), expiration));
+    fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<DateTime<Utc>>) {
+        *self.0.write().unwrap() = Some(CachedTokenInner::new(token.into(), expiration));
     }
 }
 
