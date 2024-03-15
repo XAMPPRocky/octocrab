@@ -60,8 +60,8 @@ async fn should_return_pull_request_commits() {
     let commits = result.unwrap();
 
     assert!(!commits.items.is_empty());
-    assert!(!commits.items.first().unwrap().author.is_none());
-    assert!(!commits.items.first().unwrap().committer.is_none());
+    assert!(commits.items.first().unwrap().author.is_some());
+    assert!(commits.items.first().unwrap().committer.is_some());
 
     let RepoCommit { author, .. } = commits.items.first().unwrap();
 

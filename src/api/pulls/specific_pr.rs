@@ -1,6 +1,9 @@
 use crate::models::repos::RepoCommit;
+use crate::pulls::specific_pr::pr_reviews::ReviewsBuilder;
 use crate::pulls::PullRequestHandler;
 use crate::Page;
+
+mod pr_reviews;
 
 /// A builder pattern struct for working with a specific pull request data,
 /// e.g. reviews, commits, comments, etc.
@@ -12,7 +15,6 @@ use crate::Page;
 pub struct SpecificPullRequestBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b PullRequestHandler<'octo>,
-    #[serde(skip)]
     pr_number: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
@@ -54,5 +56,9 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
             pr_number = self.pr_number
         );
         self.handler.crab.get(route, Some(&self)).await
+    }
+
+    pub fn reviews(&self) -> ReviewsBuilder<'octo, '_> {
+        ReviewsBuilder::new(self.handler, self.pr_number)
     }
 }

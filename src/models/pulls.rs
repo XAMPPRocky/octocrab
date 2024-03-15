@@ -229,6 +229,9 @@ pub struct Review {
     #[serde(rename = "_links")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<Links>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<AuthorAssociation>,
+    
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize)]
