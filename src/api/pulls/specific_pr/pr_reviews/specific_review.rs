@@ -86,4 +86,23 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
             )
             .await
     }
+
+    ///Dismisses a specified review on a pull request.
+    ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#dismiss-a-review-for-a-pull-request
+    pub async fn dismiss(&self, message: impl Into<String>) -> crate::Result<Review> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pull_number = self.pr_number,
+            review_id = self.review_id
+        );
+        self.handler
+            .crab
+            .put(
+                route,
+                Some(&serde_json::json!({ "message": message.into(), "event": "DISMISS" })),
+            )
+            .await
+    }
 }

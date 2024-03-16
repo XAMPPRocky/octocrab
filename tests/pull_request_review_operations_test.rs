@@ -52,6 +52,13 @@ async fn should_work_with_specific_review() {
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
+    Mock::given(method("PUT"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID}/dismissals"
+        )))
+        .respond_with(template.clone())
+        .mount(&mock_server)
+        .await;
     setup_error_handler(
         &mock_server,
         &format!("request on /repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID} was not received"),
@@ -89,6 +96,14 @@ async fn should_work_with_specific_review() {
         .reviews()
         .review(REVIEW_ID)
         .submit(ReviewAction::Comment, "test")
+        .await;
+    assert_eq!(result.unwrap(), review_ops_response);
+    let result = client
+        .pulls(OWNER, REPO)
+        .pull_number(PULL_NUMBER)
+        .reviews()
+        .review(REVIEW_ID)
+        .dismiss("test")
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
 }
