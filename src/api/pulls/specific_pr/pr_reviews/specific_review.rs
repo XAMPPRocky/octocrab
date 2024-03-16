@@ -1,3 +1,4 @@
+use crate::models::pulls::{Review, ReviewAction};
 use crate::pulls::PullRequestHandler;
 
 #[derive(serde::Serialize)]
@@ -52,7 +53,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
 
     ///Deletes a pull request review that has not been submitted. Submitted reviews cannot be deleted.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#delete-a-pending-review-for-a-pull-request
-    pub async fn delete_pending(&self) -> crate::Result<crate::models::pulls::Review> {
+    pub async fn delete_pending(&self) -> crate::Result<Review> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}",
             owner = self.handler.owner,
@@ -61,5 +62,28 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
             review_id = self.review_id
         );
         self.handler.crab.delete(route, None::<&()>).await
+    }
+
+    ///Submits a pending review for a pull request.
+    ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#submit-a-review-for-a-pull-request
+    pub async fn submit(
+        &self,
+        action: ReviewAction,
+        body: impl Into<String>,
+    ) -> crate::Result<Review> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pull_number = self.pr_number,
+            review_id = self.review_id
+        );
+        self.handler
+            .crab
+            .post(
+                route,
+                Some(&serde_json::json!({ "body": body.into(), "event": action })),
+            )
+            .await
     }
 }

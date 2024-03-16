@@ -245,6 +245,15 @@ pub enum ReviewState {
     Dismissed,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Serialize)]
+#[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE"))]
+#[non_exhaustive]
+pub enum ReviewAction {
+    Approve,
+    RequestChanges,
+    Comment,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Comment {
