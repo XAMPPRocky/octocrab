@@ -193,10 +193,16 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub async fn delete(&self, gist_id: impl AsRef<str>) -> Result<()> {
         let gist_id = gist_id.as_ref();
-        self.crab
+        let response = self
+            .crab
             ._delete(format!("/gists/{gist_id}"), None::<&()>)
-            .await
-            .map(|_| ())
+            .await?;
+
+        if response.status() != StatusCode::NOT_MODIFIED && !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+
+        Ok(())
     }
 
     /// Get a single gist revision.
