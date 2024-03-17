@@ -60,10 +60,40 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
         self.handler.crab.get(route, Some(&self)).await
     }
 
+    /// Creates a new `ReviewsBuilder`
+    /// ```no_run
+    /// # use octocrab::models::CommentId;
+    ///  async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let _ = octocrab.pulls("owner", "repo")
+    ///     .pull_number(42)
+    ///     .reviews()
+    ///     .review(42)
+    ///     .get()
+    ///     .await;
+    ///     Ok(())
+    /// ```
     pub fn reviews(&self) -> ReviewsBuilder<'octo, '_> {
         ReviewsBuilder::new(self.handler, self.pr_number)
     }
 
+    /// Creates a new `SpecificPullRequestCommentBuilder`
+    /// ```no_run
+    /// # use octocrab::models::CommentId;
+    ///  async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let _ = octocrab.pulls("owner", "repo")
+    ///     .pull_number(42)
+    ///     .comment(CommentId(42))
+    ///     .reply("new comment")
+    ///     .await;
+    ///     Ok(())
+    ///   }
+    /// ```
     pub fn comment(&self, comment_id: CommentId) -> SpecificPullRequestCommentBuilder {
         SpecificPullRequestCommentBuilder::new(self.handler, self.pr_number, comment_id)
     }

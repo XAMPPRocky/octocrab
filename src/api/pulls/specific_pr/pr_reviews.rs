@@ -24,6 +24,21 @@ impl<'octo, 'b> ReviewsBuilder<'octo, 'b> {
         }
     }
 
+    /// Creates a new `SpecificReviewBuilder`
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let _ = octocrab.pulls("owner", "repo")
+    /// .pull_number(42)
+    /// .reviews()
+    /// .review(42)
+    /// .get() // + update, delete_pending, submit, dismiss, list_comments
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn review(&self, review_id: u64) -> SpecificReviewBuilder<'octo, '_> {
         SpecificReviewBuilder::new(self.handler, self.pr_number, review_id)
     }
