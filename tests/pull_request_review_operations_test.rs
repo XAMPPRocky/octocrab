@@ -1,7 +1,7 @@
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-use octocrab::models::pulls::{Review, ReviewAction};
+use octocrab::models::pulls::{Review, ReviewAction, ReviewComment};
 use octocrab::Octocrab;
 
 use crate::mock_error::setup_error_handler;
@@ -22,7 +22,12 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 async fn should_work_with_specific_review() {
     let review_ops_response: Review =
         serde_json::from_str(include_str!("resources/get_pull_request_review.json")).unwrap();
+    let review_comments_response: Vec<ReviewComment> = serde_json::from_str(include_str!(
+        "resources/get_pull_request_review_comments.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&review_ops_response);
+    let comments_template = ResponseTemplate::new(200).set_body_json(&review_comments_response);
     let mock_server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path(format!(
@@ -59,6 +64,14 @@ async fn should_work_with_specific_review() {
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
+    Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID}/comments"
+        )))
+        .respond_with(comments_template.clone())
+        .mount(&mock_server)
+        .await;
+
     setup_error_handler(
         &mock_server,
         &format!("request on /repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID} was not received"),
@@ -106,4 +119,16 @@ async fn should_work_with_specific_review() {
         .dismiss("test")
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
+
+    let result = client
+        .pulls(OWNER, REPO)
+        .pull_number(PULL_NUMBER)
+        .reviews()
+        .review(REVIEW_ID)
+        .list_comments()
+        .per_page(15)
+        .send()
+        .await;
+    let result_items = result.unwrap();
+    assert_eq!(result_items.items, review_comments_response);
 }

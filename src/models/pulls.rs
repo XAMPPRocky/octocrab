@@ -1,4 +1,5 @@
 use super::*;
+use crate::models::commits::CommentReactions;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -283,6 +284,53 @@ pub struct Comment {
     pub line: Option<u64>,
     pub original_line: Option<u64>,
     pub side: Option<String>,
+}
+
+///Legacy Review Comment
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ReviewComment {
+    pub url: Url,
+    pub pull_request_review_id: Option<ReviewId>,
+    pub id: CommentId,
+    pub node_id: String,
+    pub diff_hunk: String,
+    pub path: String,
+    pub position: Option<u64>,
+    pub original_position: Option<u64>,
+    pub commit_id: String,
+    pub original_commit_id: String,
+    #[serde(default)]
+    pub in_reply_to_id: Option<CommentId>,
+    pub user: Option<Author>,
+    pub body: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub html_url: String,
+    pub pull_request_url: String,
+    pub author_association: AuthorAssociation,
+    #[serde(rename = "_links")]
+    pub links: Links,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reactions: Option<CommentReactions>,
+    pub side: Option<Side>,
+    pub start_side: Option<Side>,
+    pub line: Option<u64>,
+    pub original_line: Option<u64>,
+    pub start_line: Option<u64>,
+    pub original_start_line: Option<u64>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE"))]
+#[non_exhaustive]
+pub enum Side {
+    Left,
+    Right,
 }
 
 /// A Thread in a pull request review

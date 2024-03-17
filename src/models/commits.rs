@@ -5,6 +5,7 @@ use super::{reactions::ReactionContent, *};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Comment {
+    // TODO check actuality comparing with github json schema and pulls::ReviewComment
     pub html_url: Url,
     pub url: Url,
     pub id: CommentId,

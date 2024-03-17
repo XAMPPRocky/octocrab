@@ -1,5 +1,8 @@
 use crate::models::pulls::{Review, ReviewAction};
+use crate::pulls::specific_pr::pr_reviews::specific_review::list_comments::ListReviewCommentsBuilder;
 use crate::pulls::PullRequestHandler;
+
+mod list_comments;
 
 #[derive(serde::Serialize)]
 pub struct SpecificReviewBuilder<'octo, 'b> {
@@ -104,5 +107,11 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
                 Some(&serde_json::json!({ "message": message.into(), "event": "DISMISS" })),
             )
             .await
+    }
+
+    ///Lists comments for a specific pull request review.
+    ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#list-comments-for-a-pull-request-review
+    pub fn list_comments(&self) -> ListReviewCommentsBuilder<'octo, '_> {
+        ListReviewCommentsBuilder::new(self.handler, self.pr_number, self.review_id)
     }
 }
