@@ -13,6 +13,7 @@ const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
 const PULL_NUMBER: u64 = 42;
 const REVIEW_ID: u64 = 42;
+const COMMENT_ID: u64 = 42;
 
 fn setup_octocrab(uri: &str) -> Octocrab {
     Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
@@ -26,8 +27,11 @@ async fn should_work_with_specific_review() {
         "resources/get_pull_request_review_comments.json"
     ))
     .unwrap();
+    let pr_comment_response: ReviewComment =
+        serde_json::from_str(include_str!("resources/pull_request_review_comment.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&review_ops_response);
     let comments_template = ResponseTemplate::new(200).set_body_json(&review_comments_response);
+    let pr_comment_template = ResponseTemplate::new(200).set_body_json(&pr_comment_response);
     let mock_server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path(format!(
@@ -69,6 +73,14 @@ async fn should_work_with_specific_review() {
             "/repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID}/comments"
         )))
         .respond_with(comments_template.clone())
+        .mount(&mock_server)
+        .await;
+
+    Mock::given(method("POST"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/comments/{COMMENT_ID}/replies"
+        )))
+        .respond_with(pr_comment_template.clone())
         .mount(&mock_server)
         .await;
 
@@ -131,4 +143,12 @@ async fn should_work_with_specific_review() {
         .await;
     let result_items = result.unwrap();
     assert_eq!(result_items.items, review_comments_response);
+
+    let result = client
+        .pulls(OWNER, REPO)
+        .pull_number(PULL_NUMBER)
+        .comment(COMMENT_ID.into())
+        .reply("test")
+        .await;
+    assert_eq!(result.unwrap(), pr_comment_response);
 }

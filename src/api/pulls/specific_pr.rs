@@ -1,10 +1,12 @@
 use crate::models::repos::RepoCommit;
+use crate::models::CommentId;
+use crate::pulls::specific_pr::pr_comment::SpecificPullRequestCommentBuilder;
 use crate::pulls::specific_pr::pr_reviews::ReviewsBuilder;
 use crate::pulls::PullRequestHandler;
 use crate::Page;
 
+mod pr_comment;
 mod pr_reviews;
-
 /// A builder pattern struct for working with a specific pull request data,
 /// e.g. reviews, commits, comments, etc.
 ///
@@ -60,5 +62,9 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
 
     pub fn reviews(&self) -> ReviewsBuilder<'octo, '_> {
         ReviewsBuilder::new(self.handler, self.pr_number)
+    }
+
+    pub fn comment(&self, comment_id: CommentId) -> SpecificPullRequestCommentBuilder {
+        SpecificPullRequestCommentBuilder::new(self.handler, self.pr_number, comment_id)
     }
 }

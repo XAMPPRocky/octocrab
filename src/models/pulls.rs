@@ -325,7 +325,7 @@ pub struct ReviewComment {
     pub original_start_line: Option<u64>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Serialize)]
 #[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE"))]
 #[non_exhaustive]
 pub enum Side {
@@ -371,6 +371,41 @@ impl<'de> Deserialize<'de> for ReviewState {
                     "COMMENTED" | "commented" => ReviewState::Commented,
                     "DISMISSED" | "dismissed" => ReviewState::Dismissed,
                     unknown => return Err(E::custom(format!("unknown variant `{unknown}`, expected one of `open`, `approved`, `pending`, `changes_requested`, `commented`, `dismissed`"))),
+                })
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
+    }
+}
+
+//same, see above
+impl<'de> Deserialize<'de> for Side {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct Visitor;
+
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = Side;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a string")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(match value.to_uppercase().as_str() {
+                    "LEFT" => Side::Left,
+                    "RIGHT" => Side::Right,
+                    unknown => {
+                        return Err(E::custom(format!(
+                            "unknown variant `{unknown}`, expected one of `left`, `right`"
+                        )))
+                    }
                 })
             }
         }
