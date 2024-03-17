@@ -74,6 +74,7 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
     ///     .get()
     ///     .await;
     ///     Ok(())
+    /// }
     /// ```
     pub fn reviews(&self) -> ReviewsBuilder<'octo, '_> {
         ReviewsBuilder::new(self.handler, self.pr_number)

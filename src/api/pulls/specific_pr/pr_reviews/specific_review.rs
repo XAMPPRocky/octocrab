@@ -193,7 +193,8 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     /// .review(42)
     /// .list_comments()
     /// .per_page(10)
-    /// .page(3.into())
+    /// .page(3u32)
+    /// .send()
     /// .await?;
     /// # Ok(())
     /// # }
