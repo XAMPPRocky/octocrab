@@ -442,7 +442,7 @@ impl<'octo> UpdateGistBuilder<'octo> {
         }
     }
 
-    /// Update the description of the the gist with the content provided by `description`.
+    /// Update the description of the gist with the content provided by `description`.
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.data.description = Some(description.into());
         self

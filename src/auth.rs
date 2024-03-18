@@ -222,7 +222,7 @@ impl DeviceCodes {
             .await?;
         Ok(match poll {
             TokenResponse::Ok(k) => Either::Left(k),
-            TokenResponse::Contine { error } => Either::Right(error),
+            TokenResponse::Continue { error } => Either::Right(error),
         })
     }
 }
@@ -240,7 +240,7 @@ enum TokenResponse {
     // We got the auth information.
     Ok(OAuth),
     // We got an error that allows us to continue polling.
-    Contine { error: Continue },
+    Continue { error: Continue },
 }
 
 /// Control flow when polling the device flow authorization.

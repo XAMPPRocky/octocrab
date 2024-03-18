@@ -135,7 +135,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
         self
     }
 
-    /// The person that commited the file.
+    /// The person that committed the file.
     pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
@@ -199,7 +199,7 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
         self
     }
 
-    /// The person that commited the file.
+    /// The person that committed the file.
     pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
