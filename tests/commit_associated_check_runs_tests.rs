@@ -95,7 +95,8 @@ async fn should_fail_when_not_found() {
 
     match result.unwrap_err() {
         Error::GitHub { source, .. } => {
-            assert_eq!("Its gone", source.message)
+            assert_eq!(http::StatusCode::NOT_FOUND, source.status_code);
+            assert_eq!("Its gone", source.message);
         }
         other => panic!("Unexpected error: {:?}", other),
     }
