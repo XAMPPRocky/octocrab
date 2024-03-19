@@ -151,6 +151,8 @@ pub struct GitUserTime {
 pub struct CommitAuthor {
     pub name: String,
     pub email: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -377,3 +379,6 @@ pub struct MergeCommit {
     pub html_url: String,
     pub comments_url: String,
 }
+
+/// A HashMap of languages and the number of bytes of code written in that language.
+pub type Languages = std::collections::HashMap<String, i64>;
