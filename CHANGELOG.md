@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0](https://github.com/XAMPPRocky/octocrab/compare/v0.35.0...v0.36.0) - 2024-03-19
+
+### Added
+- WASM Support ([#591](https://github.com/XAMPPRocky/octocrab/pull/591))
+
+### Other
+- fix some comments ([#611](https://github.com/XAMPPRocky/octocrab/pull/611))
+- Add status code to GithubError ([#607](https://github.com/XAMPPRocky/octocrab/pull/607))
+- Add `Pending` variant to `octocrab::models::workflows::Status` ([#604](https://github.com/XAMPPRocky/octocrab/pull/604))
+- Fix personal token auth for pagination ([#602](https://github.com/XAMPPRocky/octocrab/pull/602))
+- Fixed some `.gists()` functions, and wrote tests. ([#606](https://github.com/XAMPPRocky/octocrab/pull/606))
+- Allow directly passing SecretString ([#601](https://github.com/XAMPPRocky/octocrab/pull/601))
+
 ## [0.35.0](https://github.com/XAMPPRocky/octocrab/compare/v0.34.3...v0.35.0) - 2024-03-10
 
 ### Added
