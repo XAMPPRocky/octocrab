@@ -741,9 +741,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        let client = BaseUriLayer::new(uri).layer(client);
+        let client = BaseUriLayer::new(uri.clone()).layer(client);
 
-        let client = AuthHeaderLayer::new(auth_header).layer(client);
+        let client = AuthHeaderLayer::new(auth_header, uri).layer(client);
 
         Ok(Octocrab::new(client, auth_state))
     }
