@@ -17,6 +17,14 @@ jobs:
     - run: cargo build --verbose --all-targets
     - run: cargo test
 
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup default stable
+    - run: rustup target add wasm32-unknown-unknown
+    - run: cargo build --verbose --target=wasm32-unknown-unknown --no-default-features
+
   clippy:
     runs-on: ubuntu-latest
     steps:

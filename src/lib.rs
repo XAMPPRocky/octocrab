@@ -205,8 +205,6 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use http::{header::HeaderName, StatusCode};
-#[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
-use hyper::client::HttpConnector;
 use hyper::{Request, Response};
 
 use once_cell::sync::Lazy;
@@ -265,6 +263,7 @@ pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
 
+#[cfg(feature = "default-client")]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
 
@@ -338,6 +337,7 @@ pub async fn map_github_error(
 /// # Ok(())
 /// # }
 /// ```
+#[cfg(feature = "default-client")]
 pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
     STATIC_INSTANCE.swap(Arc::from(crab))
 }
@@ -350,6 +350,7 @@ pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
 /// let octocrab = octocrab::instance();
 /// }
 /// ```
+#[cfg(feature = "default-client")]
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
@@ -606,10 +607,11 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
+    #[cfg(feature = "default-client")]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, String> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
-            let mut connector = HttpConnector::new();
+            let mut connector = hyper::client::conn::http1::HttpConnector::new();
 
             #[cfg(all(feature = "rustls", not(feature = "opentls")))]
             let connector = {
@@ -933,6 +935,7 @@ impl fmt::Debug for Octocrab {
 /// - `base_uri`: `https://api.github.com`
 /// - `auth`: `None`
 /// - `client`: http client with the `octocrab` user agent.
+#[cfg(feature = "default-client")]
 impl Default for Octocrab {
     fn default() -> Self {
         OctocrabBuilder::default().build().unwrap()
