@@ -93,10 +93,12 @@ impl<'octo, 'r> DeleteProjectBuilder<'octo, 'r> {
         }
     }
 
-    pub async fn send(self) -> crate::Result<crate::models::Project> {
+    pub async fn send(self) -> crate::Result<()> {
         let route = format!("/projects/{project_id}", project_id = self.project_id);
 
-        self.handler.crab.delete(route, None::<&()>).await
+        crate::map_github_error(self.handler.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
     }
 }
 

@@ -115,6 +115,7 @@ pub enum Conclusion {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Status {
+    Pending,
     Queued,
     InProgress,
     Completed,

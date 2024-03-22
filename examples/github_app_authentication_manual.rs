@@ -1,6 +1,7 @@
 use octocrab::models::{InstallationRepositories, InstallationToken};
 use octocrab::params::apps::CreateInstallationAccessToken;
 use octocrab::Octocrab;
+use url::Url;
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
@@ -23,11 +24,13 @@ async fn main() -> octocrab::Result<()> {
     let mut create_access_token = CreateInstallationAccessToken::default();
     create_access_token.repositories = vec!["octocrab".to_string()];
 
+    // By design, tokens are not forwarded to urls that contain an authority. This means we need to
+    // extract the path from the url and use it to make the request.
+    let access_token_url =
+        Url::parse(installations[0].access_tokens_url.as_ref().unwrap()).unwrap();
+
     let access: InstallationToken = octocrab
-        .post(
-            installations[0].access_tokens_url.as_ref().unwrap(),
-            Some(&create_access_token),
-        )
+        .post(access_token_url.path(), Some(&create_access_token))
         .await
         .unwrap();
 

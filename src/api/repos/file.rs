@@ -135,7 +135,7 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
         self
     }
 
-    /// The person that commited the file.
+    /// The person that committed the file.
     pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
@@ -199,7 +199,7 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
         self
     }
 
-    /// The person that commited the file.
+    /// The person that committed the file.
     pub fn commiter(mut self, commiter: impl Into<models::repos::CommitAuthor>) -> Self {
         self.commiter = Some(commiter.into());
         self
@@ -242,10 +242,12 @@ mod tests {
             .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
                 email: "octocat@github.com".to_string(),
+                date: None,
             })
             .author(CommitAuthor {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
+                date: None,
             });
 
         use base64::{engine::general_purpose, Engine as _};
@@ -279,10 +281,12 @@ mod tests {
             .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
                 email: "octocat@github.com".to_string(),
+                date: None,
             })
             .author(CommitAuthor {
                 name: "Ferris".to_string(),
                 email: "ferris@rust-lang.org".to_string(),
+                date: None,
             });
 
         assert_eq!(

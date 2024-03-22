@@ -193,10 +193,16 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     pub async fn delete(&self, gist_id: impl AsRef<str>) -> Result<()> {
         let gist_id = gist_id.as_ref();
-        self.crab
+        let response = self
+            .crab
             ._delete(format!("/gists/{gist_id}"), None::<&()>)
-            .await
-            .map(|_| ())
+            .await?;
+
+        if response.status() != StatusCode::NOT_MODIFIED && !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+
+        Ok(())
     }
 
     /// Get a single gist revision.
@@ -263,7 +269,12 @@ impl<'octo> GistsHandler<'octo> {
         let gist_id = gist_id.as_ref();
         let response = self.crab._get(format!("/gists/{gist_id}/star")).await?;
         // Gist API returns 204 (NO CONTENT) if a gist is starred
-        Ok(response.status() == StatusCode::NO_CONTENT)
+
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
     }
 
     /// Star the given gist. See [GitHub API Documentation][docs] more
@@ -284,10 +295,16 @@ impl<'octo> GistsHandler<'octo> {
         let gist_id = gist_id.as_ref();
         // PUT here returns an empty body, ignore it since it doesn't make
         // sense to deserialize it as JSON.
-        self.crab
+        let response = self
+            .crab
             ._put(format!("/gists/{gist_id}/star"), None::<&()>)
-            .await
-            .map(|_| ())
+            .await?;
+
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+
+        Ok(())
     }
 
     /// Unstar the given gist. See [GitHub API Documentation][docs] more
@@ -308,10 +325,16 @@ impl<'octo> GistsHandler<'octo> {
         let gist_id = gist_id.as_ref();
         // DELETE here returns an empty body, ignore it since it doesn't make
         // sense to deserialize it as JSON.
-        self.crab
+        let response = self
+            .crab
             ._delete(format!("/gists/{gist_id}/star"), None::<&()>)
-            .await
-            .map(|_| ())
+            .await?;
+
+        if response.status() != StatusCode::NOT_MODIFIED && !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+
+        Ok(())
     }
 
     /// Retrieve all the gists that forked the given `gist_id`. See
@@ -419,7 +442,7 @@ impl<'octo> UpdateGistBuilder<'octo> {
         }
     }
 
-    /// Update the description of the the gist with the content provided by `description`.
+    /// Update the description of the gist with the content provided by `description`.
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.data.description = Some(description.into());
         self

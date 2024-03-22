@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0](https://github.com/XAMPPRocky/octocrab/compare/v0.35.0...v0.36.0) - 2024-03-19
+
+### Added
+- WASM Support ([#591](https://github.com/XAMPPRocky/octocrab/pull/591))
+
+### Other
+- fix some comments ([#611](https://github.com/XAMPPRocky/octocrab/pull/611))
+- Add status code to GithubError ([#607](https://github.com/XAMPPRocky/octocrab/pull/607))
+- Add `Pending` variant to `octocrab::models::workflows::Status` ([#604](https://github.com/XAMPPRocky/octocrab/pull/604))
+- Fix personal token auth for pagination ([#602](https://github.com/XAMPPRocky/octocrab/pull/602))
+- Fixed some `.gists()` functions, and wrote tests. ([#606](https://github.com/XAMPPRocky/octocrab/pull/606))
+- Allow directly passing SecretString ([#601](https://github.com/XAMPPRocky/octocrab/pull/601))
+
+## [0.35.0](https://github.com/XAMPPRocky/octocrab/compare/v0.34.3...v0.35.0) - 2024-03-10
+
+### Added
+- add repository list language support ([#595](https://github.com/XAMPPRocky/octocrab/pull/595))
+
+### Other
+- Added test for `actions().create_workflow_dispatch()` ([#603](https://github.com/XAMPPRocky/octocrab/pull/603))
+- added "Create a new Git commit object" ([#600](https://github.com/XAMPPRocky/octocrab/pull/600))
+- Added `check-suites` endpoints ([#596](https://github.com/XAMPPRocky/octocrab/pull/596))
+- Adding org secrets tests ([#599](https://github.com/XAMPPRocky/octocrab/pull/599))
+
+## [0.34.3](https://github.com/XAMPPRocky/octocrab/compare/v0.34.2...v0.34.3) - 2024-03-05
+
+### Other
+- Add delete_ref in RepoHandler ([#573](https://github.com/XAMPPRocky/octocrab/pull/573))
+- Adding tests to `orgs().secrets().create_or_update_secret()` ([#590](https://github.com/XAMPPRocky/octocrab/pull/590))
+
+## [0.34.2](https://github.com/XAMPPRocky/octocrab/compare/v0.34.1...v0.34.2) - 2024-03-04
+
+### Other
+- Update base64 requirement from 0.21.0 to 0.22.0 ([#592](https://github.com/XAMPPRocky/octocrab/pull/592))
+- Add Public and Release events ([#589](https://github.com/XAMPPRocky/octocrab/pull/589))
+- Adding tests for `actions().remove_selected_repo_from_org_secret()` ([#586](https://github.com/XAMPPRocky/octocrab/pull/586))
+- Fixed the `projects().delete_project().send() function ([#587](https://github.com/XAMPPRocky/octocrab/pull/587))
+- Added more tests, for `repos().delete()` ([#585](https://github.com/XAMPPRocky/octocrab/pull/585))
+- Adding test for actions().actions_delete_workflow_run_logs_test() ([#584](https://github.com/XAMPPRocky/octocrab/pull/584))
+- Fixing `snafu` version update ([#580](https://github.com/XAMPPRocky/octocrab/pull/580))
+- Fixing the test that `wiremock@v0.6.0` breaks. ([#579](https://github.com/XAMPPRocky/octocrab/pull/579))
+- Added some more tests ([#578](https://github.com/XAMPPRocky/octocrab/pull/578))
+- Added a test ([#577](https://github.com/XAMPPRocky/octocrab/pull/577))
+
 ## [0.34.1](https://github.com/XAMPPRocky/octocrab/compare/v0.34.0...v0.34.1) - 2024-02-09
 
 ### Other

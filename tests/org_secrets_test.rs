@@ -1,4 +1,4 @@
-// Tests for calls to the /repos/{owner}/actions/secrets API.
+// Tests for calls to the /orgs/{ORG}/actions/secrets API.
 mod mock_error;
 
 use chrono::DateTime;
@@ -18,7 +18,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-const ORG: &str = "org";
+const ORG: &str = "some-org";
 
 async fn setup_get_api(template: ResponseTemplate, secrets_path: &str) -> MockServer {
     let mock_server = MockServer::start().await;
@@ -46,7 +46,23 @@ async fn setup_put_api(template: ResponseTemplate, secrets_path: &str) -> MockSe
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /orgs/{ORG}/actions/secrets{secrets_path} was not received"),
+        &format!("PUT on /orgs/{ORG}/actions/secrets{secrets_path} was not received"),
+    )
+    .await;
+    mock_server
+}
+
+async fn setup_delete_api(template: ResponseTemplate, secrets_path: &str) -> MockServer {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("DELETE"))
+        .and(path(format!("/orgs/{ORG}/actions/secrets{secrets_path}")))
+        .respond_with(template)
+        .mount(&mock_server)
+        .await;
+    setup_error_handler(
+        &mock_server,
+        &format!("DELETE on /orgs/{ORG}/actions/secrets{secrets_path} was not received"),
     )
     .await;
     mock_server
@@ -63,10 +79,11 @@ async fn should_return_org_secrets() {
 
     let template = ResponseTemplate::new(200).set_body_json(&org_secrets);
     let mock_server = setup_get_api(template, "").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let org = client.orgs(ORG.to_owned());
-    let secrets = org.secrets();
-    let result = secrets.get_secrets().await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .get_secrets()
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -75,27 +92,41 @@ async fn should_return_org_secrets() {
     let item = result.unwrap();
 
     assert_eq!(item.total_count, 3);
-    assert_eq!(item.secrets,vec![
+    assert_eq!(
+        item.secrets,
+        vec![
             OrganizationSecret {
                 name: String::from("GIST_ID"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z").unwrap().into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z").unwrap().into(),
                 visibility: Visibility::Private,
                 selected_repositories_url: None,
+                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
+                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
             },
             OrganizationSecret {
                 name: String::from("DEPLOY_TOKEN"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z").unwrap().into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z").unwrap().into(),
                 visibility: Visibility::All,
                 selected_repositories_url: None,
+                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
+                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
             },
             OrganizationSecret {
                 name: String::from("GH_TOKEN"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z").unwrap().into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z").unwrap().into(),
                 visibility: Visibility::Selected,
                 selected_repositories_url: Some(String::from("https://api.github.com/orgs/octo-org/actions/secrets/SUPER_SECRET/repositories")),
+                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
+                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
+                    .unwrap()
+                    .into(),
             },
         ]
     );
@@ -108,10 +139,11 @@ async fn should_return_org_public_key() {
 
     let template = ResponseTemplate::new(200).set_body_json(&org_secrets);
     let mock_server = setup_get_api(template, "/public-key").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let org = client.orgs(ORG.to_owned());
-    let secrets = org.secrets();
-    let result = secrets.get_public_key().await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .get_public_key()
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -133,10 +165,11 @@ async fn should_return_org_secret() {
 
     let template = ResponseTemplate::new(200).set_body_json(&org_secrets);
     let mock_server = setup_get_api(template, "/GH_TOKEN").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let org = client.orgs(ORG.to_owned());
-    let secrets = org.secrets();
-    let result = secrets.get_secret("GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .get_secret("GH_TOKEN")
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -147,16 +180,16 @@ async fn should_return_org_secret() {
         item,
         OrganizationSecret {
             name: String::from("GH_TOKEN"),
+            visibility: Visibility::Selected,
+            selected_repositories_url: Some(String::from(
+                "https://api.github.com/orgs/octo-org/actions/secrets/SUPER_SECRET/repositories"
+            )),
             created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
                 .unwrap()
                 .into(),
             updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
                 .unwrap()
                 .into(),
-            visibility: Visibility::Selected,
-            selected_repositories_url: Some(String::from(
-                "https://api.github.com/orgs/octo-org/actions/secrets/SUPER_SECRET/repositories"
-            )),
         }
     );
 }
@@ -165,17 +198,16 @@ async fn should_return_org_secret() {
 async fn should_add_secret() {
     let template = ResponseTemplate::new(201);
     let mock_server = setup_put_api(template, "/GH_TOKEN").await;
-    let client = setup_octocrab(&mock_server.uri());
-    let org = client.orgs(ORG.to_owned());
-    let secrets = org.secrets();
-    let result = secrets
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
         .create_or_update_secret(
             "GH_TOKEN",
             &CreateOrganizationSecret {
+                visibility: Visibility::All,
+                selected_repository_ids: None,
                 key_id: "123456",
                 encrypted_value: "some-b64-string",
-                visibility: Visibility::Selected,
-                selected_repository_ids: None,
             },
         )
         .await;
@@ -186,4 +218,64 @@ async fn should_add_secret() {
     );
     let item = result.unwrap();
     assert_eq!(item, CreateOrganizationSecretResponse::Created);
+}
+
+#[tokio::test]
+async fn should_update_secret_204() {
+    let template = ResponseTemplate::new(204);
+    let mock_server = setup_put_api(template, "/GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .create_or_update_secret(
+            "GH_TOKEN",
+            &CreateOrganizationSecret {
+                visibility: Visibility::All,
+                selected_repository_ids: None,
+                key_id: "123456",
+                encrypted_value: "some-b64-string",
+            },
+        )
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let item = result.unwrap();
+    assert_eq!(item, CreateOrganizationSecretResponse::Updated);
+}
+
+#[tokio::test]
+async fn should_delete_secret() {
+    let template = ResponseTemplate::new(204);
+    let mock_server = setup_delete_api(template, "/GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .delete_secret("GH_TOKEN")
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn should_noop_secret_500() {
+    let template = ResponseTemplate::new(500);
+    let mock_server = setup_delete_api(template, "/GH_TOKEN").await;
+    let result = setup_octocrab(&mock_server.uri())
+        .orgs(ORG.to_owned())
+        .secrets()
+        .delete_secret("GH_TOKEN")
+        .await;
+
+    assert!(
+        result.is_err(),
+        "expected error result, got success somehow: {:#?}",
+        result
+    );
 }

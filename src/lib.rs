@@ -205,13 +205,11 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use http::{header::HeaderName, StatusCode};
-#[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
-use hyper::client::HttpConnector;
 use hyper::{Request, Response};
 
 use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use snafu::*;
 use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
 
@@ -265,6 +263,7 @@ pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
 
+#[cfg(feature = "default-client")]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
 
@@ -294,6 +293,13 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
     format!("application/vnd.github.v3.{media_type}{json_suffix}")
 }
 
+#[derive(Debug, Deserialize)]
+struct GitHubErrorBody {
+    pub documentation_url: Option<String>,
+    pub errors: Option<Vec<serde_json::Value>>,
+    pub message: String,
+}
+
 /// Maps a GitHub error response into and `Err()` variant if the status is
 /// not a success.
 pub async fn map_github_error(
@@ -302,12 +308,21 @@ pub async fn map_github_error(
     if response.status().is_success() {
         Ok(response)
     } else {
-        let b: error::GitHubError =
-            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
-                .context(error::SerdeSnafu)?;
+        let (parts, body) = response.into_parts();
+        let GitHubErrorBody {
+            documentation_url,
+            errors,
+            message,
+        } = serde_json::from_slice(body.collect().await?.to_bytes().as_ref())
+            .context(error::SerdeSnafu)?;
 
         Err(error::Error::GitHub {
-            source: b,
+            source: GitHubError {
+                status_code: parts.status,
+                documentation_url,
+                errors,
+                message,
+            },
             backtrace: Backtrace::generate(),
         })
     }
@@ -322,6 +337,7 @@ pub async fn map_github_error(
 /// # Ok(())
 /// # }
 /// ```
+#[cfg(feature = "default-client")]
 pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
     STATIC_INSTANCE.swap(Arc::from(crab))
 }
@@ -334,6 +350,7 @@ pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
 /// let octocrab = octocrab::instance();
 /// }
 /// ```
+#[cfg(feature = "default-client")]
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
@@ -521,8 +538,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Add a personal token to use for authentication.
-    pub fn personal_token(mut self, token: String) -> Self {
-        self.config.auth = Auth::PersonalToken(SecretString::new(token));
+    pub fn personal_token<S: Into<SecretString>>(mut self, token: S) -> Self {
+        self.config.auth = Auth::PersonalToken(token.into());
         self
     }
 
@@ -547,8 +564,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Authenticate with a user access token.
-    pub fn user_access_token(mut self, token: String) -> Self {
-        self.config.auth = Auth::UserAccessToken(SecretString::new(token));
+    pub fn user_access_token<S: Into<SecretString>>(mut self, token: S) -> Self {
+        self.config.auth = Auth::UserAccessToken(token.into());
         self
     }
 
@@ -590,10 +607,11 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
+    #[cfg(feature = "default-client")]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, String> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
-            let mut connector = HttpConnector::new();
+            let mut connector = hyper::client::conn::http1::HttpConnector::new();
 
             #[cfg(all(feature = "rustls", not(feature = "opentls")))]
             let connector = {
@@ -741,9 +759,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        let client = BaseUriLayer::new(uri).layer(client);
+        let client = BaseUriLayer::new(uri.clone()).layer(client);
 
-        let client = AuthHeaderLayer::new(auth_header).layer(client);
+        let client = AuthHeaderLayer::new(auth_header, uri).layer(client);
 
         Ok(Octocrab::new(client, auth_state))
     }
@@ -834,9 +852,8 @@ impl CachedToken {
         self.valid_token_with_buffer(chrono::Duration::seconds(30))
     }
 
-    fn set(&self, token: String, expiration: Option<DateTime<Utc>>) {
-        *self.0.write().unwrap() =
-            Some(CachedTokenInner::new(SecretString::new(token), expiration));
+    fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<DateTime<Utc>>) {
+        *self.0.write().unwrap() = Some(CachedTokenInner::new(token.into(), expiration));
     }
 }
 
@@ -918,6 +935,7 @@ impl fmt::Debug for Octocrab {
 /// - `base_uri`: `https://api.github.com`
 /// - `auth`: `None`
 /// - `client`: http client with the `octocrab` user agent.
+#[cfg(feature = "default-client")]
 impl Default for Octocrab {
     fn default() -> Self {
         OctocrabBuilder::default().build().unwrap()
