@@ -956,5 +956,5 @@ pub struct Rate {
     pub limit: usize,
     pub used: usize,
     pub remaining: usize,
-    pub reset: usize,
+    pub reset: u64,
 }
