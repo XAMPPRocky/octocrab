@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.0](https://github.com/XAMPPRocky/octocrab/compare/v0.36.0...v0.37.0) - 2024-03-27
+
+### Fixed
+- [**breaking**] Change `Rate::reset` to `u64` ([#615](https://github.com/XAMPPRocky/octocrab/pull/615))
+
+### Other
+- Update graphql_client requirement from 0.13.0 to 0.14.0 ([#617](https://github.com/XAMPPRocky/octocrab/pull/617))
+- Added basic support for getting user profiles ([#616](https://github.com/XAMPPRocky/octocrab/pull/616))
+- Update manual github app authentication example ([#610](https://github.com/XAMPPRocky/octocrab/pull/610))
+
 ## [0.36.0](https://github.com/XAMPPRocky/octocrab/compare/v0.35.0...v0.36.0) - 2024-03-19
 
 ### Added
