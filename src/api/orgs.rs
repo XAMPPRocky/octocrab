@@ -7,7 +7,7 @@ mod secrets;
 
 use crate::error::HttpSnafu;
 use crate::Octocrab;
-use http::Uri;
+use http::{StatusCode, Uri};
 use snafu::ResultExt;
 
 pub use self::events::ListOrgEventsBuilder;
@@ -87,9 +87,12 @@ impl<'octo> OrgHandler<'octo> {
             .context(HttpSnafu)?;
 
         let response = self.crab._get(uri).await?;
-        let status = response.status();
 
-        Ok(status == 204 || status == 301)
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
     }
 
     /// Get an organization
