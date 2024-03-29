@@ -158,6 +158,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     ///     .repos("owner", "repo")
     ///     .releases()
     ///     .generate_release_notes()
+    ///     .send()
     ///     .await?;
     /// # Ok(())
     /// # }
