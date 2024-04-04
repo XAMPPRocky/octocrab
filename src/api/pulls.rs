@@ -334,7 +334,10 @@ impl<'octo> PullRequestHandler<'octo> {
     /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
     /// # Ok(())
     /// # }
-    pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::repos::DiffEntry>> {
+    pub async fn list_files(
+        &self,
+        pr: u64,
+    ) -> crate::Result<Page<crate::models::repos::DiffEntry>> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,
