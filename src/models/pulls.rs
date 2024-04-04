@@ -383,34 +383,11 @@ pub enum MergeableState {
     Unstable,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct FileDiff {
-    pub sha: String,
-    pub filename: String,
-    pub status: FileDiffStatus,
-    pub additions: u64,
-    pub deletions: u64,
-    pub changes: u64,
-    pub blob_url: Url,
-    pub raw_url: Url,
-    pub contents_url: Url,
-    pub patch: Option<String>,
-    pub previous_filename: Option<String>,
-}
+#[deprecated(note = "use repos::DiffEntry instead")]
+pub type FileDiff = repos::DiffEntry;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum FileDiffStatus {
-    Added,
-    Removed,
-    Modified,
-    Renamed,
-    Copied,
-    Changed,
-    Unchanged,
-}
+#[deprecated(note = "use repos::DiffEntryStatus instead")]
+pub type FileDiffStatus = repos::DiffEntryStatus;
 
 #[cfg(test)]
 mod test {

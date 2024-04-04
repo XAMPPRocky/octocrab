@@ -47,7 +47,7 @@ pub struct CommitComparison {
     pub behind_by: i64,
     pub commits: Vec<Commit>,
     pub diff_url: String,
-    pub files: Option<Vec<CommitFile>>,
+    pub files: Option<Vec<repos::DiffEntry>>,
     pub html_url: String,
     /// Commit
     pub merge_base_commit: Commit,
@@ -91,37 +91,12 @@ pub struct Verification {
     pub verified: bool,
 }
 
-/// Diff Entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum FileStatus {
-    Added,
-    Changed,
-    Copied,
-    Modified,
-    Removed,
-    Renamed,
-    Unchanged,
-}
+#[deprecated(note = "use repos::DiffEntryStatus instead")]
+pub type FileStatus = repos::DiffEntryStatus;
 
 /// Commit
-/// Diff Entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CommitFile {
-    pub additions: i64,
-    // unlike the schema online, this can be null
-    pub blob_url: Option<String>,
-    pub changes: i64,
-    pub contents_url: String,
-    pub deletions: i64,
-    pub filename: String,
-    pub patch: Option<String>,
-    pub previous_filename: Option<String>,
-    // unlike the schema online, this can be null
-    pub raw_url: Option<String>,
-    pub sha: String,
-    pub status: FileStatus,
-}
+#[deprecated(note = "use repos::DiffEntry instead")]
+pub type CommitFile = repos::DiffEntry;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommitParent {
@@ -144,7 +119,7 @@ pub struct Commit {
     pub comments_url: String,
     pub commit: CommitElement,
     pub committer: Option<Author>,
-    pub files: Option<Vec<CommitFile>>,
+    pub files: Option<Vec<repos::DiffEntry>>,
     pub html_url: String,
     pub node_id: String,
     pub parents: Vec<CommitParent>,
