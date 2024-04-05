@@ -6,7 +6,7 @@ use crate::pulls::PullRequestHandler;
 use crate::Page;
 
 mod pr_comment;
-mod pr_reviews;
+pub(crate) mod pr_reviews;
 /// A builder pattern struct for working with a specific pull request data,
 /// e.g. reviews, commits, comments, etc.
 ///

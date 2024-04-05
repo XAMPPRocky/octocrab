@@ -1,7 +1,7 @@
 use crate::pulls::specific_pr::pr_reviews::specific_review::SpecificReviewBuilder;
 use crate::pulls::PullRequestHandler;
 
-mod specific_review;
+pub mod specific_review;
 
 #[derive(serde::Serialize)]
 pub struct ReviewsBuilder<'octo, 'b> {
