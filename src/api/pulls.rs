@@ -328,13 +328,16 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.delete(route, Some(&map)).await
     }
 
-    /// List all `FileDiff`s associated with the pull request.
+    /// List all `DiffEntry`s associated with the pull request.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
     /// # Ok(())
     /// # }
-    pub async fn list_files(&self, pr: u64) -> crate::Result<Page<crate::models::pulls::FileDiff>> {
+    pub async fn list_files(
+        &self,
+        pr: u64,
+    ) -> crate::Result<Page<crate::models::repos::DiffEntry>> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/files",
             owner = self.owner,

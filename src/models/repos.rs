@@ -81,8 +81,11 @@ pub struct DiffEntry {
     pub additions: u64,
     pub deletions: u64,
     pub changes: u64,
-    pub blob_url: Url,
-    pub raw_url: Url,
+    // unlike the schema online, this can be null
+    pub blob_url: Option<String>,
+    // unlike the schema online, this can be null
+    pub raw_url: Option<String>,
+    // never null
     pub contents_url: Url,
 
     #[serde(skip_serializing_if = "Option::is_none")]
