@@ -157,7 +157,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// let release_notes = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .releases()
-    ///     .generate_release_notes()
+    ///     .generate_release_notes("0.1.0")
     ///     .send()
     ///     .await?;
     /// # Ok(())
