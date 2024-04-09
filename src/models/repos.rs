@@ -318,6 +318,13 @@ pub struct Release {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+pub struct ReleaseNotes {
+    pub name: String,
+    pub body: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct Asset {
     pub url: Url,
     pub browser_download_url: Url,

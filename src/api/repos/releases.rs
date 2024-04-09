@@ -150,6 +150,26 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.parent.crab.get(route, None::<&()>).await
     }
 
+    /// Generates [`crate::models::repos::ReleaseNotes`] which describe
+    /// a [`crate::models::repos::Release`]
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release_notes = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .generate_release_notes("0.1.0")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn generate_release_notes<'tag_name>(
+        &self,
+        tag_name: &'tag_name (impl AsRef<str> + ?Sized),
+    ) -> GenerateReleaseNotesBuilder<'_, '_, '_, 'tag_name, '_, '_, '_> {
+        GenerateReleaseNotesBuilder::new(self, tag_name.as_ref())
+    }
+
     /// Streams the binary contents of an asset.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -452,5 +472,105 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
             release_id = self.release_id,
         );
         self.handler.parent.crab.patch(route, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for updating releases.
+///
+/// created by [`ReleasesHandler::generate_release_notes`].
+#[derive(serde::Serialize)]
+pub struct GenerateReleaseNotesBuilder<
+    'octo,
+    'repos,
+    'handler,
+    'tag_name,
+    'previous_tag_name,
+    'target_commitish,
+    'configuration_file_path,
+> {
+    #[serde(skip)]
+    handler: &'handler ReleasesHandler<'octo, 'repos>,
+    tag_name: &'tag_name str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    previous_tag_name: Option<&'previous_tag_name str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    target_commitish: Option<&'target_commitish str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    configuration_file_path: Option<&'configuration_file_path str>,
+}
+
+impl<
+        'octo,
+        'repos,
+        'handler,
+        'tag_name,
+        'previous_tag_name,
+        'target_commitish,
+        'configuration_file_path,
+    >
+    GenerateReleaseNotesBuilder<
+        'octo,
+        'repos,
+        'handler,
+        'tag_name,
+        'previous_tag_name,
+        'target_commitish,
+        'configuration_file_path,
+    >
+{
+    pub(crate) fn new(
+        handler: &'handler ReleasesHandler<'octo, 'repos>,
+        tag_name: &'tag_name str,
+    ) -> Self {
+        Self {
+            handler,
+            tag_name,
+            previous_tag_name: None,
+            target_commitish: None,
+            configuration_file_path: None,
+        }
+    }
+
+    /// The tag which is used as a starting point for the release notes.
+    pub fn previous_tag_name(
+        mut self,
+        previous_tag_name: &'previous_tag_name (impl AsRef<str> + ?Sized),
+    ) -> Self {
+        self.previous_tag_name = Some(previous_tag_name.as_ref());
+        self
+    }
+
+    /// Specifies the commitish value that determines where the Git tag is
+    /// created from. Can be any branch or commit SHA.
+    /// Unused if the Git [`GenerateReleaseNotesBuilder::tag_name`] exists.
+    pub fn target_commitish(
+        mut self,
+        target_commitish: &'target_commitish (impl AsRef<str> + ?Sized),
+    ) -> Self {
+        self.target_commitish = Some(target_commitish.as_ref());
+        self
+    }
+
+    /// A file path within the repository which contains the configuration settings
+    /// for generating release notes.
+    pub fn configuration_file_path(
+        mut self,
+        configuration_file_path: &'configuration_file_path (impl AsRef<str> + ?Sized),
+    ) -> Self {
+        self.configuration_file_path = Some(configuration_file_path.as_ref());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<crate::models::repos::ReleaseNotes> {
+        let route = format!(
+            "/repos/{owner}/{repo}/releases/generate-notes",
+            owner = self.handler.parent.owner,
+            repo = self.handler.parent.repo,
+        );
+
+        let result: Result<crate::models::repos::ReleaseNotes> =
+            self.handler.parent.crab.post(route, Some(&self)).await;
+        return result;
     }
 }
