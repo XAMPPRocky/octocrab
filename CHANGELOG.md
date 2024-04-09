@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0](https://github.com/XAMPPRocky/octocrab/compare/v0.37.0...v0.38.0) - 2024-04-09
+
+### Added
+- Add `generate_release_notes`: ([#588](https://github.com/XAMPPRocky/octocrab/pull/588))
+
+### Other
+- Unify diff entry models ([#624](https://github.com/XAMPPRocky/octocrab/pull/624))
+- Added tests for .delete_thread_subscriptions() ([#620](https://github.com/XAMPPRocky/octocrab/pull/620))
+- Adding tests, and fixing missing error code. ([#619](https://github.com/XAMPPRocky/octocrab/pull/619))
+
 ## [0.37.0](https://github.com/XAMPPRocky/octocrab/compare/v0.36.0...v0.37.0) - 2024-03-27
 
 ### Fixed
