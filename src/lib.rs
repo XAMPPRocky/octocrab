@@ -187,7 +187,8 @@ mod page;
 
 pub mod auth;
 pub mod etag;
-pub mod models;
+pub use octocrab_models as models;
+
 pub mod params;
 pub mod service;
 

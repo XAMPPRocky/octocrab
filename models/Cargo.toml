@@ -1,0 +1,31 @@
+[package]
+name = "octocrab-models"
+version = "0.38.0"
+resolver = "2"
+authors = ["XAMPPRocky <xampprocky@gmail.com>"]
+edition = "2018"
+readme = "README.md"
+homepage = "https://github.com/XAMPPRocky/octocrab"
+repository = "https://github.com/XAMPPRocky/octocrab.git"
+description = "A modern, extensible GitHub API client."
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/octocrab"
+categories = ["web-programming::http-client"]
+keywords = ["github", "github-api"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+
+[dependencies]
+chrono = { version = "0.4.19", default-features = false, features = [
+    "serde",
+    "clock",
+] }
+serde = { version = "1.0.126", features = ["derive"] }
+url = { version = "2.2.2", features = ["serde"] }
+serde_json = "1.0.64"
+serde_path_to_error = "0.1.4"
+serde_urlencoded = "0.7.1"
+base64 = "0.22.0"

@@ -41,7 +41,46 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
             repo = self.handler.repo,
             path = path,
         );
-        self.handler.crab.get(route, Some(&self)).await
+
+        // To avoid cascading the FromResponse implementation into the Models crate, we just do a
+        // wrapper type here and implement FromResponse for it.
+        struct ContentItems {
+            model: models::repos::ContentItems,
+        }
+
+        use crate::error::SerdeSnafu;
+        use http_body::Body;
+        use http_body_util::BodyExt;
+        use hyper::Response;
+
+        #[async_trait::async_trait]
+        impl crate::FromResponse for ContentItems {
+            async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
+            where
+                B: Body<Data = Bytes, Error = crate::Error> + Send,
+            {
+                let json: serde_json::Value = serde_json::from_slice(
+                    response.into_body().collect().await?.to_bytes().as_ref(),
+                )
+                .context(SerdeSnafu)?;
+
+                let model = if json.is_array() {
+                    models::repos::ContentItems {
+                        items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
+                    }
+                } else {
+                    let items =
+                        vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
+
+                    models::repos::ContentItems { items }
+                };
+
+                Ok(Self { model })
+            }
+        }
+
+        let items: ContentItems = self.handler.crab.get(route, Some(&self)).await?;
+        Ok(items.model)
     }
 }
 
