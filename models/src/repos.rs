@@ -1,10 +1,4 @@
 use super::*;
-use crate::error::SerdeSnafu;
-use bytes::Bytes;
-use http_body::Body;
-use http_body_util::BodyExt;
-use hyper::Response;
-use snafu::ResultExt;
 use url::Url;
 
 pub mod secrets;
@@ -231,28 +225,6 @@ impl Content {
             let c = base64::prelude::BASE64_STANDARD.decode(content).unwrap();
             String::from_utf8_lossy(&c).into_owned()
         })
-    }
-}
-
-#[async_trait::async_trait]
-impl crate::FromResponse for ContentItems {
-    async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
-    where
-        B: Body<Data = Bytes, Error = crate::Error> + Send,
-    {
-        let json: serde_json::Value =
-            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
-                .context(SerdeSnafu)?;
-
-        if json.is_array() {
-            Ok(ContentItems {
-                items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
-            })
-        } else {
-            let items = vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
-
-            Ok(ContentItems { items })
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 //! Serde mappings from GitHub's JSON to structs.
 
+pub use crate as models;
 use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
