@@ -36,8 +36,8 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
     /// Filter collaborators by the permissions they have on the repository.
     /// If not specified, all collaborators will be returned.
     /// Can be one of: pull, triage, push, maintain, admin
-    pub fn permission(mut self, page: impl ToString) -> Self {
-        self.page = Some(page.to_string());
+    pub fn permission(mut self, permission: impl ToString) -> Self {
+        self.permission = Some(permission.to_string());
         self
     }
 
