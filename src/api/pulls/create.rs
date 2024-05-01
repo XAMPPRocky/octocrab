@@ -13,6 +13,8 @@ pub struct CreatePullRequestBuilder<'octo, 'b> {
     draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     maintainer_can_modify: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    head_repo: Option<String>,
 }
 
 impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
@@ -30,6 +32,7 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
             body: None,
             draft: None,
             maintainer_can_modify: None,
+            head_repo: None,
         }
     }
 
@@ -51,6 +54,11 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
         self
     }
 
+    pub fn head_repo(mut self, head_repo: impl Into<Option<String>>) -> Self {
+        self.head_repo = head_repo.into();
+        self
+    }
+
     /// Sends the request to create the pull request.
     pub async fn send(self) -> crate::Result<crate::models::pulls::PullRequest> {
         let route = format!(
@@ -65,7 +73,6 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
 
 #[cfg(test)]
 mod tests {
-
     #[tokio::test]
     async fn serialize() {
         let octocrab = crate::Octocrab::default();
@@ -74,6 +81,7 @@ mod tests {
             .create("test-pr", "master", "branch")
             .body(String::from("testing..."))
             .draft(true)
+            .head_repo(String::from("foobar"))
             .maintainer_can_modify(true);
 
         assert_eq!(
@@ -85,6 +93,7 @@ mod tests {
                 "body": "testing...",
                 "draft": true,
                 "maintainer_can_modify": true,
+                "head_repo": "foobar",
             })
         )
     }
