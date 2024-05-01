@@ -8,6 +8,8 @@ pub struct ListCollaboratorsBuilder<'octo, 'r> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    permission: Option<String>,
 }
 
 impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
@@ -28,6 +30,14 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Filter collaborators by the permissions they have on the repository.
+    /// If not specified, all collaborators will be returned.
+    /// Can be one of: pull, triage, push, maintain, admin
+    pub fn permission(mut self, page: impl ToString) -> Self {
+        self.page = Some(page.to_string());
         self
     }
 
