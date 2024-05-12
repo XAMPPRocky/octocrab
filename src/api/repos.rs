@@ -604,7 +604,6 @@ impl<'octo> RepoHandler<'octo> {
         hook: crate::models::hooks::Hook,
     ) -> crate::Result<crate::models::hooks::Hook> {
         let route = format!("/repos/{org}/{repo}/hooks", org = self.owner, repo = self.repo);
-        println!("{:?}", route);
         let res = self.crab.post(route, Some(&hook)).await?;
 
         Ok(res)
