@@ -571,6 +571,6 @@ impl<
 
         let result: Result<crate::models::repos::ReleaseNotes> =
             self.handler.parent.crab.post(route, Some(&self)).await;
-        return result;
+        result
     }
 }
