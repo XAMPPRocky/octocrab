@@ -498,8 +498,9 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
 }
 
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
+    /// Set the retry configuration
     #[cfg(feature = "retry")]
-    pub fn add_retry_config(&mut self, retry_config: RetryConfig) -> &mut Self {
+    pub fn add_retry_config(mut self, retry_config: RetryConfig) -> Self {
         self.config.retry_config = retry_config;
         self
     }
