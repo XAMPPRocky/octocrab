@@ -189,6 +189,8 @@ pub enum Event {
     AutomaticBaseChangeFailed,
     /// GitHub successfully attempted to automatically change the base branch of the pull request.
     AutomaticBaseChangeSucceeded,
+    /// Auto Squash Enable
+    AutoSquashEnabled,
     /// The base reference branch of the pull request changed.
     BaseRefChanged,
     /// Not documented in the Github issue events documentation.
