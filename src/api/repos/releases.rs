@@ -403,6 +403,8 @@ pub struct UpdateReleaseBuilder<'octo, 'repos, 'handler, 'tag_name, 'target_comm
     draft: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     prerelease: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    make_latest: Option<MakeLatest>,
 }
 
 impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
@@ -418,6 +420,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
             body: None,
             draft: None,
             prerelease: None,
+            make_latest: None,
         }
     }
 
@@ -460,6 +463,14 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
     /// Whether to set the release as a "prerelease" or not.
     pub fn prerelease(mut self, prerelease: impl Into<bool>) -> Self {
         self.prerelease = Some(prerelease.into());
+        self
+    }
+
+    /// Specifies whether this release should be set as the latest release for the repository.
+    /// Drafts and prereleases cannot be set as latest.
+    /// [`MakeLatest::Legacy`] specifies that the latest release should be determined based on the release creation date and higher semantic version.
+    pub fn make_latest(mut self, make_latest: MakeLatest) -> Self {
+        self.make_latest = Some(make_latest);
         self
     }
 
