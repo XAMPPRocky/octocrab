@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.1](https://github.com/XAMPPRocky/octocrab/compare/v0.38.0...v0.38.1) - 2024-06-12
+
+### Added
+- add method to create repo webhook ([#640](https://github.com/XAMPPRocky/octocrab/pull/640))
+
+### Other
+- Update issues.rs ([#634](https://github.com/XAMPPRocky/octocrab/pull/634))
+- Add head repo to create pr ([#636](https://github.com/XAMPPRocky/octocrab/pull/636))
+- Added support for make_latest in UpdateReleaseBuilder ([#646](https://github.com/XAMPPRocky/octocrab/pull/646))
+- Changing the user name from required to optional parameter ([#650](https://github.com/XAMPPRocky/octocrab/pull/650))
+- Update models.rs ([#651](https://github.com/XAMPPRocky/octocrab/pull/651))
+
 ## [0.38.0](https://github.com/XAMPPRocky/octocrab/compare/v0.37.0...v0.38.0) - 2024-04-09
 
 ### Added
