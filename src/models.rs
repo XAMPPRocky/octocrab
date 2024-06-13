@@ -189,6 +189,8 @@ pub enum Event {
     AutomaticBaseChangeFailed,
     /// GitHub successfully attempted to automatically change the base branch of the pull request.
     AutomaticBaseChangeSucceeded,
+    /// Auto Squash Enable
+    AutoSquashEnabled,
     /// The base reference branch of the pull request changed.
     BaseRefChanged,
     /// Not documented in the Github issue events documentation.
@@ -456,7 +458,7 @@ pub struct UserProfile {
     pub received_events_url: Url,
     pub r#type: String,
     pub site_admin: bool,
-    pub name: String,
+    pub name: Option<String>,
     pub company: Option<String>,
     #[serde(deserialize_with = "empty_string_is_none")]
     pub blog: Option<String>,

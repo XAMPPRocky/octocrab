@@ -571,6 +571,48 @@ impl<'octo> RepoHandler<'octo> {
         events::ListRepoEventsBuilder::new(self)
     }
 
+    /// Creates a new webhook for the specified repository.
+    ///
+    /// # Notes
+    /// Only authorized users or apps can modify repository webhooks.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models::hooks::{Hook, Config as HookConfig, ContentType as HookContentType};
+    ///
+    /// let config = HookConfig {
+    ///   url: "https://example.com".to_string(),
+    ///   content_type: Some(HookContentType::Json),
+    ///   insecure_ssl: None,
+    ///   secret: None
+    /// };
+    ///
+    /// let hook = Hook {
+    ///   name: "web".to_string(),
+    ///   config,
+    ///   ..Hook::default()
+    /// };
+    ///
+    /// let hook = octocrab.repos("owner", "repo").create_hook(hook).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_hook(
+        &self,
+        hook: crate::models::hooks::Hook,
+    ) -> crate::Result<crate::models::hooks::Hook> {
+        let route = format!(
+            "/repos/{org}/{repo}/hooks",
+            org = self.owner,
+            repo = self.repo
+        );
+        let res = self.crab.post(route, Some(&hook)).await?;
+
+        Ok(res)
+    }
+
     /// Gets the combined status for the specified reference.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
