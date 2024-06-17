@@ -8,6 +8,8 @@ use chrono::{DateTime, Utc};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use url::Url;
 
+pub use apps::App;
+
 pub mod actions;
 pub mod activity;
 pub mod apps;
@@ -27,8 +29,6 @@ pub mod webhook_events;
 pub mod workflows;
 
 mod date_serde;
-
-pub use apps::App;
 
 type BaseIdType = u64;
 
@@ -476,6 +476,35 @@ pub struct UserProfile {
     pub following: u64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+/// The simple profile for a GitHub user
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SimpleUser {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    pub login: String,
+    pub id: UserId,
+    pub node_id: String,
+    pub avatar_url: Url,
+    pub gravatar_id: String,
+    pub url: Url,
+    pub html_url: Url,
+    pub followers_url: Url,
+    pub following_url: Url,
+    pub gists_url: Url,
+    pub starred_url: Url,
+    pub subscriptions_url: Url,
+    pub organizations_url: Url,
+    pub repos_url: Url,
+    pub events_url: Url,
+    pub received_events_url: Url,
+    pub r#type: String,
+    pub site_admin: bool,
+    pub starred_at: Option<DateTime<Utc>>,
 }
 
 /// A user that is following another user
