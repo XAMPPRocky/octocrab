@@ -1,3 +1,7 @@
+use serde_json::json;
+
+use crate::models::pulls::Comment;
+
 use super::*;
 
 /// A builder pattern struct for listing comments.
@@ -81,6 +85,76 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
             },
         );
         self.handler.http_get(route, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for working with specific comment.
+///
+/// created by [`PullRequestHandler::comment`]
+///
+/// [`PullRequestHandler::comment`]: ./struct.PullRequestHandler.html#method.comment
+#[derive(serde::Serialize)]
+pub struct CommentBuilder<'octo, 'b> {
+    #[serde(skip)]
+    handler: &'b PullRequestHandler<'octo>,
+    comment_id: CommentId,
+}
+
+impl<'octo, 'b> CommentBuilder<'octo, 'b> {
+    pub(crate) fn new(handler: &'b PullRequestHandler<'octo>, comment_id: CommentId) -> Self {
+        Self {
+            handler,
+            comment_id,
+        }
+    }
+
+    ///https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#get-a-review-comment-for-a-pull-request
+    pub async fn get(self) -> crate::Result<Comment> {
+        self.handler
+            .crab
+            .get(
+                format!(
+                    "/repos/{owner}/{repo}/pulls/comments/{comment_id}",
+                    owner = self.handler.owner,
+                    repo = self.handler.repo,
+                    comment_id = self.comment_id
+                ),
+                None::<&Comment>,
+            )
+            .await
+    }
+
+    ///https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#update-a-review-comment-for-a-pull-request
+    pub async fn update(self, comment: &str) -> crate::Result<Comment> {
+        self.handler
+            .crab
+            .patch(
+                format!(
+                    "/repos/{owner}/{repo}/pulls/comments/{comment_id}",
+                    owner = self.handler.owner,
+                    repo = self.handler.repo,
+                    comment_id = self.comment_id
+                ),
+                Some(&json!({ "body": comment })),
+            )
+            .await
+    }
+
+    ///https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#delete-a-review-comment-for-a-pull-request
+    pub async fn delete(self) -> crate::Result<()> {
+        self.handler
+            .crab
+            ._delete(
+                format!(
+                    "/repos/{owner}/{repo}/pulls/comments/{comment_id}",
+                    owner = self.handler.owner,
+                    repo = self.handler.repo,
+                    comment_id = self.comment_id
+                ),
+                None::<&()>,
+            )
+            .await?;
+        Ok(())
     }
 }
 
