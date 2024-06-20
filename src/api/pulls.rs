@@ -272,6 +272,23 @@ impl<'octo> PullRequestHandler<'octo> {
         ListReviewsBuilder::new(self, pr_number)
     }
 
+    /// Lists all of the `Commit`s associated with the pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let commits = octocrab::instance()
+    ///     .pulls("owner", "repo")
+    ///     .list_commits(21u64)
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_commits(&self, pr_number: u64) -> ListCommitsBuilder<'_, '_> {
+        ListCommitsBuilder::new(self, pr_number)
+    }
+
     /// Request a review from users or teams.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -424,6 +441,53 @@ impl<'octo, 'r> ListReviewsBuilder<'octo, 'r> {
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::pulls::Review>> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/reviews",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pr = self.pr_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListCommitsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r PullRequestHandler<'octo>,
+    #[serde(skip)]
+    pr_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListCommitsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r PullRequestHandler<'octo>, pr_number: u64) -> Self {
+        Self {
+            handler,
+            pr_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> crate::Result<crate::Page<crate::models::commits::Commit>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/commits",
             owner = self.handler.owner,
             repo = self.handler.repo,
             pr = self.pr_number,

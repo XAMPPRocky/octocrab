@@ -87,7 +87,7 @@ mod test {
             event.payload.as_ref().unwrap().specific
         {
             assert_eq!(payload.action, MemberEventAction::Added);
-            assert_eq!(payload.member.id.0, 58522265);
+            assert_eq!(payload.member.id.unwrap().0, 58522265);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }

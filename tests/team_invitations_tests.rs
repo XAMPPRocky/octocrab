@@ -61,7 +61,7 @@ async fn should_return_page_with_invitations() {
     {
         assert_eq!(items.len(), 1);
         assert_eq!(items[0].login.clone().unwrap(), String::from("monalisa"));
-        assert_eq!(items[0].inviter.r#type, String::from("User"));
+        assert_eq!(items[0].inviter.r#type, Some(String::from("User")));
         assert_eq!(items[0].role, String::from("direct_member"));
     }
 }

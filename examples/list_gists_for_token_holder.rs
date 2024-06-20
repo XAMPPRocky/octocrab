@@ -21,7 +21,7 @@ async fn main() -> octocrab::Result<()> {
 
     println!(
         "User '{username}' has {count} gists:",
-        username = current_user_name,
+        username = current_user_name.unwrap(),
         count = gists.len()
     );
     println!("id | url | [files...] | description");
