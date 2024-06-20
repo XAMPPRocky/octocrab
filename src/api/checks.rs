@@ -18,6 +18,33 @@ pub struct ChecksHandler<'octo> {
 }
 
 #[derive(serde::Serialize)]
+pub struct GetCheckRunBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r ChecksHandler<'octo>,
+    check_run_id: CheckRunId,
+}
+
+impl<'octo, 'r> GetCheckRunBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r ChecksHandler<'octo>, check_run_id: CheckRunId) -> Self {
+        Self {
+            handler,
+            check_run_id,
+        }
+    }
+
+    pub async fn send(self) -> Result<models::checks::CheckRun> {
+        let route = format!(
+            "/repos/{owner}/{repo}/check-runs/{check_run_id}",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            check_run_id = self.check_run_id
+        );
+
+        self.handler.crab.get(route, None::<&()>).await
+    }
+}
+
+#[derive(serde::Serialize)]
 pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r ChecksHandler<'octo>,
@@ -99,6 +126,7 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
             owner = self.handler.owner,
             repo = self.handler.repo
         );
+
         self.handler.crab.post(route, Some(&self)).await
     }
 }
@@ -212,6 +240,10 @@ pub struct ListCheckRunsInCheckSuiteBuilder<'octo, 'r> {
     handler: &'r ChecksHandler<'octo>,
     check_suite_id: CheckSuiteId,
     #[serde(skip_serializing_if = "Option::is_none")]
+    check_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    status: Option<CheckRunStatus>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
@@ -222,6 +254,8 @@ impl<'octo, 'r> ListCheckRunsInCheckSuiteBuilder<'octo, 'r> {
         Self {
             handler,
             check_suite_id,
+            check_name: None,
+            status: None,
             per_page: None,
             page: None,
         }
@@ -236,6 +270,18 @@ impl<'octo, 'r> ListCheckRunsInCheckSuiteBuilder<'octo, 'r> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Returns check runs with the specified `name`.
+    pub fn check_name(mut self, check_name: impl Into<String>) -> Self {
+        self.check_name = Some(check_name.into());
+        self
+    }
+
+    /// Returns check runs with the specified `status`.
+    pub fn status(mut self, status: CheckRunStatus) -> Self {
+        self.status = Some(status);
         self
     }
 
@@ -581,6 +627,20 @@ impl<'octo> ChecksHandler<'octo> {
         check_run_id: CheckRunId,
     ) -> crate::api::checks::CheckRunAnnotationsBuilder<'_, '_> {
         CheckRunAnnotationsBuilder::new(self, check_run_id)
+    }
+
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let check_run = octocrab::instance()
+    ///   .checks("owner", "repo")
+    ///  .get_check_run(123456.into())
+    /// .send()
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_check_run(&self, check_run_id: CheckRunId) -> GetCheckRunBuilder<'_, '_> {
+        GetCheckRunBuilder::new(self, check_run_id)
     }
 }
 

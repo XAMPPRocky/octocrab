@@ -1,6 +1,7 @@
 use crate::models::workflows::HeadCommit;
 
 use super::*;
+use crate::models::pulls::PullRequest;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -26,6 +27,7 @@ pub struct CheckRun {
     pub started_at: Option<chrono::DateTime<chrono::Utc>>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub name: String,
+    pub pull_requests: Vec<PullRequest>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
