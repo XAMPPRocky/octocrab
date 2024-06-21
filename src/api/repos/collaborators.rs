@@ -1,5 +1,5 @@
-use crate::params::teams::Permission;
 use super::*;
+use crate::params::teams::Permission;
 
 #[derive(serde::Serialize)]
 pub struct ListCollaboratorsBuilder<'octo, 'r> {
