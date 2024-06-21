@@ -1,16 +1,5 @@
-use serde::{Deserialize, Serialize};
+use crate::params::teams::Permission;
 use super::*;
-
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum Permission {
-    Pull,
-    Triage,
-    Push,
-    Maintain,
-    Admin,
-}
 
 #[derive(serde::Serialize)]
 pub struct ListCollaboratorsBuilder<'octo, 'r> {
