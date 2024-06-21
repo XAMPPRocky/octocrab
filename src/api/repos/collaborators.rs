@@ -1,4 +1,5 @@
 use super::*;
+use crate::params::teams::Permission;
 
 #[derive(serde::Serialize)]
 pub struct ListCollaboratorsBuilder<'octo, 'r> {
@@ -8,6 +9,8 @@ pub struct ListCollaboratorsBuilder<'octo, 'r> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    permission: Option<Permission>,
 }
 
 impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
@@ -16,6 +19,7 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
             handler,
             per_page: None,
             page: None,
+            permission: None,
         }
     }
 
@@ -28,6 +32,14 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Filter collaborators by the permissions they have on the repository.
+    /// If not specified, all collaborators will be returned.
+    /// Can be one of: pull, triage, push, maintain, admin
+    pub fn permission(mut self, permission: Permission) -> Self {
+        self.permission = Some(permission);
         self
     }
 
