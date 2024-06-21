@@ -1,4 +1,16 @@
+use serde::{Deserialize, Serialize};
 use super::*;
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Permission {
+    Pull,
+    Triage,
+    Push,
+    Maintain,
+    Admin,
+}
 
 #[derive(serde::Serialize)]
 pub struct ListCollaboratorsBuilder<'octo, 'r> {
@@ -9,7 +21,7 @@ pub struct ListCollaboratorsBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    permission: Option<String>,
+    permission: Option<Permission>,
 }
 
 impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
@@ -18,6 +30,7 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
             handler,
             per_page: None,
             page: None,
+            permission: None,
         }
     }
 
@@ -36,8 +49,8 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
     /// Filter collaborators by the permissions they have on the repository.
     /// If not specified, all collaborators will be returned.
     /// Can be one of: pull, triage, push, maintain, admin
-    pub fn permission(mut self, permission: impl ToString) -> Self {
-        self.permission = Some(permission.to_string());
+    pub fn permission(mut self, permission: Permission) -> Self {
+        self.permission = Some(permission);
         self
     }
 
