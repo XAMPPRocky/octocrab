@@ -186,7 +186,7 @@ impl<'octo> NotificationsHandler<'octo> {
         let route = format!("/notifications/threads/{thread}/subscription");
         let body = Inner { ignored };
 
-        self.crab.get(route, Some(&body)).await
+        self.crab.put(route, Some(&body)).await
     }
 
     /// Mutes the whole thread conversation until you comment or get mentioned.
