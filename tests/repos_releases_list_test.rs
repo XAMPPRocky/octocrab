@@ -24,9 +24,7 @@ async fn setup_get_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!(
-            "/repos/{OWNER}/{REPO}/releases"
-        )))
+        .and(path(format!("/repos/{OWNER}/{REPO}/releases")))
         .respond_with(template)
         .mount(&mock_server)
         .await;
