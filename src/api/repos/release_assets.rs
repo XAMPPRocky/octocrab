@@ -54,6 +54,28 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         UpdateReleaseAssetBuilder::new(self, asset_id)
     }
 
+    /// Delete a release asset using its id.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .release_assets()
+    ///     .delete(AssetId(3))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete(&self, id: AssetId) -> Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/releases/assets/{id}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            id = id,
+        );
+
+        self.parent.crab.delete(route, None::<&()>).await
+    }
+
     /// Streams the binary contents of an asset.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
