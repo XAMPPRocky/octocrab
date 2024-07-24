@@ -24,9 +24,7 @@ async fn setup_get_api(template: ResponseTemplate, number: u64) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!(
-            "/repos/{OWNER}/{REPO}/releases/{number}"
-        )))
+        .and(path(format!("/repos/{OWNER}/{REPO}/releases/{number}")))
         .respond_with(template)
         .mount(&mock_server)
         .await;
@@ -60,10 +58,8 @@ async fn should_return_release_for_repository_by_id() {
 
     let release = result.unwrap();
 
-
-
-        assert_eq!(ReleaseId(number), release.id);
-        assert_eq!("v0.37.0", release.tag_name);
+    assert_eq!(ReleaseId(number), release.id);
+    assert_eq!("v0.37.0", release.tag_name);
 }
 
 #[tokio::test]

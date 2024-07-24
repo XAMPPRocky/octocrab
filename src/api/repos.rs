@@ -17,6 +17,7 @@ pub mod forks;
 mod generate;
 mod merges;
 mod pulls;
+pub mod release_assets;
 pub mod releases;
 mod secrets;
 mod stargazers;
@@ -37,6 +38,7 @@ pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
+pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
 pub use secrets::RepoSecretsHandler;
 pub use stargazers::ListStarGazersBuilder;
@@ -518,6 +520,11 @@ impl<'octo> RepoHandler<'octo> {
             repo = self.repo,
         );
         self.crab.get(route, None::<&()>).await
+    }
+
+    /// Creates a `ReleaseAssetsHandler` for the specified repository.
+    pub fn release_assets(&self) -> release_assets::ReleaseAssetsHandler<'_, '_> {
+        release_assets::ReleaseAssetsHandler::new(self)
     }
 
     /// Creates a `ReleasesHandler` for the specified repository.
