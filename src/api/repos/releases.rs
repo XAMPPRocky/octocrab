@@ -150,6 +150,28 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.parent.crab.get(route, None::<&()>).await
     }
 
+    /// Gets the release using its id.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .get(3)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get(&self, number: u64) -> Result<models::repos::Release> {
+        let route = format!(
+            "/repos/{owner}/{repo}/releases/{number}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            number = number,
+        );
+
+        self.parent.crab.get(route, None::<&()>).await
+    }
+
     /// Generates [`crate::models::repos::ReleaseNotes`] which describe
     /// a [`crate::models::repos::Release`]
     /// ```no_run
