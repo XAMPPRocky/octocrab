@@ -8,13 +8,15 @@ use tower::{Layer, Service};
 pub struct AuthHeaderLayer {
     pub(crate) auth_header: Arc<Option<HeaderValue>>,
     base_uri: Uri,
+    upload_uri: Uri,
 }
 
 impl AuthHeaderLayer {
-    pub fn new(auth_header: Option<HeaderValue>, base_uri: Uri) -> Self {
+    pub fn new(auth_header: Option<HeaderValue>, base_uri: Uri, upload_uri: Uri) -> Self {
         AuthHeaderLayer {
             auth_header: Arc::new(auth_header),
             base_uri,
+            upload_uri,
         }
     }
 }
@@ -27,6 +29,7 @@ impl<S> Layer<S> for AuthHeaderLayer {
             inner,
             auth_header: self.auth_header.clone(),
             base_uri: self.base_uri.clone(),
+            upload_uri: self.upload_uri.clone(),
         }
     }
 }
@@ -37,6 +40,7 @@ pub struct AuthHeader<S> {
     inner: S,
     pub(crate) auth_header: Arc<Option<HeaderValue>>,
     base_uri: Uri,
+    upload_uri: Uri,
 }
 
 impl<S, ReqBody> Service<Request<ReqBody>> for AuthHeader<S>
@@ -60,7 +64,8 @@ where
         // away from GitHub (via follow_location_to_data()), and we don't
         // want to give our credentials to third-party services.
         let authority = req.uri().authority();
-        if authority.is_none() || authority == self.base_uri.authority() {
+        let allowed_authorities = [self.base_uri.authority(), self.upload_uri.authority()];
+        if authority.is_none() || allowed_authorities.contains(&authority) {
             if let Some(auth_header) = &*self.auth_header {
                 req.headers_mut().append(AUTHORIZATION, auth_header.clone());
             }

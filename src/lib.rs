@@ -264,6 +264,7 @@ pub use self::{
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
+const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 #[cfg(feature = "default-client")]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
@@ -583,6 +584,17 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         Ok(self)
     }
 
+    /// Set the base upload url for `Octocrab`.
+    pub fn upload_uri(mut self, upload_uri: impl TryInto<Uri>) -> Result<Self> {
+        self.config.upload_uri = Some(
+            upload_uri
+                .try_into()
+                .map_err(|_| UriParseError {})
+                .context(UriParseSnafu)?,
+        );
+        Ok(self)
+    }
+
     #[cfg(feature = "retry")]
     pub fn set_connector_retry_service<S>(
         &self,
@@ -756,15 +768,21 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         })
         .layer(client);
 
-        let uri = self
+        let base_uri = self
             .config
             .base_uri
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        let client = BaseUriLayer::new(uri.clone()).layer(client);
+        let upload_uri = self
+            .config
+            .upload_uri
+            .clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_UPLOAD_URI).unwrap());
 
-        let client = AuthHeaderLayer::new(auth_header, uri).layer(client);
+        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
+
+        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
 
         Ok(Octocrab::new(client, auth_state))
     }
@@ -781,6 +799,7 @@ pub struct DefaultOctocrabBuilderConfig {
     #[cfg(feature = "timeout")]
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>,
+    upload_uri: Option<Uri>,
     #[cfg(feature = "retry")]
     retry_config: RetryConfig,
 }
@@ -798,6 +817,7 @@ impl Default for DefaultOctocrabBuilderConfig {
             #[cfg(feature = "timeout")]
             write_timeout: None,
             base_uri: None,
+            upload_uri: None,
             #[cfg(feature = "retry")]
             retry_config: RetryConfig::Simple(3),
         }
