@@ -458,6 +458,7 @@ pub mod repos {
         pub enum State {
             Open,
             Uploaded,
+            Starter,
         }
     }
 }

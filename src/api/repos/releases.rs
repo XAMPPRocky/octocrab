@@ -1,4 +1,6 @@
 use super::*;
+use crate::from_response::FromResponse;
+use crate::{body::OctoBody, models::repos::Asset};
 
 /// Handler for GitHub's releases API.
 ///
@@ -182,6 +184,33 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         tag_name: &'tag_name (impl AsRef<str> + ?Sized),
     ) -> GenerateReleaseNotesBuilder<'_, '_, '_, 'tag_name, '_, '_, '_> {
         GenerateReleaseNotesBuilder::new(self, tag_name.as_ref())
+    }
+
+    /// Upload an [`crate::models::repos::Asset`] associated with
+    /// a [`crate::models::repos::Release`]
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let file_path = std::path::Path::new("/tmp/my_asset.tar.gz");
+    /// let file_size = unwrap!(std::fs::metadata(file_path)).len();
+    /// let file = unwrap!(tokio::fs::File::open(file).await);
+    /// let stream = tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
+    /// let asset = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .upload_asset(1, "my_asset.tar.gz", stream)
+    ///     .label("My Awesome Asset")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn upload_asset<'asset_name>(
+        &self,
+        id: u64,
+        asset_name: &'asset_name (impl AsRef<str> + ?Sized),
+        body: Bytes,
+    ) -> UploadAssetBuilder<'_, '_, '_, 'asset_name, '_> {
+        UploadAssetBuilder::new(self, id, asset_name.as_ref(), body)
     }
 
     /// Creates a new [`ListReleaseAssetsBuilder`] that can be configured to filter
@@ -642,5 +671,63 @@ impl<'octo, 'r1, 'r2> ListReleaseAssetsBuilder<'octo, 'r1, 'r2> {
             repo = self.handler.parent.repo
         );
         self.handler.parent.crab.get(route, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for updating release assets.
+///
+/// created by [`ReleasesHandler::upload_asset`].
+pub struct UploadAssetBuilder<'octo, 'repos, 'handler, 'name, 'label> {
+    handler: &'handler ReleasesHandler<'octo, 'repos>,
+    release_id: u64,
+    name: &'name str,
+    body: Bytes,
+    label: Option<&'label str>,
+}
+
+impl<'octo, 'repos, 'handler, 'name, 'label>
+    UploadAssetBuilder<'octo, 'repos, 'handler, 'name, 'label>
+{
+    pub(crate) fn new(
+        handler: &'handler ReleasesHandler<'octo, 'repos>,
+        release_id: u64,
+        name: &'name str,
+        body: Bytes,
+    ) -> Self {
+        Self {
+            handler,
+            release_id,
+            name,
+            body,
+            label: None,
+        }
+    }
+
+    /// The asset label
+    pub fn label(mut self, label: &'label (impl AsRef<str> + ?Sized)) -> Self {
+        self.label = Some(label.as_ref());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Asset> {
+        // the url could be constructed without fetching the release, but if the user has no access to the release
+        // then he will not have access to upload to it.
+        let release = self.handler.get(self.release_id).await?;
+
+        // Documentation tells us to take the `upload_url`, but `upload_url` is just `assets_url` with `{?name,label}`.
+        let mut url = release.assets_url.clone();
+        url.query_pairs_mut().clear().append_pair("name", self.name);
+        if let Some(label) = self.label {
+            url.query_pairs_mut().append_pair("label", label);
+        }
+        let request = Builder::new()
+            .method(http::Method::POST)
+            .uri(url.to_string())
+            .header(http::header::ACCEPT, "application/octet-stream")
+            .body(OctoBody::from(self.body))
+            .context(HttpSnafu)?;
+        let response = self.handler.parent.crab.execute(request).await?;
+        Asset::from_response(crate::map_github_error(response).await?).await
     }
 }

@@ -95,13 +95,12 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// ```
     #[cfg(feature = "stream")]
     #[cfg_attr(docsrs, doc(cfg(feature = "stream")))]
-    #[deprecated(note = "use repos::ReleaseAssetsHandler instrad")]
     pub async fn stream(
         &self,
         id: AssetId,
     ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
         use futures_util::TryStreamExt;
-        use snafu::GenerateImplicitData;
+        //use snafu::GenerateImplicitData;
 
         let route = format!(
             "/repos/{owner}/{repo}/releases/assets/{id}",
