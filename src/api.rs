@@ -7,6 +7,7 @@ pub mod current;
 pub mod events;
 pub mod gists;
 pub mod gitignore;
+pub mod hooks;
 pub mod issues;
 pub mod licenses;
 pub mod markdown;
