@@ -1,3 +1,4 @@
+use futures_util::future;
 use http::{Request, Response};
 use hyper_util::client::legacy::Error;
 use tower::retry::Policy;
@@ -16,18 +17,52 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
     fn retry(
         &self,
         _req: &Request<OctoBody>,
-        _result: Result<&Response<B>, &Error>,
+        result: Result<&Response<B>, &Error>,
     ) -> Option<Self::Future> {
         match self {
             RetryConfig::None => None,
-            RetryConfig::Simple(_count) => None,
+            RetryConfig::Simple(count) => match result {
+                Ok(response) => {
+                    if response.status().is_server_error() || response.status() == 429 {
+                        if *count > 0 {
+                            Some(future::ready(RetryConfig::Simple(count - 1)))
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                }
+                Err(_) => {
+                    if *count > 0 {
+                        Some(future::ready(RetryConfig::Simple(count - 1)))
+                    } else {
+                        None
+                    }
+                }
+            },
         }
     }
 
-    fn clone_request(&self, _req: &Request<OctoBody>) -> Option<Request<OctoBody>> {
+    fn clone_request(&self, req: &Request<OctoBody>) -> Option<Request<OctoBody>> {
         match self {
             RetryConfig::None => None,
-            _ => None,
+            _ => {
+                // `Request` can't be cloned
+                let mut new_req = Request::builder()
+                    .uri(req.uri())
+                    .method(req.method())
+                    .version(req.version());
+                for (name, value) in req.headers() {
+                    new_req = new_req.header(name, value);
+                }
+
+                let body = req.body().clone();
+                let new_req = new_req.body(body).expect(
+                    "This should never panic, as we are cloning a components from existing request",
+                );
+                Some(new_req)
+            }
         }
     }
 }
