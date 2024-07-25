@@ -1,14 +1,11 @@
 //! The hooks API.
-use crate::{Octocrab};
 use crate::models::{HookDeliveryId, HookId};
+use crate::Octocrab;
 
 mod list_deliveries;
 mod retry_delivery;
 
-pub use self::{
-    list_deliveries::ListHooksDeliveriesBuilder,
-    retry_delivery::RetryDeliveryBuilder,
-};
+pub use self::{list_deliveries::ListHooksDeliveriesBuilder, retry_delivery::RetryDeliveryBuilder};
 
 /// A client to GitHub's webhooks API.
 ///
@@ -63,7 +60,11 @@ impl<'octo> HooksHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn retry_delivery(&self, hook_id: HookId, delivery_id: HookDeliveryId) -> RetryDeliveryBuilder<'_, '_> {
+    pub fn retry_delivery(
+        &self,
+        hook_id: HookId,
+        delivery_id: HookDeliveryId,
+    ) -> RetryDeliveryBuilder<'_, '_> {
         RetryDeliveryBuilder::new(self, hook_id, delivery_id)
     }
 }
