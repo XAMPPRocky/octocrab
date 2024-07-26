@@ -449,6 +449,18 @@ pub mod repos {
             Stargazers,
         }
     }
+
+    pub mod release_assets {
+
+        #[derive(Debug, Clone, Copy, serde::Serialize)]
+        #[serde(rename_all = "lowercase")]
+        #[non_exhaustive]
+        pub enum State {
+            Open,
+            Uploaded,
+            Starter,
+        }
+    }
 }
 
 pub mod teams {
