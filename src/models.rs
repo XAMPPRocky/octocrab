@@ -14,6 +14,7 @@ pub mod actions;
 pub mod activity;
 pub mod apps;
 pub mod checks;
+pub mod code_scannings;
 pub mod commits;
 pub mod events;
 pub mod gists;
@@ -105,6 +106,7 @@ id_type!(
     CardId,
     CheckSuiteId,
     CheckRunId,
+    CodeScanningId,
     CommentId,
     InstallationId,
     IssueEventId,

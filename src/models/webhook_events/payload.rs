@@ -1,7 +1,6 @@
 mod branch_protection_rule;
 mod check_run;
 mod check_suite;
-mod code_scanning_alert;
 mod commit_comment;
 mod create;
 mod delete;
@@ -67,7 +66,7 @@ mod workflow_job;
 mod workflow_run;
 
 pub use self::{
-    branch_protection_rule::*, check_run::*, check_suite::*, code_scanning_alert::*,
+    branch_protection_rule::*, check_run::*, check_suite::*,
     commit_comment::*, create::*, delete::*, dependabot_alert::*, deploy_key::*, deployment::*,
     deployment_protection_rule::*, deployment_status::*, discussion::*, discussion_comment::*,
     fork::*, github_app_authorization::*, gollum::*, installation::*, installation_repositories::*,
@@ -85,6 +84,7 @@ pub use self::{
 };
 
 use serde::{Deserialize, Serialize};
+pub use crate::models::events::payload::code_scanning_analysis::*;
 
 /// The specific part of the payload in a webhook event
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -93,7 +93,6 @@ pub enum WebhookEventPayload {
     BranchProtectionRule(Box<BranchProtectionRuleWebhookEventPayload>),
     CheckRun(Box<CheckRunWebhookEventPayload>),
     CheckSuite(Box<CheckSuiteWebhookEventPayload>),
-    CodeScanningAlert(Box<CodeScanningAlertWebhookEventPayload>),
     CommitComment(Box<CommitCommentWebhookEventPayload>),
     Create(Box<CreateWebhookEventPayload>),
     Delete(Box<DeleteWebhookEventPayload>),
