@@ -252,7 +252,7 @@ use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, commits, current, events, gists, gitignore, issues,
+        actions, activity, apps, checks, commits, current, events, gists, gitignore, hooks, issues,
         licenses, markdown, orgs, projects, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
@@ -1147,6 +1147,11 @@ impl Octocrab {
     /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
     pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
         ratelimit::RateLimitHandler::new(self)
+    }
+
+    /// Creates a [`hooks::HooksHandler`] that returns the API hooks
+    pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler {
+        hooks::HooksHandler::new(self, owner.into())
     }
 }
 
