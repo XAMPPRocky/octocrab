@@ -179,6 +179,7 @@
 //! };
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 mod api;
 mod body;
@@ -341,6 +342,7 @@ pub async fn map_github_error(
 /// # }
 /// ```
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
     STATIC_INSTANCE.swap(Arc::from(crab))
 }
@@ -354,6 +356,7 @@ pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
 /// }
 /// ```
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
@@ -503,6 +506,7 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     /// Set the retry configuration
     #[cfg(feature = "retry")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn add_retry_config(mut self, retry_config: RetryConfig) -> Self {
         self.config.retry_config = retry_config;
         self
@@ -510,6 +514,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the connect timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.connect_timeout = timeout;
         self
@@ -517,6 +522,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the read timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_read_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.read_timeout = timeout;
         self
@@ -524,6 +530,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the write timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_write_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.write_timeout = timeout;
         self
@@ -596,6 +603,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     #[cfg(feature = "retry")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn set_connector_retry_service<S>(
         &self,
         connector: hyper_util::client::legacy::Client<S, OctoBody>,
@@ -606,6 +614,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
         T: Service<Uri> + Send,
@@ -623,6 +632,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
     #[cfg(feature = "default-client")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "defaut-client")))]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, OctoBody> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
@@ -959,6 +969,7 @@ impl fmt::Debug for Octocrab {
 /// - `auth`: `None`
 /// - `client`: http client with the `octocrab` user agent.
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 impl Default for Octocrab {
     fn default() -> Self {
         OctocrabBuilder::default().build().unwrap()
