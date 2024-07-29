@@ -241,7 +241,6 @@ pub mod code_scannings {
 
     #[cfg(test)]
     mod tests {
-        use super::*;
 
         #[test]
         fn serialize() {

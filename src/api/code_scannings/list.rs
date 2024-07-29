@@ -97,10 +97,7 @@ mod tests {
     async fn serialize() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.code_scannings("rust-lang", "rust");
-        let labels = vec![
-            String::from("help wanted"),
-            String::from("good first issue"),
-        ];
+
         let list = handler
             .list()
             .state(crate::params::State::Open)

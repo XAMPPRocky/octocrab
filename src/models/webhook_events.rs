@@ -740,6 +740,9 @@ impl WebhookEventType {
             WebhookEventType::CheckSuite => Ok(WebhookEventPayload::CheckSuite(Box::new(
                 serde_json::from_value(data)?,
             ))),
+            WebhookEventType::CodeScanningAlert => Ok(WebhookEventPayload::CodeScanningAlert(
+                Box::new(serde_json::from_value(data)?),
+            )),
             WebhookEventType::CommitComment => Ok(WebhookEventPayload::CommitComment(Box::new(
                 serde_json::from_value(data)?,
             ))),
