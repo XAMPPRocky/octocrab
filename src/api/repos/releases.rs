@@ -134,12 +134,12 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// let release = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .releases()
-    ///     .get_by_id(160301961)
+    ///     .get(160301961)
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_by_id(&self, release_id: u64) -> crate::Result<models::repos::Release> {
+    pub async fn get(&self, release_id: u64) -> crate::Result<models::repos::Release> {
         let route = format!(
             "/repos/{owner}/{repo}/releases/{release_id}",
             owner = self.parent.owner,
