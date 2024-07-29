@@ -1,23 +1,28 @@
 //! The pull request API.
 
-mod comment;
-mod create;
-mod list;
-mod merge;
-mod update;
-
 use http::request::Builder;
 use http::{Method, Uri};
-
+use serde_json::json;
 use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
+use crate::models::pulls::ReviewComment;
+use crate::models::CommentId;
+use crate::pulls::specific_pr::pr_reviews::specific_review::SpecificReviewBuilder;
+use crate::pulls::specific_pr::SpecificPullRequestBuilder;
 use crate::{Octocrab, Page};
 
 pub use self::{
     create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
+
+mod comment;
+mod create;
+mod list;
+mod merge;
+mod specific_pr;
+mod update;
 
 /// A client to GitHub's pull request API.
 ///
@@ -370,6 +375,90 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn list_comments(&self, pr: Option<u64>) -> comment::ListCommentsBuilder {
         comment::ListCommentsBuilder::new(self, pr)
+    }
+
+    ///creates a new `CommentBuilder` for GET/PATCH/DELETE requests
+    /// to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
+    /// ```no_run
+    ///  use octocrab::models::CommentId;
+    /// use octocrab::models::pulls::Comment;
+    ///  async fn run() -> octocrab::Result<Comment> {
+    ///     let octocrab = octocrab::Octocrab::default();
+    ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(21)).delete();
+    ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(42)).update("new comment");
+    ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get().await;
+    ///
+    ///     comment
+    ///  }
+    /// ```
+    pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder {
+        comment::CommentBuilder::new(self, comment_id)
+    }
+
+    /// creates a builder for the `/repos/{owner}/{repo}/pulls/{pull_number}/......` endpoint
+    /// working with particular pull request, e.g.
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/commits
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals
+    /// * /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
+    ///
+    #[deprecated(
+        since = "0.34.4",
+        note = "specific PR builder transitioned to pr_review_actions, reply_to_comment, reply_to_comment"
+    )]
+    //FIXME: remove?
+    pub fn pull_number(&self, pull_nr: u64) -> SpecificPullRequestBuilder {
+        SpecificPullRequestBuilder::new(self, pull_nr)
+    }
+
+    // /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events
+    // /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}
+    // repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments
+    // repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals
+    pub fn pr_review_actions(
+        &self,
+        pull_nr: u64,
+        review_id: u64,
+    ) -> SpecificReviewBuilder<'octo, '_> {
+        SpecificReviewBuilder::new(self, pull_nr, review_id)
+    }
+
+    /// /repos/{owner}/{repo}/pulls/{pull_number}/commits
+    // pub fn pr_commits(&self, pull_nr: u64) -> SpecificPullRequestCommentBuilder<'octo, '_> {
+    //     SpecificPullRequestCommentBuilder::new(self, pull_nr, 0)
+    // }
+
+    // /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
+    /// Creates a reply to a specific comment of a pull request specified in the first argument
+    /// ```no_run
+    /// # use octocrab::models::CommentId;
+    ///  async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let page = octocrab.pulls("owner", "repo").reply_to_comment(142, CommentId(24), "This is my reply")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn reply_to_comment(
+        &self,
+        pull_nr: u64,
+        comment_id: CommentId,
+        comment: impl Into<String>,
+    ) -> crate::Result<ReviewComment> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies",
+            owner = self.owner,
+            repo = self.repo,
+            pull_number = pull_nr,
+            comment_id = comment_id
+        );
+        self.crab
+            .post(route, Some(&json!({ "body": comment.into() })))
+            .await
     }
 
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
