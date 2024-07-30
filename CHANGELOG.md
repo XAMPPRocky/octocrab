@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0](https://github.com/XAMPPRocky/octocrab/compare/v0.38.0...v0.39.0) - 2024-07-30
+
+### Added
+- support permission on list_collaborators ([#630](https://github.com/XAMPPRocky/octocrab/pull/630))
+- add check run pull requests and list parameters ([#494](https://github.com/XAMPPRocky/octocrab/pull/494))
+- implement hook deliveries ([#668](https://github.com/XAMPPRocky/octocrab/pull/668))
+- allow sending non String payload with execute ([#665](https://github.com/XAMPPRocky/octocrab/pull/665))
+- added /user/blocks functionality ([#657](https://github.com/XAMPPRocky/octocrab/pull/657))
+- add method to create repo webhook ([#640](https://github.com/XAMPPRocky/octocrab/pull/640))
+
+### Fixed
+- use put instead of get for set_thread_subscription ([#661](https://github.com/XAMPPRocky/octocrab/pull/661))
+- *(builder)* Change add_retry_config signature to match others in OctocrabBuilder ([#643](https://github.com/XAMPPRocky/octocrab/pull/643))
+
+### Other
+- getting Code Scanning ([#669](https://github.com/XAMPPRocky/octocrab/pull/669))
+- added missing /repos/{owner}/{repo}/pulls/... handlers ([#546](https://github.com/XAMPPRocky/octocrab/pull/546)) ([#605](https://github.com/XAMPPRocky/octocrab/pull/605))
+- Properly mark feature-gated functionality in docs ([#662](https://github.com/XAMPPRocky/octocrab/pull/662))
+- repos/releases improvements ([#666](https://github.com/XAMPPRocky/octocrab/pull/666))
+- Add AutoRebaseEnabled to models.rs ([#660](https://github.com/XAMPPRocky/octocrab/pull/660))
+- cargo fmt ([#658](https://github.com/XAMPPRocky/octocrab/pull/658))
+- Fix issue [#635](https://github.com/XAMPPRocky/octocrab/pull/635) ([#637](https://github.com/XAMPPRocky/octocrab/pull/637))
+- Update issues.rs ([#634](https://github.com/XAMPPRocky/octocrab/pull/634))
+- Add head repo to create pr ([#636](https://github.com/XAMPPRocky/octocrab/pull/636))
+- Added support for make_latest in UpdateReleaseBuilder ([#646](https://github.com/XAMPPRocky/octocrab/pull/646))
+- Changing the user name from required to optional parameter ([#650](https://github.com/XAMPPRocky/octocrab/pull/650))
+- Update models.rs ([#651](https://github.com/XAMPPRocky/octocrab/pull/651))
+
 ## [0.38.0](https://github.com/XAMPPRocky/octocrab/compare/v0.37.0...v0.38.0) - 2024-04-09
 
 ### Added
