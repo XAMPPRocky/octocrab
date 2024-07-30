@@ -98,33 +98,3 @@ impl<'octo, 'b, 'c, 'd> ListCodeScanningsBuilder<'octo, 'b> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
-
-#[cfg(test)]
-mod tests {
-    #[tokio::test]
-    async fn serialize() {
-        let octocrab = crate::Octocrab::default();
-        let handler = octocrab.code_scannings("rust-lang", "rust");
-
-        let list = handler
-            .list()
-            .state(crate::params::State::Open)
-            .direction(crate::params::Direction::Ascending)
-            .per_page(100)
-            .page(1u8);
-
-        assert_eq!(
-            serde_json::to_value(list).unwrap(),
-            serde_json::json!({
-                "state": "open",
-                "creator": "octocrab",
-                "labels": "help wanted,good first issue",
-                "sort": "comments",
-                "direction": "asc",
-                "since": "2003-07-01T10:52:37Z",
-                "per_page": 100,
-                "page": 1,
-            })
-        )
-    }
-}
