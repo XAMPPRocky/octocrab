@@ -184,7 +184,7 @@ pub mod code_scannings {
     #[non_exhaustive]
     pub enum Sort {
         Created,
-        Updated
+        Updated,
     }
 
     /// The reference for the code scanning alert.
@@ -246,9 +246,13 @@ pub mod code_scannings {
         fn serialize() {
             assert_eq!(
                 "1234",
-                serde_json::to_string(&crate::params::code_scannings::Filter::Matches(1234)).unwrap()
+                serde_json::to_string(&crate::params::code_scannings::Filter::Matches(1234))
+                    .unwrap()
             );
-            assert_eq!(r#""*""#, serde_json::to_string(&crate::params::code_scannings::Filter::<()>::Any).unwrap());
+            assert_eq!(
+                r#""*""#,
+                serde_json::to_string(&crate::params::code_scannings::Filter::<()>::Any).unwrap()
+            );
             assert_eq!(
                 r#""none""#,
                 serde_json::to_string(&crate::params::code_scannings::Filter::<()>::None).unwrap()

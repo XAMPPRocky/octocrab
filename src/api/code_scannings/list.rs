@@ -1,5 +1,5 @@
-use crate::params::Direction;
 use super::*;
+use crate::params::Direction;
 
 #[derive(crate::Serialize)]
 pub struct ListCodeScanningsBuilder<'octo, 'b> {
@@ -76,16 +76,24 @@ impl<'octo, 'b, 'c, 'd> ListCodeScanningsBuilder<'octo, 'b> {
     }
 
     /// Sends the actual request.
-    pub async fn send(self) -> crate::Result<crate::Page<models::code_scannings::CodeScanningAlert>> {
-
-        let route = self.handler.repo.as_ref().map(|r| format!(
-            "/repos/{owner}/{repo}/code-scanning/alerts",
-            owner = self.handler.owner,
-            repo = r,
-        )).unwrap_or(format!(
-            "/orgs/{owner}/code-scanning/alerts",
-            owner = self.handler.owner,
-        ));
+    pub async fn send(
+        self,
+    ) -> crate::Result<crate::Page<models::code_scannings::CodeScanningAlert>> {
+        let route = self
+            .handler
+            .repo
+            .as_ref()
+            .map(|r| {
+                format!(
+                    "/repos/{owner}/{repo}/code-scanning/alerts",
+                    owner = self.handler.owner,
+                    repo = r,
+                )
+            })
+            .unwrap_or(format!(
+                "/orgs/{owner}/code-scanning/alerts",
+                owner = self.handler.owner,
+            ));
 
         self.handler.crab.get(route, Some(&self)).await
     }

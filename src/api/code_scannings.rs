@@ -1,6 +1,5 @@
 //! The code scanning API.
-
-use crate::{models, Octocrab, params, Result};
+use crate::{models, params, Octocrab, Result};
 
 mod list;
 
@@ -14,7 +13,6 @@ pub struct CodeScanningHandler<'octo> {
 }
 
 impl<'octo> CodeScanningHandler<'octo> {
-
     pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: Option<String>) -> Self {
         Self { crab, owner, repo }
     }
@@ -39,30 +37,6 @@ impl<'octo> CodeScanningHandler<'octo> {
     }
 
     /// List code scannings in the repository.
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
-    /// use octocrab::params;
-    ///
-    /// let code_scanning = octocrab.code_scannings("owner", "repo")
-    ///     .list()
-    ///     // Optional Parameters
-    ///     .state(params::State::All)
-    ///     .milestone(1234)
-    ///     .assignee("ferris")
-    ///     .creator("octocrab")
-    ///     .mentioned("octocat")
-    ///     .labels(&[String::from("help wanted"), String::from("good first code scanning")])
-    ///     .sort(params::code_scannings::Sort::Created)
-    ///     .direction(params::Direction::Ascending)
-    ///     .per_page(100)
-    ///     .page(1u8)
-    ///     // Send the request
-    ///     .send()
-    ///     .await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     pub fn list(&self) -> list::ListCodeScanningsBuilder<'_, '_> {
         list::ListCodeScanningsBuilder::new(self)
     }

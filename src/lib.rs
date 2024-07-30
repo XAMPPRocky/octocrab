@@ -1053,15 +1053,18 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> code_scannings::CodeScanningHandler { code_scannings::CodeScanningHandler::new(self, owner.into(), Option::from(repo.into())) }
+    ) -> code_scannings::CodeScanningHandler {
+        code_scannings::CodeScanningHandler::new(self, owner.into(), Option::from(repo.into()))
+    }
 
     /// Creates a [`code_scanning::CodeSCanningHandler`] for the org specified at `owner`,
     /// that allows you to access GitHub's Code scanning API.
     pub fn code_scannings_organisation(
         &self,
         owner: impl Into<String>,
-    ) -> code_scannings::CodeScanningHandler { code_scannings::CodeScanningHandler::new(self, owner.into(), None) }
-
+    ) -> code_scannings::CodeScanningHandler {
+        code_scannings::CodeScanningHandler::new(self, owner.into(), None)
+    }
 
     /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
     pub fn commits(

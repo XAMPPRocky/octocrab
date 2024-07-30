@@ -6,7 +6,7 @@ use wiremock::{
 
 use mock_error::setup_error_handler;
 use octocrab::models::code_scannings::CodeScanningAlert;
-use octocrab::{Octocrab};
+use octocrab::Octocrab;
 
 mod mock_error;
 
@@ -18,7 +18,11 @@ async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServe
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!("/repos/{owner}/{repo}/code-scanning/alerts/{number}", owner = owner, repo = repo)))
+        .and(path(format!(
+            "/repos/{owner}/{repo}/code-scanning/alerts/{number}",
+            owner = owner,
+            repo = repo
+        )))
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
@@ -96,8 +100,6 @@ async fn check_get_500() {
         result
     );
 }
-
-
 
 #[derive(Debug, Deserialize, Serialize)]
 struct GitHubErrorBody {

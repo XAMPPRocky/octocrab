@@ -2,7 +2,7 @@
 mod mock_error;
 use mock_error::setup_error_handler;
 use octocrab::models::UserProfile;
-use octocrab::{Octocrab};
+use octocrab::Octocrab;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
