@@ -179,8 +179,10 @@
 //! };
 //! ```
 #![cfg_attr(test, recursion_limit = "512")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 mod api;
+mod body;
 mod error;
 mod from_response;
 mod page;
@@ -191,6 +193,7 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
@@ -250,7 +253,7 @@ use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, commits, current, events, gists, gitignore, issues,
+        actions, activity, apps, checks, commits, current, events, gists, gitignore, hooks, issues,
         licenses, markdown, orgs, projects, pulls, ratelimit, repos, search, teams, workflows,
     },
     error::{Error, GitHubError},
@@ -262,6 +265,7 @@ pub use self::{
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
+const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 #[cfg(feature = "default-client")]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
@@ -338,6 +342,7 @@ pub async fn map_github_error(
 /// # }
 /// ```
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
     STATIC_INSTANCE.swap(Arc::from(crab))
 }
@@ -351,6 +356,7 @@ pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
 /// }
 /// ```
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
@@ -422,7 +428,7 @@ impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
 
 impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
 where
-    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
@@ -467,7 +473,7 @@ impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
 
 impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
 where
-    Svc: Service<Request<String>, Response = Response<B>> + Send + 'static,
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
@@ -500,6 +506,7 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     /// Set the retry configuration
     #[cfg(feature = "retry")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn add_retry_config(mut self, retry_config: RetryConfig) -> Self {
         self.config.retry_config = retry_config;
         self
@@ -507,6 +514,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the connect timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.connect_timeout = timeout;
         self
@@ -514,6 +522,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the read timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_read_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.read_timeout = timeout;
         self
@@ -521,6 +530,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Set the write timeout.
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_write_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.write_timeout = timeout;
         self
@@ -581,17 +591,30 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         Ok(self)
     }
 
+    /// Set the base upload url for `Octocrab`.
+    pub fn upload_uri(mut self, upload_uri: impl TryInto<Uri>) -> Result<Self> {
+        self.config.upload_uri = Some(
+            upload_uri
+                .try_into()
+                .map_err(|_| UriParseError {})
+                .context(UriParseSnafu)?,
+        );
+        Ok(self)
+    }
+
     #[cfg(feature = "retry")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn set_connector_retry_service<S>(
         &self,
-        connector: hyper_util::client::legacy::Client<S, String>,
-    ) -> Retry<RetryConfig, hyper_util::client::legacy::Client<S, String>> {
+        connector: hyper_util::client::legacy::Client<S, OctoBody>,
+    ) -> Retry<RetryConfig, hyper_util::client::legacy::Client<S, OctoBody>> {
         let retry_layer = RetryLayer::new(self.config.retry_config.clone());
 
         retry_layer.layer(connector)
     }
 
     #[cfg(feature = "timeout")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
         T: Service<Uri> + Send,
@@ -609,8 +632,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
     #[cfg(feature = "default-client")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "defaut-client")))]
     pub fn build(self) -> Result<Octocrab> {
-        let client: hyper_util::client::legacy::Client<_, String> = {
+        let client: hyper_util::client::legacy::Client<_, OctoBody> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
             let mut connector = hyper::client::conn::http1::HttpConnector::new();
 
@@ -646,7 +670,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         #[cfg(feature = "tracing")]
         let client = TraceLayer::new_for_http()
-            .make_span_with(|req: &Request<String>| {
+            .make_span_with(|req: &Request<OctoBody>| {
                 tracing::debug_span!(
                     "HTTP",
                      http.method = %req.method(),
@@ -657,7 +681,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                      otel.status_code = tracing::field::Empty,
                 )
             })
-            .on_request(|_req: &Request<String>, _span: &Span| {
+            .on_request(|_req: &Request<OctoBody>, _span: &Span| {
                 tracing::debug!("requesting");
             })
             .on_response(
@@ -754,15 +778,21 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         })
         .layer(client);
 
-        let uri = self
+        let base_uri = self
             .config
             .base_uri
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        let client = BaseUriLayer::new(uri.clone()).layer(client);
+        let upload_uri = self
+            .config
+            .upload_uri
+            .clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_UPLOAD_URI).unwrap());
 
-        let client = AuthHeaderLayer::new(auth_header, uri).layer(client);
+        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
+
+        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
 
         Ok(Octocrab::new(client, auth_state))
     }
@@ -779,6 +809,7 @@ pub struct DefaultOctocrabBuilderConfig {
     #[cfg(feature = "timeout")]
     write_timeout: Option<Duration>,
     base_uri: Option<Uri>,
+    upload_uri: Option<Uri>,
     #[cfg(feature = "retry")]
     retry_config: RetryConfig,
 }
@@ -796,6 +827,7 @@ impl Default for DefaultOctocrabBuilderConfig {
             #[cfg(feature = "timeout")]
             write_timeout: None,
             base_uri: None,
+            upload_uri: None,
             #[cfg(feature = "retry")]
             retry_config: RetryConfig::Simple(3),
         }
@@ -913,8 +945,8 @@ pub enum AuthState {
 }
 
 pub type OctocrabService = Buffer<
-    BoxService<http::Request<String>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
-    http::Request<String>,
+    BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
+    http::Request<OctoBody>,
 >;
 
 /// The GitHub API client.
@@ -937,6 +969,7 @@ impl fmt::Debug for Octocrab {
 /// - `auth`: `None`
 /// - `client`: http client with the `octocrab` user agent.
 #[cfg(feature = "default-client")]
+#[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 impl Default for Octocrab {
     fn default() -> Self {
         OctocrabBuilder::default().build().unwrap()
@@ -954,7 +987,7 @@ impl Octocrab {
     /// Creates a new `Octocrab`.
     fn new<S>(service: S, auth_state: AuthState) -> Self
     where
-        S: Service<Request<String>, Response = Response<BoxBody<Bytes, crate::Error>>>
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
             + Send
             + 'static,
         S::Future: Send + 'static,
@@ -1164,6 +1197,11 @@ impl Octocrab {
     /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
     pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
         ratelimit::RateLimitHandler::new(self)
+    }
+
+    /// Creates a [`hooks::HooksHandler`] that returns the API hooks
+    pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler {
+        hooks::HooksHandler::new(self, owner.into())
     }
 }
 
@@ -1382,7 +1420,7 @@ impl Octocrab {
         &self,
         mut builder: Builder,
         body: Option<&B>,
-    ) -> Result<http::Request<String>> {
+    ) -> Result<http::Request<OctoBody>> {
         // Since Octocrab doesn't require streamable bodies(aka, file upload) because it is serde::Serialize),
         // we can just use String body, since it is both http_body::Body(required by Hyper::Client), and Clone(required by BoxService).
 
@@ -1391,14 +1429,14 @@ impl Octocrab {
 
         if let Some(body) = body {
             builder = builder.header(http::header::CONTENT_TYPE, "application/json");
-            let request = builder
-                .body(serde_json::to_string(body).context(SerdeSnafu)?)
-                .context(HttpSnafu)?;
+            let serialized = serde_json::to_string(body).context(SerdeSnafu)?;
+            let body: OctoBody = serialized.into();
+            let request = builder.body(body).context(HttpSnafu)?;
             Ok(request)
         } else {
             Ok(builder
                 .header(http::header::CONTENT_LENGTH, "0")
-                .body(String::new())
+                .body(OctoBody::empty())
                 .context(HttpSnafu)?)
         }
     }
@@ -1461,7 +1499,7 @@ impl Octocrab {
             .method(http::Method::POST)
             .uri(uri);
         let response = self
-            .send(request.body("{}".to_string()).context(HttpSnafu)?)
+            .send(request.body("{}".into()).context(HttpSnafu)?)
             .await?;
         let _status = response.status();
 
@@ -1489,7 +1527,7 @@ impl Octocrab {
     /// Send the given request to the underlying service
     pub async fn send(
         &self,
-        request: Request<String>,
+        request: Request<OctoBody>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let mut svc = self.client.clone();
         let response: Response<BoxBody<Bytes, crate::Error>> = svc
@@ -1515,9 +1553,10 @@ impl Octocrab {
     /// Execute the given `request` using octocrab's Client.
     pub async fn execute(
         &self,
-        request: http::Request<String>,
+        request: http::Request<impl Into<OctoBody>>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let (mut parts, body) = request.into_parts();
+        let body: OctoBody = body.into();
         // Saved request that we can retry later if necessary
         let auth_header: Option<HeaderValue> = match self.auth_state {
             AuthState::None => None,

@@ -1,6 +1,8 @@
-use crate::models::AssetId;
-
 use super::*;
+use crate::error::{UriParseError, UriParseSnafu};
+use crate::from_response::FromResponse;
+use crate::models::repos::Asset;
+use std::convert::TryInto;
 
 /// Handler for GitHub's releases API.
 ///
@@ -96,15 +98,9 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_asset(&self, asset_id: AssetId) -> crate::Result<models::repos::Asset> {
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            asset_id = asset_id,
-        );
-
-        self.parent.crab.get(route, None::<&()>).await
+    #[deprecated(note = "use repos::ReleaseAssetsHandler::get instead")]
+    pub async fn get_asset(&self, asset_id: u64) -> crate::Result<models::repos::Asset> {
+        self.parent.release_assets().get(asset_id).await
     }
 
     /// Gets the latest release.
@@ -150,6 +146,28 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.parent.crab.get(route, None::<&()>).await
     }
 
+    /// Gets the release using its id.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .get(3)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get(&self, number: u64) -> Result<models::repos::Release> {
+        let route = format!(
+            "/repos/{owner}/{repo}/releases/{number}",
+            owner = self.parent.owner,
+            repo = self.parent.repo,
+            number = number,
+        );
+
+        self.parent.crab.get(route, None::<&()>).await
+    }
+
     /// Generates [`crate::models::repos::ReleaseNotes`] which describe
     /// a [`crate::models::repos::Release`]
     /// ```no_run
@@ -168,6 +186,52 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         tag_name: &'tag_name (impl AsRef<str> + ?Sized),
     ) -> GenerateReleaseNotesBuilder<'_, '_, '_, 'tag_name, '_, '_, '_> {
         GenerateReleaseNotesBuilder::new(self, tag_name.as_ref())
+    }
+
+    /// Upload an [`crate::models::repos::Asset`] associated with
+    /// a [`crate::models::repos::Release`]
+    /// ```no_run
+    /// use bytes::Bytes;
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let file_data: Bytes = Bytes::from("some_data");
+    /// let asset = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .upload_asset(1, "my_asset.tar.gz", file_data)
+    ///     .label("My Awesome Asset")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn upload_asset<'asset_name>(
+        &self,
+        id: u64,
+        asset_name: &'asset_name (impl AsRef<str> + ?Sized),
+        body: Bytes,
+    ) -> UploadAssetBuilder<'_, '_, '_, 'asset_name, '_> {
+        UploadAssetBuilder::new(self, id, asset_name.as_ref(), body)
+    }
+
+    /// Creates a new [`ListReleaseAssetsBuilder`] that can be configured to filter
+    /// listing release assetss.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let page = octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .assets(1)
+    ///     // Optional Parameters
+    ///     .per_page(100)
+    ///     .page(5u32)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn assets(&self, release_id: u64) -> ListReleaseAssetsBuilder<'_, '_, '_> {
+        ListReleaseAssetsBuilder::new(self, release_id)
     }
 
     /// Streams the binary contents of an asset.
@@ -189,33 +253,35 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// ```
     #[cfg(feature = "stream")]
     #[cfg_attr(docsrs, doc(cfg(feature = "stream")))]
+    #[deprecated(note = "use repos::ReleaseAssetsHandler::stream instead")]
     pub async fn stream_asset(
         &self,
-        asset_id: AssetId,
+        asset_id: u64,
     ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
-        use futures_util::TryStreamExt;
-        use snafu::GenerateImplicitData;
+        self.parent.release_assets().stream(asset_id).await
+    }
 
+    /// Delete a release using its id.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let release = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .releases()
+    ///     .delete(3)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete(&self, id: u64) -> Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
+            "/repos/{owner}/{repo}/releases/{id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
-            asset_id = asset_id,
+            id = id,
         );
 
-        let uri = Uri::builder()
-            .path_and_query(route)
-            .build()
-            .context(HttpSnafu)?;
-        let builder = Builder::new()
-            .method(http::Method::GET)
-            .uri(uri)
-            .header(http::header::ACCEPT, "application/octet-stream");
-        let request = self.parent.crab.build_request(builder, None::<&()>)?;
-        let response = self.parent.crab.execute(request).await?;
-        let response = self.parent.crab.follow_location_to_data(response).await?;
-        Ok(http_body_util::BodyStream::new(response.into_body())
-            .try_filter_map(|frame| futures_util::future::ok(frame.into_data().ok())))
+        self.parent.crab._delete(route, None::<&()>).await?;
+        Ok(())
     }
 }
 
@@ -583,5 +649,120 @@ impl<
         let result: Result<crate::models::repos::ReleaseNotes> =
             self.handler.parent.crab.post(route, Some(&self)).await;
         result
+    }
+}
+
+// A builder pattern struct for listing release assets.
+///
+/// created by [`ReleasesHandler::assets`]
+#[derive(serde::Serialize)]
+pub struct ListReleaseAssetsBuilder<'octo, 'r1, 'r2> {
+    #[serde(skip)]
+    handler: &'r2 ReleasesHandler<'octo, 'r1>,
+    #[serde(skip)]
+    release_id: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r1, 'r2> ListReleaseAssetsBuilder<'octo, 'r1, 'r2> {
+    pub(crate) fn new(handler: &'r2 ReleasesHandler<'octo, 'r1>, release_id: u64) -> Self {
+        Self {
+            handler,
+            release_id,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Asset>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/releases/{release_id}/assets",
+            owner = self.handler.parent.owner,
+            repo = self.handler.parent.repo,
+            release_id = self.release_id,
+        );
+        self.handler.parent.crab.get(route, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for updating release assets.
+///
+/// created by [`ReleasesHandler::upload_asset`].
+pub struct UploadAssetBuilder<'octo, 'repos, 'handler, 'name, 'label> {
+    handler: &'handler ReleasesHandler<'octo, 'repos>,
+    release_id: u64,
+    name: &'name str,
+    body: Bytes,
+    label: Option<&'label str>,
+}
+
+impl<'octo, 'repos, 'handler, 'name, 'label>
+    UploadAssetBuilder<'octo, 'repos, 'handler, 'name, 'label>
+{
+    pub(crate) fn new(
+        handler: &'handler ReleasesHandler<'octo, 'repos>,
+        release_id: u64,
+        name: &'name str,
+        body: Bytes,
+    ) -> Self {
+        Self {
+            handler,
+            release_id,
+            name,
+            body,
+            label: None,
+        }
+    }
+
+    /// The asset label
+    pub fn label(mut self, label: &'label (impl AsRef<str> + ?Sized)) -> Self {
+        self.label = Some(label.as_ref());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Asset> {
+        // the url could be constructed without fetching the release, but if the user has no access to the release
+        // then he will not have access to upload to it.
+        let release = self.handler.get(self.release_id).await?;
+
+        let mut base_uri = format!(
+            "{}?name={}",
+            release.upload_url.replace("{?name,label}", ""),
+            self.name
+        );
+        if let Some(label) = self.label {
+            base_uri = format!("{}&label={}", base_uri, label);
+        }
+
+        let url: Uri = base_uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let request = Builder::new()
+            .method(http::Method::POST)
+            .uri(url)
+            .header(http::header::CONTENT_TYPE, "application/octet-stream")
+            .header(http::header::CONTENT_LENGTH, self.body.len())
+            .body(self.body)
+            .context(HttpSnafu)?;
+        let response = self.handler.parent.crab.execute(request).await?;
+        Asset::from_response(crate::map_github_error(response).await?).await
     }
 }

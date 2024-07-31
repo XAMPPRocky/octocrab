@@ -1,6 +1,6 @@
 [package]
 name = "octocrab"
-version = "0.38.0"
+version = "0.39.0"
 resolver = "2"
 authors = ["XAMPPRocky <xampprocky@gmail.com>"]
 edition = "2018"
@@ -15,6 +15,8 @@ keywords = ["github", "github-api"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]

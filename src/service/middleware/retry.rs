@@ -3,18 +3,20 @@ use http::{Request, Response};
 use hyper_util::client::legacy::Error;
 use tower::retry::Policy;
 
+use crate::body::OctoBody;
+
 #[derive(Clone)]
 pub enum RetryConfig {
     None,
     Simple(usize),
 }
 
-impl<B> Policy<Request<String>, Response<B>, Error> for RetryConfig {
+impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
     type Future = futures_util::future::Ready<Self>;
 
     fn retry(
         &self,
-        _req: &Request<String>,
+        _req: &Request<OctoBody>,
         result: Result<&Response<B>, &Error>,
     ) -> Option<Self::Future> {
         match self {
@@ -42,7 +44,7 @@ impl<B> Policy<Request<String>, Response<B>, Error> for RetryConfig {
         }
     }
 
-    fn clone_request(&self, req: &Request<String>) -> Option<Request<String>> {
+    fn clone_request(&self, req: &Request<OctoBody>) -> Option<Request<OctoBody>> {
         match self {
             RetryConfig::None => None,
             _ => {
@@ -59,7 +61,6 @@ impl<B> Policy<Request<String>, Response<B>, Error> for RetryConfig {
                 let new_req = new_req.body(body).expect(
                     "This should never panic, as we are cloning a components from existing request",
                 );
-
                 Some(new_req)
             }
         }

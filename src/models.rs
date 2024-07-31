@@ -113,6 +113,7 @@ id_type!(
     IssueId,
     JobId,
     HookId,
+    HookDeliveryId,
     LabelId,
     MilestoneId,
     NotificationId,
