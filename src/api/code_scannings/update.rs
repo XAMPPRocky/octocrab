@@ -45,7 +45,7 @@ impl<'octo, 'a, 'b, 'c> UpdateCodeScanningBuilder<'octo, 'a> {
         let route = format!(
             "/repos/{owner}/{repo}/code-scanning/alerts/{code_scanning}",
             owner = self.handler.owner,
-            repo = self.handler.repo.as_ref().unwrap_or(&"".to_string()),
+            repo = self.handler.repo.as_ref().expect("Repository is required"),
             code_scanning = self.number,
         );
 

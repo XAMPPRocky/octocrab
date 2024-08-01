@@ -42,7 +42,7 @@ impl<'octo> CodeScanningHandler<'octo> {
         list::ListCodeScanningsBuilder::new(self)
     }
 
-    /// Update an issue in the repository.
+    /// Update a code scanning alert
     /// ```no_run
     /// # use octocrab::params;
     ///
