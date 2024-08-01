@@ -41,6 +41,7 @@ Currently, the following modules are available as of version `0.17`.
 - [`teams`] Teams.
 - [`gists`] GitHub's gists API
 - [`users`] Users.
+- [`code_scannings`] Code scannings
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html

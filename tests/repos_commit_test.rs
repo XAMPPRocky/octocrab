@@ -36,7 +36,7 @@ const REPO: &str = "some-repo";
 
 #[tokio::test]
 async fn should_return_list_of_commits() {
-    let repos_list_commits_json: Vec::<RepoCommit> =
+    let repos_list_commits_json: Vec<RepoCommit> =
         serde_json::from_str(include_str!("resources/repos_list_commits.json")).unwrap();
     let template = ResponseTemplate::new(201).set_body_json(&repos_list_commits_json);
     let mock_server = setup_repos_commits_api(template).await;
@@ -56,7 +56,7 @@ async fn should_return_list_of_commits() {
 
     let result = result.unwrap();
     let result = result.items;
-    
+
     assert!(
         result.len() == 1,
         "expected '1' for len(), got {:#?}",
@@ -72,9 +72,24 @@ async fn should_return_list_of_commits() {
         );
 
         assert!(
-            commit.commit.author.as_ref().unwrap().date.unwrap().to_rfc3339() == "2024-04-30T08:54:10+00:00",
+            commit
+                .commit
+                .author
+                .as_ref()
+                .unwrap()
+                .date
+                .unwrap()
+                .to_rfc3339()
+                == "2024-04-30T08:54:10+00:00",
             "expected '2024-04-30T08:54:10+00:00' value, got {:#?}",
-            commit.commit.author.as_ref().unwrap().date.unwrap().to_rfc3339()
+            commit
+                .commit
+                .author
+                .as_ref()
+                .unwrap()
+                .date
+                .unwrap()
+                .to_rfc3339()
         );
     });
 }
