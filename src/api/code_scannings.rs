@@ -2,6 +2,7 @@
 use crate::{models, params, Octocrab, Result};
 
 mod list;
+mod update;
 
 /// Handler for GitHub's code scanning API.
 ///
@@ -39,5 +40,26 @@ impl<'octo> CodeScanningHandler<'octo> {
     /// List code scannings in the repository.
     pub fn list(&self) -> list::ListCodeScanningsBuilder<'_, '_> {
         list::ListCodeScanningsBuilder::new(self)
+    }
+
+    /// Update an issue in the repository.
+    /// ```no_run
+    /// # use octocrab::params;
+    ///
+    ///  async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models;
+    ///
+    /// let issue = octocrab.code_scannings("owner", "repo")
+    ///     .update(1234u64)
+    ///     .state(params::AlertState::Dismissed)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn update(&self, number: u64) -> update::UpdateCodeScanningBuilder<'_, '_> {
+        update::UpdateCodeScanningBuilder::new(self, number)
     }
 }
