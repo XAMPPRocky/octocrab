@@ -403,24 +403,42 @@ pub struct IssuePullRequest {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Author {
-    pub login: String,
-    pub id: UserId,
-    pub node_id: String,
-    pub avatar_url: Url,
-    pub gravatar_id: String,
-    pub url: Url,
-    pub html_url: Url,
-    pub followers_url: Url,
-    pub following_url: Url,
-    pub gists_url: Url,
-    pub starred_url: Url,
-    pub subscriptions_url: Url,
-    pub organizations_url: Url,
-    pub repos_url: Url,
-    pub events_url: Url,
-    pub received_events_url: Url,
-    pub r#type: String,
-    pub site_admin: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub login: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<UserId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gravatar_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub followers_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub following_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gists_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub starred_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscriptions_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organizations_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repos_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub events_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub received_events_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub site_admin: Option<bool>,
     pub patch_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
