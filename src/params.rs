@@ -4,6 +4,15 @@
 #[derive(Debug, Clone, Copy, serde::Serialize)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
+pub enum AlertState {
+    Dismissed,
+    Open,
+}
+
+/// The status of a issue or pull request.
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum State {
     All,
     Open,
