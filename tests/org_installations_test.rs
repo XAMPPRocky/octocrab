@@ -52,6 +52,6 @@ async fn should_return_org_installation() {
     } = result.unwrap();
     {
         assert_eq!(installation_id, InstallationId(1));
-        assert_eq!(login, "github");
+        assert_eq!(login.as_deref(), Some("github"));
     }
 }

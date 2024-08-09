@@ -66,6 +66,6 @@ async fn should_return_pull_request_commits() {
     let RepoCommit { author, .. } = commits.items.first().unwrap();
 
     {
-        assert_eq!(author.clone().unwrap().login, "octocat");
+        assert_eq!(author.clone().unwrap().login.as_deref(), Some("octocat"));
     }
 }

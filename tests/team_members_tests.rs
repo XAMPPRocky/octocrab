@@ -60,7 +60,7 @@ async fn should_return_page_with_users() {
     let Page { items, .. } = result.unwrap();
     {
         assert_eq!(items.len(), 1);
-        assert_eq!(items[0].login, String::from("octocat"));
+        assert_eq!(items[0].login.as_deref(), Some("octocat"));
         assert_eq!(items[0].r#type, String::from("User"));
     }
 }

@@ -403,7 +403,8 @@ pub struct IssuePullRequest {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Author {
-    pub login: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub login: Option<String>,
     pub id: UserId,
     pub node_id: String,
     pub avatar_url: Url,
