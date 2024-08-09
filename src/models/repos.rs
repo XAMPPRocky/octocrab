@@ -38,7 +38,9 @@ pub struct RepoCommit {
     pub html_url: String,
     pub comments_url: String,
     pub commit: RepoCommitPage,
+    #[serde(deserialize_with = "crate::models::empty_map_is_none")]
     pub author: Option<Author>,
+    #[serde(deserialize_with = "crate::models::empty_map_is_none")]
     pub committer: Option<Author>,
     pub parents: Vec<Commit>,
 

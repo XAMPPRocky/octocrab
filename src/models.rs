@@ -442,6 +442,27 @@ where
     }
 }
 
+/// Sometimes github returns an empty map instead of a null.
+fn empty_map_is_none<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    T: Deserialize<'de>,
+    D: Deserializer<'de>,
+{
+    // try to deserialize our input map to generic serde
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Helper<I> {
+        Value(Option<I>),
+        Empty {},
+    }
+    let helper = Helper::deserialize(deserializer)?;
+    let res = match helper {
+        Helper::Value(inner) => inner,
+        Helper::Empty {} => None,
+    };
+    Ok(res)
+}
+
 /// The full profile for a user
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
