@@ -56,5 +56,5 @@ async fn should_get_projects_by_its_id() {
     let result = project.unwrap();
 
     assert_eq!(result.name, "Organization Roadmap");
-    assert_eq!(result.creator.login, "octocat");
+    assert_eq!(result.creator.login.as_deref(), Some("octocat"));
 }

@@ -20,7 +20,7 @@ async fn main() -> octocrab::Result<()> {
     }
 
     println!(
-        "User '{username}' has {count} gists:",
+        "User '{username:?}' has {count} gists:",
         username = current_user_name,
         count = gists.len()
     );

@@ -59,7 +59,7 @@ async fn should_return_page_with_invitations() {
     {
         assert_eq!(items.len(), 2);
         assert_eq!(items[0].role, "admin");
-        assert_eq!(items[0].user.login, "davidmhewitt");
+        assert_eq!(items[0].user.login.as_deref(), Some("davidmhewitt"));
         assert_eq!(items[0].organization.login, "elementary");
         assert_eq!(items[1].organization.login, "EpicGames");
     }

@@ -58,5 +58,5 @@ async fn should_list_user_projects() {
     let Page { items, .. } = result.unwrap();
 
     assert_eq!(items[0].name, "My Projects");
-    assert_eq!(items[1].creator.login, "octocat");
+    assert_eq!(items[1].creator.login.as_deref(), Some("octocat"));
 }

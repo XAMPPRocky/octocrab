@@ -56,7 +56,7 @@ const REPO: &str = "repo";
 async fn should_return_page_with_users() {
     let star_gazers: Vec<StarGazer> =
         serde_json::from_str(include_str!("resources/stargazers.json")).unwrap();
-    let login1: String = star_gazers[0].user.as_ref().unwrap().login.clone();
+    let login1: Option<String> = star_gazers[0].user.as_ref().unwrap().login.clone();
     let page_response = FakePage { items: star_gazers };
     let template = ResponseTemplate::new(200).set_body_json(&page_response);
     let mock_server = setup_api(template).await;

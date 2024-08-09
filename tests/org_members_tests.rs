@@ -61,7 +61,7 @@ const USERNAME: &str = "mona";
 async fn should_return_page_with_users() {
     let org_members: Author =
         serde_json::from_str(include_str!("resources/org_members.json")).unwrap();
-    let login: String = org_members.login.clone();
+    let login: Option<String> = org_members.login.clone();
     let page_response = FakePage {
         items: vec![org_members],
     };

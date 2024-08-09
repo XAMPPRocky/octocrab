@@ -65,7 +65,7 @@ async fn should_return_repo_contributors() {
     } = contributors.items.first().unwrap();
 
     {
-        assert_eq!(login, "XAMPPRocky");
+        assert_eq!(login.as_deref(), Some("XAMPPRocky"));
         assert!(*contributions > 0);
     }
 }
