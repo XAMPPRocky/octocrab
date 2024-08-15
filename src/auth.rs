@@ -7,7 +7,7 @@ use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 
 use snafu::*;
 
@@ -204,7 +204,7 @@ pub struct DeviceCodes {
 impl DeviceCodes {
     /// Poll Github to see if authentication codes are available.
     ///
-    /// See `https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters` for details.
+    /// See `https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps` for details.
     pub async fn poll_once(
         &self,
         crab: &crate::Octocrab,
@@ -224,6 +224,37 @@ impl DeviceCodes {
             TokenResponse::Ok(k) => Either::Left(k),
             TokenResponse::Continue { error } => Either::Right(error),
         })
+    }
+
+    /// Poll Github in a loop until authentication codes become available.
+    #[cfg(feature = "tokio")]
+    pub async fn poll_until_available(
+        &self,
+        crab: &crate::Octocrab,
+        client_id: &SecretString,
+    ) -> Result<OAuth> {
+        let mut interval = Duration::from_secs(self.interval);
+        let mut clock = tokio::time::interval(interval);
+
+        loop {
+            clock.tick().await;
+            match self.poll_once(crab, client_id).await? {
+                Either::Left(auth) => return Ok(auth),
+                Either::Right(cont) => match cont {
+                    Continue::SlowDown => {
+                        // We were requested to slow down, so add five seconds to the polling
+                        // duration.
+                        interval += Duration::from_secs(5);
+                        clock = tokio::time::interval(interval);
+                        // The first tick happens instantly, so we tick that off immediately.
+                        clock.tick().await;
+                    }
+                    Continue::AuthorizationPending => {
+                        // The user has not clicked authorize yet, so we keep polling as normal.
+                    }
+                },
+            }
+        }
     }
 }
 
