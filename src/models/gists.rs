@@ -16,6 +16,7 @@ pub struct Gist {
     pub html_url: Url,
     pub id: String,
     pub node_id: String,
+    pub public: bool,
     pub updated_at: DateTime<Utc>,
     pub url: Url,
 }
