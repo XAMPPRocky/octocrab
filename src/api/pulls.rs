@@ -406,7 +406,7 @@ impl<'octo> PullRequestHandler<'octo> {
     ///
     #[deprecated(
         since = "0.34.4",
-        note = "specific PR builder transitioned to pr_review_actions, reply_to_comment, reply_to_comment"
+        note = "specific PR builder transitioned to pr_review_actions, pr_commits, reply_to_comment"
     )]
     //FIXME: remove?
     pub fn pull_number(&self, pull_nr: u64) -> SpecificPullRequestBuilder {
@@ -426,9 +426,14 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// /repos/{owner}/{repo}/pulls/{pull_number}/commits
-    // pub fn pr_commits(&self, pull_nr: u64) -> SpecificPullRequestCommentBuilder<'octo, '_> {
-    //     SpecificPullRequestCommentBuilder::new(self, pull_nr, 0)
-    // }
+    pub async fn pr_commits(
+        &self,
+        pull_nr: u64,
+    ) -> crate::Result<crate::Page<crate::models::repos::RepoCommit>> {
+        SpecificPullRequestBuilder::new(self, pull_nr)
+            .commits()
+            .await
+    }
 
     // /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
     /// Creates a reply to a specific comment of a pull request specified in the first argument
