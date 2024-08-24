@@ -57,18 +57,36 @@ pub struct CreateForkBuilder<'octo, 'r> {
     handler: &'r RepoHandler<'octo>,
     #[serde(skip_serializing_if = "Option::is_none")]
     organization: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default_branch_only: Option<bool>,
 }
 impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
     pub(crate) fn new(handler: &'r RepoHandler<'octo>) -> Self {
         Self {
             handler,
             organization: None,
+            name: None,
+            default_branch_only: None,
         }
     }
 
     /// The organization name, if forking into an organization.
     pub fn organization(mut self, organization: impl Into<String>) -> Self {
         self.organization = Some(organization.into());
+        self
+    }
+
+    /// When forking from an existing repository, a new name for the fork.
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    /// When forking from an existing repository, fork with only the default branch.
+    pub fn default_branch_only(mut self, default_branch_only: impl Into<bool>) -> Self {
+        self.default_branch_only = Some(default_branch_only.into());
         self
     }
 
@@ -108,8 +126,10 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Creates a fork of a repository. Optionally, specify the target
-    /// [organization](CreateForkBuilder::organization()) to
-    /// create the fork in.
+    /// [organization](CreateForkBuilder::organization())
+    /// or [name](CreateForkBuilder::name()) to create the fork in,
+    /// or [default_branch_only](CreateForkBuilder::default_branch_only()) to fork with
+    /// only the default branch.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let new_fork = octocrab::instance()
@@ -117,6 +137,8 @@ impl<'octo> RepoHandler<'octo> {
     ///     .create_fork()
     ///     // Optional Parameters
     ///     .organization("weyland-yutani")
+    ///     .name("new-repo-name")
+    ///     .default_branch_only(true)
     ///     .send()
     ///     .await?;
     /// # Ok(())
