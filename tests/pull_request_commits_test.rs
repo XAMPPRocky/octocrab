@@ -46,9 +46,9 @@ async fn should_return_pull_request_commits() {
 
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
+        .pr_commits(PULL_NUMBER)
         .page(0u32)
-        .commits()
+        .send()
         .await;
 
     assert!(
@@ -68,4 +68,34 @@ async fn should_return_pull_request_commits() {
     {
         assert_eq!(author.clone().unwrap().login, "octocat");
     }
+}
+
+#[tokio::test]
+async fn should_return_pull_request_commits_empty_author_object() {
+    let pull_request_commits_response: Vec<RepoCommit> = serde_json::from_str(include_str!(
+        "resources/pull_request_commits_empty_author_object.json"
+    ))
+    .unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&pull_request_commits_response);
+    let mock_server = setup_api(template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .pulls(OWNER, REPO)
+        .pr_commits(PULL_NUMBER)
+        .page(0u32)
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+
+    let mut commits = result.unwrap();
+    let items = commits.take_items();
+
+    assert!(items[11].author.is_some());
+    assert!(items[12].author.is_none());
 }

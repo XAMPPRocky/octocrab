@@ -1,3 +1,4 @@
+pub use self::pr_commit::SpecificPullRequestCommitBuilder;
 use crate::models::repos::RepoCommit;
 use crate::models::CommentId;
 use crate::pulls::specific_pr::pr_comment::SpecificPullRequestCommentBuilder;
@@ -6,6 +7,7 @@ use crate::pulls::PullRequestHandler;
 use crate::Page;
 
 mod pr_comment;
+mod pr_commit;
 pub(crate) mod pr_reviews;
 /// A builder pattern struct for working with a specific pull request data,
 /// e.g. reviews, commits, comments, etc.
