@@ -1008,20 +1008,27 @@ impl Octocrab {
     /// then obtain an installation ID, and then pass that here to
     /// obtain a new `Octocrab` with which you can make API calls
     /// with the permissions of that installation.
-    pub fn installation(&self, id: InstallationId) -> Octocrab {
+    pub fn installation(&self, id: InstallationId) -> Result<Octocrab> {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
-            panic!("Github App authorization is required to target an installation");
+            let source = std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Github App authorization is required to target an installation",
+            );
+            return Err(Error::Other {
+                backtrace: Backtrace::generate_with_source(&source),
+                source: Box::new(source),
+            });
         };
-        Octocrab {
+        Ok(Octocrab {
             client: self.client.clone(),
             auth_state: AuthState::Installation {
                 app: app_auth,
                 installation: id,
                 token: CachedToken::default(),
             },
-        }
+        })
     }
 
     /// Similar to `installation`, but also eagerly caches the installation
@@ -1034,7 +1041,7 @@ impl Octocrab {
         &self,
         id: InstallationId,
     ) -> Result<(Octocrab, SecretString)> {
-        let crab = self.installation(id);
+        let crab = self.installation(id)?;
         let token = crab.request_installation_auth_token().await?;
         Ok((crab, token))
     }
@@ -1480,7 +1487,12 @@ impl Octocrab {
         {
             (app, installation, token)
         } else {
-            panic!("Installation not configured");
+            let source =
+                std::io::Error::new(std::io::ErrorKind::Other, "Installation not configured");
+            return Err(Error::Other {
+                backtrace: Backtrace::generate_with_source(&source),
+                source: Box::new(source),
+            });
         };
         let mut request = Builder::new();
         let mut sensitive_value =
