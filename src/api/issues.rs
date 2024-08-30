@@ -233,6 +233,31 @@ impl<'octo> IssueHandler<'octo> {
             .await
     }
 
+    /// Removes one or more assignees from an issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let issue = octocrab.issues("owner", "repo").remove_assignees(101, &["username1", "username2"]).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_assignees(
+        &self,
+        number: u64,
+        assignees: &[&str],
+    ) -> Result<models::issues::Issue> {
+        let route = format!(
+            "/repos/{owner}/{repo}/issues/{issue}/assignees",
+            owner = self.owner,
+            repo = self.repo,
+            issue = number
+        );
+
+        self.crab
+            .delete(route, Some(&serde_json::json!({ "assignees": assignees })))
+            .await
+    }
+
     /// Checks if a user has permission to be assigned to an issue in
     /// the repository.
     /// ```no_run
