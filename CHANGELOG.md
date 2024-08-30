@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.1](https://github.com/XAMPPRocky/octocrab/compare/v0.39.0...v0.39.1) - 2024-08-30
+
+### Added
+- Add `Gist::public` field ([#678](https://github.com/XAMPPRocky/octocrab/pull/678))
+
+### Other
+- Uncomment pr_commits function ([#680](https://github.com/XAMPPRocky/octocrab/pull/680))
+- Only add base_path if req_pandq does not contain it ([#684](https://github.com/XAMPPRocky/octocrab/pull/684))
+- Update code scanning alert ([#673](https://github.com/XAMPPRocky/octocrab/pull/673))
+- Added `merged_by` and `closed_by` fields ([#674](https://github.com/XAMPPRocky/octocrab/pull/674))
+- Update and Fixes to the Code Scanning Models & Webhooks ([#675](https://github.com/XAMPPRocky/octocrab/pull/675))
+
 ## [0.39.0](https://github.com/XAMPPRocky/octocrab/compare/v0.38.0...v0.39.0) - 2024-07-30
 
 ### Added
