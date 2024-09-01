@@ -57,5 +57,5 @@ async fn should_return_page_with_check_runs() {
 
     let response = result.unwrap();
     assert_eq!(response.name, tag_name);
-    assert_eq!(response.body.is_empty(), false);
+    assert!(!response.body.is_empty());
 }
