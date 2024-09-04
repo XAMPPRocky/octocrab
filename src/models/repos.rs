@@ -155,7 +155,7 @@ pub struct GitUserTime {
 #[serde(rename_all = "snake_case")]
 pub struct CommitAuthor {
     pub name: String,
-    pub email: String,
+    pub email: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
 }
