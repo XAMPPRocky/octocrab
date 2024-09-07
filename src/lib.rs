@@ -193,6 +193,7 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use api::users::UserRef;
 use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
@@ -249,7 +250,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken};
+use models::{AppId, InstallationId, InstallationToken, UserId};
 
 pub use self::{
     api::{
@@ -1158,9 +1159,14 @@ impl Octocrab {
         teams::TeamHandler::new(self, owner.into())
     }
 
-    /// Creates a [`users::UserHandler`] for the specified user
+    /// Creates a [`users::UserHandler`] for the specified user using the user name
     pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
-        users::UserHandler::new(self, user.into())
+        users::UserHandler::new(self, UserRef::ByString(user.into()))
+    }
+
+    /// Creates a [`users::UserHandler`] for the specified user using the user ID
+    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler {
+        users::UserHandler::new(self, UserRef::ById(user.into()))
     }
 
     /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows

@@ -6,6 +6,7 @@ use http::StatusCode;
 use snafu::GenerateImplicitData;
 
 use crate::api::users::user_blocks::BlockedUsersBuilder;
+use crate::models::UserId;
 use crate::{error, GitHubError, Octocrab};
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
@@ -15,13 +16,28 @@ mod follow;
 mod user_blocks;
 mod user_repos;
 
+pub enum UserRef {
+    ByString(String),
+    ById(UserId),
+}
+
+impl std::fmt::Display for UserRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UserRef::ByString(str) => write!(f, "{}", str),
+
+            UserRef::ById(id) => write!(f, "{}", id),
+        }
+    }
+}
+
 pub struct UserHandler<'octo> {
     crab: &'octo Octocrab,
-    user: String,
+    user: UserRef,
 }
 
 impl<'octo> UserHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, user: String) -> Self {
+    pub(crate) fn new(crab: &'octo Octocrab, user: UserRef) -> Self {
         Self { crab, user }
     }
 
