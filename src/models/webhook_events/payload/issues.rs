@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{issues::Issue, Author, Label, Milestone};
+use crate::models::{issues::Issue, Author, Label, Milestone, Repository};
 
 use super::OldValue;
 
@@ -14,6 +14,7 @@ pub struct IssuesWebhookEventPayload {
     pub milestone: Option<Milestone>,
     pub label: Option<Label>,
     pub changes: Option<IssuesWebhookEventChanges>,
+    pub repository: Repository,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
