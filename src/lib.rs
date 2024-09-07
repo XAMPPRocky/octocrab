@@ -1079,7 +1079,13 @@ impl Octocrab {
         owner: impl Into<String>,
         repo: impl Into<String>,
     ) -> issues::IssueHandler {
-        issues::IssueHandler::new(self, owner.into(), repo.into())
+        issues::IssueHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`issues::IssueHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's issues API.
+    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler {
+        issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`code_scanning::CodeSCanningHandler`] for the repo specified at `owner/repo`,
