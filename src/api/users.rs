@@ -16,7 +16,7 @@ mod follow;
 mod user_blocks;
 mod user_repos;
 
-pub enum UserRef {
+pub(crate) enum UserRef {
     ByString(String),
     ById(UserId),
 }

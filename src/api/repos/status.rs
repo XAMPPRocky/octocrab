@@ -63,9 +63,8 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<Status> {
         let route = format!(
-            "/repos/{owner}/{repo}/statuses/{sha}",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
+            "/repos/{}/statuses/{sha}",
+            self.handler.repo,
             sha = self.sha
         );
         self.handler.crab.post(route, Some(&self)).await
@@ -109,8 +108,7 @@ impl<'octo, 'r> ListStatusesBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Status>> {
         let route = format!(
-            "/repos/{owner}/{repo}/commits/{sha}/statuses",
-            owner = self.handler.owner,
+            "/repos/{repo}/commits/{sha}/statuses",
             repo = self.handler.repo,
             sha = self.sha,
         );

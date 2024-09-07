@@ -193,6 +193,7 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use api::repos::RepoRef;
 use api::users::UserRef;
 use body::OctoBody;
 use chrono::{DateTime, Utc};
@@ -250,7 +251,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken, UserId};
+use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
@@ -1138,7 +1139,13 @@ impl Octocrab {
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
     pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
-        repos::RepoHandler::new(self, owner.into(), repo.into())
+        repos::RepoHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's repository API.
+    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler {
+        repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's

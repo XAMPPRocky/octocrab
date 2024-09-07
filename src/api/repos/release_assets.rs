@@ -4,12 +4,12 @@ use super::*;
 ///
 /// Created with [`RepoHandler::release_assets`].
 pub struct ReleaseAssetsHandler<'octo, 'r> {
-    parent: &'r RepoHandler<'octo>,
+    handler: &'r RepoHandler<'octo>,
 }
 
 impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     pub(crate) fn new(parent: &'r RepoHandler<'octo>) -> Self {
-        Self { parent }
+        Self { handler: parent }
     }
     /// Gets the release asset using its id.
     /// ```no_run
@@ -23,14 +23,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get(&self, id: u64) -> Result<models::repos::Asset> {
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/repos/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
-        self.parent.crab.get(route, None::<&()>).await
+        self.handler.crab.get(route, None::<&()>).await
     }
     /// Creates a new [`UpdateReleaseAssetBuilder`] with `asset_id`.
     /// ```no_run
@@ -65,14 +60,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn delete(&self, id: u64) -> Result<()> {
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/repos/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
-        self.parent.crab._delete(route, None::<&()>).await?;
+        self.handler.crab._delete(route, None::<&()>).await?;
         Ok(())
     }
 
@@ -103,7 +93,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         //use snafu::GenerateImplicitData;
 
         let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
+            "/repos/{}/releases/assets/{id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             id = id,
@@ -182,11 +172,10 @@ impl<'octo, 'repos, 'handler, 'name, 'label, 'state>
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Asset> {
         let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
-            owner = self.handler.parent.owner,
-            repo = self.handler.parent.repo,
+            "/repos/{repo}/releases/assets/{asset_id}",
+            repo = self.handler.handler.repo,
             asset_id = self.asset_id,
         );
-        self.handler.parent.crab.patch(route, Some(&self)).await
+        self.handler.handler.crab.patch(route, Some(&self)).await
     }
 }

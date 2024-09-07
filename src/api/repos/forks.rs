@@ -43,11 +43,7 @@ impl<'octo, 'r> ListForksBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Repository>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/forks",
-            owner = self.handler.owner,
-            repo = self.handler.repo
-        );
+        let route = format!("/repos/{}/forks", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -92,11 +88,7 @@ impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::Repository> {
-        let route = format!(
-            "/repos/{owner}/{repo}/forks",
-            owner = self.handler.owner,
-            repo = self.handler.repo
-        );
+        let route = format!("/repos/{}/forks", self.handler.repo);
         self.handler.crab.post(route, Some(&self)).await
     }
 }

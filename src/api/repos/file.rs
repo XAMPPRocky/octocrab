@@ -35,12 +35,7 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
-        let route = format!(
-            "/repos/{owner}/{repo}/contents/{path}",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-            path = path,
-        );
+        let route = format!("/repos/{}/contents/{path}", self.handler.repo, path = path,);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -81,12 +76,7 @@ impl<'octo, 'r> GetReadmeBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::Content> {
         let path = self.path.clone().unwrap_or(String::from(""));
-        let route = format!(
-            "/repos/{owner}/{repo}/readme/{path}",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-            path = path,
-        );
+        let route = format!("/repos/{}/readme/{path}", self.handler.repo, path = path,);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -150,9 +140,8 @@ impl<'octo, 'r> UpdateFileBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileUpdate> {
         let route = format!(
-            "/repos/{owner}/{repo}/contents/{path}",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
+            "/repos/{}/contents/{path}",
+            self.handler.repo,
             path = self.path,
         );
         self.handler.crab.put(route, Some(&self)).await
@@ -214,9 +203,8 @@ impl<'octo, 'r> DeleteFileBuilder<'octo, 'r> {
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::FileDeletion> {
         let route = format!(
-            "/repos/{owner}/{repo}/contents/{path}",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
+            "/repos/{}/contents/{path}",
+            self.handler.repo,
             path = self.path,
         );
         self.handler.crab.delete(route, Some(&self)).await
