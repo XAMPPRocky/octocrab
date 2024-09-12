@@ -632,7 +632,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
     #[cfg(feature = "default-client")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "defaut-client")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, OctoBody> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
