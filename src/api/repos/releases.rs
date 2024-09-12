@@ -115,7 +115,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get_latest(&self) -> crate::Result<models::repos::Release> {
-        let route = format!("/repos/{}/releases/latest", self.handler.repo,);
+        let route = format!("/{}/releases/latest", self.handler.repo,);
 
         self.handler.crab.get(route, None::<&()>).await
     }
@@ -132,11 +132,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get_by_tag(&self, tag: &str) -> crate::Result<models::repos::Release> {
-        let route = format!(
-            "/repos/{}/releases/tags/{tag}",
-            self.handler.repo,
-            tag = tag,
-        );
+        let route = format!("/{}/releases/tags/{tag}", self.handler.repo, tag = tag,);
 
         self.handler.crab.get(route, None::<&()>).await
     }
@@ -153,11 +149,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get(&self, number: u64) -> Result<models::repos::Release> {
-        let route = format!(
-            "/repos/{}/releases/{number}",
-            self.handler.repo,
-            number = number,
-        );
+        let route = format!("/{}/releases/{number}", self.handler.repo, number = number,);
 
         self.handler.crab.get(route, None::<&()>).await
     }
@@ -267,7 +259,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn delete(&self, id: u64) -> Result<()> {
-        let route = format!("/repos/{}/releases/{id}", self.handler.repo, id = id,);
+        let route = format!("/{}/releases/{id}", self.handler.repo, id = id,);
 
         self.handler.crab._delete(route, None::<&()>).await?;
         Ok(())
@@ -310,7 +302,7 @@ impl<'octo, 'r1, 'r2> ListReleasesBuilder<'octo, 'r1, 'r2> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Release>> {
-        let route = format!("/repos/{}/releases", self.handler.handler.repo);
+        let route = format!("/{}/releases", self.handler.handler.repo);
         self.handler.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -424,7 +416,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
-        let route = format!("/repos/{}/releases", self.handler.handler.repo);
+        let route = format!("/{}/releases", self.handler.handler.repo);
         self.handler.handler.crab.post(route, Some(&self)).await
     }
 }
@@ -524,7 +516,7 @@ impl<'octo, 'repos, 'handler, 'tag_name, 'target_commitish, 'name, 'body>
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Release> {
         let route = format!(
-            "/repos/{repo}/releases/{release_id}",
+            "/{repo}/releases/{release_id}",
             repo = self.handler.handler.repo,
             release_id = self.release_id,
         );
@@ -620,10 +612,7 @@ impl<
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::ReleaseNotes> {
-        let route = format!(
-            "/repos/{}/releases/generate-notes",
-            self.handler.handler.repo,
-        );
+        let route = format!("/{}/releases/generate-notes", self.handler.handler.repo,);
 
         let result: Result<crate::models::repos::ReleaseNotes> =
             self.handler.handler.crab.post(route, Some(&self)).await;
@@ -671,7 +660,7 @@ impl<'octo, 'r1, 'r2> ListReleaseAssetsBuilder<'octo, 'r1, 'r2> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::repos::Asset>> {
         let route = format!(
-            "/repos/{repo}/releases/{release_id}/assets",
+            "/{repo}/releases/{release_id}/assets",
             repo = self.handler.handler.repo,
             release_id = self.release_id,
         );

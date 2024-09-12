@@ -57,7 +57,7 @@ impl<'octo, 'r> GenerateRepositoryBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<(), Error> {
-        let route = format!("/repos/{}/generate", self.handler.repo);
+        let route = format!("/{}/generate", self.handler.repo);
         let uri = Uri::builder()
             .path_and_query(route)
             .build()

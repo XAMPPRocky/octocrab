@@ -37,7 +37,7 @@ impl<'octo, 'r> ListLabelsForIssueBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::Label>> {
         let route = format!(
-            "/repos/{}/issues/{number}/labels",
+            "/{}/issues/{number}/labels",
             self.handler.repo,
             number = self.number,
         );
@@ -79,7 +79,7 @@ impl<'octo, 'r> ListLabelsForRepoBuilder<'octo, 'r> {
 
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::Label>> {
-        let route = format!("/repos/{}/labels", self.handler.repo);
+        let route = format!("/{}/labels", self.handler.repo);
 
         self.handler.crab.get(route, Some(&self)).await
     }

@@ -55,8 +55,8 @@ pub(crate) enum RepoRef {
 impl std::fmt::Display for RepoRef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RepoRef::ByOwnerAndName(owner, name) => write!(f, "{}/{}", owner, name),
-            RepoRef::ById(id) => write!(f, "{}", id),
+            RepoRef::ByOwnerAndName(owner, name) => write!(f, "/repo/{}/{}", owner, name),
+            RepoRef::ById(id) => write!(f, "/repository/{}", id),
         }
     }
 }
@@ -82,7 +82,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn license(&self) -> Result<models::repos::Content> {
-        let route = format!("/repos/{}/license", self.repo);
+        let route = format!("/{}/license", self.repo);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -95,7 +95,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn public_key(&self) -> Result<models::PublicKey> {
-        let route = format!("/repos/{}/actions/secrets/public-key", self.repo);
+        let route = format!("/{}/actions/secrets/public-key", self.repo);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -111,7 +111,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
-        let route = format!("/repos/{}", self.repo);
+        let route = format!("/{}", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -126,7 +126,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_community_profile_metrics(&self) -> Result<models::RepositoryMetrics> {
-        let route = format!("/repos/{}/community/profile", self.repo);
+        let route = format!("/{}/community/profile", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -147,7 +147,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
     ) -> Result<models::repos::Ref> {
         let route = format!(
-            "/repos/{repo}/git/ref/{reference}",
+            "/{repo}/git/ref/{reference}",
             repo = self.repo,
             reference = reference.ref_url(),
         );
@@ -168,7 +168,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn get_tag(&self, tag_sha: impl Into<String>) -> Result<models::repos::GitTag> {
         let route = format!(
-            "/repos/{repo}/git/tags/{tag_sha}",
+            "/{repo}/git/tags/{tag_sha}",
             repo = self.repo,
             tag_sha = tag_sha.into(),
         );
@@ -194,7 +194,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
         sha: impl Into<String>,
     ) -> Result<models::repos::Ref> {
-        let route = format!("/repos/{}/git/refs", self.repo);
+        let route = format!("/{}/git/refs", self.repo);
         self.crab
             .post(
                 route,
@@ -222,7 +222,7 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn delete_ref(&self, reference: &params::repos::Reference) -> Result<()> {
         let route = format!(
-            "/repos/{repo}/git/refs/{ref}",
+            "/{repo}/git/refs/{ref}",
             repo = self.repo,
             ref = reference.ref_url()
         );
@@ -505,7 +505,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn list_languages(&self) -> Result<models::repos::Languages> {
-        let route = format!("/repos/{}/languages", self.repo);
+        let route = format!("/{}/languages", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -597,7 +597,7 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         hook: crate::models::hooks::Hook,
     ) -> crate::Result<crate::models::hooks::Hook> {
-        let route = format!("/repos/{}/hooks", self.repo);
+        let route = format!("/{}/hooks", self.repo);
         let res = self.crab.post(route, Some(&hook)).await?;
 
         Ok(res)
@@ -620,7 +620,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: &params::repos::Reference,
     ) -> Result<models::CombinedStatus> {
         let route = format!(
-            "/repos/{repo}/commits/{reference}/status",
+            "/{repo}/commits/{reference}/status",
             repo = self.repo,
             reference = reference.ref_url(),
         );
@@ -653,7 +653,7 @@ impl<'octo> RepoHandler<'octo> {
         path: impl AsRef<str>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let route = format!(
-            "/repos/{repo}/contents/{path}",
+            "/{repo}/contents/{path}",
             repo = self.repo,
             path = path.as_ref(),
         );
@@ -677,7 +677,7 @@ impl<'octo> RepoHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete(self) -> Result<()> {
-        let route = format!("/repos/{}", self.repo);
+        let route = format!("/{}", self.repo);
         let uri = Uri::builder()
             .path_and_query(route)
             .build()
@@ -693,7 +693,7 @@ impl<'octo> RepoHandler<'octo> {
         reference: impl Into<params::repos::Commitish>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let route = format!(
-            "/repos/{repo}/tarball/{reference}",
+            "/{repo}/tarball/{reference}",
             repo = self.repo,
             reference = reference.into(),
         );
@@ -709,7 +709,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Check if a user is a repository collaborator
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let route = format!(
-            "/repos/{repo}/collaborators/{username}",
+            "/{repo}/collaborators/{username}",
             repo = self.repo,
             username = username.as_ref(),
         );
@@ -846,7 +846,7 @@ impl<'octo, 'req> CreateGitCommitObjectBuilder<'octo, 'req> {
 
     /// Sends the request
     pub async fn send(&self) -> Result<GitCommitObject> {
-        let route = format!("/repos/{}/git/commits", self.repo);
+        let route = format!("/{}/git/commits", self.repo);
         self.handler.crab.post(route, Some(&self)).await
     }
 }

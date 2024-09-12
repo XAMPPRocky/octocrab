@@ -45,7 +45,7 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Collaborator>> {
-        let route = format!("/repos/{}/collaborators", self.handler.repo);
+        let route = format!("/{}/collaborators", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
     }
 }

@@ -29,7 +29,7 @@ impl<'octo, 'r> CreateIssueBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<models::issues::Issue> {
-        let route = format!("/repos/{}/issues", self.handler.repo);
+        let route = format!("/{}/issues", self.handler.repo);
 
         self.handler.crab.post(route, Some(&self)).await
     }

@@ -42,7 +42,7 @@ impl<'octo, 'r> ListContributorsBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Contributor>> {
-        let route = format!("/repos/{}/contributors", self.handler.repo);
+        let route = format!("/{}/contributors", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
     }
 }

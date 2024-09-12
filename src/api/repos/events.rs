@@ -58,7 +58,7 @@ impl<'octo, 'handler> ListRepoEventsBuilder<'octo, 'handler> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let route = format!("/repos/{}/events", self.handler.repo);
+        let route = format!("/{}/events", self.handler.repo);
 
         let uri = self
             .handler

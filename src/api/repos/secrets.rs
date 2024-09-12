@@ -31,7 +31,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
     pub async fn get_secrets(
         &self,
     ) -> crate::Result<crate::models::repos::secrets::RepositorySecrets> {
-        let route = format!("/repos/{}/actions/secrets", self.handler.repo);
+        let route = format!("/{}/actions/secrets", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 
@@ -50,7 +50,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn get_public_key(&self) -> crate::Result<crate::models::PublicKey> {
-        let route = format!("/repos/{}/actions/secrets/public-key", self.handler.repo);
+        let route = format!("/{}/actions/secrets/public-key", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 
@@ -71,7 +71,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
         secret_name: impl AsRef<str>,
     ) -> crate::Result<crate::models::repos::secrets::RepositorySecret> {
         let route = format!(
-            "/repos/{}/actions/secrets/{secret_name}",
+            "/{}/actions/secrets/{secret_name}",
             self.handler.repo,
             secret_name = secret_name.as_ref()
         );
@@ -107,7 +107,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
         secret: &CreateRepositorySecret<'_>,
     ) -> crate::Result<CreateRepositorySecretResponse> {
         let route = format!(
-            "/repos/{}/actions/secrets/{secret_name}",
+            "/{}/actions/secrets/{secret_name}",
             self.handler.repo,
             secret_name = secret_name.as_ref()
         );
@@ -146,7 +146,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # }
     pub async fn delete_secret(&self, secret_name: impl AsRef<str>) -> crate::Result<()> {
         let route = format!(
-            "/repos/{}/actions/secrets/{secret_name}",
+            "/{}/actions/secrets/{secret_name}",
             self.handler.repo,
             secret_name = secret_name.as_ref()
         );

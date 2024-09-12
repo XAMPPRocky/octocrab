@@ -23,7 +23,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get(&self, id: u64) -> Result<models::repos::Asset> {
-        let route = format!("/repos/{}/releases/assets/{id}", self.handler.repo, id = id,);
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
         self.handler.crab.get(route, None::<&()>).await
     }
@@ -60,7 +60,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn delete(&self, id: u64) -> Result<()> {
-        let route = format!("/repos/{}/releases/assets/{id}", self.handler.repo, id = id,);
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
         self.handler.crab._delete(route, None::<&()>).await?;
         Ok(())
@@ -93,7 +93,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         //use snafu::GenerateImplicitData;
 
         let route = format!(
-            "/repos/{}/releases/assets/{id}",
+            "/{}/releases/assets/{id}",
             owner = self.parent.owner,
             repo = self.parent.repo,
             id = id,
@@ -172,7 +172,7 @@ impl<'octo, 'repos, 'handler, 'name, 'label, 'state>
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Asset> {
         let route = format!(
-            "/repos/{repo}/releases/assets/{asset_id}",
+            "/{repo}/releases/assets/{asset_id}",
             repo = self.handler.handler.repo,
             asset_id = self.asset_id,
         );

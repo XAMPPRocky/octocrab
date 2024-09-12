@@ -33,7 +33,7 @@ impl<'octo, 'r> MergeBranchBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> Result<Option<models::repos::MergeCommit>> {
-        let route = format!("/repos/{}/merges", self.handler.repo);
+        let route = format!("/{}/merges", self.handler.repo);
         let post_response = self.handler.crab._post(route, Some(&self)).await?;
 
         if post_response.status() == http::StatusCode::NO_CONTENT {
