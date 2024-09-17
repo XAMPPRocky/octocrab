@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    issues::{Comment, Issue},
-    Repository,
-};
+use crate::models::issues::{Comment, Issue};
 
 use super::OldValue;
 
@@ -15,7 +12,6 @@ pub struct IssueCommentWebhookEventPayload {
     pub comment: Comment,
     pub enterprise: Option<serde_json::Value>,
     pub issue: Issue,
-    pub repository: Repository,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
