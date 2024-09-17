@@ -26,7 +26,7 @@ impl std::fmt::Display for UserRef {
         match self {
             UserRef::ByString(str) => write!(f, "{}", str),
 
-            UserRef::ById(id) => write!(f, "{}", id),
+            UserRef::ById(id) => write!(f, "user/{}", id),
         }
     }
 }
@@ -44,7 +44,7 @@ impl<'octo> UserHandler<'octo> {
     /// Get this users profile info
     pub async fn profile(&self) -> crate::Result<crate::models::UserProfile> {
         // build the route to get info on this user
-        let route = format!("/users/{}", self.user);
+        let route = format!("/{}", self.user);
         // get info on the specified user
         self.crab.get(route, None::<&()>).await
     }
