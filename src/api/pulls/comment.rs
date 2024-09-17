@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use crate::models::pulls::Comment;
+use crate::models::{self, pulls::Comment, reactions::Reaction};
 
 use super::*;
 
@@ -136,6 +136,25 @@ impl<'octo, 'b> CommentBuilder<'octo, 'b> {
                     comment_id = self.comment_id
                 ),
                 Some(&json!({ "body": comment })),
+            )
+            .await
+    }
+
+    ///https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#create-reaction-for-a-pull-request-review-comment
+    pub async fn react(
+        self,
+        reaction: models::reactions::ReactionContent,
+    ) -> crate::Result<Reaction> {
+        self.handler
+            .crab
+            .post(
+                format!(
+                    "/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions",
+                    owner = self.handler.owner,
+                    repo = self.handler.repo,
+                    comment_id = self.comment_id
+                ),
+                Some(&json!({ "content": reaction })),
             )
             .await
     }
