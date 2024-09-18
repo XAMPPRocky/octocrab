@@ -159,6 +159,24 @@ impl<'octo, 'b> CommentBuilder<'octo, 'b> {
             .await
     }
 
+    ///https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#delete-a-pull-request-comment-reaction
+    pub async fn delete_react(self, reaction_id: u64) -> crate::Result<()> {
+        self.handler
+            .crab
+            ._delete(
+                format!(
+                    "/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}",
+                    owner = self.handler.owner,
+                    repo = self.handler.repo,
+                    comment_id = self.comment_id,
+                    reaction_id = reaction_id
+                ),
+                None::<&()>,
+            )
+            .await?;
+        Ok(())
+    }
+
     ///https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#delete-a-review-comment-for-a-pull-request
     pub async fn delete(self) -> crate::Result<()> {
         self.handler
