@@ -1,6 +1,10 @@
 use serde_json::json;
 
-use crate::models::{self, pulls::Comment, reactions::Reaction};
+use crate::models::{
+    self,
+    pulls::{Comment, Side},
+    reactions::Reaction,
+};
 
 use super::*;
 
@@ -85,6 +89,109 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
             },
         );
         self.handler.http_get(route, Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for creating a comment.
+///
+/// created by [`PullRequestHandler::create_comment`]
+///
+/// [`PullRequestHandler::create_comment`]: ./struct.PullRequestHandler.html#method.create_comment
+#[derive(serde::Serialize)]
+pub struct CreateCommentBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r super::PullRequestHandler<'octo>,
+    #[serde(skip)]
+    pr: u64,
+    commit_id: String,
+    body: String,
+    path: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    position: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    line: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    start_line: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    start_side: Option<Side>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    side: Option<Side>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    in_reply_to: Option<CommentId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    subject_type: Option<String>,
+}
+
+impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
+    pub(crate) fn new(
+        handler: &'r super::PullRequestHandler<'octo>,
+        pr: u64,
+        commit_id: String,
+        body: String,
+        path: String,
+    ) -> Self {
+        Self {
+            handler,
+            pr,
+            commit_id,
+            body,
+            path,
+            position: None,
+            line: None,
+            start_line: None,
+            start_side: None,
+            side: None,
+            in_reply_to: None,
+            subject_type: None,
+        }
+    }
+
+    /// Sends the actual request.
+    /// https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#create-a-review-comment-for-a-pull-request
+    pub async fn send(self) -> crate::Result<models::pulls::Comment> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pull_number}/comments",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pull_number = self.pr,
+        );
+
+        self.handler.crab.post(route, Some(&self)).await
+    }
+
+    pub fn position(mut self, position: impl Into<Option<u64>>) -> Self {
+        self.position = position.into();
+        self
+    }
+
+    pub fn line(mut self, line: impl Into<Option<u64>>) -> Self {
+        self.line = line.into();
+        self
+    }
+
+    pub fn start_line(mut self, start_line: impl Into<Option<u64>>) -> Self {
+        self.start_line = start_line.into();
+        self
+    }
+
+    pub fn start_side(mut self, start_side: impl Into<Option<Side>>) -> Self {
+        self.start_side = start_side.into();
+        self
+    }
+
+    pub fn side(mut self, side: impl Into<Option<Side>>) -> Self {
+        self.side = side.into();
+        self
+    }
+
+    pub fn in_reply_to(mut self, in_reply_to: impl Into<Option<CommentId>>) -> Self {
+        self.in_reply_to = in_reply_to.into();
+        self
+    }
+
+    pub fn subject_type(mut self, subject_type: impl Into<Option<String>>) -> Self {
+        self.subject_type = subject_type.into();
+        self
     }
 }
 

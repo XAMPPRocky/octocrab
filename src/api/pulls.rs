@@ -13,7 +13,7 @@ use crate::pulls::specific_pr::{SpecificPullRequestBuilder, SpecificPullRequestC
 use crate::{Octocrab, Page};
 
 pub use self::{
-    create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
+    comment::CreateCommentBuilder, create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
 
@@ -375,6 +375,37 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn list_comments(&self, pr: Option<u64>) -> comment::ListCommentsBuilder {
         comment::ListCommentsBuilder::new(self, pr)
+    }
+
+    /// Creates a new `CreateCommentBuilder` that can be configured to create a
+    /// new `Comment` on a particular pull request.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::params;
+    ///
+    /// let comment = octocrab.pulls("owner", "repo").create_comment(5, "commit_id", "body", "path")
+    ///     // Optional Parameters
+    ///     .position(5)
+    ///     .line(5)
+    ///     .side(params::pulls::CommentSide::Right)
+    ///     .start_line(5)
+    ///     .start_side(params::pulls::CommentSide::Right)
+    ///     .in_reply_to(5)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn create_comment(
+        &self,
+        pr: u64,
+        commit_id: String,
+        body: String,
+        path: String,
+    ) -> CreateCommentBuilder<'_, '_> {
+        CreateCommentBuilder::new(self, pr, commit_id, body.into(), path)
     }
 
     ///creates a new `CommentBuilder` for GET/PATCH/DELETE requests
