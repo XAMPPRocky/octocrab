@@ -22,6 +22,7 @@ impl std::error::Error for UriParseError {}
 /// An error that could have occurred while using [`crate::Octocrab`].
 #[derive(Snafu, Debug)]
 #[snafu(visibility(pub))]
+#[non_exhaustive]
 pub enum Error {
     GitHub {
         source: GitHubError,
@@ -35,7 +36,10 @@ pub enum Error {
         source: InvalidUri,
         backtrace: Backtrace,
     },
-
+    Installation {
+        source: InstallationError,
+        backtrace: Backtrace,
+    },
     InvalidHeaderValue {
         source: http::header::InvalidHeaderValue,
         backtrace: Backtrace,
@@ -126,3 +130,25 @@ impl fmt::Display for GitHubError {
 }
 
 impl std::error::Error for GitHubError {}
+
+/// An error that could have occurred while trying to target an installation.
+#[derive(Debug, Clone)]
+pub struct InstallationError {
+    pub message: String,
+}
+
+impl InstallationError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+
+impl fmt::Display for InstallationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl std::error::Error for InstallationError {}

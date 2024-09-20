@@ -249,7 +249,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken};
+use models::{AppId, Installation, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
@@ -1012,13 +1012,11 @@ impl Octocrab {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
-            let source = std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Github App authorization is required to target an installation",
-            );
-            return Err(Error::Other {
-                backtrace: Backtrace::generate_with_source(&source),
-                source: Box::new(source),
+            let source = return Err(Error::Installation {
+                backtrace: Backtrace::generate(),
+                source: error::InstallationError::new(
+                    "Github App authorization is required to target an installation",
+                ),
             });
         };
         Ok(Octocrab {
@@ -1487,11 +1485,9 @@ impl Octocrab {
         {
             (app, installation, token)
         } else {
-            let source =
-                std::io::Error::new(std::io::ErrorKind::Other, "Installation not configured");
-            return Err(Error::Other {
-                backtrace: Backtrace::generate_with_source(&source),
-                source: Box::new(source),
+            return Err(Error::Installation {
+                backtrace: Backtrace::generate(),
+                source: error::InstallationError::new("Installation not configured"),
             });
         };
         let mut request = Builder::new();
