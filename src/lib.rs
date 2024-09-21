@@ -1012,7 +1012,7 @@ impl Octocrab {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
-            let source = return Err(Error::Installation {
+            return Err(Error::Installation {
                 backtrace: Backtrace::generate(),
                 source: error::InstallationError::new(
                     "Github App authorization is required to target an installation",
