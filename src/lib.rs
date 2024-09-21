@@ -249,7 +249,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, Installation, InstallationId, InstallationToken};
+use models::{AppId, InstallationId, InstallationToken};
 
 pub use self::{
     api::{
