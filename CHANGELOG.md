@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.40.0](https://github.com/XAMPPRocky/octocrab/compare/v0.39.0...v0.40.0) - 2024-09-22
+
+### Added
+
+- Support `remove_assignees` on issue API ([#686](https://github.com/XAMPPRocky/octocrab/pull/686))
+- add missing fields in `CreateForkBuilder` ([#682](https://github.com/XAMPPRocky/octocrab/pull/682))
+- Add `Gist::public` field ([#678](https://github.com/XAMPPRocky/octocrab/pull/678))
+
+### Fixed
+
+- *(refs)* [**breaking**] remove `Reference::Commit` variant ([#697](https://github.com/XAMPPRocky/octocrab/pull/697))
+
+### Other
+
+- Fix typo in cfg_attr statement ([#693](https://github.com/XAMPPRocky/octocrab/pull/693))
+- Handle empty author object in pr_commits ([#656](https://github.com/XAMPPRocky/octocrab/pull/656))
+- Add `DeviceCodes::poll_until_available` method ([#679](https://github.com/XAMPPRocky/octocrab/pull/679))
+- Uncomment pr_commits function ([#680](https://github.com/XAMPPRocky/octocrab/pull/680))
+- Only add base_path if req_pandq does not contain it ([#684](https://github.com/XAMPPRocky/octocrab/pull/684))
+- Update code scanning alert ([#673](https://github.com/XAMPPRocky/octocrab/pull/673))
+- Added `merged_by` and `closed_by` fields ([#674](https://github.com/XAMPPRocky/octocrab/pull/674))
+- Update and Fixes to the Code Scanning Models & Webhooks ([#675](https://github.com/XAMPPRocky/octocrab/pull/675))
+
 ## [0.39.0](https://github.com/XAMPPRocky/octocrab/compare/v0.38.0...v0.39.0) - 2024-07-30
 
 ### Added
