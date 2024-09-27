@@ -43,4 +43,5 @@ pub enum IssuesWebhookEventAction {
 pub struct IssuesWebhookEventChanges {
     pub body: Option<OldValue<String>>,
     pub title: Option<OldValue<String>>,
+    pub assignee: Option<OldValue<Author>>,
 }
