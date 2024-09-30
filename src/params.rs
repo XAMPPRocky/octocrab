@@ -481,7 +481,6 @@ pub mod repos {
     pub enum Reference {
         Branch(String),
         Tag(String),
-        Commit(String),
     }
 
     impl Reference {
@@ -489,15 +488,11 @@ pub mod repos {
             match self {
                 Self::Branch(branch) => format!("heads/{branch}"),
                 Self::Tag(tag) => format!("tags/{tag}"),
-                Self::Commit(sha) => sha.clone(),
             }
         }
 
         pub fn full_ref_url(&self) -> String {
-            match self {
-                Self::Branch(_) | Self::Tag(_) => format!("refs/{}", self.ref_url()),
-                Self::Commit(sha) => sha.clone(),
-            }
+            format!("refs/{}", self.ref_url())
         }
     }
 
