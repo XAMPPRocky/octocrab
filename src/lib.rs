@@ -1014,9 +1014,6 @@ impl Octocrab {
         } else {
             return Err(Error::Installation {
                 backtrace: Backtrace::generate(),
-                source: error::InstallationError::new(
-                    "Github App authorization is required to target an installation",
-                ),
             });
         };
         Ok(Octocrab {
@@ -1487,7 +1484,6 @@ impl Octocrab {
         } else {
             return Err(Error::Installation {
                 backtrace: Backtrace::generate(),
-                source: error::InstallationError::new("Installation not configured"),
             });
         };
         let mut request = Builder::new();
