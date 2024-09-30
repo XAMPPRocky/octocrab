@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.0](https://github.com/XAMPPRocky/octocrab/compare/v0.40.0...v0.41.0) - 2024-09-30
+
+### Added
+
+- Implement getting users and reopos by their respective IDs ([#690](https://github.com/XAMPPRocky/octocrab/pull/690))
+
+### Fixed
+
+- *(installation)* [**breaking**] Return Result instead of panicking in `Octocrab::installation` ([#687](https://github.com/XAMPPRocky/octocrab/pull/687))
+
+### Other
+
+- Update tower-http requirement from 0.5.1 to 0.6.1 ([#701](https://github.com/XAMPPRocky/octocrab/pull/701))
+- add additional webhook model fields ([#696](https://github.com/XAMPPRocky/octocrab/pull/696))
+- Bump hyper-rustls version. ([#699](https://github.com/XAMPPRocky/octocrab/pull/699))
+
 ## [0.40.0](https://github.com/XAMPPRocky/octocrab/compare/v0.39.0...v0.40.0) - 2024-09-22
 
 ### Added
