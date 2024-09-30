@@ -193,6 +193,8 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use api::repos::RepoRef;
+use api::users::UserRef;
 use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
@@ -249,7 +251,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken};
+use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
@@ -1077,7 +1079,13 @@ impl Octocrab {
         owner: impl Into<String>,
         repo: impl Into<String>,
     ) -> issues::IssueHandler {
-        issues::IssueHandler::new(self, owner.into(), repo.into())
+        issues::IssueHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`issues::IssueHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's issues API.
+    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler {
+        issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`code_scanning::CodeSCanningHandler`] for the repo specified at `owner/repo`,
@@ -1137,7 +1145,13 @@ impl Octocrab {
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
     pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
-        repos::RepoHandler::new(self, owner.into(), repo.into())
+        repos::RepoHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's repository API.
+    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler {
+        repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
@@ -1158,9 +1172,14 @@ impl Octocrab {
         teams::TeamHandler::new(self, owner.into())
     }
 
-    /// Creates a [`users::UserHandler`] for the specified user
+    /// Creates a [`users::UserHandler`] for the specified user using the user name
     pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
-        users::UserHandler::new(self, user.into())
+        users::UserHandler::new(self, UserRef::ByString(user.into()))
+    }
+
+    /// Creates a [`users::UserHandler`] for the specified user using the user ID
+    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler {
+        users::UserHandler::new(self, UserRef::ById(user.into()))
     }
 
     /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows

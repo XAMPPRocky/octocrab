@@ -6,6 +6,7 @@ use http::StatusCode;
 use snafu::GenerateImplicitData;
 
 use crate::api::users::user_blocks::BlockedUsersBuilder;
+use crate::models::UserId;
 use crate::{error, GitHubError, Octocrab};
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
@@ -15,20 +16,35 @@ mod follow;
 mod user_blocks;
 mod user_repos;
 
+pub(crate) enum UserRef {
+    ByString(String),
+    ById(UserId),
+}
+
+impl std::fmt::Display for UserRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UserRef::ByString(str) => write!(f, "users/{}", str),
+
+            UserRef::ById(id) => write!(f, "user/{}", id),
+        }
+    }
+}
+
 pub struct UserHandler<'octo> {
     crab: &'octo Octocrab,
-    user: String,
+    user: UserRef,
 }
 
 impl<'octo> UserHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, user: String) -> Self {
+    pub(crate) fn new(crab: &'octo Octocrab, user: UserRef) -> Self {
         Self { crab, user }
     }
 
     /// Get this users profile info
     pub async fn profile(&self) -> crate::Result<crate::models::UserProfile> {
         // build the route to get info on this user
-        let route = format!("/users/{}", self.user);
+        let route = format!("/{}", self.user);
         // get info on the specified user
         self.crab.get(route, None::<&()>).await
     }

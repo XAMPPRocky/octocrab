@@ -66,7 +66,7 @@ impl<'octo, 'b> ListUserReposBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::Repository>> {
-        let route = format!("/users/{user}/repos", user = self.handler.user);
+        let route = format!("/{user}/repos", user = self.handler.user);
         self.handler.crab.get(route, Some(&self)).await
     }
 }

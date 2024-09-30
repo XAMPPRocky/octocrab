@@ -38,7 +38,7 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /repo/{new_owner}/{repo}/stargazers was not received"),
+        &format!("GET on /repos/{new_owner}/{repo}/stargazers was not received"),
     )
     .await;
     mock_server
