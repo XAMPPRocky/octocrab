@@ -39,11 +39,11 @@ impl<'octo> GistsHandler<'octo> {
     ///
     /// # Note
     /// * Calling with an authentication token will list all the gists of the
-    /// authenticated user
+    ///   authenticated user
     ///
     /// * If no authentication token will list all the public gists from
-    /// GitHub's API. This can potentially produce a lot of results, so care is
-    /// advised.
+    ///   GitHub's API. This can potentially produce a lot of results, so care is
+    ///   advised.
     ///
     /// # Example
     ///

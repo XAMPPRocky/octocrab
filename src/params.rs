@@ -386,6 +386,7 @@ pub mod pulls {
     }
 
     /// Custom media types are used in the API to let consumers choose the
+    ///
     /// format of the data they wish to receive. This is done by adding one or
     /// more of the following types to the Accept header when you make a
     /// request. Media types are specific to resources, allowing them to change
@@ -503,6 +504,7 @@ pub mod repos {
     }
 
     /// A Git reference of unknown type.
+    ///
     /// In some cases clients may have a string identifying a commit, but not
     /// know whether it's a branch or a tag or commit hash.
     /// Many Github APIs accept such strings. These APIs also accept `heads/` or `tags/`.

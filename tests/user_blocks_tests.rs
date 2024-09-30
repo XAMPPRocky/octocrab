@@ -115,5 +115,5 @@ async fn should_respond_user_unblocked() {
     .await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client.users("some-user").unblock_user(NOT_BLOCKED).await;
-    assert!(!result.is_ok());
+    assert!(result.is_err());
 }
