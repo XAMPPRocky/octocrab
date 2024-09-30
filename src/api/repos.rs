@@ -55,7 +55,7 @@ pub(crate) enum RepoRef {
 impl std::fmt::Display for RepoRef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RepoRef::ByOwnerAndName(owner, name) => write!(f, "repo/{}/{}", owner, name),
+            RepoRef::ByOwnerAndName(owner, name) => write!(f, "repos/{}/{}", owner, name),
             RepoRef::ById(id) => write!(f, "repositories/{}", id),
         }
     }
