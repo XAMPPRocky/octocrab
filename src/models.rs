@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use url::Url;
 
+use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 
 pub mod actions;
@@ -1098,4 +1099,12 @@ pub struct Rate {
     pub used: usize,
     pub remaining: usize,
     pub reset: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserEmailInfo {
+    pub email: String,
+    pub primary: bool,
+    pub verified: bool,
+    pub visibility: EmailVisibilityState,
 }
