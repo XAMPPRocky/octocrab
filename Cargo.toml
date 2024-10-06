@@ -76,7 +76,7 @@ pretty_assertions = "1.4.0"
 graphql_client = "0.14.0"
 
 [features]
-default = ["follow-redirect", "retry", "rustls", "timeout", "tracing", "default-client", "rustls-aws-lc-rs"]
+default = ["follow-redirect", "retry", "rustls", "timeout", "tracing", "default-client", "rustls-ring"]
 
 follow-redirect = ["tower-http/follow-redirect"]
 retry = ["tower/retry", "futures-util"]
