@@ -92,11 +92,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         use futures_util::TryStreamExt;
         //use snafu::GenerateImplicitData;
 
-        let route = format!(
-            "/{}/releases/assets/{id}",
-            self.handler.repo,
-            id = id,
-        );
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
         let uri = Uri::builder()
             .path_and_query(route)
