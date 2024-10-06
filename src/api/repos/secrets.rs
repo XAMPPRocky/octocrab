@@ -126,7 +126,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
                     status_code.as_str()
                 )
                 .into(),
-                backtrace: snafu::Backtrace::generate(),
+                backtrace: snafu::Backtrace::capture(),
             }),
         }
     }
