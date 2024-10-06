@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.1](https://github.com/XAMPPRocky/octocrab/compare/v0.41.0...v0.41.1) - 2024-10-06
+
+### Fixed
+
+- don't capture backtraces by default ([#710](https://github.com/XAMPPRocky/octocrab/pull/710))
+
+### Other
+
+- Implement some style improvements ([#698](https://github.com/XAMPPRocky/octocrab/pull/698))
+
 ## [0.41.0](https://github.com/XAMPPRocky/octocrab/compare/v0.40.0...v0.41.0) - 2024-09-30
 
 ### Added
