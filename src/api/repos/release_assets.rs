@@ -74,7 +74,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// let mut stream = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .release_assets()
-    ///     .stream_asset(AssetId(42u64))
+    ///     .stream(42u64)
     ///     .await?;
     ///
     /// while let Some(chunk) = stream.next().await {
