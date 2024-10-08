@@ -43,14 +43,14 @@ impl<'octo, 'b> UserEmailsOpsBuilder<'octo, 'b> {
     ///
     ///```no_run
     ///  use octocrab::models::UserEmailInfo;
-    /// use octocrab::Result;
-    ///  async fn run() -> Result<Vec<UserEmailInfo>> {
+    /// use octocrab::{Page, Result};
+    ///  async fn run() -> Result<Page<UserEmailInfo>> {
     ///    octocrab::instance()
     ///        .users("current_user")
     ///        .emails()
     ///        .per_page(42).page(3u32)
     ///        .list()
-    ///        .await?
+    ///        .await
     ///  }
     pub async fn list(&self) -> crate::Result<Page<crate::models::UserEmailInfo>> {
         let route = "/user/emails".to_string();
@@ -69,14 +69,14 @@ impl<'octo, 'b> UserEmailsOpsBuilder<'octo, 'b> {
     ///
     ///```no_run
     ///  use octocrab::models::UserEmailInfo;
-    /// use octocrab::Result;
-    ///  async fn run() -> Result<Vec<UserEmailInfo>> {
+    /// use octocrab::{Page, Result};
+    ///  async fn run() -> Result<Page<UserEmailInfo>> {
     ///    octocrab::instance()
     ///        .users("current_user")
     ///        .emails()
     ///        .per_page(42).page(3u32)
     ///        .list_public()
-    ///        .await?
+    ///        .await
     ///  }
     pub async fn list_public(&self) -> crate::Result<Page<crate::models::UserEmailInfo>> {
         let route = "/user/public_emails".to_string();
@@ -99,7 +99,7 @@ impl<'octo, 'b> UserEmailsOpsBuilder<'octo, 'b> {
     ///        .users("current_user")
     ///        .emails()
     ///        .add(vec!["newemail1@mail.com".to_string(), "newemail2@mail.com".to_string()])
-    ///        .await?
+    ///        .await
     ///  }
     pub async fn add(
         &self,
@@ -133,7 +133,7 @@ impl<'octo, 'b> UserEmailsOpsBuilder<'octo, 'b> {
     ///        .users("current_user")
     ///        .emails()
     ///        .delete(vec!["newemail1@mail.com".to_string(), "newemail2@mail.com".to_string()])
-    ///        .await?
+    ///        .await
     ///  }
     pub async fn delete(&self, emails: Vec<String>) -> crate::Result<()> {
         let route = "/user/emails".to_string();

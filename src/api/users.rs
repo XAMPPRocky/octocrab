@@ -157,7 +157,7 @@ impl<'octo> UserHandler<'octo> {
     ///  use octocrab::params::users::emails::EmailVisibilityState::*;
     ///  use octocrab::models::UserEmailInfo;
     ///
-    ///  async fn run() -> octocrab::Result<(UserEmailInfo)> {
+    ///  async fn run() -> octocrab::Result<Vec<UserEmailInfo>> {
     ///    octocrab::instance()
     ///    .users("current_user")
     ///    .set_primary_email_visibility(Public) // or Private
@@ -180,37 +180,5 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete an email address for the authenticated user
     pub fn emails(&self) -> UserEmailsOpsBuilder<'_, '_> {
         UserEmailsOpsBuilder::new(self)
-    }
-
-    ///## List public email addresses for the authenticated user
-    ///Lists your publicly visible email address, which you can set with [set_email_visibility()]
-    ///OAuth app tokens and personal access tokens (classic) need the `user:email` scope
-    ///works with the following token types:
-    ///[GitHub App user access tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app)
-    ///[Fine-grained personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
-    ///
-    ///The fine-grained token must have the following permission set:
-    ///
-    ///"Email addresses" user permissions (read)
-    ///
-    ///```no_run
-    ///  use octocrab::params::users::emails::EmailVisibilityState::*;
-    ///  use octocrab::models::UserEmailInfo;
-    ///
-    ///  async fn run() -> octocrab::Result<(UserEmailInfo)> {
-    ///    octocrab::instance()
-    ///    .users("current_user")
-    ///    .set_primary_email_visibility(Public) // or Private
-    ///    .await
-    ///  }
-    pub async fn list_email_visibility2(
-        &self,
-        visibility: EmailVisibilityState,
-    ) -> crate::Result<Vec<crate::models::UserEmailInfo>> {
-        let route = String::from("/user/email/visibility");
-        let params = serde_json::json!({
-            "visibility": serde_json::to_string(&visibility).unwrap(),
-        });
-        self.crab.patch(route, Some(&params)).await
     }
 }
