@@ -77,7 +77,31 @@ async fn should_respond_to_email_list() {
         result
     );
     let response = result.unwrap();
-    let visibility = response.first().unwrap().visibility;
+    let visibility = response.items.first().unwrap().visibility;
+    assert_eq!(visibility, EmailVisibilityState::Private);
+}
+
+#[tokio::test]
+async fn should_respond_to_public_email_list() {
+    let mocked_response: Vec<UserEmailInfo> =
+        serde_json::from_str(include_str!("resources/user_emails.json")).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
+    let mock_server = setup_emails_mock("GET", "/user/public_emails", template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client
+        .users("some_other_user")
+        .emails()
+        .per_page(42)
+        .page(3u32)
+        .list_public()
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let response = result.unwrap();
+    let visibility = response.items.first().unwrap().visibility;
     assert_eq!(visibility, EmailVisibilityState::Private);
 }
 
