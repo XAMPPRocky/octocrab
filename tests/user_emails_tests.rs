@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use http::StatusCode;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -11,11 +11,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 mod mock_error;
-
-#[derive(Serialize, Deserialize)]
-struct FakePage<T> {
-    items: Vec<T>,
-}
 
 async fn setup_emails_mock(
     http_method: &str,
@@ -42,7 +37,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn should_respond_to_email_visibility() {
+async fn should_respond_to_primary_email_visibility() {
     let mocked_response: Vec<UserEmailInfo> =
         serde_json::from_str(include_str!("resources/user_emails.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
@@ -50,7 +45,7 @@ async fn should_respond_to_email_visibility() {
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_other_user")
-        .set_email_visibility(EmailVisibilityState::Private)
+        .set_primary_email_visibility(EmailVisibilityState::Private)
         .await;
     assert!(
         result.is_ok(),
@@ -61,80 +56,63 @@ async fn should_respond_to_email_visibility() {
     let visibility = response.first().unwrap().visibility;
     assert_eq!(visibility, EmailVisibilityState::Private);
 }
-/*
-#[tokio::test]
-async fn should_return_list_of_blocked_by_user() {
-    let mocked_response: Vec<SimpleUser> =
-        serde_json::from_str(include_str!("resources/user_blocks.json")).unwrap();
-    let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server = setup_emails_mock("GET", "/user/blocks", template).await;
-    let client = setup_octocrab(&mock_server.uri());
-    let result = client.users("some-user").blocks().per_page(10).list().await;
 
+#[tokio::test]
+async fn should_respond_to_email_list() {
+    let mocked_response: Vec<UserEmailInfo> =
+        serde_json::from_str(include_str!("resources/user_emails.json")).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
+    let mock_server = setup_emails_mock("GET", "/user/emails", template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client
+        .users("some_other_user")
+        .emails()
+        .per_page(42)
+        .page(3u32)
+        .list()
+        .await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
         result
     );
-
     let response = result.unwrap();
-    let items = response.items;
-
-    assert_eq!(items.len(), 1);
-
-    {
-        let item = &items[0];
-
-        assert_eq!("octocat", item.login);
-        assert_eq!(
-            "https://api.github.com/users/octocat/received_events",
-            item.received_events_url.as_str()
-        );
-    }
+    let visibility = response.first().unwrap().visibility;
+    assert_eq!(visibility, EmailVisibilityState::Private);
 }
 
 #[tokio::test]
-async fn should_check_if_user_blocked() {
-    /* status 204 for blocked */
-    let template = ResponseTemplate::new(200);
-    let mock_server = setup_emails_mock(
-        "GET",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
-        template,
-    )
-    .await;
+async fn should_respond_to_emails_add() {
+    let mocked_response: Vec<UserEmailInfo> =
+        serde_json::from_str(include_str!("resources/user_emails.json")).unwrap();
+    let template = ResponseTemplate::new(StatusCode::CREATED).set_body_json(&mocked_response);
+    let mock_server = setup_emails_mock("POST", "/user/emails", template).await;
     let client = setup_octocrab(&mock_server.uri());
-    let result = client.users("some-user").is_blocked(NOT_BLOCKED).await;
-    assert!(!result.is_ok_and(|is_blocked| is_blocked));
+    let result = client
+        .users("some_other_user")
+        .emails()
+        .add(vec!["newemail1@mail.com".to_string()])
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
 }
 
 #[tokio::test]
-async fn should_respond_user_blocked() {
-    /* status 204 for blocked */
-    let template = ResponseTemplate::new(204);
-    let mock_server = setup_emails_mock(
-        "PUT",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
-        template,
-    )
-    .await;
+async fn should_respond_to_emails_delete() {
+    let template = ResponseTemplate::new(StatusCode::NO_CONTENT);
+    let mock_server = setup_emails_mock("DELETE", "/user/emails", template).await;
     let client = setup_octocrab(&mock_server.uri());
-    let result = client.users("some-user").block_user(NOT_BLOCKED).await;
-    assert!(result.is_ok());
+    let result = client
+        .users("some_other_user")
+        .emails()
+        .delete(vec!["newemail1@mail.com".to_string()])
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
 }
-
-#[tokio::test]
-async fn should_respond_user_unblocked() {
-    /* status 204 for unblocked */
-    let template = ResponseTemplate::new(200);
-    let mock_server = setup_emails_mock(
-        "DELETE",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
-        template,
-    )
-    .await;
-    let client = setup_octocrab(&mock_server.uri());
-    let result = client.users("some-user").unblock_user(NOT_BLOCKED).await;
-    assert!(result.is_err());
-}
-*/
