@@ -16,9 +16,9 @@ jobs:
     - run: sudo apt install llvm
       if: matrix.os == 'ubuntu'
     - run: rustup default ${{ matrix.channel }}
-    - run: cargo build --verbose --all-targets
+    - run: cargo build --all-targets
     - run: cargo test
-    - run: cargo build --verbose --all-targets -F stream
+    - run: cargo build --all-targets -F stream
     - run: cargo test -F stream
 
   wasm-build:
