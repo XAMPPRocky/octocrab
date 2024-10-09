@@ -603,4 +603,17 @@ pub mod users {
             Member,
         }
     }
+
+    pub mod emails {
+        use serde::{Deserialize, Serialize};
+
+        ///Denotes whether an email is publicly visible.
+        #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Copy)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+        pub enum EmailVisibilityState {
+            Public,
+            Private,
+        }
+    }
 }
