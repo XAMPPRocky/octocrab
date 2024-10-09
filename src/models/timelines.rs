@@ -88,24 +88,24 @@ pub struct TimelineEvent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct DismissedReview {
-    state: pulls::ReviewState,
-    review_id: ReviewId,
-    dismissal_message: Option<String>,
-    dismissal_commit_id: Option<String>,
+    pub state: pulls::ReviewState,
+    pub review_id: ReviewId,
+    pub dismissal_message: Option<String>,
+    pub dismissal_commit_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Source {
-    issue: issues::Issue,
-    r#type: String,
+    pub issue: issues::Issue,
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Rename {
-    from: String,
-    to: String,
+    pub from: String,
+    pub to: String,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
