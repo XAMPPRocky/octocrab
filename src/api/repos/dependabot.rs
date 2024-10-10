@@ -159,7 +159,7 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// let result = octocrab.repos("owner", "repo")
     ///     .dependabot()
     ///     .update_alert(
-    ///         5, 
+    ///         5,
     ///         Some(&UpdateDependabotAlert {
     ///             state: "dismissed",
     ///             dismissed_reason: Some("no_bandwidth"),
