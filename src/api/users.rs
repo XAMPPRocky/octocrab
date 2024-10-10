@@ -9,6 +9,7 @@ pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
+use crate::api::users::user_gpg_keys::UserGpgKeysOpsBuilder;
 use crate::models::UserId;
 use crate::params::users::emails::EmailVisibilityState;
 use crate::{error, GitHubError, Octocrab};
@@ -16,6 +17,7 @@ use crate::{error, GitHubError, Octocrab};
 mod follow;
 mod user_blocks;
 mod user_emails;
+mod user_gpg_keys;
 mod user_repos;
 
 pub(crate) enum UserRef {
@@ -180,5 +182,14 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete an email address for the authenticated user
     pub fn emails(&self) -> UserEmailsOpsBuilder<'_, '_> {
         UserEmailsOpsBuilder::new(self)
+    }
+
+    ///GPG Keys operations builder
+    ///* List GPG keys for the authenticated user
+    ///* Get a GPG key for the authenticated user
+    ///* Add an GPG key for the authenticated user
+    ///* Delete a GPG key for the authenticated user
+    pub fn gpg_keys(&self) -> UserGpgKeysOpsBuilder<'_, '_> {
+        UserGpgKeysOpsBuilder::new(self)
     }
 }
