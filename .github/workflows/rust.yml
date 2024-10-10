@@ -13,9 +13,13 @@ jobs:
         os: [ubuntu, macos, windows]
     steps:
     - uses: actions/checkout@v2
+    - run: sudo apt install llvm
+      if: matrix.os == 'ubuntu'
     - run: rustup default ${{ matrix.channel }}
-    - run: cargo build --verbose --all-targets
+    - run: cargo build --all-targets
     - run: cargo test
+    - run: cargo build --all-targets -F stream
+    - run: cargo test -F stream
 
   wasm-build:
     runs-on: ubuntu-latest

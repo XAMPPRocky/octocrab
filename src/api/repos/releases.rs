@@ -244,7 +244,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         &self,
         asset_id: u64,
     ) -> crate::Result<impl futures_core::Stream<Item = crate::Result<bytes::Bytes>>> {
-        self.parent.release_assets().stream(asset_id).await
+        self.handler.release_assets().stream(asset_id).await
     }
 
     /// Delete a release using its id.
