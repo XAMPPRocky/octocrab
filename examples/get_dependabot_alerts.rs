@@ -8,7 +8,7 @@ const REPO: &str = "some-repo";
 #[tokio::main]
 async fn main() {
     // example for Dependabot alerts API with OAuth GitHub App
-    let client_id = secrecy::Secret::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
+    let client_id = secrecy::SecretString::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
     let crab = octocrab::Octocrab::builder()
         .base_uri("https://github.com")
         .unwrap()
