@@ -1544,7 +1544,7 @@ impl Octocrab {
 
         token.set(token_object.token.clone(), expiration);
 
-        Ok(SecretString::new(token_object.token.into()))
+        Ok(SecretString::from(token_object.token))
     }
 
     /// Send the given request to the underlying service
