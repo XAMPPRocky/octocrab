@@ -5,15 +5,15 @@ use wiremock::{
 };
 
 use mock_error::setup_error_handler;
-use octocrab::models::GpgKey;
+use octocrab::models::GitSshKey;
 use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 mod mock_error;
 
-const GPG_KEY_ID: u64 = 42;
+const GIT_SSH_KEY_ID: u64 = 42;
 
-async fn setup_gpg_keys_mock(
+async fn setup_git_ssh_keys_mock(
     http_method: &str,
     mocked_path: &str,
     template: ResponseTemplate,
@@ -38,21 +38,21 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn should_respond_to_get_gpg_key() {
-    let mocked_response: GpgKey =
-        serde_json::from_str(include_str!("resources/user_gpg_key_created.json")).unwrap();
+async fn should_respond_to_get_git_ssh_key() {
+    let mocked_response: GitSshKey =
+        serde_json::from_str(include_str!("resources/user_git_ssh_key_created.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server = setup_gpg_keys_mock(
+    let mock_server = setup_git_ssh_keys_mock(
         "GET",
-        format!("/user/gpg_keys/{GPG_KEY_ID}").as_str(),
+        format!("/user/keys/{GIT_SSH_KEY_ID}").as_str(),
         template,
     )
     .await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_other_user")
-        .gpg_keys()
-        .get(GPG_KEY_ID)
+        .git_ssh_keys()
+        .get(GIT_SSH_KEY_ID)
         .await;
     assert!(
         result.is_ok(),
@@ -60,20 +60,20 @@ async fn should_respond_to_get_gpg_key() {
         result
     );
     let response = result.unwrap();
-    let name = response.name;
-    assert_eq!(name, "Octocat's GPG Key");
+    let id = response.id;
+    assert_eq!(id, 2);
 }
 
 #[tokio::test]
-async fn should_respond_to_gpg_keys_list() {
-    let mocked_response: Vec<GpgKey> =
-        serde_json::from_str(include_str!("resources/user_gpg_keys.json")).unwrap();
+async fn should_respond_to_git_ssh_keys_list() {
+    let mocked_response: Vec<GitSshKey> =
+        serde_json::from_str(include_str!("resources/user_git_ssh_keys.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server = setup_gpg_keys_mock("GET", "/user/gpg_keys", template).await;
+    let mock_server = setup_git_ssh_keys_mock("GET", "/user/keys", template).await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_other_user")
-        .gpg_keys()
+        .git_ssh_keys()
         .per_page(42)
         .page(3u32)
         .list()
@@ -84,23 +84,23 @@ async fn should_respond_to_gpg_keys_list() {
         result
     );
     let response = result.unwrap();
-    let name = &response.items.first().unwrap().name;
-    assert_eq!(name, "Octocat's GPG Key");
+    let id = response.items.first().unwrap().id;
+    assert_eq!(id, 2);
 }
 
 #[tokio::test]
-async fn should_respond_to_gpg_keys_add() {
-    let mocked_response: GpgKey =
-        serde_json::from_str(include_str!("resources/user_gpg_key_created.json")).unwrap();
+async fn should_respond_to_git_ssh_keys_add() {
+    let mocked_response: GitSshKey =
+        serde_json::from_str(include_str!("resources/user_git_ssh_key_created.json")).unwrap();
     let template = ResponseTemplate::new(StatusCode::CREATED).set_body_json(&mocked_response);
-    let mock_server = setup_gpg_keys_mock("POST", "/user/gpg_keys", template).await;
+    let mock_server = setup_git_ssh_keys_mock("POST", "/user/keys", template).await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_user")
-        .gpg_keys()
+        .git_ssh_keys()
         .add(
-            "A descriptive name for the new key".to_string(),
-            "A GPG key in ASCII-armored format".to_string(),
+            "Assh-rsa AAAAB3NzaC1yc2EAA".to_string(),
+            "A2Sg8iYjAxxmI2LvUXpJjkYrMxURPc8r+dB7TJyvv123".to_string(),
         )
         .await;
     assert!(
@@ -109,23 +109,23 @@ async fn should_respond_to_gpg_keys_add() {
         result
     );
     let result = result.unwrap();
-    assert_eq!(result.name, "Octocat's GPG Key");
+    assert_eq!(result.id, 2);
 }
 
 #[tokio::test]
-async fn should_respond_to_gpg_key_delete() {
+async fn should_respond_to_git_ssh_key_delete() {
     let template = ResponseTemplate::new(StatusCode::NO_CONTENT);
-    let mock_server = setup_gpg_keys_mock(
+    let mock_server = setup_git_ssh_keys_mock(
         "DELETE",
-        format!("/user/gpg_keys/{GPG_KEY_ID}").as_str(),
+        format!("/user/keys/{GIT_SSH_KEY_ID}").as_str(),
         template,
     )
     .await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_user")
-        .gpg_keys()
-        .delete(GPG_KEY_ID)
+        .git_ssh_keys()
+        .delete(GIT_SSH_KEY_ID)
         .await;
     assert!(
         result.is_ok(),

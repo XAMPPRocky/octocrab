@@ -1159,3 +1159,14 @@ pub struct GpgKey {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub raw_key: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitSshKey {
+    pub key: String,
+    pub id: u64,
+    pub url: String,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub verified: bool,
+    pub read_only: bool,
+}
