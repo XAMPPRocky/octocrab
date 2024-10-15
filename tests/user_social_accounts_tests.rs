@@ -61,7 +61,7 @@ async fn should_respond_to_social_accounts_list() {
 
 #[tokio::test]
 async fn should_respond_to_social_accounts_add() {
-    let mocked_response: SocialAccount =
+    let mocked_response: Vec<SocialAccount> =
         serde_json::from_str(include_str!("resources/user_social_accounts.json")).unwrap();
     let template = ResponseTemplate::new(StatusCode::CREATED).set_body_json(&mocked_response);
     let mock_server = setup_social_accounts_mock("POST", "/user/social_accounts", template).await;

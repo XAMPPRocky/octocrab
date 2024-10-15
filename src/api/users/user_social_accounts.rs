@@ -112,7 +112,7 @@ impl<'octo, 'b> UserSocialAccountsOpsBuilder<'octo, 'b> {
     ///        .await
     ///  }
     pub async fn delete(&self, account_urls: Vec<String>) -> crate::Result<()> {
-        let route = "/user/social_account".to_string();
+        let route = "/user/social_accounts".to_string();
 
         let params = serde_json::json!({
             "account_urls": account_urls,
