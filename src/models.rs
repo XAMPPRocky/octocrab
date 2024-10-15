@@ -1170,3 +1170,9 @@ pub struct GitSshKey {
     pub verified: bool,
     pub read_only: bool,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialAccount {
+    pub provider: String,
+    pub url: String,
+}

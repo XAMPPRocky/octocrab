@@ -11,6 +11,7 @@ use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
 use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
 use crate::api::users::user_gpg_keys::UserGpgKeysOpsBuilder;
+use crate::api::users::user_social_accounts::UserSocialAccountsOpsBuilder;
 use crate::models::UserId;
 use crate::params::users::emails::EmailVisibilityState;
 use crate::{error, GitHubError, Octocrab};
@@ -21,6 +22,7 @@ mod user_emails;
 mod user_git_ssh_keys;
 mod user_gpg_keys;
 mod user_repos;
+mod user_social_accounts;
 
 pub(crate) enum UserRef {
     ByString(String),
@@ -201,5 +203,13 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete a public SSH key for the authenticated user
     pub fn git_ssh_keys(&self) -> UserGitSshKeysOpsBuilder<'_, '_> {
         UserGitSshKeysOpsBuilder::new(self)
+    }
+
+    ///Social accounts operations builder
+    ///* List social accounts for the authenticated user
+    ///* Add social accounts for the authenticated user
+    ///* Delete social accounts for the authenticated user
+    pub fn social_accounts(&self) -> UserSocialAccountsOpsBuilder<'_, '_> {
+        UserSocialAccountsOpsBuilder::new(self)
     }
 }
