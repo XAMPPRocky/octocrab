@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.1](https://github.com/XAMPPRocky/octocrab/compare/v0.41.0...v0.41.1) - 2024-10-10
+
+### Fixed
+
+- don't capture backtraces by default ([#710](https://github.com/XAMPPRocky/octocrab/pull/710))
+
+### Other
+
+- added user's gpg_keys operations ([#717](https://github.com/XAMPPRocky/octocrab/pull/717))
+- Secrecy dependency update from 0.8.0 to 0.10.3 ([#718](https://github.com/XAMPPRocky/octocrab/pull/718))
+- Added handlers for Repo Dependabot API ([#714](https://github.com/XAMPPRocky/octocrab/pull/714))
+- [#552](https://github.com/XAMPPRocky/octocrab/pull/552) (emails, public_emails, visibility) ([#712](https://github.com/XAMPPRocky/octocrab/pull/712))
+- make some fields to public ([#708](https://github.com/XAMPPRocky/octocrab/pull/708))
+- Implement some style improvements ([#698](https://github.com/XAMPPRocky/octocrab/pull/698))
+
+## [0.41.0](https://github.com/XAMPPRocky/octocrab/compare/v0.40.0...v0.41.0) - 2024-09-30
+
+### Added
+
+- Implement getting users and reopos by their respective IDs ([#690](https://github.com/XAMPPRocky/octocrab/pull/690))
+
+### Fixed
+
+- *(installation)* [**breaking**] Return Result instead of panicking in `Octocrab::installation` ([#687](https://github.com/XAMPPRocky/octocrab/pull/687))
+
+### Other
+
+- Update tower-http requirement from 0.5.1 to 0.6.1 ([#701](https://github.com/XAMPPRocky/octocrab/pull/701))
+- add additional webhook model fields ([#696](https://github.com/XAMPPRocky/octocrab/pull/696))
+- Bump hyper-rustls version. ([#699](https://github.com/XAMPPRocky/octocrab/pull/699))
+
 ## [0.40.0](https://github.com/XAMPPRocky/octocrab/compare/v0.39.0...v0.40.0) - 2024-09-22
 
 ### Added

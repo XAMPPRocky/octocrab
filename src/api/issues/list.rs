@@ -124,11 +124,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<models::issues::Issue>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues",
-            owner = self.handler.owner,
-            repo = self.handler.repo
-        );
+        let route = format!("/{}/issues", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
     }
 }

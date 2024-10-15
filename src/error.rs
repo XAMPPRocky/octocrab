@@ -22,6 +22,7 @@ impl std::error::Error for UriParseError {}
 /// An error that could have occurred while using [`crate::Octocrab`].
 #[derive(Snafu, Debug)]
 #[snafu(visibility(pub))]
+#[non_exhaustive]
 pub enum Error {
     GitHub {
         source: GitHubError,
@@ -35,7 +36,8 @@ pub enum Error {
         source: InvalidUri,
         backtrace: Backtrace,
     },
-
+    #[snafu(display("Installation Error: Github App authorization is required to target an installation.\n\nFound at {}", backtrace))]
+    Installation { backtrace: Backtrace },
     InvalidHeaderValue {
         source: http::header::InvalidHeaderValue,
         backtrace: Backtrace,

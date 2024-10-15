@@ -93,50 +93,38 @@ async fn should_work_with_specific_review() {
 
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .get()
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .update("test")
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .delete_pending()
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .submit(ReviewAction::Comment, "test")
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .dismiss("test")
         .await;
     assert_eq!(result.unwrap(), review_ops_response);
 
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .reviews()
-        .review(REVIEW_ID)
+        .pr_review_actions(PULL_NUMBER, REVIEW_ID)
         .list_comments()
         .per_page(15)
         .send()
@@ -146,9 +134,7 @@ async fn should_work_with_specific_review() {
 
     let result = client
         .pulls(OWNER, REPO)
-        .pull_number(PULL_NUMBER)
-        .comment(COMMENT_ID.into())
-        .reply("test")
+        .reply_to_comment(PULL_NUMBER, COMMENT_ID.into(), "test")
         .await;
     assert_eq!(result.unwrap(), pr_comment_response);
 }

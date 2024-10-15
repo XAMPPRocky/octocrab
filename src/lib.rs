@@ -193,6 +193,8 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use api::repos::RepoRef;
+use api::users::UserRef;
 use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
@@ -249,7 +251,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken};
+use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
@@ -327,7 +329,7 @@ pub async fn map_github_error(
                 errors,
                 message,
             },
-            backtrace: Backtrace::generate(),
+            backtrace: Backtrace::capture(),
         })
     }
 }
@@ -1008,20 +1010,22 @@ impl Octocrab {
     /// then obtain an installation ID, and then pass that here to
     /// obtain a new `Octocrab` with which you can make API calls
     /// with the permissions of that installation.
-    pub fn installation(&self, id: InstallationId) -> Octocrab {
+    pub fn installation(&self, id: InstallationId) -> Result<Octocrab> {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
-            panic!("Github App authorization is required to target an installation");
+            return Err(Error::Installation {
+                backtrace: Backtrace::capture(),
+            });
         };
-        Octocrab {
+        Ok(Octocrab {
             client: self.client.clone(),
             auth_state: AuthState::Installation {
                 app: app_auth,
                 installation: id,
                 token: CachedToken::default(),
             },
-        }
+        })
     }
 
     /// Similar to `installation`, but also eagerly caches the installation
@@ -1034,7 +1038,7 @@ impl Octocrab {
         &self,
         id: InstallationId,
     ) -> Result<(Octocrab, SecretString)> {
-        let crab = self.installation(id);
+        let crab = self.installation(id)?;
         let token = crab.request_installation_auth_token().await?;
         Ok((crab, token))
     }
@@ -1077,7 +1081,13 @@ impl Octocrab {
         owner: impl Into<String>,
         repo: impl Into<String>,
     ) -> issues::IssueHandler {
-        issues::IssueHandler::new(self, owner.into(), repo.into())
+        issues::IssueHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`issues::IssueHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's issues API.
+    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler {
+        issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`code_scanning::CodeSCanningHandler`] for the repo specified at `owner/repo`,
@@ -1137,7 +1147,13 @@ impl Octocrab {
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
     pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
-        repos::RepoHandler::new(self, owner.into(), repo.into())
+        repos::RepoHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's repository API.
+    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler {
+        repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
@@ -1158,9 +1174,14 @@ impl Octocrab {
         teams::TeamHandler::new(self, owner.into())
     }
 
-    /// Creates a [`users::UserHandler`] for the specified user
+    /// Creates a [`users::UserHandler`] for the specified user using the user name
     pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
-        users::UserHandler::new(self, user.into())
+        users::UserHandler::new(self, UserRef::ByString(user.into()))
+    }
+
+    /// Creates a [`users::UserHandler`] for the specified user using the user ID
+    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler {
+        users::UserHandler::new(self, UserRef::ById(user.into()))
     }
 
     /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows
@@ -1480,7 +1501,9 @@ impl Octocrab {
         {
             (app, installation, token)
         } else {
-            panic!("Installation not configured");
+            return Err(Error::Installation {
+                backtrace: Backtrace::capture(),
+            });
         };
         let mut request = Builder::new();
         let mut sensitive_value =
@@ -1511,7 +1534,7 @@ impl Octocrab {
             .map(|time| {
                 DateTime::<Utc>::from_str(&time).map_err(|e| error::Error::Other {
                     source: Box::new(e),
-                    backtrace: snafu::Backtrace::generate(),
+                    backtrace: snafu::Backtrace::capture(),
                 })
             })
             .transpose()?;
@@ -1521,7 +1544,7 @@ impl Octocrab {
 
         token.set(token_object.token.clone(), expiration);
 
-        Ok(SecretString::new(token_object.token))
+        Ok(SecretString::from(token_object.token))
     }
 
     /// Send the given request to the underlying service

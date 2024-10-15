@@ -31,7 +31,7 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
 }
 
 #[tokio::test]
-async fn should_return_desirialized_user() {
+async fn should_return_deserialized_user() {
     let mocked_response: UserProfile =
         serde_json::from_str(include_str!("resources/user_data.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);

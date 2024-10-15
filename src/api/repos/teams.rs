@@ -33,11 +33,7 @@ impl<'octo, 'r> ListTeamsBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::teams::Team>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/teams",
-            owner = self.handler.owner,
-            repo = self.handler.repo
-        );
+        let route = format!("/{}/teams", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
