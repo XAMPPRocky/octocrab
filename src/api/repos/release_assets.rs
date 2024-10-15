@@ -74,7 +74,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// let mut stream = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .release_assets()
-    ///     .stream_asset(AssetId(42u64))
+    ///     .stream(42u64)
     ///     .await?;
     ///
     /// while let Some(chunk) = stream.next().await {
@@ -92,12 +92,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         use futures_util::TryStreamExt;
         //use snafu::GenerateImplicitData;
 
-        let route = format!(
-            "/{}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
         let uri = Uri::builder()
             .path_and_query(route)
@@ -107,9 +102,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
             .method(http::Method::GET)
             .uri(uri)
             .header(http::header::ACCEPT, "application/octet-stream");
-        let request = self.parent.crab.build_request(builder, None::<&()>)?;
-        let response = self.parent.crab.execute(request).await?;
-        let response = self.parent.crab.follow_location_to_data(response).await?;
+        let request = self.handler.crab.build_request(builder, None::<&()>)?;
+        let response = self.handler.crab.execute(request).await?;
+        let response = self.handler.crab.follow_location_to_data(response).await?;
         Ok(http_body_util::BodyStream::new(response.into_body())
             .try_filter_map(|frame| futures_util::future::ok(frame.into_data().ok())))
     }
