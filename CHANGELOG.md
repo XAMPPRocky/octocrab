@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.2](https://github.com/XAMPPRocky/octocrab/compare/v0.41.1...v0.41.2) - 2024-10-15
+
+### Fixed
+
+- rustls hard-dependency ([#709](https://github.com/XAMPPRocky/octocrab/pull/709))
+- crate build issues with `stream` feature ([#711](https://github.com/XAMPPRocky/octocrab/pull/711))
+
+### Other
+
+- Update tower dependency from 0.4.13 to 0.5.1  ([#722](https://github.com/XAMPPRocky/octocrab/pull/722))
+- added user's social accounts operations (/user/social_accounts) ([#723](https://github.com/XAMPPRocky/octocrab/pull/723))
+- added auth.user's git_ssh_keys operations ([#719](https://github.com/XAMPPRocky/octocrab/pull/719))
+- Remove --verbose ([#716](https://github.com/XAMPPRocky/octocrab/pull/716))
+
 ## [0.41.1](https://github.com/XAMPPRocky/octocrab/compare/v0.41.0...v0.41.1) - 2024-10-10
 
 ### Fixed
