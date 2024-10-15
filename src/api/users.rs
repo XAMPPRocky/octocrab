@@ -9,6 +9,7 @@ pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
+use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
 use crate::api::users::user_gpg_keys::UserGpgKeysOpsBuilder;
 use crate::models::UserId;
 use crate::params::users::emails::EmailVisibilityState;
@@ -17,6 +18,7 @@ use crate::{error, GitHubError, Octocrab};
 mod follow;
 mod user_blocks;
 mod user_emails;
+mod user_git_ssh_keys;
 mod user_gpg_keys;
 mod user_repos;
 
@@ -191,5 +193,13 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete a GPG key for the authenticated user
     pub fn gpg_keys(&self) -> UserGpgKeysOpsBuilder<'_, '_> {
         UserGpgKeysOpsBuilder::new(self)
+    }
+
+    ///Git SSH keys operations builder
+    ///* List public SSH keys for the authenticated user
+    ///* Create a public SSH key for the authenticated user
+    ///* Delete a public SSH key for the authenticated user
+    pub fn git_ssh_keys(&self) -> UserGitSshKeysOpsBuilder<'_, '_> {
+        UserGitSshKeysOpsBuilder::new(self)
     }
 }
