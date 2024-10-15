@@ -947,9 +947,10 @@ pub enum AuthState {
 }
 
 pub type OctocrabService = Buffer<
-    BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
-    http::Request<OctoBody>,
+    http::Request<OctoBody>, 
+    <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
 >;
+
 
 /// The GitHub API client.
 #[derive(Clone)]
