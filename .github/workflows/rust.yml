@@ -17,8 +17,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: rustup default ${{ matrix.channel }}
-    - run: cargo build --all-targets {{ matrix.features }}
-    - run: cargo test {{ matrix.features }}
+    - run: cargo build --all-targets ${{ matrix.features }}
+    - run: cargo test ${{ matrix.features }}
 
   wasm-build:
     runs-on: ubuntu-latest
