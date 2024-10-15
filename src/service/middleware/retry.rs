@@ -12,12 +12,12 @@ pub enum RetryConfig {
 }
 
 impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
-    type Future = futures_util::future::Ready<Self>;
+    type Future = futures_util::future::Ready<()>;
 
     fn retry(
-        &self,
-        _req: &Request<OctoBody>,
-        result: Result<&Response<B>, &Error>,
+        &mut self,
+        _req: &mut Request<OctoBody>,
+        result: &mut Result<Response<B>, Error>,
     ) -> Option<Self::Future> {
         match self {
             RetryConfig::None => None,
@@ -25,7 +25,8 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
                 Ok(response) => {
                     if response.status().is_server_error() || response.status() == 429 {
                         if *count > 0 {
-                            Some(future::ready(RetryConfig::Simple(count - 1)))
+                            *count -= 1;
+                            Some(future::ready(()))
                         } else {
                             None
                         }
@@ -35,7 +36,8 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
                 }
                 Err(_) => {
                     if *count > 0 {
-                        Some(future::ready(RetryConfig::Simple(count - 1)))
+                        *count -= 1;
+                        Some(future::ready(()))
                     } else {
                         None
                     }
@@ -44,7 +46,7 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
         }
     }
 
-    fn clone_request(&self, req: &Request<OctoBody>) -> Option<Request<OctoBody>> {
+    fn clone_request(&mut self, req: &Request<OctoBody>) -> Option<Request<OctoBody>> {
         match self {
             RetryConfig::None => None,
             _ => {
