@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- rustls hard-dependency ([#709](https://github.com/XAMPPRocky/octocrab/pull/709))
+- Removed rustls hard-dependency ([#709](https://github.com/XAMPPRocky/octocrab/pull/709))
 - crate build issues with `stream` feature ([#711](https://github.com/XAMPPRocky/octocrab/pull/711))
 
 ### Other
