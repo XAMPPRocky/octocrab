@@ -1176,3 +1176,11 @@ pub struct SocialAccount {
     pub provider: String,
     pub url: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SshSigningKey {
+    pub key: String,
+    pub id: u64,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+}
