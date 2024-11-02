@@ -19,12 +19,6 @@ pub struct DependabotAlert {
     pub auto_dismissed_at: Option<DateTime<Utc>>,
 }
 
-/*#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct DependabotAlerts {
-    //pub total_count: i32,
-    pub alerts: Vec<DependabotAlert>,
-}*/
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
