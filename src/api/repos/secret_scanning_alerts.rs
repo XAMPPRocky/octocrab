@@ -15,21 +15,25 @@ struct Params {
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    state: Option<Vec<String>>,
+    state: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    severity: Option<Vec<String>>,
+    resolution: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    ecosystem: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    package: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    manifest: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    scope: Option<String>,
+    validity: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    secret_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    before: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    after: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_publicly_leaked: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_multi_repo: Option<bool>,
 }
 
 impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
@@ -40,13 +44,15 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
                 per_page: None,
                 page: None,
                 state: None,
-                severity: None,
-                ecosystem: None,
-                package: None,
-                manifest: None,
-                scope: None,
+                after: None,
+                before: None,
+                is_multi_repo: None,
+                is_publicly_leaked: None,
+                resolution: None,
                 sort: None,
                 direction: None,
+                secret_type: None,
+                validity: None,
             },
         }
     }
@@ -84,38 +90,50 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     }
 
     /// Filter Secret Scanning Alerts by state.
-    pub fn state(mut self, state: impl Into<Vec<String>>) -> Self {
+    pub fn state(mut self, state: impl Into<String>) -> Self {
         self.params.state = Some(state.into());
         self
     }
 
-    /// Filter Secret Scanning Alerts by severity.
-    pub fn severity(mut self, severity: impl Into<Vec<String>>) -> Self {
-        self.params.severity = Some(severity.into());
+    /// Filter Secret Scanning Alerts by resolution.
+    pub fn resolution(mut self, resolution: impl Into<Vec<String>>) -> Self {
+        self.params.resolution = Some(resolution.into());
         self
     }
 
-    /// Filter Secret Scanning Alerts by ecosystem.
-    pub fn ecosystem(mut self, ecosystem: impl Into<Vec<String>>) -> Self {
-        self.params.ecosystem = Some(ecosystem.into());
+    /// Filter Secret Scanning Alerts by validity.
+    pub fn validity(mut self, validity: impl Into<Vec<String>>) -> Self {
+        self.params.validity = Some(validity.into());
         self
     }
 
-    /// Filter Secret Scanning Alerts by package.
-    pub fn package(mut self, package: impl Into<Vec<String>>) -> Self {
-        self.params.package = Some(package.into());
+    /// Filter Secret Scanning Alerts by secret_type.
+    pub fn secret_type(mut self, secret_type: impl Into<String>) -> Self {
+        self.params.secret_type = Some(secret_type.into());
         self
     }
 
-    /// Filter Secret Scanning Alerts by manifest.
-    pub fn manifest(mut self, manifest: impl Into<Vec<String>>) -> Self {
-        self.params.manifest = Some(manifest.into());
+    /// Filter Secret Scanning Alerts by multi repo alerts.
+    pub fn is_multi_repo(mut self, is_multi_repo: impl Into<bool>) -> Self {
+        self.params.is_multi_repo = Some(is_multi_repo.into());
         self
     }
 
-    /// Filter Secret Scanning Alerts by scope.
-    pub fn scope(mut self, scope: impl Into<String>) -> Self {
-        self.params.scope = Some(scope.into());
+    /// Filter Secret Scanning Alerts by publicly leaked.
+    pub fn is_publicly_leaked(mut self, is_publicly_leaked: impl Into<bool>) -> Self {
+        self.params.is_publicly_leaked = Some(is_publicly_leaked.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by after cursor.
+    pub fn after(mut self, after: impl Into<String>) -> Self {
+        self.params.after = Some(after.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by before cursor.
+    pub fn before(mut self, before: impl Into<String>) -> Self {
+        self.params.before = Some(before.into());
         self
     }
 
@@ -166,8 +184,8 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     ///         5,
     ///         Some(&UpdateSecretScanningAlert {
     ///             state: "dismissed",
-    ///             dismissed_reason: Some("no_bandwidth"),
-    ///             dismissed_comment: Some("I don't have time to fix this right now"),
+    ///             resolution: Some("no_bandwidth"),
+    ///             resolution_comment: Some("I don't have time to fix this right now"),
     ///         })
     ///     )
     ///     .await?;
