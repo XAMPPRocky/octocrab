@@ -47,3 +47,12 @@ pub enum Validity {
     Inactive,
     Unknown,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct UpdateSecretScanningAlert<'a> {
+    pub state: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resolution: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resolution_comment: Option<&'a str>,
+}

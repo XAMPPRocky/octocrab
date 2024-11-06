@@ -33,6 +33,7 @@ pub struct CodeScanningAlert {
 pub enum CodeScanningState {
     Open,
     Dismissed,
+    Fixed,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -50,6 +51,7 @@ pub enum DismissedReason {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Dismisser {
+    // isn't is the same as SimpleUser?
     pub login: String,
     pub id: UserId,
     pub node_id: String,
@@ -80,14 +82,33 @@ pub struct Rule {
     pub id: Option<String>,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub severity: Option<String>,
+    pub severity: Option<String>, /* per documentation is is an enum, should we change the type?:
+                                  "description": "The severity of the alert.",
+                                                     "enum": [
+                                                         "none",
+                                                         "note",
+                                                         "warning",
+                                                         "error",
+                                                         null
+                                                     ]*/
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub full_description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub security_severity_level: Option<String>,
+    pub security_severity_level: Option<String>, /* per documentation it is enum, shoud we change it?:
+                                                 "enum": [
+                                                                         "low",
+                                                                         "medium",
+                                                                         "high",
+                                                                         "critical",
+                                                                         null
+                                                                     ] */
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub help: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub help_uri: Option<Url>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -108,11 +129,24 @@ pub struct MostRecentInstance {
     pub analysis_key: String,
     pub environment: String,
     pub category: String,
-    pub state: String,
+    pub state: String, /* change to enum? doc:
+                       "enum": [
+                           "open",
+                           "dismissed",
+                           "fixed",
+                           null
+                       ] */
     pub commit_sha: String,
     pub message: Message,
     pub location: Location,
-    pub classifications: Vec<String>,
+    pub classifications: Vec<String>, /* change to enum? doc:
+                                      "enum": [
+                                          "source",
+                                          "generated",
+                                          "test",
+                                          "library",
+                                          null
+                                      ] */
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
