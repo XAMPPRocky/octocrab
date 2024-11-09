@@ -42,7 +42,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn check_list_200() {
+async fn check_secrets_alert_list_200() {
     let s: &str = include_str!("resources/check_secrets_alerts.json");
     let alert: Vec<SecretScanningAlert> = serde_json::from_str(s).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&alert);

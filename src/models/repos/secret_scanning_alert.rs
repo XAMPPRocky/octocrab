@@ -4,7 +4,7 @@ use super::super::*;
 pub struct SecretScanningAlert {
     pub number: i64,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub url: Url,
     pub html_url: Url,
     pub locations_url: Url,

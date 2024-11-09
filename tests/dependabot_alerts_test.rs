@@ -42,7 +42,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn check_list_200() {
+async fn check_dependabot_alerts_list_200() {
     let s = include_str!("resources/check_dependabot_alerts.json");
     let alert: Vec<DependabotAlert> = serde_json::from_str(s).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&alert);
