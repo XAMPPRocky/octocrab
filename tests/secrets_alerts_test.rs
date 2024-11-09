@@ -71,7 +71,7 @@ async fn check_secrets_alert_list_200() {
 
         assert_eq!(2, item.number);
         assert_eq!(
-            octocrab::models::repos::secret_scanning_alert::State::Open,
+            octocrab::models::repos::secret_scanning_alert::State::Resolved,
             item.state
         );
     }
