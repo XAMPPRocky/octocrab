@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.3](https://github.com/XAMPPRocky/octocrab/compare/v0.41.2...v0.41.3) - 2024-11-13
+
+### Added
+
+- added ssh_signing_keys ops ([#725](https://github.com/XAMPPRocky/octocrab/pull/725))
+
+### Other
+
+- Fixup route in api/issues/update ([#732](https://github.com/XAMPPRocky/octocrab/pull/732))
+
 ## [0.41.2](https://github.com/XAMPPRocky/octocrab/compare/v0.41.1...v0.41.2) - 2024-10-15
 
 ### Fixed
