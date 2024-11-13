@@ -4,7 +4,7 @@ use wiremock::{
 };
 
 use mock_error::setup_error_handler;
-use octocrab::models::repos::dependabot::DependabotAlert;
+use octocrab::models::repos::secret_scanning_alert::SecretScanningAlert;
 use octocrab::Octocrab;
 
 mod mock_error;
@@ -12,12 +12,12 @@ mod mock_error;
 const OWNER: &str = "org";
 const REPO: &str = "some-repo";
 
-async fn setup_dependabot_api(template: ResponseTemplate) -> MockServer {
+async fn setup_secrets_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
         .and(path(format!(
-            "/repos/{owner}/{repo}/dependabot/alerts",
+            "/repos/{owner}/{repo}/secret-scanning/alerts",
             owner = OWNER,
             repo = REPO
         )))
@@ -27,7 +27,7 @@ async fn setup_dependabot_api(template: ResponseTemplate) -> MockServer {
     setup_error_handler(
         &mock_server,
         &format!(
-            "GET on /repos/{owner}/{repo}/dependabot/alerts was not received",
+            "GET on /repos/{owner}/{repo}/secret-scanning/alerts was not received",
             owner = OWNER,
             repo = REPO
         ),
@@ -42,16 +42,16 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 }
 
 #[tokio::test]
-async fn check_dependabot_alerts_list_200() {
-    let s = include_str!("resources/check_dependabot_alerts.json");
-    let alert: Vec<DependabotAlert> = serde_json::from_str(s).unwrap();
+async fn check_secrets_alert_list_200() {
+    let s: &str = include_str!("resources/check_secrets_alerts.json");
+    let alert: Vec<SecretScanningAlert> = serde_json::from_str(s).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&alert);
-    let mock_server = setup_dependabot_api(template).await;
+    let mock_server = setup_secrets_api(template).await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
         .repos(OWNER.to_owned(), REPO.to_owned())
-        .dependabot()
+        .secrets_scanning()
         .get_alerts()
         .await;
 
@@ -64,12 +64,15 @@ async fn check_dependabot_alerts_list_200() {
     let response = result.unwrap();
     let items = response.items;
 
-    assert_eq!(items.len(), 5);
+    assert_eq!(items.len(), 2);
 
     {
         let item = &items[0];
 
-        assert_eq!(5, item.number);
-        assert_eq!(octocrab::models::repos::dependabot::State::Open, item.state);
+        assert_eq!(2, item.number);
+        assert_eq!(
+            octocrab::models::repos::secret_scanning_alert::State::Resolved,
+            item.state
+        );
     }
 }
