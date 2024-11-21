@@ -61,7 +61,7 @@ pub struct UpdateSecretScanningAlert<'a> {
 #[serde(tag = "type", content = "details")]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
-pub enum SecretScanningAlertLocation {
+pub enum SecretsScanningAlertLocation {
     Commit {
         path: String,
         start_line: u32,

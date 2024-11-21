@@ -210,7 +210,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// use octocrab::models::repos::secret_scanning_alert::SecretScanningAlertLocation;
+    /// use octocrab::models::repos::secret_scanning_alert::SecretsScanningAlertLocation;
     ///
     /// let result = octocrab.repos("owner", "repo")
     ///     .secrets_scanning()
@@ -224,7 +224,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
         &self,
         alert_number: u32,
     ) -> crate::Result<
-        crate::Page<crate::models::repos::secret_scanning_alert::SecretScanningAlertLocation>,
+        crate::Page<crate::models::repos::secret_scanning_alert::SecretsScanningAlertLocation>,
     > {
         let route = format!(
             "/{}/secret-scanning/alerts/{}/locations",

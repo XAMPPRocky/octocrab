@@ -5,6 +5,7 @@ use wiremock::{
 
 use mock_error::setup_error_handler;
 use octocrab::models::repos::secret_scanning_alert::SecretScanningAlert;
+use octocrab::models::repos::secret_scanning_alert::SecretsScanningAlertLocation;
 use octocrab::Octocrab;
 
 mod mock_error;
@@ -75,4 +76,30 @@ async fn check_secrets_alert_list_200() {
             item.state
         );
     }
+}
+
+#[tokio::test]
+async fn check_secrets_alert_locations_list_200() {
+    let s: &str = include_str!("resources/check_secrets_alerts_locations.json");
+    let alert: Vec<SecretsScanningAlertLocation> = serde_json::from_str(s).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&alert);
+    let mock_server = setup_secrets_api(template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secrets_scanning()
+        .get_alert_locations(5)
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:?}",
+        result
+    );
+
+    let response = result.unwrap();
+    let items = response.items;
+
+    assert_eq!(items.len(), 13);
 }
