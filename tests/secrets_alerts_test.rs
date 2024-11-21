@@ -12,6 +12,7 @@ mod mock_error;
 
 const OWNER: &str = "org";
 const REPO: &str = "some-repo";
+const ALERT_NUMBER: u32 = 5;
 
 async fn setup_secrets_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
@@ -29,6 +30,31 @@ async fn setup_secrets_api(template: ResponseTemplate) -> MockServer {
         &mock_server,
         &format!(
             "GET on /repos/{owner}/{repo}/secret-scanning/alerts was not received",
+            owner = OWNER,
+            repo = REPO
+        ),
+    )
+    .await;
+
+    mock_server
+}
+
+async fn setup_secrets_locations_api(template: ResponseTemplate) -> MockServer {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{owner}/{repo}/secret-scanning/alerts/5/locations",
+            owner = OWNER,
+            repo = REPO
+        )))
+        .respond_with(template.clone())
+        .mount(&mock_server)
+        .await;
+    setup_error_handler(
+        &mock_server,
+        &format!(
+            "GET on /repos/{owner}/{repo}/secret-scanning/alerts/{ALERT_NUMBER}/locations was not received",
             owner = OWNER,
             repo = REPO
         ),
@@ -83,13 +109,13 @@ async fn check_secrets_alert_locations_list_200() {
     let s: &str = include_str!("resources/check_secrets_alerts_locations.json");
     let alert: Vec<SecretsScanningAlertLocation> = serde_json::from_str(s).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&alert);
-    let mock_server = setup_secrets_api(template).await;
+    let mock_server = setup_secrets_locations_api(template).await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
         .repos(OWNER.to_owned(), REPO.to_owned())
         .secrets_scanning()
-        .get_alert_locations(5)
+        .get_alert_locations(ALERT_NUMBER)
         .await;
 
     assert!(
