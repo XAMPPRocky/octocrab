@@ -66,4 +66,11 @@ async fn main() {
         .await
         .unwrap();
     println!("{:?}", updated_alert);
+
+    // Get alert locations
+    let result = octocrab
+        .repos("owner", "repo")
+        .secrets_scanning()
+        .get_alert_locations(5)
+        .await?;
 }

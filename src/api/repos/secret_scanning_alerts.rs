@@ -204,4 +204,32 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
         );
         self.handler.crab.patch(route, alert_update).await
     }
+
+    // Get a Secret Scanning alert locations.
+    /// You must authenticate using an access token with the `repo` or `security_events ` scope to use this endpoint.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// use octocrab::models::repos::secret_scanning_alert::SecretScanningAlertLocation;
+    ///
+    /// let result = octocrab.repos("owner", "repo")
+    ///     .secrets_scanning()
+    ///     .get_alert_locations(
+    ///         5
+    ///     )
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    pub async fn get_alert_locations(
+        &self,
+        alert_number: u32,
+    ) -> crate::Result<
+        crate::Page<crate::models::repos::secret_scanning_alert::SecretScanningAlertLocation>,
+    > {
+        let route = format!(
+            "/{}/secret-scanning/alerts/{}/locations",
+            self.handler.repo, alert_number
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
 }
