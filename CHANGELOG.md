@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.1](https://github.com/XAMPPRocky/octocrab/compare/v0.42.0...v0.42.1) - 2024-11-22
+
+### Other
+
+- Secret scanning alert locations API  ([#735](https://github.com/XAMPPRocky/octocrab/pull/735))
+
 ## [0.42.0](https://github.com/XAMPPRocky/octocrab/compare/v0.41.2...v0.42.0) - 2024-11-13
 
 ### Added
