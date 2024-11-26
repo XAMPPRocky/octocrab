@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use url::Url;
 
+use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 
 pub mod actions;
@@ -1098,4 +1099,88 @@ pub struct Rate {
     pub used: usize,
     pub remaining: usize,
     pub reset: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserEmailInfo {
+    pub email: String,
+    pub primary: bool,
+    pub verified: bool,
+    pub visibility: EmailVisibilityState,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VerifiedEmailInfo {
+    pub email: String,
+    pub verified: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SubKeyInfo {
+    pub id: u64,
+    pub primary_key_id: u64,
+    pub key_id: String,
+    pub public_key: String,
+    pub emails: Vec<VerifiedEmailInfo>,
+    pub subkeys: Option<Vec<SubKeyInfo>>,
+    pub can_sign: bool,
+    pub can_encrypt_comms: bool,
+    pub can_encrypt_storage: bool,
+    pub can_certify: bool,
+    pub created_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub raw_key: Option<String>,
+    pub revoked: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GpgKey {
+    pub id: u64,
+    pub name: String,
+    pub primary_key_id: u64,
+    pub key_id: String,
+    pub public_key: String,
+    pub emails: Vec<VerifiedEmailInfo>,
+    pub subkeys: Vec<SubKeyInfo>,
+    pub can_sign: bool,
+    pub can_encrypt_comms: bool,
+    pub can_encrypt_storage: bool,
+    pub can_certify: bool,
+    pub created_at: DateTime<Utc>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "date_serde::deserialize_opt"
+    )]
+    pub expires_at: Option<DateTime<Utc>>,
+    pub revoked: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub raw_key: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitSshKey {
+    pub key: String,
+    pub id: u64,
+    pub url: String,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub verified: bool,
+    pub read_only: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialAccount {
+    pub provider: String,
+    pub url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SshSigningKey {
+    pub key: String,
+    pub id: u64,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
 }

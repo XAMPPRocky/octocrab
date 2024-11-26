@@ -8,12 +8,12 @@ use crate::models::repos::secrets::{CreateRepositorySecret, CreateRepositorySecr
 ///
 /// Created with [`Octocrab::repos`].
 pub struct RepoSecretsHandler<'octo> {
-    repo: &'octo RepoHandler<'octo>,
+    handler: &'octo RepoHandler<'octo>,
 }
 
 impl<'octo> RepoSecretsHandler<'octo> {
     pub(crate) fn new(repo: &'octo RepoHandler<'octo>) -> Self {
-        Self { repo }
+        Self { handler: repo }
     }
 
     /// Lists all secrets available in a repository without revealing their encrypted values.
@@ -31,12 +31,8 @@ impl<'octo> RepoSecretsHandler<'octo> {
     pub async fn get_secrets(
         &self,
     ) -> crate::Result<crate::models::repos::secrets::RepositorySecrets> {
-        let route = format!(
-            "/repos/{owner}/{repo}/actions/secrets",
-            owner = self.repo.owner,
-            repo = self.repo.repo
-        );
-        self.repo.crab.get(route, None::<&()>).await
+        let route = format!("/{}/actions/secrets", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Gets your public key, which you need to encrypt secrets.
@@ -54,12 +50,8 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn get_public_key(&self) -> crate::Result<crate::models::PublicKey> {
-        let route = format!(
-            "/repos/{owner}/{repo}/actions/secrets/public-key",
-            owner = self.repo.owner,
-            repo = self.repo.repo
-        );
-        self.repo.crab.get(route, None::<&()>).await
+        let route = format!("/{}/actions/secrets/public-key", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Gets a single repository secret without revealing its encrypted value.
@@ -79,12 +71,11 @@ impl<'octo> RepoSecretsHandler<'octo> {
         secret_name: impl AsRef<str>,
     ) -> crate::Result<crate::models::repos::secrets::RepositorySecret> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/secrets/{secret_name}",
-            owner = self.repo.owner,
-            repo = self.repo.repo,
+            "/{}/actions/secrets/{secret_name}",
+            self.handler.repo,
             secret_name = secret_name.as_ref()
         );
-        self.repo.crab.get(route, None::<&()>).await
+        self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Creates or updates a repository secret with an encrypted value.
@@ -116,14 +107,13 @@ impl<'octo> RepoSecretsHandler<'octo> {
         secret: &CreateRepositorySecret<'_>,
     ) -> crate::Result<CreateRepositorySecretResponse> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/secrets/{secret_name}",
-            owner = self.repo.owner,
-            repo = self.repo.repo,
+            "/{}/actions/secrets/{secret_name}",
+            self.handler.repo,
             secret_name = secret_name.as_ref()
         );
 
         let resp = {
-            let resp = self.repo.crab._put(route, Some(secret)).await?;
+            let resp = self.handler.crab._put(route, Some(secret)).await?;
             crate::map_github_error(resp).await?
         };
 
@@ -136,7 +126,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
                     status_code.as_str()
                 )
                 .into(),
-                backtrace: snafu::Backtrace::generate(),
+                backtrace: snafu::Backtrace::capture(),
             }),
         }
     }
@@ -156,13 +146,12 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// # }
     pub async fn delete_secret(&self, secret_name: impl AsRef<str>) -> crate::Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/actions/secrets/{secret_name}",
-            owner = self.repo.owner,
-            repo = self.repo.repo,
+            "/{}/actions/secrets/{secret_name}",
+            self.handler.repo,
             secret_name = secret_name.as_ref()
         );
 
-        let resp = self.repo.crab._delete(route, None::<&()>).await?;
+        let resp = self.handler.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(resp).await?;
         Ok(())
     }

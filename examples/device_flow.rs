@@ -2,7 +2,7 @@ use http::header::ACCEPT;
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
-    let client_id = secrecy::Secret::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
+    let client_id = secrecy::SecretString::from(std::env::var("GITHUB_CLIENT_ID").unwrap());
     let crab = octocrab::Octocrab::builder()
         .base_uri("https://github.com")?
         .add_header(ACCEPT, "application/json".to_string())

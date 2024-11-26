@@ -4,12 +4,12 @@ use super::*;
 ///
 /// Created with [`RepoHandler::release_assets`].
 pub struct ReleaseAssetsHandler<'octo, 'r> {
-    parent: &'r RepoHandler<'octo>,
+    handler: &'r RepoHandler<'octo>,
 }
 
 impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     pub(crate) fn new(parent: &'r RepoHandler<'octo>) -> Self {
-        Self { parent }
+        Self { handler: parent }
     }
     /// Gets the release asset using its id.
     /// ```no_run
@@ -23,14 +23,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn get(&self, id: u64) -> Result<models::repos::Asset> {
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
-        self.parent.crab.get(route, None::<&()>).await
+        self.handler.crab.get(route, None::<&()>).await
     }
     /// Creates a new [`UpdateReleaseAssetBuilder`] with `asset_id`.
     /// ```no_run
@@ -65,14 +60,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// # }
     /// ```
     pub async fn delete(&self, id: u64) -> Result<()> {
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
-        self.parent.crab._delete(route, None::<&()>).await?;
+        self.handler.crab._delete(route, None::<&()>).await?;
         Ok(())
     }
 
@@ -84,7 +74,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     /// let mut stream = octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .release_assets()
-    ///     .stream_asset(AssetId(42u64))
+    ///     .stream(42u64)
     ///     .await?;
     ///
     /// while let Some(chunk) = stream.next().await {
@@ -102,12 +92,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
         use futures_util::TryStreamExt;
         //use snafu::GenerateImplicitData;
 
-        let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{id}",
-            owner = self.parent.owner,
-            repo = self.parent.repo,
-            id = id,
-        );
+        let route = format!("/{}/releases/assets/{id}", self.handler.repo, id = id,);
 
         let uri = Uri::builder()
             .path_and_query(route)
@@ -117,9 +102,9 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
             .method(http::Method::GET)
             .uri(uri)
             .header(http::header::ACCEPT, "application/octet-stream");
-        let request = self.parent.crab.build_request(builder, None::<&()>)?;
-        let response = self.parent.crab.execute(request).await?;
-        let response = self.parent.crab.follow_location_to_data(response).await?;
+        let request = self.handler.crab.build_request(builder, None::<&()>)?;
+        let response = self.handler.crab.execute(request).await?;
+        let response = self.handler.crab.follow_location_to_data(response).await?;
         Ok(http_body_util::BodyStream::new(response.into_body())
             .try_filter_map(|frame| futures_util::future::ok(frame.into_data().ok())))
     }
@@ -182,11 +167,10 @@ impl<'octo, 'repos, 'handler, 'name, 'label, 'state>
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::models::repos::Asset> {
         let route = format!(
-            "/repos/{owner}/{repo}/releases/assets/{asset_id}",
-            owner = self.handler.parent.owner,
-            repo = self.handler.parent.repo,
+            "/{repo}/releases/assets/{asset_id}",
+            repo = self.handler.handler.repo,
             asset_id = self.asset_id,
         );
-        self.handler.parent.crab.patch(route, Some(&self)).await
+        self.handler.handler.crab.patch(route, Some(&self)).await
     }
 }

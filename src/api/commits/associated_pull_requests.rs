@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::*;
 
 /// helper to let users know they can pass a branch name or a commit sha
@@ -8,11 +10,11 @@ pub enum PullRequestTarget {
     Sha(String),
 }
 
-impl ToString for PullRequestTarget {
-    fn to_string(&self) -> String {
+impl Display for PullRequestTarget {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Branch(branch) => branch.to_string(),
-            Self::Sha(commit) => commit.to_string(),
+            Self::Branch(branch) => write!(f, "{}", branch),
+            Self::Sha(commit) => write!(f, "{}", commit),
         }
     }
 }
@@ -59,7 +61,7 @@ impl<'octo, 'r> AssociatedPullRequestsBuilder<'octo, 'r> {
             "/repos/{owner}/{repo}/commits/{target}/pulls",
             owner = self.handler.owner,
             repo = self.handler.repo,
-            target = self.target.to_string(),
+            target = self.target,
         );
 
         self.handler.crab.get(route, Some(&self)).await

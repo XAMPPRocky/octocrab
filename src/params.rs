@@ -386,6 +386,7 @@ pub mod pulls {
     }
 
     /// Custom media types are used in the API to let consumers choose the
+    ///
     /// format of the data they wish to receive. This is done by adding one or
     /// more of the following types to the Accept header when you make a
     /// request. Media types are specific to resources, allowing them to change
@@ -481,7 +482,6 @@ pub mod repos {
     pub enum Reference {
         Branch(String),
         Tag(String),
-        Commit(String),
     }
 
     impl Reference {
@@ -489,15 +489,11 @@ pub mod repos {
             match self {
                 Self::Branch(branch) => format!("heads/{branch}"),
                 Self::Tag(tag) => format!("tags/{tag}"),
-                Self::Commit(sha) => sha.clone(),
             }
         }
 
         pub fn full_ref_url(&self) -> String {
-            match self {
-                Self::Branch(_) | Self::Tag(_) => format!("refs/{}", self.ref_url()),
-                Self::Commit(sha) => sha.clone(),
-            }
+            format!("refs/{}", self.ref_url())
         }
     }
 
@@ -508,6 +504,7 @@ pub mod repos {
     }
 
     /// A Git reference of unknown type.
+    ///
     /// In some cases clients may have a string identifying a commit, but not
     /// know whether it's a branch or a tag or commit hash.
     /// Many Github APIs accept such strings. These APIs also accept `heads/` or `tags/`.
@@ -604,6 +601,19 @@ pub mod users {
             All,
             Owner,
             Member,
+        }
+    }
+
+    pub mod emails {
+        use serde::{Deserialize, Serialize};
+
+        ///Denotes whether an email is publicly visible.
+        #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Copy)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+        pub enum EmailVisibilityState {
+            Public,
+            Private,
         }
     }
 }

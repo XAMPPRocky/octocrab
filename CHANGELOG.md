@@ -7,6 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.1](https://github.com/XAMPPRocky/octocrab/compare/v0.42.0...v0.42.1) - 2024-11-22
+
+### Other
+
+- Secret scanning alert locations API  ([#735](https://github.com/XAMPPRocky/octocrab/pull/735))
+
+## [0.42.0](https://github.com/XAMPPRocky/octocrab/compare/v0.41.2...v0.42.0) - 2024-11-13
+
+### Added
+
+- added ssh_signing_keys ops ([#725](https://github.com/XAMPPRocky/octocrab/pull/725))
+
+### Other
+
+- Secrets and Code scanning alerts API ([#730](https://github.com/XAMPPRocky/octocrab/pull/730))
+- add support for custom executors ([#728](https://github.com/XAMPPRocky/octocrab/pull/728))
+- Fixup route in api/issues/update ([#732](https://github.com/XAMPPRocky/octocrab/pull/732))
+
+## [0.41.2](https://github.com/XAMPPRocky/octocrab/compare/v0.41.1...v0.41.2) - 2024-10-15
+
+### Fixed
+
+- Removed rustls hard-dependency ([#709](https://github.com/XAMPPRocky/octocrab/pull/709))
+- crate build issues with `stream` feature ([#711](https://github.com/XAMPPRocky/octocrab/pull/711))
+
+### Other
+
+- Update tower dependency from 0.4.13 to 0.5.1  ([#722](https://github.com/XAMPPRocky/octocrab/pull/722))
+- added user's social accounts operations (/user/social_accounts) ([#723](https://github.com/XAMPPRocky/octocrab/pull/723))
+- added auth.user's git_ssh_keys operations ([#719](https://github.com/XAMPPRocky/octocrab/pull/719))
+- Remove --verbose ([#716](https://github.com/XAMPPRocky/octocrab/pull/716))
+
+## [0.41.1](https://github.com/XAMPPRocky/octocrab/compare/v0.41.0...v0.41.1) - 2024-10-10
+
+### Fixed
+
+- don't capture backtraces by default ([#710](https://github.com/XAMPPRocky/octocrab/pull/710))
+
+### Other
+
+- added user's gpg_keys operations ([#717](https://github.com/XAMPPRocky/octocrab/pull/717))
+- Secrecy dependency update from 0.8.0 to 0.10.3 ([#718](https://github.com/XAMPPRocky/octocrab/pull/718))
+- Added handlers for Repo Dependabot API ([#714](https://github.com/XAMPPRocky/octocrab/pull/714))
+- [#552](https://github.com/XAMPPRocky/octocrab/pull/552) (emails, public_emails, visibility) ([#712](https://github.com/XAMPPRocky/octocrab/pull/712))
+- make some fields to public ([#708](https://github.com/XAMPPRocky/octocrab/pull/708))
+- Implement some style improvements ([#698](https://github.com/XAMPPRocky/octocrab/pull/698))
+
+## [0.41.0](https://github.com/XAMPPRocky/octocrab/compare/v0.40.0...v0.41.0) - 2024-09-30
+
+### Added
+
+- Implement getting users and reopos by their respective IDs ([#690](https://github.com/XAMPPRocky/octocrab/pull/690))
+
+### Fixed
+
+- *(installation)* [**breaking**] Return Result instead of panicking in `Octocrab::installation` ([#687](https://github.com/XAMPPRocky/octocrab/pull/687))
+
+### Other
+
+- Update tower-http requirement from 0.5.1 to 0.6.1 ([#701](https://github.com/XAMPPRocky/octocrab/pull/701))
+- add additional webhook model fields ([#696](https://github.com/XAMPPRocky/octocrab/pull/696))
+- Bump hyper-rustls version. ([#699](https://github.com/XAMPPRocky/octocrab/pull/699))
+
+## [0.40.0](https://github.com/XAMPPRocky/octocrab/compare/v0.39.0...v0.40.0) - 2024-09-22
+
+### Added
+
+- Support `remove_assignees` on issue API ([#686](https://github.com/XAMPPRocky/octocrab/pull/686))
+- add missing fields in `CreateForkBuilder` ([#682](https://github.com/XAMPPRocky/octocrab/pull/682))
+- Add `Gist::public` field ([#678](https://github.com/XAMPPRocky/octocrab/pull/678))
+
+### Fixed
+
+- *(refs)* [**breaking**] remove `Reference::Commit` variant ([#697](https://github.com/XAMPPRocky/octocrab/pull/697))
+
+### Other
+
+- Fix typo in cfg_attr statement ([#693](https://github.com/XAMPPRocky/octocrab/pull/693))
+- Handle empty author object in pr_commits ([#656](https://github.com/XAMPPRocky/octocrab/pull/656))
+- Add `DeviceCodes::poll_until_available` method ([#679](https://github.com/XAMPPRocky/octocrab/pull/679))
+- Uncomment pr_commits function ([#680](https://github.com/XAMPPRocky/octocrab/pull/680))
+- Only add base_path if req_pandq does not contain it ([#684](https://github.com/XAMPPRocky/octocrab/pull/684))
+- Update code scanning alert ([#673](https://github.com/XAMPPRocky/octocrab/pull/673))
+- Added `merged_by` and `closed_by` fields ([#674](https://github.com/XAMPPRocky/octocrab/pull/674))
+- Update and Fixes to the Code Scanning Models & Webhooks ([#675](https://github.com/XAMPPRocky/octocrab/pull/675))
+
 ## [0.39.0](https://github.com/XAMPPRocky/octocrab/compare/v0.38.0...v0.39.0) - 2024-07-30
 
 ### Added

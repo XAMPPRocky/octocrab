@@ -19,6 +19,8 @@ pub use self::{
     update::UpdateIssueBuilder,
 };
 
+use super::repos::RepoRef;
+
 /// Handler for GitHub's issue API.
 ///
 /// Note: GitHub's REST API v3 considers every pull request an issue, but not
@@ -29,13 +31,12 @@ pub use self::{
 /// Created with [`Octocrab::issues`].
 pub struct IssueHandler<'octo> {
     crab: &'octo Octocrab,
-    owner: String,
-    repo: String,
+    repo: RepoRef,
 }
 
 impl<'octo> IssueHandler<'octo> {
-    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
-        Self { crab, owner, repo }
+    pub(crate) fn new(crab: &'octo Octocrab, repo: RepoRef) -> Self {
+        Self { crab, repo }
     }
 
     /// Gets an issue from the repository.
@@ -47,12 +48,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn get(&self, number: u64) -> Result<models::issues::Issue> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}",
-            owner = self.owner,
-            repo = self.repo,
-            number = number,
-        );
+        let route = format!("/{}/issues/{number}", self.repo, number = number,);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -147,12 +143,7 @@ impl<'octo> IssueHandler<'octo> {
         number: u64,
         reason: impl Into<Option<params::LockReason>>,
     ) -> Result<bool> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}/lock",
-            owner = self.owner,
-            repo = self.repo,
-            number = number,
-        );
+        let route = format!("/{}/issues/{number}/lock", self.repo, number = number,);
 
         let uri = Uri::builder()
             .path_and_query(route)
@@ -187,12 +178,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn unlock(&self, number: u64) -> Result<bool> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{number}/lock",
-            owner = self.owner,
-            repo = self.repo,
-            number = number,
-        );
+        let route = format!("/{}/issues/{number}/lock", self.repo, number = number,);
 
         let uri = Uri::builder()
             .path_and_query(route)
@@ -221,12 +207,7 @@ impl<'octo> IssueHandler<'octo> {
         number: u64,
         assignees: &[&str],
     ) -> Result<models::issues::Issue> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/assignees",
-            owner = self.owner,
-            repo = self.repo,
-            issue = number
-        );
+        let route = format!("/{}/issues/{issue}/assignees", self.repo, issue = number);
 
         self.crab
             .post(route, Some(&serde_json::json!({ "assignees": assignees })))
@@ -246,12 +227,7 @@ impl<'octo> IssueHandler<'octo> {
         number: u64,
         assignees: &[&str],
     ) -> Result<models::issues::Issue> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/assignees",
-            owner = self.owner,
-            repo = self.repo,
-            issue = number
-        );
+        let route = format!("/{}/issues/{issue}/assignees", self.repo, issue = number);
 
         self.crab
             .delete(route, Some(&serde_json::json!({ "assignees": assignees })))
@@ -269,9 +245,8 @@ impl<'octo> IssueHandler<'octo> {
     /// ```
     pub async fn check_assignee(&self, assignee: impl AsRef<str>) -> Result<bool> {
         let route = format!(
-            "/repos/{owner}/{repo}/assignees/{assignee}",
-            owner = self.owner,
-            repo = self.repo,
+            "/{}/assignees/{assignee}",
+            self.repo,
             assignee = assignee.as_ref()
         );
 
@@ -344,11 +319,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
 
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::Author>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/assignees",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-        );
+        let route = format!("/{}/assignees", self.handler.repo);
 
         self.handler.crab.get(route, Some(&self)).await
     }
@@ -367,12 +338,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn add_labels(&self, number: u64, labels: &[String]) -> Result<Vec<models::Label>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/labels",
-            owner = self.owner,
-            repo = self.repo,
-            issue = number
-        );
+        let route = format!("/{}/issues/{issue}/labels", self.repo, issue = number);
 
         self.crab
             .post(route, Some(&serde_json::json!({ "labels": labels })))
@@ -395,9 +361,8 @@ impl<'octo> IssueHandler<'octo> {
         label: impl AsRef<str>,
     ) -> Result<Vec<models::Label>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}",
-            owner = self.owner,
-            repo = self.repo,
+            "/{}/issues/{issue_number}/labels/{name}",
+            self.repo,
             issue_number = number,
             name = utf8_percent_encode(label.as_ref(), NON_ALPHANUMERIC),
         );
@@ -420,12 +385,7 @@ impl<'octo> IssueHandler<'octo> {
         number: u64,
         labels: &[String],
     ) -> Result<Vec<models::Label>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/labels",
-            owner = self.owner,
-            repo = self.repo,
-            issue = number
-        );
+        let route = format!("/{}/issues/{issue}/labels", self.repo, issue = number);
 
         self.crab
             .put(route, Some(&serde_json::json!({ "labels": labels })))
@@ -448,11 +408,7 @@ impl<'octo> IssueHandler<'octo> {
         color: impl AsRef<str>,
         description: impl AsRef<str>,
     ) -> Result<models::Label> {
-        let route = format!(
-            "/repos/{owner}/{repo}/labels",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let route = format!("/{}/labels", self.repo);
 
         self.crab
             .post(
@@ -477,12 +433,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_label(&self, name: impl AsRef<str>) -> Result<models::Label> {
-        let route = format!(
-            "/repos/{owner}/{repo}/labels/{name}",
-            owner = self.owner,
-            repo = self.repo,
-            name = name.as_ref(),
-        );
+        let route = format!("/{}/labels/{name}", self.repo, name = name.as_ref(),);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -498,12 +449,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<()> {
-        let route = format!(
-            "/repos/{owner}/{repo}/labels/{name}",
-            owner = self.owner,
-            repo = self.repo,
-            name = name.as_ref(),
-        );
+        let route = format!("/{}/labels/{name}", self.repo, name = name.as_ref(),);
 
         self.crab._delete(route, None::<&()>).await?;
         Ok(())
@@ -563,12 +509,7 @@ impl<'octo> IssueHandler<'octo> {
         number: u64,
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/comments",
-            owner = self.owner,
-            repo = self.repo,
-            issue = number
-        );
+        let route = format!("/{}/issues/{issue}/comments", self.repo, issue = number);
 
         self.crab
             .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
@@ -586,11 +527,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn get_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let route = format!("/{}/issues/comments/{comment_id}", self.repo,);
 
         self.crab.get(route, None::<&()>).await
     }
@@ -610,11 +547,7 @@ impl<'octo> IssueHandler<'octo> {
         comment_id: CommentId,
         body: impl AsRef<str>,
     ) -> Result<models::issues::Comment> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let route = format!("/{}/issues/comments/{comment_id}", self.repo,);
 
         self.crab
             .post(route, Some(&serde_json::json!({ "body": body.as_ref() })))
@@ -629,11 +562,7 @@ impl<'octo> IssueHandler<'octo> {
     /// # }
     /// ```
     pub async fn delete_comment(&self, comment_id: CommentId) -> Result<()> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let route = format!("/{}/issues/comments/{comment_id}", self.repo,);
 
         let uri = Uri::builder()
             .path_and_query(route)
@@ -731,8 +660,7 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/comments",
-            owner = self.handler.owner,
+            "/{repo}/issues/{issue}/comments",
             repo = self.handler.repo,
             issue = self.issue_number,
         );
@@ -801,11 +729,7 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
 
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/comments",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-        );
+        let route = format!("/{}/issues/comments", self.handler.repo);
 
         self.handler.crab.get(route, Some(&self)).await
     }
@@ -847,8 +771,7 @@ impl<'octo, 'r> ListTimelineEventsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::timelines::TimelineEvent>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/timeline",
-            owner = self.handler.owner,
+            "/{repo}/issues/{issue}/timeline",
             repo = self.handler.repo,
             issue = self.issue_number,
         );
@@ -952,8 +875,7 @@ impl<'octo, 'r> ListReactionsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue}/reactions",
-            owner = self.handler.owner,
+            "/{repo}/issues/{issue}/reactions",
             repo = self.handler.repo,
             issue = self.issue_number,
         );
@@ -998,8 +920,7 @@ impl<'octo, 'r> ListCommentReactionsBuilder<'octo, 'r> {
     /// Send the actual request.
     pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment}/reactions",
-            owner = self.handler.owner,
+            "/{repo}/issues/comments/{comment}/reactions",
             repo = self.handler.repo,
             comment = self.comment_id,
         );
@@ -1024,11 +945,7 @@ impl<'octo> IssueHandler<'octo> {
         issue_number: u64,
         content: models::reactions::ReactionContent,
     ) -> Result<models::reactions::Reaction> {
-        let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue_number}/reactions",
-            owner = self.owner,
-            repo = self.repo,
-        );
+        let route = format!("/{}/issues/{issue_number}/reactions", self.repo,);
 
         self.crab
             .post(route, Some(&serde_json::json!({ "content": content })))
@@ -1051,9 +968,8 @@ impl<'octo> IssueHandler<'octo> {
         content: models::reactions::ReactionContent,
     ) -> Result<models::reactions::Reaction> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions",
-            owner = self.owner,
-            repo = self.repo,
+            "/{}/issues/comments/{comment_id}/reactions",
+            self.repo,
             comment_id = comment_id.into(),
         );
 
@@ -1080,9 +996,8 @@ impl<'octo> IssueHandler<'octo> {
         reaction_id: impl Into<ReactionId>,
     ) -> Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}",
-            owner = self.owner,
-            repo = self.repo,
+            "/{}/issues/{issue_number}/reactions/{reaction_id}",
+            self.repo,
             reaction_id = reaction_id.into(),
         );
 
@@ -1107,9 +1022,8 @@ impl<'octo> IssueHandler<'octo> {
         reaction_id: impl Into<ReactionId>,
     ) -> Result<()> {
         let route = format!(
-            "/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}",
-            owner = self.owner,
-            repo = self.repo,
+            "/{}/issues/comments/{comment_id}/reactions/{reaction_id}",
+            self.repo,
             comment_id = comment_id.into(),
             reaction_id = reaction_id.into(),
         );

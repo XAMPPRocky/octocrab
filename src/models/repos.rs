@@ -7,6 +7,8 @@ use hyper::Response;
 use snafu::ResultExt;
 use url::Url;
 
+pub mod dependabot;
+pub mod secret_scanning_alert;
 pub mod secrets;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

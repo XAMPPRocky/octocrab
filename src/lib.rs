@@ -193,6 +193,8 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+use api::repos::RepoRef;
+use api::users::UserRef;
 use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
@@ -201,11 +203,13 @@ use http_body_util::BodyExt;
 use service::middleware::auth_header::AuthHeaderLayer;
 use std::convert::{Infallible, TryInto};
 use std::fmt;
+use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
+use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
+use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
 use hyper::{Request, Response};
@@ -249,7 +253,7 @@ use crate::service::middleware::retry::RetryConfig;
 
 use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken};
+use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
@@ -327,7 +331,7 @@ pub async fn map_github_error(
                 errors,
                 message,
             },
-            backtrace: Backtrace::generate(),
+            backtrace: Backtrace::capture(),
         })
     }
 }
@@ -383,6 +387,7 @@ pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
     auth: Auth,
     config: Config,
     _layer_ready: PhantomData<LayerReady>,
+    executor: Option<Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>>,
 }
 
 //Indicates weather the builder supports config
@@ -405,6 +410,7 @@ impl OctocrabBuilder<NoSvc, NoConfig, NoAuth, NotLayerReady> {
             auth: NoAuth {},
             config: NoConfig {},
             _layer_ready: PhantomData,
+            executor: None,
         }
     }
 }
@@ -422,6 +428,29 @@ impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
             auth: self.auth,
             config: self.config,
             _layer_ready: PhantomData,
+            executor: None,
+        }
+    }
+}
+
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
+    Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    pub fn with_executor(
+        self,
+        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
+    ) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+        OctocrabBuilder {
+            service: self.service,
+            auth: self.auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+            executor: Some(executor),
         }
     }
 }
@@ -443,12 +472,14 @@ where
             service: stack,
             auth,
             config,
+            executor,
             ..
         } = self;
         OctocrabBuilder {
             service: layer.layer(stack),
             auth,
             config,
+            executor,
             _layer_ready: PhantomData,
         }
     }
@@ -465,6 +496,7 @@ impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
         OctocrabBuilder {
             service: self.service,
             auth: self.auth,
+            executor: self.executor,
             config,
             _layer_ready: PhantomData,
         }
@@ -488,6 +520,10 @@ where
         .layer(self.service)
         .map_err(|e| e.into());
 
+        if let Some(executor) = self.executor {
+            return Ok(Octocrab::new_with_executor(service, self.auth, executor));
+        }
+
         Ok(Octocrab::new(service, self.auth))
     }
 }
@@ -498,6 +534,7 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
             service: self.service,
             auth,
             config: self.config,
+            executor: self.executor,
             _layer_ready: PhantomData,
         }
     }
@@ -632,7 +669,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Build a [`Client`] instance with the current [`Service`] stack.
     #[cfg(feature = "default-client")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "defaut-client")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, OctoBody> = {
             #[cfg(all(not(feature = "opentls"), not(feature = "rustls")))]
@@ -794,6 +831,10 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
 
+        if let Some(executor) = self.executor {
+            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+        }
+
         Ok(Octocrab::new(client, auth_state))
     }
 }
@@ -945,8 +986,8 @@ pub enum AuthState {
 }
 
 pub type OctocrabService = Buffer<
-    BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
     http::Request<OctoBody>,
+    <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
 >;
 
 /// The GitHub API client.
@@ -1001,6 +1042,31 @@ impl Octocrab {
         }
     }
 
+    /// Creates a new `Octocrab` with a custom executor
+    fn new_with_executor<S>(
+        service: S,
+        auth_state: AuthState,
+        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
+    ) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
+            + Send
+            + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<BoxError>,
+    {
+        // Use Buffer pair to return the background worker
+        let (service, worker) = Buffer::pair(BoxService::new(service.map_err(Into::into)), 1024);
+
+        // Execute the background worker with the custom executor
+        executor(Box::pin(worker));
+
+        Self {
+            client: service,
+            auth_state,
+        }
+    }
+
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via a specific installation ID.
     /// Typically you will first construct an `Octocrab` using
@@ -1008,20 +1074,22 @@ impl Octocrab {
     /// then obtain an installation ID, and then pass that here to
     /// obtain a new `Octocrab` with which you can make API calls
     /// with the permissions of that installation.
-    pub fn installation(&self, id: InstallationId) -> Octocrab {
+    pub fn installation(&self, id: InstallationId) -> Result<Octocrab> {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
         } else {
-            panic!("Github App authorization is required to target an installation");
+            return Err(Error::Installation {
+                backtrace: Backtrace::capture(),
+            });
         };
-        Octocrab {
+        Ok(Octocrab {
             client: self.client.clone(),
             auth_state: AuthState::Installation {
                 app: app_auth,
                 installation: id,
                 token: CachedToken::default(),
             },
-        }
+        })
     }
 
     /// Similar to `installation`, but also eagerly caches the installation
@@ -1034,7 +1102,7 @@ impl Octocrab {
         &self,
         id: InstallationId,
     ) -> Result<(Octocrab, SecretString)> {
-        let crab = self.installation(id);
+        let crab = self.installation(id)?;
         let token = crab.request_installation_auth_token().await?;
         Ok((crab, token))
     }
@@ -1077,7 +1145,13 @@ impl Octocrab {
         owner: impl Into<String>,
         repo: impl Into<String>,
     ) -> issues::IssueHandler {
-        issues::IssueHandler::new(self, owner.into(), repo.into())
+        issues::IssueHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`issues::IssueHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's issues API.
+    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler {
+        issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`code_scanning::CodeSCanningHandler`] for the repo specified at `owner/repo`,
@@ -1137,7 +1211,13 @@ impl Octocrab {
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
     pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
-        repos::RepoHandler::new(self, owner.into(), repo.into())
+        repos::RepoHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's repository API.
+    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler {
+        repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
@@ -1158,9 +1238,14 @@ impl Octocrab {
         teams::TeamHandler::new(self, owner.into())
     }
 
-    /// Creates a [`users::UserHandler`] for the specified user
+    /// Creates a [`users::UserHandler`] for the specified user using the user name
     pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
-        users::UserHandler::new(self, user.into())
+        users::UserHandler::new(self, UserRef::ByString(user.into()))
+    }
+
+    /// Creates a [`users::UserHandler`] for the specified user using the user ID
+    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler {
+        users::UserHandler::new(self, UserRef::ById(user.into()))
     }
 
     /// Creates a [`workflows::WorkflowsHandler`] for the specified repository that allows
@@ -1480,7 +1565,9 @@ impl Octocrab {
         {
             (app, installation, token)
         } else {
-            panic!("Installation not configured");
+            return Err(Error::Installation {
+                backtrace: Backtrace::capture(),
+            });
         };
         let mut request = Builder::new();
         let mut sensitive_value =
@@ -1511,7 +1598,7 @@ impl Octocrab {
             .map(|time| {
                 DateTime::<Utc>::from_str(&time).map_err(|e| error::Error::Other {
                     source: Box::new(e),
-                    backtrace: snafu::Backtrace::generate(),
+                    backtrace: snafu::Backtrace::capture(),
                 })
             })
             .transpose()?;
@@ -1521,7 +1608,7 @@ impl Octocrab {
 
         token.set(token_object.token.clone(), expiration);
 
-        Ok(SecretString::new(token_object.token))
+        Ok(SecretString::from(token_object.token))
     }
 
     /// Send the given request to the underlying service
