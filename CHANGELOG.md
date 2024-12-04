@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.2](https://github.com/XAMPPRocky/octocrab/compare/v0.42.1...v0.42.2) - 2024-12-04
+
+### Other
+
+- Add "merged" field to PullRequest ([#737](https://github.com/XAMPPRocky/octocrab/pull/737))
+
 ## [0.42.1](https://github.com/XAMPPRocky/octocrab/compare/v0.42.0...v0.42.1) - 2024-11-22
 
 ### Other
