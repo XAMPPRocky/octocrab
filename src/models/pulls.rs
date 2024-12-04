@@ -62,6 +62,8 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable_state: Option<MergeableState>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub merged: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_by: Option<Box<Author>>,
