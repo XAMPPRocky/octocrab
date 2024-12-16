@@ -71,6 +71,7 @@ pub enum IssueStateReason {
     Completed,
     NotPlanned,
     Reopened,
+    Duplicate,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
