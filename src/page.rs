@@ -6,7 +6,7 @@ use std::slice::Iter;
 use std::str::FromStr;
 
 use crate::error::{SerdeSnafu, UriSnafu};
-use snafu::{GenerateImplicitData, ResultExt};
+use snafu::ResultExt;
 use url::form_urlencoded;
 
 cfg_if::cfg_if! {

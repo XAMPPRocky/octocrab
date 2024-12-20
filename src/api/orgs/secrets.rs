@@ -1,5 +1,4 @@
 use http::StatusCode;
-use snafu::GenerateImplicitData;
 
 use super::OrgHandler;
 use crate::models::orgs::secrets::{CreateOrganizationSecret, CreateOrganizationSecretResponse};

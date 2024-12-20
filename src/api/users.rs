@@ -3,7 +3,6 @@
 use std::backtrace::Backtrace;
 
 use http::StatusCode;
-use snafu::GenerateImplicitData;
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 use self::user_repos::ListUserReposBuilder;

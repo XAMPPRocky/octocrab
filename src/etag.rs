@@ -5,7 +5,6 @@ use std::{
 };
 
 use http::header::{HeaderMap, InvalidHeaderValue};
-use snafu::GenerateImplicitData;
 
 /// Represents resources identified by etags.
 #[derive(Debug, PartialEq)]
