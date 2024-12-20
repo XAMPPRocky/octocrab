@@ -356,7 +356,7 @@ impl<'de> Deserialize<'de> for ReviewState {
     {
         struct Visitor;
 
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = ReviewState;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -391,7 +391,7 @@ impl<'de> Deserialize<'de> for Side {
     {
         struct Visitor;
 
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = Side;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {

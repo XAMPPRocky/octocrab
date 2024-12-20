@@ -387,7 +387,7 @@ pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
     auth: Auth,
     config: Config,
     _layer_ready: PhantomData<LayerReady>,
-    executor: Option<Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>>,
+    executor: Option<Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>)>>,
 }
 
 //Indicates weather the builder supports config
@@ -443,7 +443,7 @@ where
 {
     pub fn with_executor(
         self,
-        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
+        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>)>,
     ) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
         OctocrabBuilder {
             service: self.service,
@@ -1046,7 +1046,7 @@ impl Octocrab {
     fn new_with_executor<S>(
         service: S,
         auth_state: AuthState,
-        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
+        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>)>,
     ) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
