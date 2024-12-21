@@ -25,7 +25,7 @@ impl std::error::Error for UriParseError {}
 #[non_exhaustive]
 pub enum Error {
     GitHub {
-        source: GitHubError,
+        source: Box<GitHubError>,
         backtrace: Backtrace,
     },
     UriParse {

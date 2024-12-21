@@ -33,7 +33,7 @@ where
 
 struct GithubTimestampVisitor;
 
-impl<'de> de::Visitor<'de> for GithubTimestampVisitor {
+impl de::Visitor<'_> for GithubTimestampVisitor {
     type Value = DateTime<Utc>;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {

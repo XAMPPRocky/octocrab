@@ -14,7 +14,7 @@ pub struct UpdateCodeScanningBuilder<'octo, 'a> {
     dismissed_comment: Option<String>,
 }
 
-impl<'octo, 'a, 'b, 'c> UpdateCodeScanningBuilder<'octo, 'a> {
+impl<'octo, 'a> UpdateCodeScanningBuilder<'octo, 'a> {
     pub(crate) fn new(handler: &'a CodeScanningHandler<'octo>, number: u64) -> Self {
         Self {
             handler,

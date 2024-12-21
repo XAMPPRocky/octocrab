@@ -127,7 +127,7 @@ pub struct UpdateReleaseAssetBuilder<'octo, 'repos, 'handler, 'name, 'label> {
     state: Option<crate::params::repos::release_assets::State>,
 }
 
-impl<'octo, 'repos, 'handler, 'name, 'label, 'state>
+impl<'octo, 'repos, 'handler, 'name, 'label>
     UpdateReleaseAssetBuilder<'octo, 'repos, 'handler, 'name, 'label>
 {
     pub(crate) fn new(

@@ -25,7 +25,7 @@ pub struct ListCodeScanningsBuilder<'octo, 'b> {
     severity: Option<params::code_scannings::Severity>,
 }
 
-impl<'octo, 'b, 'c, 'd> ListCodeScanningsBuilder<'octo, 'b> {
+impl<'octo, 'b> ListCodeScanningsBuilder<'octo, 'b> {
     pub(crate) fn new(handler: &'b CodeScanningHandler<'octo>) -> Self {
         Self {
             handler,

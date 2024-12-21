@@ -93,7 +93,7 @@ impl<'octo, 'r> CreateForkBuilder<'octo, 'r> {
     }
 }
 
-impl<'octo> RepoHandler<'octo> {
+impl RepoHandler<'_> {
     /// List forks of a repository. Optionally, specify the
     /// [sort](ListForksBuilder::sort()) order,
     /// [page](ListForksBuilder::page()),
