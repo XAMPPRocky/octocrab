@@ -119,12 +119,12 @@ impl<'octo> UserHandler<'octo> {
         let result: crate::Result<()> = self.crab.put(route, None::<&()>).await;
         match result {
             Ok(_) => Err(error::Error::GitHub {
-                source: GitHubError {
+                source: Box::new(GitHubError {
                     status_code: StatusCode::OK,
                     documentation_url: None,
                     errors: None,
                     message: "".to_string(),
-                },
+                }),
                 backtrace: Backtrace::capture(),
             }),
             Err(_v) => Ok(()),
