@@ -2,7 +2,7 @@ use http_body_util::BodyExt;
 
 use bytes::Bytes;
 use http_body::Frame;
-use snafu::{Backtrace, GenerateImplicitData};
+use snafu::Backtrace;
 use std::pin::Pin;
 use std::sync::{Arc, RwLock};
 use std::task::{Context, Poll};

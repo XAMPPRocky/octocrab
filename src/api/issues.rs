@@ -781,7 +781,7 @@ impl<'octo, 'r> ListTimelineEventsBuilder<'octo, 'r> {
 }
 
 // Timeline
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Lists events in the issue timeline.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -800,7 +800,7 @@ impl<'octo> IssueHandler<'octo> {
     }
 }
 
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Lists reactions for an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

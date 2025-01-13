@@ -325,12 +325,12 @@ pub async fn map_github_error(
             .context(error::SerdeSnafu)?;
 
         Err(error::Error::GitHub {
-            source: GitHubError {
+            source: Box::new(GitHubError {
                 status_code: parts.status,
                 documentation_url,
                 errors,
                 message,
-            },
+            }),
             backtrace: Backtrace::capture(),
         })
     }
@@ -365,8 +365,11 @@ pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
 }
 
+type Executor = Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>)>;
+
 /// A builder struct for `Octocrab`, allowing you to configure the client, such
 /// as using GitHub previews, the github instance, authentication, etc.
+///
 /// ```
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -377,17 +380,14 @@ pub fn instance() -> Arc<Octocrab> {
 /// # Ok(())
 /// # }
 /// ```
-
-//Typed builder, thanks to https://www.greyblake.com/blog/builder-with-typestate-in-rust/ for explaining
-
-/// A builder struct for `Octocrab`.
+///
 /// OctocrabBuilder can be extended with a custom config, see [DefaultOctocrabBuilderConfig] for an example
 pub struct OctocrabBuilder<Svc, Config, Auth, LayerReady> {
     service: Svc,
     auth: Auth,
     config: Config,
     _layer_ready: PhantomData<LayerReady>,
-    executor: Option<Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>>,
+    executor: Option<Executor>,
 }
 
 //Indicates weather the builder supports config
@@ -443,7 +443,7 @@ where
 {
     pub fn with_executor(
         self,
-        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
+        executor: Executor,
     ) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
         OctocrabBuilder {
             service: self.service,
@@ -1043,11 +1043,7 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab` with a custom executor
-    fn new_with_executor<S>(
-        service: S,
-        auth_state: AuthState,
-        executor: Box<dyn Fn(Pin<Box<dyn Future<Output = ()>>>) -> ()>,
-    ) -> Self
+    fn new_with_executor<S>(service: S, auth_state: AuthState, executor: Executor) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
             + Send
