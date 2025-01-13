@@ -983,6 +983,11 @@ pub enum AuthState {
         /// The cached access token, if any
         token: CachedToken,
     },
+    /// Access token based authentication.
+    AccessToken {
+        /// The access token
+        token: SecretString,
+    },
 }
 
 pub type OctocrabService = Buffer<
@@ -1101,6 +1106,19 @@ impl Octocrab {
         let crab = self.installation(id)?;
         let token = crab.request_installation_auth_token().await?;
         Ok((crab, token))
+    }
+
+    /// Returns a new `Octocrab` based on the current builder but
+    /// authorizing via an access token.
+    ///
+    /// See also https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app
+    pub fn user_access_token<S: Into<SecretString>>(&self, token: S) -> Result<Self> {
+        Ok(Octocrab {
+            client: self.client.clone(),
+            auth_state: AuthState::AccessToken {
+                token: token.into(),
+            },
+        })
     }
 }
 
@@ -1677,6 +1695,11 @@ impl Octocrab {
                         .context(HttpSnafu)?,
                 )
             }
+            AuthState::AccessToken { ref token } => Some(
+                HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
+                    .map_err(http::Error::from)
+                    .context(HttpSnafu)?,
+            ),
         };
 
         if let Some(mut auth_header) = auth_header {
