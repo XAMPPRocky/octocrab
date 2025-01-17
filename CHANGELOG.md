@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.43.0](https://github.com/XAMPPRocky/octocrab/compare/v0.42.1...v0.43.0) - 2025-01-13
+
+### Other
+
+- Enable client reuse when authenticating via a Github app using user access tokens ([#740](https://github.com/XAMPPRocky/octocrab/pull/740))
+- [**breaking**] Box the github error & fix clippy lints (#743)
+- issues can now be closed as `duplicate` ([#741](https://github.com/XAMPPRocky/octocrab/pull/741))
+- Add "merged" field to PullRequest ([#737](https://github.com/XAMPPRocky/octocrab/pull/737))
+
 ## [0.42.1](https://github.com/XAMPPRocky/octocrab/compare/v0.42.0...v0.42.1) - 2024-11-22
 
 ### Other
