@@ -74,4 +74,23 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
 
         self.handler.crab.get(route, Some(&self)).await
     }
+
+    pub async fn billing(
+        self,
+    ) -> crate::Result<crate::models::orgs_copilot::billing::CopilotBilling> {
+        let route = format!("/orgs/{org}/copilot/billing", org = self.handler.owner);
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+
+    pub async fn billing_seats(
+        self,
+    ) -> crate::Result<crate::models::orgs_copilot::billing::CopilotBillingSeats> {
+        let route = format!(
+            "/orgs/{org}/copilot/billing/seats",
+            org = self.handler.owner,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
 }

@@ -1,1 +1,3 @@
-pub mod seats;
+mod seats;
+
+pub use seats::*;
