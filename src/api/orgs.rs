@@ -295,7 +295,7 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle copilot-related calls on the organization
     ///
-    ///  # Examples
+    /// # Examples
     /// ```no_run
     /// let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await?;
     /// ```

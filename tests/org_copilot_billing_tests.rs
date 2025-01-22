@@ -1,4 +1,3 @@
-// Tests for calls to the /repos/{owner}/members API.
 mod mock_error;
 
 use mock_error::setup_error_handler;

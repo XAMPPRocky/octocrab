@@ -9,9 +9,8 @@ use super::super::*;
 // - copilot_dotcom_pull_requests
 // - copilot_ide_chat
 //
-// This requires a API Key with the `copilot` scope and authorized
-// to access an enterprise. As of writing, the `copilot` scope is only
-// available to GitHub Enterprise customers and limited to Enterprise Administrators.
+// OAuth app tokens and personal access tokens (classic) need either the manage_billing:copilot, read:org, or read:enterprise scopes to use this endpoint.
+// Some of these permissions, as of writing, are only available to GitHub Enterprise customers and further limited to Enterprise Administrators.
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CopilotMetrics {
