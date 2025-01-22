@@ -24,6 +24,7 @@ pub mod hooks;
 pub mod interaction_limits;
 pub mod issues;
 pub mod orgs;
+pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
