@@ -1,7 +1,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::orgs_copilot::usage::CopilotUsage, Octocrab, Page};
+use octocrab::{models::orgs_copilot::usage::CopilotUsage, Octocrab};
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
@@ -43,12 +43,9 @@ const ORG: &str = "org";
 
 #[tokio::test]
 async fn should_return_page_with_usage() {
-    let metrics: Vec<CopilotUsage> =
+    let usage: Vec<CopilotUsage> =
         serde_json::from_str(include_str!("resources/org_copilot_usage.json")).unwrap();
-    let page_response = FakePage {
-        items: vec![metrics],
-    };
-    let template = ResponseTemplate::new(200).set_body_json(&page_response);
+    let template = ResponseTemplate::new(200).set_body_json(&usage);
     let mock_server = setup_usage_api(template, false).await;
     let client = setup_octocrab(&mock_server.uri());
     let org = client.orgs(ORG.to_owned());
@@ -60,22 +57,16 @@ async fn should_return_page_with_usage() {
         result
     );
 
-    let Page { items, .. } = result.unwrap();
-    assert_eq!(items.len(), 1);
-    let first_pg = items.first().unwrap();
-    assert_eq!(first_pg.len(), 2);
-    let first_item = first_pg.first().unwrap();
+    assert_eq!(usage.len(), 2);
+    let first_item = usage.first().unwrap();
     assert_eq!(first_item.breakdown[0].acceptances_count, 250);
 }
 
 #[tokio::test]
 async fn should_return_page_with_metrics_by_team() {
-    let metrics: Vec<CopilotUsage> =
+    let usage: Vec<CopilotUsage> =
         serde_json::from_str(include_str!("resources/org_copilot_usage.json")).unwrap();
-    let page_response = FakePage {
-        items: vec![metrics],
-    };
-    let template = ResponseTemplate::new(200).set_body_json(&page_response);
+    let template = ResponseTemplate::new(200).set_body_json(&usage);
     let mock_server = setup_usage_api(template, true).await;
     let client = setup_octocrab(&mock_server.uri());
     let org = client.orgs(ORG.to_owned());
@@ -87,11 +78,8 @@ async fn should_return_page_with_metrics_by_team() {
         result
     );
 
-    let Page { items, .. } = result.unwrap();
-    assert_eq!(items.len(), 1);
-    let first_pg = items.first().unwrap();
-    assert_eq!(first_pg.len(), 2);
-    let first_item = first_pg.first().unwrap();
+    assert_eq!(usage.len(), 2);
+    let first_item = usage.first().unwrap();
     assert_eq!(first_item.breakdown[0].acceptances_count, 250);
 }
 

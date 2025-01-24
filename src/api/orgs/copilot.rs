@@ -77,7 +77,7 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
 
     pub async fn usage(
         self,
-    ) -> crate::Result<crate::Page<Vec<crate::models::orgs_copilot::usage::CopilotUsage>>> {
+    ) -> crate::Result<Vec<crate::models::orgs_copilot::usage::CopilotUsage>> {
         let route = format!("/orgs/{org}/copilot/usage", org = self.handler.owner);
 
         self.handler.crab.get(route, Some(&self)).await
@@ -86,7 +86,7 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
     pub async fn usage_team<T: ToString>(
         self,
         team: T,
-    ) -> crate::Result<crate::Page<Vec<crate::models::orgs_copilot::usage::CopilotUsage>>> {
+    ) -> crate::Result<Vec<crate::models::orgs_copilot::usage::CopilotUsage>> {
         let route = format!(
             "/orgs/{org}/team/{team}/copilot/usage",
             org = self.handler.owner,
