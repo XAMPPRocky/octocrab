@@ -23,8 +23,10 @@ pub struct CopilotMetrics {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CopilotIdeCodeCompletions {
     pub total_engaged_users: u32,
-    pub languages: Vec<Language>,
-    pub editors: Vec<Editor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<Language>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub editors: Option<Vec<Editor>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -47,7 +49,8 @@ pub struct Model {
     pub custom_model_training_date: Option<NaiveDate>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total_engaged_users: Option<u32>,
-    pub languages: Vec<EditorLanguage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<EditorLanguage>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
