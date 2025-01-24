@@ -55,7 +55,7 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
     // Retrieve copilot metrics for the entire organization
     pub async fn metrics(
         self,
-    ) -> crate::Result<crate::Page<Vec<crate::models::orgs_copilot::metrics::CopilotMetrics>>> {
+    ) -> crate::Result<Vec<crate::models::orgs_copilot::metrics::CopilotMetrics>> {
         let route = format!("/orgs/{org}/copilot/metrics", org = self.handler.owner);
 
         self.handler.crab.get(route, Some(&self)).await
@@ -65,7 +65,7 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
     pub async fn metrics_team<T: ToString>(
         self,
         team: T,
-    ) -> crate::Result<crate::Page<Vec<crate::models::orgs_copilot::metrics::CopilotMetrics>>> {
+    ) -> crate::Result<Vec<crate::models::orgs_copilot::metrics::CopilotMetrics>> {
         let route = format!(
             "/orgs/{org}/team/{team}/copilot/metrics",
             org = self.handler.owner,
