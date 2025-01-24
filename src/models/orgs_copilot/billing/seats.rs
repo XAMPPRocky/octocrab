@@ -19,11 +19,16 @@ use super::super::*;
 pub struct CopilotBilling {
     pub seat_breakdown: CopilotSeatBreakdown,
     pub seat_management_setting: String,
-    pub ide_chat: String,
-    pub platform_chat: String,
-    pub cli: String,
-    pub public_code_suggestions: String,
-    pub plan_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ide_chat: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub platform_chat: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cli: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public_code_suggestions: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub plan_type: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
