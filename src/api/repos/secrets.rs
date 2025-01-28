@@ -1,5 +1,4 @@
 use http::StatusCode;
-use snafu::GenerateImplicitData;
 
 use super::RepoHandler;
 use crate::models::repos::secrets::{CreateRepositorySecret, CreateRepositorySecretResponse};

@@ -3,6 +3,7 @@
 //! # Notes
 //! Users need an account with sufficient privileges to interact with projects.
 
+#[allow(clippy::module_inception)]
 mod projects;
 
 use self::projects::{

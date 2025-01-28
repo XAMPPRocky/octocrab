@@ -62,6 +62,8 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable_state: Option<MergeableState>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub merged: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_by: Option<Box<Author>>,
@@ -354,7 +356,7 @@ impl<'de> Deserialize<'de> for ReviewState {
     {
         struct Visitor;
 
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = ReviewState;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -389,7 +391,7 @@ impl<'de> Deserialize<'de> for Side {
     {
         struct Visitor;
 
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = Side;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
