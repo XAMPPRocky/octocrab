@@ -27,6 +27,8 @@ pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pulls: Option<bool>,
 }
 
 impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
@@ -44,6 +46,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
             since: None,
             per_page: None,
             page: None,
+            pulls: None,
         }
     }
 
@@ -119,6 +122,18 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// If true, issues returned will be pull requests.
+    /// If false, issues returned will be issues.
+    /// If not specified, both issues and pull requests will be returned.
+    ///
+    /// GitHub's REST API considers every pull request an issue, but not every
+    /// issue is a pull request. For this reason, "Issues" endpoints may return
+    /// both issues and pull requests in the response.
+    pub fn pulls(mut self, pulls: bool) -> Self {
+        self.pulls = Some(pulls);
         self
     }
 
