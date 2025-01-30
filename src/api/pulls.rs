@@ -588,6 +588,7 @@ impl<'octo, 'r> ListRequestedReviewersBuilder<'octo, 'r> {
     }
 
     /// Send the actual request.
+    /// https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#get-all-requested-reviewers-for-a-pull-request
     pub async fn send(self) -> crate::Result<crate::models::pulls::ReviewRequest> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
