@@ -278,18 +278,7 @@ impl<'octo> PullRequestHandler<'octo> {
         ListReviewsBuilder::new(self, pr_number)
     }
 
-    /// List all of the requested reviewers for a pull request.
-    /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let reviewers = octocrab::instance().pulls("owner", "repo")
-    /// .list_requested_reviewers(101)
-    /// .per_page(100)
-    /// .page(2u32)
-    /// .send()
-    /// .await?;
-    /// # Ok(())
-    /// # }
-    /// ```
+    /// Get the requested reviewers for a pull request.
     pub async fn get_requested_reviewers(&self, pr_number: u64) -> crate::Result<RequestedReviewers> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
