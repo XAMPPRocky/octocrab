@@ -7,6 +7,7 @@ use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
 use crate::models::pulls::ReviewComment;
+use crate::models::teams::RequestedReviewers;
 use crate::models::CommentId;
 use crate::pulls::specific_pr::pr_reviews::specific_review::SpecificReviewBuilder;
 use crate::pulls::specific_pr::{SpecificPullRequestBuilder, SpecificPullRequestCommitBuilder};
@@ -289,8 +290,15 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_requested_reviewers(&self, pr_number: u64) -> ListRequestedReviewersBuilder {
-        ListRequestedReviewersBuilder::new(self, pr_number)
+    pub async fn get_requested_reviewers(&self, pr_number: u64) -> crate::Result<RequestedReviewers> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr_number,
+        );
+
+        self.http_get(route, None::<&()>).await
     }
 
     /// Request a review from users or teams.
@@ -548,56 +556,6 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn merge(&self, pr: u64) -> merge::MergePullRequestsBuilder {
         merge::MergePullRequestsBuilder::new(self, pr)
-    }
-}
-
-
-#[derive(serde::Serialize)]
-pub struct ListRequestedReviewersBuilder<'octo, 'r> {
-    #[serde(skip)]
-    handler: &'r PullRequestHandler<'octo>,
-    #[serde(skip)]
-    pr_number: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    per_page: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    page: Option<u32>,
-}
-
-impl<'octo, 'r> ListRequestedReviewersBuilder<'octo, 'r> {
-    pub(crate) fn new(handler: &'r PullRequestHandler<'octo>, pr_number: u64) -> Self {
-        Self {
-            handler,
-            pr_number,
-            per_page: None,
-            page: None,
-        }
-    }
-
-    /// Results per page (max 100).
-    /// Default: 30
-    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
-        self.per_page = Some(per_page.into());
-        self
-    }
-
-    /// Page number of the results to fetch.
-    pub fn page(mut self, page: impl Into<u32>) -> Self {
-        self.page = Some(page.into());
-        self
-    }
-
-    /// Send the actual request.
-    /// https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#get-all-requested-reviewers-for-a-pull-request
-    pub async fn send(self) -> crate::Result<crate::models::pulls::ReviewRequest> {
-        let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
-            owner = self.handler.owner,
-            repo = self.handler.repo,
-            pr = self.pr_number,
-        );
-
-        self.handler.http_get(route, Some(&self)).await
     }
 }
 

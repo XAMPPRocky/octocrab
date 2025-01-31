@@ -487,14 +487,6 @@ pub type FileDiff = repos::DiffEntry;
 #[deprecated(note = "use repos::DiffEntryStatus instead")]
 pub type FileDiffStatus = repos::DiffEntryStatus;
 
-/// Pull Request Review Request containing requested reviewers
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct ReviewRequest {
-    pub users: Vec<Author>,
-    pub teams: Vec<teams::Team>,
-}
-
 #[cfg(test)]
 mod test {
     #[test]
