@@ -7,6 +7,7 @@ use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
 use crate::models::pulls::ReviewComment;
+use crate::models::teams::RequestedReviewers;
 use crate::models::CommentId;
 use crate::pulls::specific_pr::pr_reviews::specific_review::SpecificReviewBuilder;
 use crate::pulls::specific_pr::{SpecificPullRequestBuilder, SpecificPullRequestCommitBuilder};
@@ -275,6 +276,18 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn list_reviews(&self, pr_number: u64) -> ListReviewsBuilder<'_, '_> {
         ListReviewsBuilder::new(self, pr_number)
+    }
+
+    /// Get the requested reviewers for a pull request.
+    pub async fn get_requested_reviewers(&self, pr_number: u64) -> crate::Result<RequestedReviewers> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr_number,
+        );
+
+        self.http_get(route, None::<&()>).await
     }
 
     /// Request a review from users or teams.
