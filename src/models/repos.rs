@@ -79,7 +79,8 @@ pub struct Verification {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct DiffEntry {
-    pub sha: String,
+    // unlike the schema online, this can be null if only metadata changed
+    pub sha: Option<String>,
     pub filename: String,
     pub status: DiffEntryStatus,
     pub additions: u64,
