@@ -4,13 +4,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::UserEmailInfo;
 use octocrab::params::users::emails::EmailVisibilityState;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
+mod test_common;
 
 async fn setup_emails_mock(
     http_method: &str,
@@ -30,10 +29,6 @@ async fn setup_emails_mock(
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
