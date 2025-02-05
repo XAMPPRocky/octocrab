@@ -1,16 +1,11 @@
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
-use mock_error::setup_error_handler;
+mod test_common;
 use octocrab::models::UserProfile;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
-}
 
 async fn setup_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
