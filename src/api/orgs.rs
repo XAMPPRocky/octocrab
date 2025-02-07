@@ -297,7 +297,9 @@ impl<'octo> OrgHandler<'octo> {
     ///
     /// # Examples
     /// ```no_run
-    /// let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await?;
+    /// async fn run() {
+    ///     let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await?;
+    /// }
     /// ```
     pub fn copilot(&self) -> copilot::CopilotHandler {
         copilot::CopilotHandler::new(self)
