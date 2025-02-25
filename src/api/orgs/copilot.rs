@@ -93,4 +93,10 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
 
         self.handler.crab.get(route, Some(&self)).await
     }
+
+    /// Perform seat management operations, such as adding or removing seats.
+    /// These will typically affect your billing and require admin/manage billing permissions.
+    pub fn manage_seats(&self) -> copilot_seat_manager::CopilotSeatHandler {
+        copilot_seat_manager::CopilotSeatHandler::new(self.handler)
+    }
 }

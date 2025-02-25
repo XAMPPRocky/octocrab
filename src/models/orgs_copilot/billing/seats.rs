@@ -56,3 +56,15 @@ pub struct CopilotSeat {
     pub plan_type: Option<String>,
     pub assignee: SimpleUser,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SeatsCreated {
+    /// The total number of seats created for the specified user(s).
+    pub seats_created: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SeatsCancelled {
+    /// The total number of seats set to "pending cancellation" for members of the specified team(s).
+    pub seats_cancelled: u32,
+}

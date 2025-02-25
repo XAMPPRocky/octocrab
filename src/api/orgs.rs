@@ -1,6 +1,7 @@
 //! The Organization API.
 
 mod copilot;
+mod copilot_seat_manager;
 mod events;
 mod list_members;
 mod list_repos;
