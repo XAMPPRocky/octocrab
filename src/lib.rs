@@ -1703,15 +1703,26 @@ impl Octocrab {
         };
 
         if let Some(mut auth_header) = auth_header {
-            // Only set the auth_header if the authority (host) is empty (destined for
+            // Only set the auth_header if the authority (host) is api.github.com or empty (destined for
             // GitHub). Otherwise, leave it off as we could have been redirected
             // away from GitHub (via follow_location_to_data()), and we don't
             // want to give our credentials to third-party services.
-            if parts.uri.authority().is_none() {
-                auth_header.set_sensitive(true);
-                parts
-                    .headers
-                    .insert(http::header::AUTHORIZATION, auth_header);
+            match parts.uri.authority() {
+                None => {
+                    auth_header.set_sensitive(true);
+                    parts
+                        .headers
+                        .insert(http::header::AUTHORIZATION, auth_header);
+                }
+                Some(authority) if authority == "api.github.com" => {
+                    auth_header.set_sensitive(true);
+                    parts
+                        .headers
+                        .insert(http::header::AUTHORIZATION, auth_header);
+                }
+                Some(authority) => {
+                    tracing::warn!("Not inserting auth header: authority = {}", authority);
+                }
             }
         }
 
