@@ -1106,7 +1106,7 @@ pub struct UserEmailInfo {
     pub email: String,
     pub primary: bool,
     pub verified: bool,
-    pub visibility: EmailVisibilityState,
+    pub visibility: Option<EmailVisibilityState>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

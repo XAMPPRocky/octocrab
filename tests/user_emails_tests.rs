@@ -54,7 +54,7 @@ async fn should_respond_to_primary_email_visibility() {
     );
     let response = result.unwrap();
     let visibility = response.first().unwrap().visibility;
-    assert_eq!(visibility, EmailVisibilityState::Private);
+    assert_eq!(visibility, Some(EmailVisibilityState::Private));
 }
 
 #[tokio::test]
@@ -78,7 +78,10 @@ async fn should_respond_to_email_list() {
     );
     let response = result.unwrap();
     let visibility = response.items.first().unwrap().visibility;
-    assert_eq!(visibility, EmailVisibilityState::Private);
+    assert_eq!(visibility, Some(EmailVisibilityState::Private));
+
+    let visibility = response.items[1].visibility;
+    assert_eq!(visibility, None);
 }
 
 #[tokio::test]
@@ -102,7 +105,7 @@ async fn should_respond_to_public_email_list() {
     );
     let response = result.unwrap();
     let visibility = response.items.first().unwrap().visibility;
-    assert_eq!(visibility, EmailVisibilityState::Private);
+    assert_eq!(visibility, Some(EmailVisibilityState::Private));
 }
 
 #[tokio::test]
