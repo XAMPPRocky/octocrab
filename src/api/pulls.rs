@@ -333,23 +333,24 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.delete(route, Some(&map)).await
     }
 
-    /// List all `DiffEntry`s associated with the pull request.
+    /// Creates a new `ListFilesBuilder` that can list files for a particular
+    /// pull request, paginated by up to 100 files per page.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let pr = octocrab
+    ///     .pulls("owner", "repo").list_files(5)
+    ///     // Optional Parameters
+    ///     .per_page(100)
+    ///     .page(2u32)
+    ///     // Send the request
+    ///     .send()
+    ///     .await?;
     /// # Ok(())
     /// # }
-    pub async fn list_files(
-        &self,
-        pr: u64,
-    ) -> crate::Result<Page<crate::models::repos::DiffEntry>> {
-        let route = format!(
-            "/repos/{owner}/{repo}/pulls/{pr}/files",
-            owner = self.owner,
-            repo = self.repo,
-        );
-
-        self.http_get(route, None::<&()>).await
+    /// ```
+    pub fn list_files(&self, pr: u64) -> ListFilesBuilder<'octo, '_> {
+        ListFilesBuilder::new(self, pr)
     }
 
     /// Creates a new `ListCommentsBuilder` that can be configured to list and
@@ -551,7 +552,54 @@ pub struct ListReviewsBuilder<'octo, 'r> {
     page: Option<u32>,
 }
 
-impl<'octo> PullRequestHandler<'octo> {
+#[derive(serde::Serialize)]
+pub struct ListFilesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r PullRequestHandler<'octo>,
+    #[serde(skip)]
+    pr_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListFilesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r PullRequestHandler<'octo>, pr_number: u64) -> Self {
+        Self {
+            handler,
+            pr_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100), default's to 30
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch, default's to 1
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> crate::Result<Page<crate::models::repos::DiffEntry>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/files",
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pr = self.pr_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+impl PullRequestHandler<'_> {
     pub(crate) async fn http_get<R, A, P>(
         &self,
         route: A,
