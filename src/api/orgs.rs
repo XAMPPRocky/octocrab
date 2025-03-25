@@ -1,5 +1,7 @@
 //! The Organization API.
 
+mod copilot;
+mod copilot_seat_manager;
 mod events;
 mod list_members;
 mod list_repos;
@@ -231,5 +233,17 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub fn secrets(&self) -> secrets::OrgSecretsHandler<'_> {
         secrets::OrgSecretsHandler::new(self)
+    }
+
+    /// Handle copilot-related calls on the organization
+    ///
+    /// # Examples
+    /// ```no_run
+    /// async fn run() {
+    ///     let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await.expect("failed to retrieve usage");
+    /// }
+    /// ```
+    pub fn copilot(&self) -> copilot::CopilotHandler {
+        copilot::CopilotHandler::new(self)
     }
 }
