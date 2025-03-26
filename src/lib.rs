@@ -1720,8 +1720,8 @@ impl Octocrab {
                         .headers
                         .insert(http::header::AUTHORIZATION, auth_header);
                 }
-                Some(authority) => {
-                    tracing::warn!("Not inserting auth header: authority = {}", authority);
+                Some(_) => {
+                    // Don't insert auth header.
                 }
             }
         }
