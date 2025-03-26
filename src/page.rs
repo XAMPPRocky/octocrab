@@ -2,6 +2,7 @@ use bytes::Bytes;
 use http::Uri;
 use http_body::Body;
 use http_body_util::BodyExt;
+use serde::{Serialize, Serializer};
 use std::slice::Iter;
 use std::str::FromStr;
 
@@ -33,15 +34,26 @@ cfg_if::cfg_if! {
 /// # }
 /// ```
 #[non_exhaustive]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Page<T> {
     pub items: Vec<T>,
     pub incomplete_results: Option<bool>,
     pub total_count: Option<u64>,
+    #[serde(serialize_with = "serialize_url")]
     pub next: Option<Uri>,
+    #[serde(serialize_with = "serialize_url")]
     pub prev: Option<Uri>,
+    #[serde(serialize_with = "serialize_url")]
     pub first: Option<Uri>,
+    #[serde(serialize_with = "serialize_url")]
     pub last: Option<Uri>,
+}
+
+fn serialize_url<S>(uri: &Option<http::Uri>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    Option::<String>::serialize(&uri.as_ref().map(|uri| uri.to_string()), serializer)
 }
 
 #[cfg(feature = "stream")]
@@ -285,7 +297,7 @@ fn get_links(headers: &http::header::HeaderMap) -> crate::Result<HeaderLinks> {
 
 #[cfg(test)]
 mod test {
-    use super::{get_links, HeaderLinks};
+    use super::{get_links, HeaderLinks, Page};
     use http::Uri;
     use std::str::FromStr;
 
@@ -364,5 +376,35 @@ mod test {
         assert_eq!(prev, None);
         assert_eq!(next, None);
         assert_eq!(last, None);
+    }
+
+    #[test]
+    fn serialize_page() {
+        let page = Page {
+            items: vec![1, 2, 3],
+            incomplete_results: Some(false),
+            total_count: Some(3),
+            next: Some(
+                Uri::from_str("https://api.github.com/repositories/1234/releases?page=2").unwrap(),
+            ),
+            prev: None,
+            first: Some(
+                Uri::from_str("https://api.github.com/repositories/1234/releases?page=1").unwrap(),
+            ),
+            last: Some(
+                Uri::from_str("https://api.github.com/repositories/1234/releases?page=3").unwrap(),
+            ),
+        };
+
+        let serialized = serde_json::to_string(&page).expect("Serialization should succeed");
+        assert!(serialized.contains("\"items\":[1,2,3]"));
+        assert!(serialized.contains("\"incomplete_results\":false"));
+        assert!(serialized.contains("\"total_count\":3"));
+        assert!(serialized
+            .contains("\"next\":\"https://api.github.com/repositories/1234/releases?page=2\""));
+        assert!(serialized
+            .contains("\"first\":\"https://api.github.com/repositories/1234/releases?page=1\""));
+        assert!(serialized
+            .contains("\"last\":\"https://api.github.com/repositories/1234/releases?page=3\""));
     }
 }
