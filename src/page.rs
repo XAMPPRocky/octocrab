@@ -53,7 +53,7 @@ fn serialize_url<S>(uri: &Option<http::Uri>, serializer: S) -> Result<S::Ok, S::
 where
     S: Serializer,
 {
-    Option::<String>::serialize(&uri.as_ref().map(|uri| uri.to_string()), serializer)
+    Option::<String>::serialize(&uri.as_ref().map(Uri::to_string), serializer)
 }
 
 #[cfg(feature = "stream")]
