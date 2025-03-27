@@ -1,14 +1,13 @@
+mod test_common;
+
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::repos::secret_scanning_alert::SecretScanningAlert;
 use octocrab::models::repos::secret_scanning_alert::SecretsScanningAlertLocation;
-use octocrab::Octocrab;
-
-mod mock_error;
+use test_common::{setup_error_handler, setup_octocrab};
 
 const OWNER: &str = "org";
 const REPO: &str = "some-repo";
@@ -62,10 +61,6 @@ async fn setup_secrets_locations_api(template: ResponseTemplate) -> MockServer {
     .await;
 
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
