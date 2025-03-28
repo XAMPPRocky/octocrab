@@ -962,6 +962,15 @@ pub enum EventInstallation {
     Minimal(Box<EventInstallationId>),
 }
 
+impl EventInstallation {
+    pub fn id(&self) -> InstallationId {
+        match self {
+            EventInstallation::Full(installation) => installation.id,
+            EventInstallation::Minimal(installation) => installation.id,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EventInstallationId {
     pub id: InstallationId,
