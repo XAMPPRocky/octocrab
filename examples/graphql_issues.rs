@@ -1,7 +1,7 @@
 //! Run this to update `github_schema.graphql`:
 //!
 //! ```sh
-//! curl -L https://docs.github.com/public/schema.docs.graphql -o examples/github_schema.graphql
+//! curl -L https://docs.github.com/public/fpt/schema.docs.graphql -o examples/github_schema.graphql
 //! ```
 use graphql_client::GraphQLQuery;
 
