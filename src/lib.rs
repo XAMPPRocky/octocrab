@@ -1751,6 +1751,35 @@ impl Octocrab {
             Ok(response)
         }
     }
+
+    pub async fn download(
+        &self,
+        uri: impl TryInto<Uri>,
+        content_type: impl TryInto<http::HeaderValue>,
+    ) -> crate::Result<Vec<u8>> {
+        let uri = uri
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+        let content_type = content_type
+            .try_into()
+            .map_err(|_| UriParseError {})
+            .context(UriParseSnafu)?;
+
+        let mut request = Builder::new().method(Method::GET).uri(uri);
+        request = request.header(http::header::ACCEPT, content_type);
+
+        let request = self.build_request(request, None::<&()>)?;
+        let response = self.execute(request).await?;
+
+        let bytes = response.into_body().collect().await?.to_bytes();
+        Ok(bytes.to_vec())
+    }
+
+    /// Download a zip file from the given URL
+    pub async fn download_zip(&self, uri: impl TryInto<Uri>) -> crate::Result<Vec<u8>> {
+        self.download(uri, "application/zip").await
+    }
 }
 
 /// # Utility Methods
