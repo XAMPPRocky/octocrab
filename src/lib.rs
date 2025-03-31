@@ -1752,6 +1752,10 @@ impl Octocrab {
         }
     }
 
+    /// Download a file from the given URL with the given content type
+    ///
+    /// This is a convenience method that sets the `Accept` header to the given
+    /// content type and downloads the file into a `Vec<u8>`.
     pub async fn download(
         &self,
         uri: impl TryInto<Uri>,
@@ -1776,7 +1780,7 @@ impl Octocrab {
         Ok(bytes.to_vec())
     }
 
-    /// Download a zip file from the given URL
+    /// Download a zip file from the given URL into a `Vec<u8>`.
     pub async fn download_zip(&self, uri: impl TryInto<Uri>) -> crate::Result<Vec<u8>> {
         self.download(uri, "application/zip").await
     }
