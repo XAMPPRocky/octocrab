@@ -1,9 +1,9 @@
 // Tests for calls to the /projects/{project_id} API.
-mod mock_error;
+mod test_common;
 
-use mock_error::setup_error_handler;
-use octocrab::{models::Project, Octocrab};
+use octocrab::models::Project;
 use serde::{Deserialize, Serialize};
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -24,10 +24,6 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(&mock_server, "POST on /users/projects was not received").await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
