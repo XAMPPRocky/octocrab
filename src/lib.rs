@@ -13,6 +13,7 @@
 //! - [`activity`] GitHub Activity
 //! - [`apps`] GitHub Apps
 //! - [`checks`] GitHub Checks
+//! - [`code_scannings`] Code Scanning
 //! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
 //! - [`events`] GitHub Events
@@ -32,7 +33,6 @@
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //! - [`users`] Users
-//! - [`code_scannings`] Code Scanning
 //!
 //! #### Getting a Pull Request
 //! ```no_run
