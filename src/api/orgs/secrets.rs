@@ -5,7 +5,7 @@ use crate::models::orgs::secrets::{CreateOrganizationSecret, CreateOrganizationS
 
 /// A client to GitHub's organization API.
 ///
-/// Created with [`Octocrab::orgs`].
+/// Created with [`crate::Octocrab::orgs`].
 pub struct OrgSecretsHandler<'octo> {
     org: &'octo OrgHandler<'octo>,
 }

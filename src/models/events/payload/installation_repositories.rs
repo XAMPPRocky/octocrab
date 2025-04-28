@@ -21,7 +21,7 @@ pub struct InstallationRepositoriesEventPayload {
     pub repositories_removed: Vec<InstallationEventRepository>,
     /// Describe whether all repositories have been selected or there's a selection involved
     pub repository_selection: InstallationRepositoriesEventSelection,
-    /// The initiator of the request, mainly for the [`created`](InstallationAction::Created) action
+    /// The initiator of the request, mainly for the [`created`](crate::models::events::payload::InstallationEventAction::Created) action
     pub requester: Option<Author>,
 }
 
