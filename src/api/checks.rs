@@ -372,7 +372,7 @@ impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
     }
 
     /// Send the actual request to /repos/{owner}/{repo}/commits/{ref}/check-suites
-    /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference
+    /// See <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference>
     pub async fn send(self) -> Result<models::checks::ListCheckSuites> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{ref}/check-suites",
@@ -507,7 +507,7 @@ impl<'octo> ChecksHandler<'octo> {
         UpdateCheckRunBuilder::new(self, check_run_id)
     }
 
-    /// Creates a check suite manually. see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite
+    /// Creates a check suite manually. see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite>
     /// ```no_run
     /// use octocrab::models::checks::CheckSuite;
     ///  async fn run() -> octocrab::Result<CheckSuite> {

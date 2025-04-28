@@ -23,7 +23,7 @@ cargo add octocrab
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
 for GitHub apps.
-Currently, the following modules are available as of version `0.17`.
+Currently, the following modules are available as of version `0.44`.
 
 - [`actions`] GitHub Actions.
 - [`apps`] GitHub Apps.

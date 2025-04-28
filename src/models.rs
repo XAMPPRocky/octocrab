@@ -176,7 +176,7 @@ pub struct Contents {
 }
 
 /// Issue events are triggered by activity in issues and pull requests.
-/// https://docs.github.com/en/webhooks-and-events/events/issue-event-types
+/// <https://docs.github.com/en/webhooks-and-events/events/issue-event-types>
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]

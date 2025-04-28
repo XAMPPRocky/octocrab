@@ -2,7 +2,7 @@ use super::RepoHandler;
 
 /// A client to GitHub's repository dependabot API.
 ///
-/// Created with [`Octocrab::repos`].
+/// Created with [`RepoHandler`].
 pub struct RepoDependabotAlertsHandler<'octo> {
     handler: &'octo RepoHandler<'octo>,
     params: Params,

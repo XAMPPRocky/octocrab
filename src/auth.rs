@@ -57,7 +57,7 @@ impl Default for Auth {
 
 /// Create a JSON Web Token that can be used to authenticate an a GitHub application.
 ///
-/// See: https://docs.github.com/en/developers/apps/getting-started-with-apps/setting-up-your-development-environment-to-create-a-github-app#authenticating-as-a-github-app
+/// See: <https://docs.github.com/en/developers/apps/getting-started-with-apps/setting-up-your-development-environment-to-create-a-github-app#authenticating-as-a-github-app>
 pub fn create_jwt(
     github_app_id: AppId,
     key: &EncodingKey,
@@ -132,7 +132,7 @@ impl From<OAuthWire> for OAuth {
 impl crate::Octocrab {
     /// Authenticate with Github's device flow. This starts the process to obtain a new `OAuth`.
     ///
-    /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow for details.
+    /// See <https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow> for details.
     ///
     /// Note: To authenticate against public Github, the `Octocrab` that calls this method
     /// *must* be constructed with `base_uri: "https://github.com"` and extra header
@@ -179,7 +179,7 @@ impl crate::Octocrab {
 
 /// The device codes as returned from step 1 of Github's device flow.
 ///
-/// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters
+/// See <https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#response-parameters>
 #[derive(Deserialize, Clone)]
 #[non_exhaustive]
 pub struct DeviceCodes {
@@ -188,13 +188,13 @@ pub struct DeviceCodes {
     /// The user verification code is displayed on the device so the user can enter the
     /// code in a browser. This code is 8 characters with a hyphen in the middle.
     pub user_code: String,
-    /// The verification URL where users need to enter the user_code: https://github.com/login/device.
+    /// The verification URL where users need to enter the user_code: <https://github.com/login/device>
     pub verification_uri: String,
     /// The number of seconds before the device_code and user_code expire. The default is
     /// 900 seconds or 15 minutes.
     pub expires_in: u64,
     /// The minimum number of seconds that must pass before you can make a new access
-    /// token request (POST https://github.com/login/oauth/access_token) to complete the
+    /// token request (POST <https://github.com/login/oauth/access_token>) to complete the
     /// device authorization. For example, if the interval is 5, then you cannot make a
     /// new request until 5 seconds pass. If you make more than one request over 5
     /// seconds, then you will hit the rate limit and receive a slow_down error.
@@ -280,14 +280,14 @@ enum TokenResponse {
 pub enum Continue {
     /// When you receive the slow_down error, 5 extra seconds are added to the minimum
     /// interval or timeframe required between your requests using POST
-    /// https://github.com/login/oauth/access_token. For example, if the starting interval
+    /// <https://github.com/login/oauth/access_token>. For example, if the starting interval
     /// required at least 5 seconds between requests and you get a slow_down error response,
     /// you must now wait a minimum of 10 seconds before making a new request for an OAuth
     /// access token. The error response includes the new interval that you must use.
     SlowDown,
     /// This error occurs when the authorization request is pending and the user hasn't
     /// entered the user code yet. The app is expected to keep polling the POST
-    /// https://github.com/login/oauth/access_token request without exceeding the
+    /// <https://github.com/login/oauth/access_token> request without exceeding the
     /// interval, which requires a minimum number of seconds between each request.
     AuthorizationPending,
 }
@@ -296,7 +296,7 @@ pub enum Continue {
 struct PollForDevice<'a> {
     /// Required. The client ID you received from GitHub for your OAuth App.
     client_id: &'a str,
-    /// Required. The device verification code you received from the POST https://github.com/login/device/code request.
+    /// Required. The device verification code you received from the POST <https://github.com/login/device/code> request.
     device_code: &'a str,
     /// Required. The grant type must be urn:ietf:params:oauth:grant-type:device_code.
     grant_type: &'static str,
