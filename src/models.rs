@@ -422,6 +422,7 @@ pub struct Author {
     pub received_events_url: Url,
     pub r#type: String,
     pub site_admin: bool,
+    pub name: Option<String>,
     pub patch_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
