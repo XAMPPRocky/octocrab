@@ -138,6 +138,8 @@
 //! current models using `serde`.
 //!
 //! ```no_run
+//! use serde::Deserialize;
+//!
 //! #[derive(Deserialize)]
 //! struct RepositoryWithVisibility {
 //!     #[serde(flatten)]
@@ -145,9 +147,13 @@
 //!     visibility: String,
 //! }
 //!
+//!
+//! # async fn run() -> octocrab::Result<()> {
 //! let my_repo = octocrab::instance()
-//!     .get::<RepositoryWithVisibility>("https://api.github.com/repos/XAMPPRocky/octocrab", None::<&()>)
+//!     .get::<RepositoryWithVisibility, _, _>("https://api.github.com/repos/XAMPPRocky/octocrab", None::<&()>)
 //!     .await?;
+//! # Ok(())
+//! # }
 //! ```
 //!
 //!
