@@ -372,7 +372,7 @@ impl<'octo, 'r> crate::checks::ListCheckSuitesForGitRefBuilder<'octo, 'r> {
     }
 
     /// Send the actual request to /repos/{owner}/{repo}/commits/{ref}/check-suites
-    /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference
+    /// See <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference>
     pub async fn send(self) -> Result<models::checks::ListCheckSuites> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{ref}/check-suites",
@@ -449,7 +449,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     ///Lists check suites for a commit ref.
-    ///See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference
+    ///See <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#list-check-suites-for-a-git-reference>
     ///```no_run
     /// use octocrab::models::checks::ListCheckSuites;
     /// use octocrab::params::repos::Commitish;
@@ -507,7 +507,7 @@ impl<'octo> ChecksHandler<'octo> {
         UpdateCheckRunBuilder::new(self, check_run_id)
     }
 
-    /// Creates a check suite manually. see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite
+    /// Creates a check suite manually. see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#create-a-check-suite>
     /// ```no_run
     /// use octocrab::models::checks::CheckSuite;
     ///  async fn run() -> octocrab::Result<CheckSuite> {
@@ -527,7 +527,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     /// Changes the default automatic flow when creating check suites. By default, a check suite is automatically created each time code is pushed to a repository. When you disable the automatic creation of check suites, you can manually Create a check suite. You must have admin permissions in the repository to set preferences for check suites.
-    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites
+    /// see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites>
     /// ```no_run
     /// use octocrab::models::{AppId, checks::AutoTriggerCheck};
     /// use octocrab::models::checks::CheckSuitePreferences;
@@ -551,7 +551,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     /// Gets a single check suite using its id.
-    /// See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
+    /// See <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite>
     /// ```no_run
     /// use octocrab::models::checks::CheckSuite;
     /// use octocrab::models::CheckSuiteId;
@@ -569,7 +569,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     ///Triggers GitHub to rerequest an existing check suite, without pushing new code to a repository.
-    ///See https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite
+    ///See <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite>
     ///```no_run
     /// use octocrab::models::CheckSuiteId;
     ///  async fn run() -> octocrab::Result<()> {
@@ -589,7 +589,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     ///Triggers GitHub to rerequest an existing check run, without pushing new code to a repository.
-    ///See https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run
+    ///See <https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run>
     ///```no_run
     /// use octocrab::models::CheckRunId;
     ///  async fn run() -> octocrab::Result<()> {
@@ -609,7 +609,7 @@ impl<'octo> ChecksHandler<'octo> {
     }
 
     ///Lists annotations for a check run using the annotation id.
-    ///See https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations
+    ///See <https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations>
     ///```no_run
     /// use octocrab::models::CheckRunId;
     /// use octocrab::params::checks::CheckRunAnnotation;
@@ -686,7 +686,7 @@ impl<'octo, 'r> CheckSuitePreferencesBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request of [`ChecksHandler.update_preferences()`]
-    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites
+    /// see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#update-repository-preferences-for-check-suites>
     ///
     /// [`ChecksHandler.update_preferences()`]: ChecksHandler#method.update_preferences()
     pub async fn send(self) -> Result<CheckSuitePreferences> {
@@ -715,7 +715,7 @@ impl<'octo, 'r> GetCheckSuiteBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request of [`ChecksHandler.get_check_suite()`]
-    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite
+    /// see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#get-a-check-suite>
     ///
     /// [`ChecksHandler.get_check_suite()`]: ChecksHandler#method.get_check_suite()
     pub async fn send(self) -> Result<CheckSuite> {
@@ -745,7 +745,7 @@ impl<'octo, 'r> crate::checks::RerequestCheckSuiteBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request of [`ChecksHandler.rerequest_check_suite()`]
-    /// see https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite
+    /// see <https://docs.github.com/en/rest/checks/suites?apiVersion=2022-11-28#rerequest-a-check-suite>
     ///
     /// [`ChecksHandler.rerequest_check_suite()`]: ChecksHandler#method.rerequest_check_suite()
     pub async fn send(self) -> Result<()> {
@@ -780,7 +780,7 @@ impl<'octo, 'r> crate::checks::RerequestCheckRunBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request of [`ChecksHandler.rerequest_check_run()`]
-    /// see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run
+    /// see <https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#rerequest-a-check-run>
     ///
     /// [`ChecksHandler.rerequest_check_run()`]: ChecksHandler#method.rerequest_check_run()
     pub async fn send(self) -> Result<()> {
@@ -819,7 +819,7 @@ impl<'octo, 'r> crate::checks::CheckRunAnnotationsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request of [`ChecksHandler.list_annotations()`]
-    /// see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations
+    /// see <https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-run-annotations>
     ///
     /// [`ChecksHandler.list_annotations()`]: ChecksHandler#method.list_annotations()
     pub async fn send(self) -> Result<Vec<CheckRunAnnotation>> {

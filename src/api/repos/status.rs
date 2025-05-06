@@ -48,7 +48,7 @@ impl<'octo, 'r> CreateStatusBuilder<'octo, 'r> {
 
     /// The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.  
     /// For example, if your continuous integration system is posting build status, you would want to provide the deep link for the build output for this specific SHA:
-    /// http://ci.example.com/user/repo/build/sha
+    /// <http://ci.example.com/user/repo/build/sha>
     pub fn target(mut self, target: String) -> Self {
         self.target_url = Some(target);
         self

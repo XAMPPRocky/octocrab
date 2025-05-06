@@ -23,44 +23,55 @@ cargo add octocrab
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
 for GitHub apps.
-Currently, the following modules are available as of version `0.17`.
+Currently, the following modules are available as of version `0.44`.
 
-- [`actions`] GitHub Actions.
-- [`apps`] GitHub Apps.
-- [`current`] Information about the current user.
-- [`gitignore`] Gitignore templates.
-- [`graphql`] GraphQL.
+- [`actions`] GitHub Actions
+- [`activity`] GitHub Activity
+- [`apps`] GitHub Apps
+- [`checks`] GitHub Checks
+- [`code_scannings`] Code Scanning
+- [`commits`] GitHub Commits
+- [`current`] Information about the current user
+- [`events`] GitHub Events
+- [`gists`] Gists
+- [`gitignore`] Gitignore templates
+- [`graphql`] GraphQL
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
-- [`licenses`] License Metadata.
-- [`markdown`] Rendering Markdown with GitHub.
-- [`orgs`] GitHub Organisations.
-- [`pulls`] Pull Requests.
-- [`releases`] Releases.
-- [`repos`] Repositories.
-- [`search`] GitHub's search API.
-- [`teams`] Teams.
-- [`gists`] GitHub's gists API
-- [`users`] Users.
-- [`code_scannings`] Code scannings
+- [`licenses`] License Metadata
+- [`markdown`] Rendering Markdown with GitHub
+- [`orgs`] GitHub Organisations
+- [`projects`] GitHub Projects
+- [`pulls`] Pull Requests
+- [`ratelimit`] Rate Limiting
+- [`repos`] Repositories
+- [`search`] Using GitHub's search
+- [`teams`] Teams
+- [`users`] Users
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
-[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
+[`activity`]: https://docs.rs/octocrab/latest/octocrab/activity/struct.ActivityHandler.html
+[`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/struct.AppsHandler.html
+[`checks`]: https://docs.rs/octocrab/latest/octocrab/checks/struct.ChecksHandler.html
+[`code_scannings`]: https://docs.rs/octocrab/latest/octocrab/code_scannings/struct.CodeScanningsHandler.html
+[`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
+[`events`]: https://docs.rs/octocrab/latest/octocrab/events/struct.EventsHandler.html
+[`gists`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.GistsHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
 [`graphql`]: https://docs.rs/octocrab/latest/octocrab/struct.Octocrab.html#graphql-api
-[`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
 [`issues`]: https://docs.rs/octocrab/latest/octocrab/issues/struct.IssueHandler.html
 [`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
-[`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
+[`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
+[`projects`]: https://docs.rs/octocrab/latest/octocrab/projects/struct.ProjectsHandler.html
+[`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
+[`ratelimit`]: https://docs.rs/octocrab/latest/octocrab/ratelimit/struct.RateLimitHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
-[`releases`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.ReleasesHandler.html
 [`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
 [`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
-[`gists`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.GistsHandler.html
-[`users`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.UsersHandler.html
+[`users`]: https://docs.rs/octocrab/latest/octocrab/users/struct.UsersHandler.html
 
 #### Getting a Pull Request
 ```rust
@@ -190,4 +201,33 @@ octocrab::initialise(octocrab::Octocrab::builder());
 let octocrab = octocrab::instance();
 ```
 
+## GitHub Webhook Support
 
+`octocrab` provides [deserializable datatypes](https://docs.rs/octocrab/latest/octocrab/models/webhook_events/index.html)
+for the payloads received by a GitHub application [responding to
+webhooks](https://docs.github.com/en/apps/creating-github-apps/writing-code-for-a-github-app/building-a-github-app-that-responds-to-webhook-events).
+This allows you to write a typesafe application using Rust with
+pattern-matching/enum-dispatch to respond to events.
+
+**Note**: Webhook support in `octocrab` is still beta, not all known webhook events are
+strongly typed.
+
+```rust
+use http::request::Request;
+use tracing::{warn, info};
+use octocrab::models::webhook_events::*;
+
+let request_from_github = Request::post("https://my-webhook-url.com").body(vec![0_u8]).unwrap();
+// request_from_github is the HTTP request your webhook handler received
+let (parts, body) = request_from_github.into_parts();
+let header = parts.headers.get("X-GitHub-Event").unwrap().to_str().unwrap();
+
+let event = WebhookEvent::try_from_header_and_body(header, &body).unwrap();
+// Now you can match on event type and call any specific handling logic
+match event.kind {
+    WebhookEventType::Ping => info!("Received a ping"),
+    WebhookEventType::PullRequest => info!("Received a pull request event"),
+    // ...
+    _ => warn!("Ignored event"),
+};
+```

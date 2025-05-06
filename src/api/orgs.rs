@@ -228,6 +228,11 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle secrets on the organizaton
     /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::instance();
+    /// let secrets = octocrab.orgs("org").secrets();
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn secrets(&self) -> secrets::OrgSecretsHandler<'_> {
         secrets::OrgSecretsHandler::new(self)

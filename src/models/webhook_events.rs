@@ -8,7 +8,7 @@
 //! time of writing, the header is named
 //! [`X-GitHub-Event`](https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#delivery-headers))
 //! and then pass the value, along with the payload, to [`WebhookEvent::try_from_header_and_body`]
-//! which will validate the payload and return a valid [`WebhookEvent`](WebhookEvent).
+//! which will validate the payload and return a valid [`WebhookEvent`].
 //!
 //! ```
 //! use octocrab::models::{AppId, webhook_events::{WebhookEvent, WebhookEventPayload, WebhookEventType}};
@@ -170,7 +170,7 @@ pub enum WebhookEventType {
     ///
     /// **Note:** The API only looks for pushes in the repository where the check run was created.
     /// Pushes to a branch in a forked repository are not detected and return an empty pull_requests
-    /// array and a null value for head_branch in the [payload](CheckRunWebhookEventPayload).
+    /// array and a null value for head_branch in the [payload](WebhookEventPayload::CheckRun).
     CheckRun,
     /// This event occurs when there is activity relating to a check suite. For information about
     /// check suites, see "Getting started with the Checks
@@ -718,7 +718,7 @@ pub enum WebhookEventType {
     WorkflowRun,
     /// A webhook event that is currently unsupported by octocrab.
     ///
-    /// When a [`WebhookEvent`](WebhookEvent) has this [kind](WebhookEvent::kind), then the
+    /// When a [`WebhookEvent`] has this [kind](WebhookEvent::kind), then the
     /// [specific](WebhookEvent::specific) payload will only be a generic `serde_json::Value`.
     #[serde(untagged)]
     Unknown(String),

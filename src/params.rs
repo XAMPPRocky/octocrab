@@ -83,7 +83,7 @@ pub mod apps {
 
     use crate::models::RepositoryId;
 
-    /// https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app
+    /// <https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app>
     #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize, Default)]
     #[serde(rename_all = "snake_case")]
     #[non_exhaustive]
@@ -593,7 +593,7 @@ pub mod users {
     pub mod repos {
         /// What ownership type to filter a user repository list by.
         ///
-        /// See https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-a-user
+        /// See <https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-a-user>
         #[derive(Debug, Clone, Copy, serde::Serialize)]
         #[serde(rename_all = "snake_case")]
         #[non_exhaustive]

@@ -9,10 +9,15 @@
 //! set of [`models`] that maps to GitHub's types. Currently the following
 //! modules are available.
 //!
-//! - [`activity`] GitHub Activity
 //! - [`actions`] GitHub Actions
+//! - [`activity`] GitHub Activity
 //! - [`apps`] GitHub Apps
+//! - [`checks`] GitHub Checks
+//! - [`code_scannings`] Code Scanning
+//! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
+//! - [`events`] GitHub Events
+//! - [`gists`] Gists
 //! - [`gitignore`] Gitignore templates
 //! - [`Octocrab::graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
@@ -21,9 +26,10 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`projects`] GitHub Projects
 //! - [`pulls`] Pull Requests
+//! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
-//! - [`repos::forks`] Repositories
-//! - [`repos::releases`] Repositories
+//! - [`repos::forks`] Repository forks
+//! - [`repos::releases`] Repository releases
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //! - [`users`] Users
@@ -130,6 +136,27 @@
 //!
 //! You can also easily access new properties that aren't available in the
 //! current models using `serde`.
+//!
+//! ```no_run
+//! use serde::Deserialize;
+//!
+//! #[derive(Deserialize)]
+//! struct RepositoryWithVisibility {
+//!     #[serde(flatten)]
+//!     inner: octocrab::models::Repository,
+//!     visibility: String,
+//! }
+//!
+//!
+//! # async fn run() -> octocrab::Result<()> {
+//! let my_repo = octocrab::instance()
+//!     .get::<RepositoryWithVisibility, _, _>("https://api.github.com/repos/XAMPPRocky/octocrab", None::<&()>)
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//!
 //!
 //! ## Static API
 //! `octocrab` also provides a statically reference count version of its API,
@@ -251,14 +278,14 @@ use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 #[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
 
-use crate::api::{code_scannings, users};
 use auth::{AppAuth, Auth};
 use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, commits, current, events, gists, gitignore, hooks, issues,
-        licenses, markdown, orgs, projects, pulls, ratelimit, repos, search, teams, workflows,
+        actions, activity, apps, checks, code_scannings, commits, current, events, gists,
+        gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls, ratelimit, repos,
+        search, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -511,7 +538,7 @@ where
     B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
     B::Error: Into<BoxError>,
 {
-    /// Build a [`Client`] instance with the current [`Service`] stack.
+    /// Build a [`Client`](OctocrabService) instance with the current [`Service`] stack.
     pub fn build(self) -> Result<Octocrab, Infallible> {
         // Transform response body to `BoxBody<Bytes, crate::Error>` and use type erased error to avoid type parameters.
         let service = MapResponseBodyLayer::new(|b: B| {
@@ -667,7 +694,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         connector
     }
 
-    /// Build a [`Client`] instance with the current [`Service`] stack.
+    /// Build a [`Client`](hyper_util::client::legacy::Client) instance with the current [`Service`] stack.
     #[cfg(feature = "default-client")]
     #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
     pub fn build(self) -> Result<Octocrab> {
@@ -1098,7 +1125,7 @@ impl Octocrab {
     /// https git requests to e.g. clone repositories that the installation
     /// has access to.
     ///
-    /// See also https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation
+    /// See also <https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation>
     pub async fn installation_and_token(
         &self,
         id: InstallationId,
@@ -1111,7 +1138,7 @@ impl Octocrab {
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via an access token.
     ///
-    /// See also https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app
+    /// See also <https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app>
     pub fn user_access_token<S: Into<SecretString>>(&self, token: S) -> Result<Self> {
         Ok(Octocrab {
             client: self.client.clone(),
@@ -1168,7 +1195,7 @@ impl Octocrab {
         issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
-    /// Creates a [`code_scanning::CodeSCanningHandler`] for the repo specified at `owner/repo`,
+    /// Creates a [`code_scannings::CodeScanningHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's Code scanning API.
     pub fn code_scannings(
         &self,
@@ -1178,7 +1205,7 @@ impl Octocrab {
         code_scannings::CodeScanningHandler::new(self, owner.into(), Option::from(repo.into()))
     }
 
-    /// Creates a [`code_scanning::CodeSCanningHandler`] for the org specified at `owner`,
+    /// Creates a [`code_scannings::CodeScanningHandler`] for the org specified at `owner`,
     /// that allows you to access GitHub's Code scanning API.
     pub fn code_scannings_organisation(
         &self,

@@ -75,7 +75,7 @@ pub struct WrappedEventPayload {
 ///
 /// Different event types have different payloads. Any event type not specifically part
 /// of this enum will be captured in the variant `UnknownEvent` with a value of
-/// [`serde_json::Value`](serde_json::Value).
+/// [`serde_json::Value`].
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(untagged)]

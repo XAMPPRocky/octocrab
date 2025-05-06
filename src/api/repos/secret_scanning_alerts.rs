@@ -2,7 +2,7 @@ use super::RepoHandler;
 
 /// A client to GitHub's repository Secret Scanning API.
 ///
-/// Created with [`Octocrab::repos`].
+/// Created with [`Octocrab::repos`](crate::Octocrab::repos).
 pub struct RepoSecretScanningAlertsHandler<'octo> {
     handler: &'octo RepoHandler<'octo>,
     params: Params,
