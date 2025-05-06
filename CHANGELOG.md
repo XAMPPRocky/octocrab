@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.44.1](https://github.com/XAMPPRocky/octocrab/compare/v0.44.0...v0.44.1) - 2025-05-06
+
+### Fixed
+
+- *(docs)* Update and fix crate documentation for docs.rs, update README ([#769](https://github.com/XAMPPRocky/octocrab/pull/769))
+- print deprecation warning to stderr ([#768](https://github.com/XAMPPRocky/octocrab/pull/768))
+
+### Other
+
+- Add optional `name` field to `Author` struct ([#771](https://github.com/XAMPPRocky/octocrab/pull/771))
+- Add 'dowload' and 'download_zip' functions to client ([#766](https://github.com/XAMPPRocky/octocrab/pull/766))
+- Add enum `EventInstallation::id()` helper ([#763](https://github.com/XAMPPRocky/octocrab/pull/763))
+- examples/graphql_issues.rs: Update schema URL ([#764](https://github.com/XAMPPRocky/octocrab/pull/764))
+
 ## [0.44.0](https://github.com/XAMPPRocky/octocrab/compare/v0.43.0...v0.44.0) - 2025-03-26
 
 ### Added
