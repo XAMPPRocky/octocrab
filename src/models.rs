@@ -22,6 +22,7 @@ pub mod gists;
 pub mod hooks;
 pub mod issues;
 pub mod orgs;
+pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
