@@ -40,6 +40,9 @@ impl std::fmt::Display for UserRef {
     }
 }
 
+/// Handler for GitHub's users API.
+///
+/// Created with [`Octocrab::users`].
 pub struct UserHandler<'octo> {
     crab: &'octo Octocrab,
     user: UserRef,

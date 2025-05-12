@@ -6,7 +6,7 @@ use std::convert::TryInto;
 
 /// Handler for GitHub's releases API.
 ///
-/// Created with [`RepoHandler::releases`].
+/// Created with [`Octocrab::repos`](crate::Octocrab::repos).
 pub struct ReleasesHandler<'octo, 'r> {
     handler: &'r RepoHandler<'octo>,
 }

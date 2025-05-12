@@ -5,7 +5,7 @@ use crate::models::repos::secrets::{CreateRepositorySecret, CreateRepositorySecr
 
 /// A client to GitHub's repository secrets API.
 ///
-/// Created with [`Octocrab::repos`].
+/// Created with [`RepoHandler`].
 pub struct RepoSecretsHandler<'octo> {
     handler: &'octo RepoHandler<'octo>,
 }

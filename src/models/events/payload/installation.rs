@@ -17,7 +17,7 @@ pub struct InstallationEventPayload {
     pub enterprise: Option<serde_json::Value>,
     /// An array of repositories that the installation can access
     pub repositories: Vec<InstallationEventRepository>,
-    /// The initiator of the request, mainly for the [`created`](InstallationAction::Created) action
+    /// The initiator of the request, mainly for the [`created`](crate::models::events::payload::InstallationEventAction::Created) action
     pub requester: Option<Author>,
 }
 
