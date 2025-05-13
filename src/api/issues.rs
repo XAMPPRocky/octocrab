@@ -192,7 +192,7 @@ impl<'octo> IssueHandler<'octo> {
 }
 
 /// # Assignees
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Adds up to 10 assignees to an issue. Users already assigned to an issue
     /// are not replaced.
     /// ```no_run
@@ -326,7 +326,7 @@ impl<'octo, 'r> ListAssigneesBuilder<'octo, 'r> {
 }
 
 /// # Labels
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Adds `labels` to an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -493,7 +493,7 @@ impl<'octo> IssueHandler<'octo> {
 }
 
 /// # Comments
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Creates a comment in the issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -929,7 +929,7 @@ impl<'octo, 'r> ListCommentReactionsBuilder<'octo, 'r> {
     }
 }
 
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Creates a reaction for an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -979,7 +979,7 @@ impl<'octo> IssueHandler<'octo> {
     }
 }
 
-impl<'octo> IssueHandler<'octo> {
+impl IssueHandler<'_> {
     /// Deletes a reaction for an issue.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
