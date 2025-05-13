@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.44.2](https://github.com/XAMPPRocky/octocrab/compare/v0.44.1...v0.44.2) - 2025-05-13
+
+### Other
+
+- cargo clippy --fix ([#774](https://github.com/XAMPPRocky/octocrab/pull/774))
+
 ## [0.44.1](https://github.com/XAMPPRocky/octocrab/compare/v0.44.0...v0.44.1) - 2025-05-06
 
 ### Fixed
