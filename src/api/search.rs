@@ -175,7 +175,7 @@ impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
     }
 }
 
-impl<'octo, 'query, T: serde::de::DeserializeOwned> QueryHandler<'octo, 'query, T> {
+impl<T: serde::de::DeserializeOwned> QueryHandler<'_, '_, T> {
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<T>> {
         self.crab
