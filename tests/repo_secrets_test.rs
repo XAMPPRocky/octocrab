@@ -1,18 +1,14 @@
 // Tests for calls to the /repos/{owner}/{repo}/actions/secrets API.
-mod mock_error;
+mod test_common;
 
 use chrono::DateTime;
-use mock_error::setup_error_handler;
-use octocrab::{
-    models::{
-        repos::secrets::{
-            CreateRepositorySecret, CreateRepositorySecretResponse, RepositorySecret,
-            RepositorySecrets,
-        },
-        PublicKey,
+use octocrab::models::{
+    repos::secrets::{
+        CreateRepositorySecret, CreateRepositorySecretResponse, RepositorySecret, RepositorySecrets,
     },
-    Octocrab,
+    PublicKey,
 };
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -73,10 +69,6 @@ async fn setup_delete_api(template: ResponseTemplate, secrets_path: &str) -> Moc
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
