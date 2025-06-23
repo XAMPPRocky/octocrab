@@ -38,11 +38,11 @@ const REDIRECT_URI: &str = "https://yourapp/auth/callback-example";
 #[tokio::test]
 async fn should_return_access_token() {
     let expected_response = json!({
-      "access_token":"gho_16C7e42F292c6912E7710c838347Ae178B4a",
-      "scope":"repo,gist",
-      "token_type":"bearer"
-    }
-        );
+        "access_token":"gho_16C7e42F292c6912E7710c838347Ae178B4a",
+        "scope":"repo,gist",
+        "token_type":"bearer"
+        }
+    );
     let template = ResponseTemplate::new(201).set_body_json(expected_response);
     let mock_server = setup_post_api(template).await;
     let client = setup_octocrab(&mock_server.uri());
