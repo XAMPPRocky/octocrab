@@ -258,6 +258,31 @@ impl DeviceCodes {
     }
 }
 
+/// Exchange a code for a user access token
+///
+/// see: https://docs.github.com/en/developers/apps/identifying-and-authorizing-users-for-github-apps
+pub async fn get_access_token(
+    crab: &crate::Octocrab,
+    client_id: &SecretString,
+    code: String,
+    client_secret: &SecretString,
+    redirect_uri: String,
+) -> Result<OAuth> {
+    let data: OAuth = crab
+        .post(
+            "/login/oauth/access_token",
+            Some(&ExchangeCodeForTokenParams {
+                client_id: client_id.expose_secret(),
+                client_secret: client_secret.expose_secret(),
+                code: &code,
+                redirect_uri: &redirect_uri,
+            }),
+        )
+        .await?;
+
+    Ok(data)
+}
+
 /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#input-parameters
 #[derive(Serialize)]
 struct DeviceFlow<'a> {
@@ -300,4 +325,16 @@ struct PollForDevice<'a> {
     device_code: &'a str,
     /// Required. The grant type must be urn:ietf:params:oauth:grant-type:device_code.
     grant_type: &'static str,
+}
+
+#[derive(Serialize)]
+struct ExchangeCodeForTokenParams<'a> {
+    /// Required. The client ID for your GitHub App.
+    client_id: &'a str,
+    /// Required. The client secret for your GitHub App.
+    client_secret: &'a str,
+    /// Required. The code received from the POST <https://github.com/login/oauth/authorize?client_id=CLIENT_ID> request.
+    code: &'a str,
+    // Strongly recommended. The URL in your application where users will be sent after authorization.
+    redirect_uri: &'a str,
 }
