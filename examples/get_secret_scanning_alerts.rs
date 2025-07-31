@@ -42,7 +42,7 @@ async fn main() {
         .get_alerts()
         .await
         .unwrap();
-    println!("{:?}", a);
+    println!("{a:?}");
     // Get a single Secret Scanning alert
     let single_alert = octocrab
         .repos(OWNER, REPO)
@@ -50,7 +50,7 @@ async fn main() {
         .get_alert(5)
         .await
         .unwrap();
-    println!("{:?}", single_alert);
+    println!("{single_alert:?}");
     // Update (dismiss) a Secret Scanning alert
     let updated_alert = octocrab
         .repos(OWNER, REPO)
@@ -65,7 +65,7 @@ async fn main() {
         )
         .await
         .unwrap();
-    println!("{:?}", updated_alert);
+    println!("{updated_alert:?}");
 
     // Get alert locations
     let alert_location = octocrab
@@ -74,5 +74,5 @@ async fn main() {
         .get_alert_locations(5)
         .await
         .unwrap();
-    println!("{:?}", alert_location);
+    println!("{alert_location:?}");
 }

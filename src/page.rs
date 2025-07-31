@@ -277,8 +277,7 @@ fn get_links(headers: &http::header::HeaderMap) -> crate::Result<HeaderLinks> {
                             "next" => next = Some(Uri::from_str(url).context(UriSnafu)?),
                             "last" => last = Some(Uri::from_str(url).context(UriSnafu)?),
                             other => eprint!(
-                                "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
-                                other
+                                "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{other}\""
                             ),
                         }
                     }

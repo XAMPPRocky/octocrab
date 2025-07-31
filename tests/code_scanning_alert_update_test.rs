@@ -19,9 +19,7 @@ async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServe
 
     Mock::given(method("PATCH"))
         .and(path(format!(
-            "/repos/{owner}/{repo}/code-scanning/alerts/{number}",
-            owner = owner,
-            repo = repo
+            "/repos/{owner}/{repo}/code-scanning/alerts/{number}"
         )))
         .respond_with(template.clone())
         .mount(&mock_server)

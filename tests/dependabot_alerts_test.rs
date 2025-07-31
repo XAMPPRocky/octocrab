@@ -16,21 +16,13 @@ async fn setup_dependabot_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("GET"))
-        .and(path(format!(
-            "/repos/{owner}/{repo}/dependabot/alerts",
-            owner = OWNER,
-            repo = REPO
-        )))
+        .and(path(format!("/repos/{OWNER}/{REPO}/dependabot/alerts")))
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!(
-            "GET on /repos/{owner}/{repo}/dependabot/alerts was not received",
-            owner = OWNER,
-            repo = REPO
-        ),
+        &format!("GET on /repos/{OWNER}/{REPO}/dependabot/alerts was not received"),
     )
     .await;
 
