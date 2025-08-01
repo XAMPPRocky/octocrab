@@ -64,7 +64,7 @@ async fn should_return_list_of_commits() {
     );
 
     result.iter().for_each(|commit| {
-        println!("Commit = {:#?}", commit);
+        println!("Commit = {commit:#?}");
         assert!(
             commit.sha == "24606b5f326a1356f031dd06431cfb0beddd475f",
             "expected '24606b5f326a1356f031dd06431cfb0beddd475f' value, got {:#?}",

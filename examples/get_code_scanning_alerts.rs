@@ -41,14 +41,14 @@ async fn main() {
         .send()
         .await
         .unwrap();
-    println!("{:?}", a);
+    println!("{a:?}");
     // Get a single Code Scanning alert
     let single_alert = octocrab
         .code_scannings(OWNER.to_owned(), REPO.to_owned())
         .get(1)
         .await
         .unwrap();
-    println!("{:?}", single_alert);
+    println!("{single_alert:?}");
     // Update (Open) a Code Scanning alert
     let updated_alert = octocrab
         .code_scannings(OWNER.to_owned(), REPO.to_owned())
@@ -57,5 +57,5 @@ async fn main() {
         .send()
         .await
         .unwrap();
-    println!("{:?}", updated_alert);
+    println!("{updated_alert:?}");
 }
