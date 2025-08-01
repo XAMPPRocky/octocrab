@@ -1,4 +1,23 @@
 # Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.45.0](https://github.com/XAMPPRocky/octocrab/compare/v0.44.1...v0.45.0) - 2025-08-01
+
+### Fixed
+
+- [**breaking**] change some fields to optional types in CheckSuite struct ([#784](https://github.com/XAMPPRocky/octocrab/pull/784))
+
+### Other
+
+- cargo clippy --fix ([#783](https://github.com/XAMPPRocky/octocrab/pull/783))
+- cargo clippy --fix ([#774](https://github.com/XAMPPRocky/octocrab/pull/774))
+# Changelog
 All  Octocrab releases are supported by the community and through
 [GitHub Sponsors][sp].
 
