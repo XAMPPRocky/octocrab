@@ -1,7 +1,8 @@
 //! Authentication related types and functions.
 
-use crate::models::AppId;
+use crate::repos::RepoHandler;
 use crate::Result;
+use crate::{models::AppId, Octocrab};
 use either::Either;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
