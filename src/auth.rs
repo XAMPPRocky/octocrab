@@ -1,6 +1,5 @@
 //! Authentication related types and functions.
 
-use crate::repos::RepoHandler;
 use crate::Result;
 use crate::{models::AppId, Octocrab};
 use either::Either;
@@ -259,29 +258,56 @@ impl DeviceCodes {
     }
 }
 
-/// Exchange a code for a user access token
-///
-/// see: https://docs.github.com/en/developers/apps/identifying-and-authorizing-users-for-github-apps
-pub async fn get_access_token(
-    crab: &crate::Octocrab,
-    client_id: &SecretString,
-    code: String,
-    client_secret: &SecretString,
-    redirect_uri: String,
-) -> Result<OAuth> {
-    let data: OAuth = crab
-        .post(
-            "/login/oauth/access_token",
-            Some(&ExchangeCodeForTokenParams {
-                client_id: client_id.expose_secret(),
-                client_secret: client_secret.expose_secret(),
-                code: &code,
-                redirect_uri: &redirect_uri,
-            }),
-        )
-        .await?;
+#[derive(serde::Serialize)]
+pub struct ExchangeWebFlowCodeBuilder<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    client_id: &'client_id str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    code: Option<&'code str>,
+    client_secret: &'client_secret str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    redirect_uri: Option<&'redirect_uri str>,
+}
 
-    Ok(data)
+impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri>
+    ExchangeWebFlowCodeBuilder<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri>
+{
+    pub fn new(
+        crab: &'octo Octocrab,
+        client_id: &'client_id SecretString,
+        client_secret: &'client_secret SecretString,
+    ) -> Self {
+        Self {
+            crab,
+            client_id: client_id.expose_secret(),
+            code: None,
+            client_secret: client_secret.expose_secret(),
+            redirect_uri: None,
+        }
+    }
+
+    /// Set the `code` for exchange web flow code request to be created.
+    pub fn code(mut self, code: &'code str) -> Self {
+        self.code = Some(code);
+        self
+    }
+
+    /// Set the `redirect_uri` for exchange web flow code request to be created.
+    pub fn redirect_uri(mut self, redirect_uri: &'redirect_uri str) -> Self {
+        self.redirect_uri = Some(redirect_uri);
+        self
+    }
+
+    /// Sends the actual request.
+    /// Exchange a code for a user access token
+    ///
+    /// see: https://docs.github.com/en/developers/apps/identifying-and-authorizing-users-for-github-apps
+    ///
+    pub async fn send(self) -> crate::Result<OAuth> {
+        let route = "/login/oauth/access_token";
+        self.crab.post(route, Some(&self)).await
+    }
 }
 
 /// See https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps#input-parameters
@@ -326,16 +352,4 @@ struct PollForDevice<'a> {
     device_code: &'a str,
     /// Required. The grant type must be urn:ietf:params:oauth:grant-type:device_code.
     grant_type: &'static str,
-}
-
-#[derive(Serialize)]
-struct ExchangeCodeForTokenParams<'a> {
-    /// Required. The client ID for your GitHub App.
-    client_id: &'a str,
-    /// Required. The client secret for your GitHub App.
-    client_secret: &'a str,
-    /// Required. The code received from the POST <https://github.com/login/oauth/authorize?client_id=CLIENT_ID> request.
-    code: &'a str,
-    // Strongly recommended. The URL in your application where users will be sent after authorization.
-    redirect_uri: &'a str,
 }
