@@ -260,19 +260,45 @@ impl DeviceCodes {
 
 /// See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app#using-the-web-application-flow-to-generate-a-user-access-token
 #[derive(serde::Serialize)]
-pub struct ExchangeWebFlowCodeBuilder<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri> {
+pub struct ExchangeWebFlowCodeBuilder<
+    'octo,
+    'client_id,
+    'code,
+    'client_secret,
+    'redirect_uri,
+    'code_verifier,
+    'repository_id,
+> {
     #[serde(skip)]
     crab: &'octo Octocrab,
+    /// The client ID for your GitHub App.
     client_id: &'client_id str,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// The code you received in the previous step.
     code: Option<&'code str>,
+    /// The client secret for your GitHub App.
     client_secret: &'client_secret str,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// The URL in your application where users will be sent after authorization.
     redirect_uri: Option<&'redirect_uri str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// For the PKCE challenge.
+    code_verifier: Option<&'code_verifier str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The ID of a single repository that the user access token can access.
+    repository_id: Option<&'repository_id str>,
 }
 
-impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri>
-    ExchangeWebFlowCodeBuilder<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri>
+impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri, 'code_verifier, 'repository_id>
+    ExchangeWebFlowCodeBuilder<
+        'octo,
+        'client_id,
+        'code,
+        'client_secret,
+        'redirect_uri,
+        'code_verifier,
+        'repository_id,
+    >
 {
     pub fn new(
         crab: &'octo Octocrab,
@@ -285,6 +311,8 @@ impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri>
             code: None,
             client_secret: client_secret.expose_secret(),
             redirect_uri: None,
+            code_verifier: None,
+            repository_id: None,
         }
     }
 
