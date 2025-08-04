@@ -258,6 +258,7 @@ impl DeviceCodes {
     }
 }
 
+/// See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app#using-the-web-application-flow-to-generate-a-user-access-token
 #[derive(serde::Serialize)]
 pub struct ExchangeWebFlowCodeBuilder<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri> {
     #[serde(skip)]

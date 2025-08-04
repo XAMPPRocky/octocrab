@@ -1,10 +1,7 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{
-    auth::{self, ExchangeWebFlowCodeBuilder},
-    Octocrab,
-};
+use octocrab::{auth, Octocrab};
 use secrecy::SecretString;
 use serde_json::json;
 use wiremock::{
@@ -56,7 +53,7 @@ async fn should_return_oauth_response() {
         &SecretString::from(CLIENT_SECRET),
     )
     .code(CODE)
-    .redirect_uri(REDIRECT_URI.to_owned())
+    .redirect_uri(REDIRECT_URI)
     .send()
     .await;
 
