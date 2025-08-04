@@ -715,7 +715,7 @@ impl<'octo, 'repos, 'handler, 'name, 'label>
             self.name
         );
         if let Some(label) = self.label {
-            base_uri = format!("{}&label={}", base_uri, label);
+            base_uri = format!("{base_uri}&label={label}");
         }
 
         let url: Uri = base_uri

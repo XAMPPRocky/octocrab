@@ -31,7 +31,7 @@ async fn main() -> octocrab::Result<()> {
         )
         .await?;
 
-    println!("{:?}", result);
+    println!("{result:?}");
 
     Ok(())
 }

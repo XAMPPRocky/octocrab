@@ -79,7 +79,7 @@ async fn should_check_if_user_blocked() {
     let template = ResponseTemplate::new(200);
     let mock_server = setup_blocks_mock(
         "GET",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
+        format!("/user/blocks/{NOT_BLOCKED}").as_str(),
         template,
     )
     .await;
@@ -94,7 +94,7 @@ async fn should_respond_user_blocked() {
     let template = ResponseTemplate::new(204);
     let mock_server = setup_blocks_mock(
         "PUT",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
+        format!("/user/blocks/{NOT_BLOCKED}").as_str(),
         template,
     )
     .await;
@@ -109,7 +109,7 @@ async fn should_respond_user_unblocked() {
     let template = ResponseTemplate::new(200);
     let mock_server = setup_blocks_mock(
         "DELETE",
-        format!("/user/blocks/{}", NOT_BLOCKED).as_str(),
+        format!("/user/blocks/{NOT_BLOCKED}").as_str(),
         template,
     )
     .await;
