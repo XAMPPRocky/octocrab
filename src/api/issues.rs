@@ -422,6 +422,37 @@ impl IssueHandler<'_> {
             .await
     }
 
+    /// Updates a label in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let label = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .update_label("please help", "help wanted", "59dd5a", "")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_label(
+        &self,
+        existing_name: impl AsRef<str>,
+        new_name: impl AsRef<str>,
+        color: impl AsRef<str>,
+        description: impl AsRef<str>,
+    ) -> Result<models::Label> {
+        let route = format!("/{}/labels/{}", self.repo, utf8_percent_encode(existing_name.as_ref(), NON_ALPHANUMERIC));
+
+        self.crab
+            .patch(
+                route,
+                Some(&serde_json::json!({
+                    "new_name": new_name.as_ref(),
+                    "color": color.as_ref(),
+                    "description": description.as_ref()
+                })),
+            )
+            .await
+    }
+
     /// Gets a label from the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
