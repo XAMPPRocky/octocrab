@@ -480,7 +480,7 @@ impl IssueHandler<'_> {
     /// # }
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<()> {
-        let route = format!("/{}/labels/{name}", self.repo, name = name.as_ref(),);
+        let route = format!("/{}/labels/{name}", self.repo, name = utf8_percent_encode(name.as_ref(), NON_ALPHANUMERIC));
 
         self.crab._delete(route, None::<&()>).await?;
         Ok(())
