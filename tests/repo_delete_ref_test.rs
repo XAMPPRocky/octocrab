@@ -1,7 +1,7 @@
-mod mock_error;
+mod test_common;
 
-use mock_error::setup_error_handler;
-use octocrab::{params::repos::Reference, Octocrab};
+use octocrab::params::repos::Reference;
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -26,10 +26,6 @@ async fn setup_delete_ref_api(template: ResponseTemplate) -> MockServer {
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 const OWNER: &str = "org";
