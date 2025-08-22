@@ -235,13 +235,12 @@ use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::str::FromStr;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, LazyLock};
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
 use hyper::{Request, Response};
 
-use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use snafu::*;
@@ -299,8 +298,8 @@ const GITHUB_BASE_URI: &str = "https://api.github.com";
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 #[cfg(feature = "default-client")]
-static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
-    Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
+static STATIC_INSTANCE: LazyLock<arc_swap::ArcSwap<Octocrab>> =
+    LazyLock::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
 
 /// Formats a GitHub preview from it's name into the full value for the
 /// `Accept` header.
