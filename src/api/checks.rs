@@ -308,6 +308,10 @@ pub struct ListCheckRunsForGitRefBuilder<'octo, 'r> {
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    app_id: Option<AppId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    check_name: Option<String>,
 }
 
 impl<'octo, 'r> ListCheckRunsForGitRefBuilder<'octo, 'r> {
@@ -317,6 +321,8 @@ impl<'octo, 'r> ListCheckRunsForGitRefBuilder<'octo, 'r> {
             git_ref,
             per_page: None,
             page: None,
+            app_id: None,
+            check_name: None,
         }
     }
 
@@ -329,6 +335,18 @@ impl<'octo, 'r> ListCheckRunsForGitRefBuilder<'octo, 'r> {
     /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
+        self
+    }
+
+    /// Filters check runs by GitHub App id.
+    pub fn app_id(mut self, app_id: impl Into<AppId>) -> Self {
+        self.app_id = Some(app_id.into());
+        self
+    }
+
+    /// Returns check runs with the specified name.
+    pub fn check_name(mut self, check_name: impl Into<String>) -> Self {
+        self.check_name = Some(check_name.into());
         self
     }
 

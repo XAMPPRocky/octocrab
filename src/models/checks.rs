@@ -27,6 +27,7 @@ pub struct CheckRun {
     pub started_at: Option<chrono::DateTime<chrono::Utc>>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub name: String,
+    pub app: Option<App>,
     pub pull_requests: Vec<PullRequest>,
 }
 
