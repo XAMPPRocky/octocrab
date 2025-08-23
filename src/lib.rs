@@ -1704,7 +1704,8 @@ impl Octocrab {
                 let mut buf = b"Basic ".to_vec();
                 {
                     let mut encoder = EncoderWriter::new(&mut buf, &BASE64_STANDARD);
-                    write!(encoder, "{username}:{password}").expect("writing to a Vec never fails");
+                    write!(encoder, "{}:{}", username, password)
+                        .expect("writing to a Vec never fails");
                 }
                 Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }

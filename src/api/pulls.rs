@@ -595,7 +595,7 @@ pub struct ListReviewsBuilder<'octo, 'r> {
     page: Option<u32>,
 }
 
-impl PullRequestHandler<'_> {
+impl<'octo> PullRequestHandler<'octo> {
     pub(crate) async fn http_get<R, A, P>(
         &self,
         route: A,

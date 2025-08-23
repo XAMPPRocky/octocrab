@@ -17,24 +17,38 @@ async fn setup_codescanning_list_api(template: ResponseTemplate, is_org: bool) -
 
     if is_org {
         Mock::given(method("GET"))
-            .and(path(format!("/orgs/{OWNER}/code-scanning/alerts")))
+            .and(path(format!(
+                "/orgs/{owner}/code-scanning/alerts",
+                owner = OWNER
+            )))
             .respond_with(template.clone())
             .mount(&mock_server)
             .await;
         setup_error_handler(
             &mock_server,
-            &format!("GET on /org/{OWNER}/code-scanning/alerts was not received"),
+            &format!(
+                "GET on /org/{owner}/code-scanning/alerts was not received",
+                owner = OWNER
+            ),
         )
         .await;
     } else {
         Mock::given(method("GET"))
-            .and(path(format!("/repos/{OWNER}/{REPO}/code-scanning/alerts")))
+            .and(path(format!(
+                "/repos/{owner}/{repo}/code-scanning/alerts",
+                owner = OWNER,
+                repo = REPO
+            )))
             .respond_with(template.clone())
             .mount(&mock_server)
             .await;
         setup_error_handler(
             &mock_server,
-            &format!("GET on /repos/{OWNER}/{REPO}/code-scanning/alerts was not received"),
+            &format!(
+                "GET on /repos/{owner}/{repo}/code-scanning/alerts was not received",
+                owner = OWNER,
+                repo = REPO
+            ),
         )
         .await;
     }

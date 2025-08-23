@@ -19,14 +19,20 @@ async fn setup_secrets_api(template: ResponseTemplate) -> MockServer {
 
     Mock::given(method("GET"))
         .and(path(format!(
-            "/repos/{OWNER}/{REPO}/secret-scanning/alerts"
+            "/repos/{owner}/{repo}/secret-scanning/alerts",
+            owner = OWNER,
+            repo = REPO
         )))
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
     setup_error_handler(
         &mock_server,
-        &format!("GET on /repos/{OWNER}/{REPO}/secret-scanning/alerts was not received"),
+        &format!(
+            "GET on /repos/{owner}/{repo}/secret-scanning/alerts was not received",
+            owner = OWNER,
+            repo = REPO
+        ),
     )
     .await;
 
@@ -38,7 +44,9 @@ async fn setup_secrets_locations_api(template: ResponseTemplate) -> MockServer {
 
     Mock::given(method("GET"))
         .and(path(format!(
-            "/repos/{OWNER}/{REPO}/secret-scanning/alerts/5/locations"
+            "/repos/{owner}/{repo}/secret-scanning/alerts/5/locations",
+            owner = OWNER,
+            repo = REPO
         )))
         .respond_with(template.clone())
         .mount(&mock_server)
@@ -46,7 +54,9 @@ async fn setup_secrets_locations_api(template: ResponseTemplate) -> MockServer {
     setup_error_handler(
         &mock_server,
         &format!(
-            "GET on /repos/{OWNER}/{REPO}/secret-scanning/alerts/{ALERT_NUMBER}/locations was not received"
+            "GET on /repos/{owner}/{repo}/secret-scanning/alerts/{ALERT_NUMBER}/locations was not received",
+            owner = OWNER,
+            repo = REPO
         ),
     )
     .await;
