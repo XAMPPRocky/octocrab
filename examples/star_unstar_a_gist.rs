@@ -17,12 +17,12 @@ fn parse_argv_or_exit() -> ProgramArguments {
             false
         } else {
             eprintln!("error: Need (--star | --unstar) as first argument.");
-            eprintln!("{}", USAGE);
+            eprintln!("{USAGE}");
             std::process::exit(1);
         }
     } else {
         eprintln!("error: Need (--star | --unstar) as first argument.");
-        eprintln!("{}", USAGE);
+        eprintln!("{USAGE}");
         std::process::exit(1);
     };
 
@@ -30,7 +30,7 @@ fn parse_argv_or_exit() -> ProgramArguments {
         gist_id
     } else {
         eprintln!("error: Need GIST_ID as second argument.");
-        eprintln!("{}", USAGE);
+        eprintln!("{USAGE}");
         std::process::exit(1);
     };
     ProgramArguments { gist_id, star }

@@ -50,7 +50,7 @@ impl<'octo> SearchHandler<'octo> {
     pub fn commits<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
-    ) -> QueryHandler<'octo, 'query, models::repos::Commit> {
+    ) -> QueryHandler<'octo, 'query, models::commits::Commit> {
         QueryHandler::new(self.crab, "commits", query.as_ref())
     }
 
@@ -175,7 +175,7 @@ impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
     }
 }
 
-impl<'octo, 'query, T: serde::de::DeserializeOwned> QueryHandler<'octo, 'query, T> {
+impl<T: serde::de::DeserializeOwned> QueryHandler<'_, '_, T> {
     /// Send the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<T>> {
         self.crab
