@@ -51,8 +51,8 @@ async fn should_return_oauth_response() {
         &client,
         &SecretString::from(CLIENT_ID),
         &SecretString::from(CLIENT_SECRET),
+        CODE,
     )
-    .code(CODE)
     .redirect_uri(REDIRECT_URI)
     .send()
     .await;
@@ -70,6 +70,7 @@ async fn should_fail_when_receving_a_server_error() {
         &client,
         &SecretString::from(CLIENT_ID),
         &SecretString::from(CLIENT_SECRET),
+        CODE,
     )
     .send()
     .await;

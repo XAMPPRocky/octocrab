@@ -273,19 +273,18 @@ pub struct ExchangeWebFlowCodeBuilder<
     crab: &'octo Octocrab,
     /// The client ID for your GitHub App.
     client_id: &'client_id str,
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// The code you received in the previous step.
-    code: Option<&'code str>,
+    code: &'code str,
     /// The client secret for your GitHub App.
     client_secret: &'client_secret str,
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// The URL in your application where users will be sent after authorization.
+    #[serde(skip_serializing_if = "Option::is_none")]
     redirect_uri: Option<&'redirect_uri str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// For the PKCE challenge.
-    code_verifier: Option<&'code_verifier str>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    code_verifier: Option<&'code_verifier str>,
     /// The ID of a single repository that the user access token can access.
+    #[serde(skip_serializing_if = "Option::is_none")]
     repository_id: Option<&'repository_id str>,
 }
 
@@ -304,11 +303,12 @@ impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri, 'code_verifier, 'r
         crab: &'octo Octocrab,
         client_id: &'client_id SecretString,
         client_secret: &'client_secret SecretString,
+        code: &'code str,
     ) -> Self {
         Self {
             crab,
             client_id: client_id.expose_secret(),
-            code: None,
+            code,
             client_secret: client_secret.expose_secret(),
             redirect_uri: None,
             code_verifier: None,
@@ -316,15 +316,21 @@ impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri, 'code_verifier, 'r
         }
     }
 
-    /// Set the `code` for exchange web flow code request to be created.
-    pub fn code(mut self, code: &'code str) -> Self {
-        self.code = Some(code);
-        self
-    }
-
     /// Set the `redirect_uri` for exchange web flow code request to be created.
     pub fn redirect_uri(mut self, redirect_uri: &'redirect_uri str) -> Self {
         self.redirect_uri = Some(redirect_uri);
+        self
+    }
+
+    /// Set the `code_verifier` for exchange web flow code request to be created.
+    pub fn code_verifier(mut self, code_verifier: &'code_verifier str) -> Self {
+        self.code_verifier = Some(code_verifier);
+        self
+    }
+
+    /// Set the `repository_id` for exchange web flow code request to be created.
+    pub fn repository_id(mut self, repository_id: &'repository_id str) -> Self {
+        self.repository_id = Some(repository_id);
         self
     }
 
