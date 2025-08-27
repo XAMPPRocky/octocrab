@@ -444,19 +444,20 @@ where
     }
 }
 
-/// If a URL string is empty then deserialize it as none
+/// If a URL is null or empty string, deserialize it as none
 pub fn empty_url_is_none<'de, D>(deserializer: D) -> Result<Option<Url>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    // try to deserialize our input string
-    let cast = String::deserialize(deserializer)?;
-    // if this string is empty then return None
-    if cast.is_empty() {
-        Ok(None)
-    } else {
-        // try to parse the string as a URL
-        Url::parse(&cast).map(Some).map_err(de::Error::custom)
+    // try to deserialize as Option<String> to handle null values
+    let cast = Option::<String>::deserialize(deserializer)?;
+    match cast {
+        None => Ok(None), // null case
+        Some(s) if s.is_empty() => Ok(None), // empty string case
+        Some(s) => {
+            // try to parse the string as a URL
+            Url::parse(&s).map(Some).map_err(de::Error::custom)
+        }
     }
 }
 
