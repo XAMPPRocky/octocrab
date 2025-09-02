@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- [**breaking**] update `package.rust-version` to `1.82.0` ([#789](https://github.com/XAMPPRocky/octocrab/issues/789))
+
 ## [0.44.1](https://github.com/XAMPPRocky/octocrab/compare/v0.44.0...v0.44.1) - 2025-05-06
 
 ### Fixed
