@@ -483,6 +483,21 @@ pub struct UserProfile {
     pub updated_at: DateTime<Utc>,
 }
 
+/// Data for updating a user profile,
+/// e.g. name, email, company, location, bio, blog, twitter, hireable
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct UpdateUserProfile {
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub blog: Option<String>,
+    pub twitter_username: Option<String>,
+    pub company: Option<String>,
+    pub location: Option<String>,
+    pub hireable: Option<bool>,
+    pub bio: Option<String>,
+}
+
 /// The simple profile for a GitHub user
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
