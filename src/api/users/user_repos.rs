@@ -17,6 +17,8 @@ pub struct ListUserReposBuilder<'octo, 'b> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<crate::params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    visibility: Option<crate::params::users::repos::Visibility>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
@@ -29,6 +31,7 @@ impl<'octo, 'b> ListUserReposBuilder<'octo, 'b> {
             r#type: None,
             sort: None,
             direction: None,
+            visibility: None,
             per_page: None,
             page: None,
         }
@@ -49,6 +52,12 @@ impl<'octo, 'b> ListUserReposBuilder<'octo, 'b> {
     /// The direction of the sort.
     pub fn direction(mut self, direction: impl Into<crate::params::Direction>) -> Self {
         self.direction = Some(direction.into());
+        self
+    }
+
+    /// Repository visibility type.
+    pub fn visibility(mut self, visibility: impl Into<crate::params::users::repos::Visibility>) -> Self {
+        self.visibility = Some(visibility.into());
         self
     }
 
@@ -82,6 +91,7 @@ mod tests {
             .r#type(crate::params::users::repos::Type::Member)
             .sort(crate::params::repos::Sort::Updated)
             .direction(crate::params::Direction::Ascending)
+            .visibility(crate::params::users::repos::Visibility::All)
             .per_page(87)
             .page(3u8);
 
@@ -91,6 +101,7 @@ mod tests {
                 "type": "member",
                 "sort": "updated",
                 "direction": "asc",
+                "visibility": "all",
                 "per_page": 87,
                 "page": 3,
             })

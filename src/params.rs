@@ -602,6 +602,18 @@ pub mod users {
             Owner,
             Member,
         }
+
+        /// What visibility type to filter a user repository list by.
+        ///
+        /// See <https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-a-user>
+        #[derive(Debug, Clone, Copy, serde::Serialize)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+        pub enum Visibility {
+            All,
+            Public,
+            Private,
+        }
     }
 
     pub mod emails {
