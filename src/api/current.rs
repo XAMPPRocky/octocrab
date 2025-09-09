@@ -1,5 +1,6 @@
 //! Get data about the currently authenticated user.
 
+use crate::models::UpdateUserProfile;
 use crate::{
     models::{self, gists::Gist, orgs::MembershipInvitation, Installation, Repository},
     Octocrab, Page, Result,
@@ -23,6 +24,21 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// Fetches information about the current user.
     pub async fn user(&self) -> Result<models::Author> {
         self.crab.get("/user", None::<&()>).await
+    }
+
+    /// ### Update the authenticated user
+    ///
+    ///works with the following fine-grained token types:
+    ///
+    /// * [GitHub App user access tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app)
+    /// * [Fine-grained personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// * "Profile" user permissions (write)
+    pub async fn update_user(&self, new_data: UpdateUserProfile) -> Result<models::Author> {
+        let params = serde_json::to_value(new_data).unwrap();
+        self.crab.patch("/user", Some(&params)).await
     }
 
     /// Fetches information about the currently authenticated app.
