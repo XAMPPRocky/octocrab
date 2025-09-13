@@ -77,4 +77,5 @@ pub struct Delivery {
     pub action: Option<String>,
     pub installation_id: Option<InstallationId>,
     pub repository_id: Option<InstallationId>,
+    pub redelivery: bool,
 }
