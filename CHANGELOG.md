@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.45.0](https://github.com/XAMPPRocky/octocrab/compare/v0.44.1...v0.45.0) - 2025-09-14
+
+### Added
+
+- add `redelivery` field for hook deliveries ([#797](https://github.com/XAMPPRocky/octocrab/pull/797))
+- added PATCH /user ([#792](https://github.com/XAMPPRocky/octocrab/pull/792))
+
+### Fixed
+
+- [**breaking**] change some fields to optional types in CheckSuite struct ([#784](https://github.com/XAMPPRocky/octocrab/pull/784))
+
+### Other
+
+- :repos::Commit -> models::commits::Commit ([#781](https://github.com/XAMPPRocky/octocrab/pull/781))
+- cargo clippy --fix ([#783](https://github.com/XAMPPRocky/octocrab/pull/783))
+- cargo clippy --fix ([#774](https://github.com/XAMPPRocky/octocrab/pull/774))
+
 ## [0.44.1](https://github.com/XAMPPRocky/octocrab/compare/v0.44.0...v0.44.1) - 2025-05-06
 
 ### Fixed
