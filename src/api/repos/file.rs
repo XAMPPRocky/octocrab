@@ -221,12 +221,12 @@ mod tests {
             .branch("not-master")
             .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
-                email: "octocat@github.com".to_string(),
+                email: Some("octocat@github.com".to_string()),
                 date: None,
             })
             .author(CommitAuthor {
                 name: "Ferris".to_string(),
-                email: "ferris@rust-lang.org".to_string(),
+                email: Some("ferris@rust-lang.org".to_string()),
                 date: None,
             });
 
@@ -260,12 +260,12 @@ mod tests {
             .branch("not-master")
             .commiter(CommitAuthor {
                 name: "Octocat".to_string(),
-                email: "octocat@github.com".to_string(),
+                email: Some("octocat@github.com".to_string()),
                 date: None,
             })
             .author(CommitAuthor {
                 name: "Ferris".to_string(),
-                email: "ferris@rust-lang.org".to_string(),
+                email: Some("ferris@rust-lang.org".to_string()),
                 date: None,
             });
 

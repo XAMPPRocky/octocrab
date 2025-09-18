@@ -287,12 +287,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .branch("master")
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
-    ///         email: "octocat@github.com".to_string(),
+    ///         email: Some("octocat@github.com".to_string()),
     ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
-    ///         email: "ferris@rust-lang.org".to_string(),
+    ///         email: Some("ferris@rust-lang.org".to_string()),
     ///         date: None,
     ///     })
     ///     .send()
@@ -344,12 +344,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .branch("master")
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
-    ///         email: "octocat@github.com".to_string(),
+    ///         email: Some("octocat@github.com".to_string()),
     ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
-    ///         email: "ferris@rust-lang.org".to_string(),
+    ///         email: Some("ferris@rust-lang.org".to_string()),
     ///         date: None,
     ///     })
     ///     .send()
@@ -391,12 +391,12 @@ impl<'octo> RepoHandler<'octo> {
     ///     .branch("master")
     ///     .commiter(CommitAuthor {
     ///         name: "Octocat".to_string(),
-    ///         email: "octocat@github.com".to_string(),
+    ///         email: Some("octocat@github.com".to_string()),
     ///         date: None,
     ///     })
     ///     .author(CommitAuthor {
     ///         name: "Ferris".to_string(),
-    ///         email: "ferris@rust-lang.org".to_string(),
+    ///         email: Some("ferris@rust-lang.org".to_string()),
     ///         date: None,
     ///     })
     ///     .send()
@@ -775,7 +775,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .signature("signature")
     ///     .author(CommitAuthor{
     ///             name: "name".to_owned(),
-    ///             email: "email".to_owned(),
+    ///             email: Some("email".to_owned()),
     ///             date: None
     ///         })
     ///     .send()
