@@ -45,7 +45,7 @@ mod test {
                     commit.author,
                     CommitAuthor {
                         name: "readme-bot".to_string(),
-                        email: "readme-bot@example.com".to_string(),
+                        email: Some("readme-bot@example.com".to_string()),
                         date: None,
                     }
                 );
