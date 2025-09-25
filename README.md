@@ -65,7 +65,7 @@ Currently, the following modules are available as of version `0.44`.
 [`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
 [`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
-[`projects`]: https://docs.rs/octocrab/latest/octocrab/projects/struct.ProjectsHandler.html
+[`projects`]: https://docs.rs/octocrab/latest/octocrab/projects/struct.ProjectHandler.html
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
 [`ratelimit`]: https://docs.rs/octocrab/latest/octocrab/ratelimit/struct.RateLimitHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
