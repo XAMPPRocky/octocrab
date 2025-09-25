@@ -90,7 +90,7 @@ impl<'octo> ProjectHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn delete_project(&self, project_id: impl Into<u32>) -> DeleteProjectBuilder {
+    pub fn delete_project(&self, project_id: impl Into<u32>) -> DeleteProjectBuilder<'_, '_> {
         DeleteProjectBuilder::new(self, project_id.into())
     }
 
@@ -113,7 +113,10 @@ impl<'octo> ProjectHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn create_user_project(&self, username: impl Into<String>) -> CreateUserProjectBuilder {
+    pub fn create_user_project(
+        &self,
+        username: impl Into<String>,
+    ) -> CreateUserProjectBuilder<'_, '_> {
         CreateUserProjectBuilder::new(self, username.into())
     }
 
@@ -134,7 +137,10 @@ impl<'octo> ProjectHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_user_projects(&self, username: impl Into<String>) -> ListUserProjectsBuilder {
+    pub fn list_user_projects(
+        &self,
+        username: impl Into<String>,
+    ) -> ListUserProjectsBuilder<'_, '_> {
         ListUserProjectsBuilder::new(self, username.into())
     }
 

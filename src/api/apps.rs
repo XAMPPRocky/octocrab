@@ -62,7 +62,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn installations(&self) -> installations::InstallationsRequestBuilder {
+    pub fn installations(&self) -> installations::InstallationsRequestBuilder<'_, '_> {
         installations::InstallationsRequestBuilder::new(self)
     }
 
