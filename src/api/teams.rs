@@ -86,7 +86,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn create(&self, name: impl Into<String>) -> CreateTeamBuilder {
+    pub fn create(&self, name: impl Into<String>) -> CreateTeamBuilder<'_, '_, '_, '_> {
         CreateTeamBuilder::new(self, name.into())
     }
 
@@ -106,7 +106,11 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn edit(&self, team_slug: impl Into<String>, name: impl Into<String>) -> EditTeamBuilder {
+    pub fn edit(
+        &self,
+        team_slug: impl Into<String>,
+        name: impl Into<String>,
+    ) -> EditTeamBuilder<'_, '_> {
         EditTeamBuilder::new(self, team_slug.into(), name.into())
     }
 
@@ -146,13 +150,13 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_children(&self, team_slug: impl Into<String>) -> ListChildTeamsBuilder {
+    pub fn list_children(&self, team_slug: impl Into<String>) -> ListChildTeamsBuilder<'_, '_> {
         ListChildTeamsBuilder::new(self, team_slug.into())
     }
 
     /// Creates a new `TeamRepoHandler` for the specified team,
     /// that allows you to manage this team's repositories.
-    pub fn repos(&self, team_slug: impl Into<String>) -> TeamRepoHandler {
+    pub fn repos(&self, team_slug: impl Into<String>) -> TeamRepoHandler<'_> {
         TeamRepoHandler::new(self.crab, self.owner.clone(), team_slug.into())
     }
 
@@ -170,7 +174,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn members(&self, team_slug: impl Into<String>) -> ListTeamMembersBuilder {
+    pub fn members(&self, team_slug: impl Into<String>) -> ListTeamMembersBuilder<'_, '_> {
         ListTeamMembersBuilder::new(self, team_slug.into())
     }
 
@@ -188,7 +192,7 @@ impl<'octo> TeamHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn invitations(&self, team_slug: impl Into<String>) -> ListTeamInvitationsBuilder {
+    pub fn invitations(&self, team_slug: impl Into<String>) -> ListTeamInvitationsBuilder<'_, '_> {
         ListTeamInvitationsBuilder::new(self, team_slug.into())
     }
 }

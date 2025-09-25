@@ -281,7 +281,7 @@ impl IssueHandler<'_> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_assignees(&self) -> ListAssigneesBuilder {
+    pub fn list_assignees(&self) -> ListAssigneesBuilder<'_, '_> {
         ListAssigneesBuilder::new(self)
     }
 }
@@ -469,7 +469,7 @@ impl IssueHandler<'_> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_labels_for_issue(&self, number: u64) -> ListLabelsForIssueBuilder {
+    pub fn list_labels_for_issue(&self, number: u64) -> ListLabelsForIssueBuilder<'_, '_> {
         ListLabelsForIssueBuilder::new(self, number)
     }
 
@@ -487,7 +487,7 @@ impl IssueHandler<'_> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_labels_for_repo(&self) -> ListLabelsForRepoBuilder {
+    pub fn list_labels_for_repo(&self) -> ListLabelsForRepoBuilder<'_, '_> {
         ListLabelsForRepoBuilder::new(self)
     }
 }

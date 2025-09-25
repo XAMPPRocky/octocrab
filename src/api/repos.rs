@@ -524,7 +524,11 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Create a status for a specified commit in the specified repository.
-    pub fn create_status(&self, sha: String, state: models::StatusState) -> CreateStatusBuilder {
+    pub fn create_status(
+        &self,
+        sha: String,
+        state: models::StatusState,
+    ) -> CreateStatusBuilder<'_, '_> {
         CreateStatusBuilder::new(self, sha, state)
     }
 

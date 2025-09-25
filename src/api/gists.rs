@@ -246,7 +246,10 @@ impl<'octo> GistsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_commits(&self, gist_id: impl Into<String>) -> list_commits::ListCommitsBuilder {
+    pub fn list_commits(
+        &self,
+        gist_id: impl Into<String>,
+    ) -> list_commits::ListCommitsBuilder<'_, '_> {
         list_commits::ListCommitsBuilder::new(self, gist_id.into())
     }
 
@@ -353,7 +356,10 @@ impl<'octo> GistsHandler<'octo> {
     /// ```
     ///
     /// [docs]: https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gist-forks
-    pub fn list_forks(&self, gist_id: impl Into<String>) -> list_forks::ListGistForksBuilder {
+    pub fn list_forks(
+        &self,
+        gist_id: impl Into<String>,
+    ) -> list_forks::ListGistForksBuilder<'_, '_> {
         list_forks::ListGistForksBuilder::new(self, gist_id.into())
     }
 

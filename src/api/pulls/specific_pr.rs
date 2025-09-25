@@ -97,7 +97,7 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
     ///     Ok(())
     ///   }
     /// ```
-    pub fn comment(&self, comment_id: CommentId) -> SpecificPullRequestCommentBuilder {
+    pub fn comment(&self, comment_id: CommentId) -> SpecificPullRequestCommentBuilder<'_, '_> {
         SpecificPullRequestCommentBuilder::new(self.handler, self.pr_number, comment_id)
     }
 }

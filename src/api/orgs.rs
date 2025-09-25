@@ -137,7 +137,7 @@ impl<'octo> OrgHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_repos(&self) -> list_repos::ListReposBuilder {
+    pub fn list_repos(&self) -> list_repos::ListReposBuilder<'_, '_> {
         list_repos::ListReposBuilder::new(self)
     }
 
@@ -222,7 +222,7 @@ impl<'octo> OrgHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_members(&self) -> list_members::ListOrgMembersBuilder {
+    pub fn list_members(&self) -> list_members::ListOrgMembersBuilder<'_, '_> {
         list_members::ListOrgMembersBuilder::new(self)
     }
 

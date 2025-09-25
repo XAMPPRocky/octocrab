@@ -1153,29 +1153,29 @@ impl Octocrab {
 impl Octocrab {
     /// Creates a new [`actions::ActionsHandler`] for accessing information from
     /// GitHub Actions.
-    pub fn actions(&self) -> actions::ActionsHandler {
+    pub fn actions(&self) -> actions::ActionsHandler<'_> {
         actions::ActionsHandler::new(self)
     }
 
     /// Creates a [`current::CurrentAuthHandler`] that allows you to access
     /// information about the current authenticated user.
-    pub fn current(&self) -> current::CurrentAuthHandler {
+    pub fn current(&self) -> current::CurrentAuthHandler<'_> {
         current::CurrentAuthHandler::new(self)
     }
 
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
-    pub fn activity(&self) -> activity::ActivityHandler {
+    pub fn activity(&self) -> activity::ActivityHandler<'_> {
         activity::ActivityHandler::new(self)
     }
 
     /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
-    pub fn apps(&self) -> apps::AppsRequestHandler {
+    pub fn apps(&self) -> apps::AppsRequestHandler<'_> {
         apps::AppsRequestHandler::new(self)
     }
 
     /// Creates a [`gitignore::GitignoreHandler`] for accessing information
     /// about `gitignore`.
-    pub fn gitignore(&self) -> gitignore::GitignoreHandler {
+    pub fn gitignore(&self) -> gitignore::GitignoreHandler<'_> {
         gitignore::GitignoreHandler::new(self)
     }
 
@@ -1185,13 +1185,13 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> issues::IssueHandler {
+    ) -> issues::IssueHandler<'_> {
         issues::IssueHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
     }
 
     /// Creates a [`issues::IssueHandler`] for the repo specified at repository ID,
     /// that allows you to access GitHub's issues API.
-    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler {
+    pub fn issues_by_id(&self, id: impl Into<RepositoryId>) -> issues::IssueHandler<'_> {
         issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
@@ -1201,7 +1201,7 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> code_scannings::CodeScanningHandler {
+    ) -> code_scannings::CodeScanningHandler<'_> {
         code_scannings::CodeScanningHandler::new(self, owner.into(), Option::from(repo.into()))
     }
 
@@ -1210,7 +1210,7 @@ impl Octocrab {
     pub fn code_scannings_organisation(
         &self,
         owner: impl Into<String>,
-    ) -> code_scannings::CodeScanningHandler {
+    ) -> code_scannings::CodeScanningHandler<'_> {
         code_scannings::CodeScanningHandler::new(self, owner.into(), None)
     }
 
@@ -1219,23 +1219,23 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> commits::CommitHandler {
+    ) -> commits::CommitHandler<'_> {
         commits::CommitHandler::new(self, owner.into(), repo.into())
     }
 
     /// Creates a [`licenses::LicenseHandler`].
-    pub fn licenses(&self) -> licenses::LicenseHandler {
+    pub fn licenses(&self) -> licenses::LicenseHandler<'_> {
         licenses::LicenseHandler::new(self)
     }
 
     /// Creates a [`markdown::MarkdownHandler`].
-    pub fn markdown(&self) -> markdown::MarkdownHandler {
+    pub fn markdown(&self) -> markdown::MarkdownHandler<'_> {
         markdown::MarkdownHandler::new(self)
     }
 
     /// Creates an [`orgs::OrgHandler`] for the specified organization,
     /// that allows you to access GitHub's organization API.
-    pub fn orgs(&self, owner: impl Into<String>) -> orgs::OrgHandler {
+    pub fn orgs(&self, owner: impl Into<String>) -> orgs::OrgHandler<'_> {
         orgs::OrgHandler::new(self, owner.into())
     }
 
@@ -1245,47 +1245,51 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> pulls::PullRequestHandler {
+    ) -> pulls::PullRequestHandler<'_> {
         pulls::PullRequestHandler::new(self, owner.into(), repo.into())
     }
 
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
-    pub fn repos(&self, owner: impl Into<String>, repo: impl Into<String>) -> repos::RepoHandler {
+    pub fn repos(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> repos::RepoHandler<'_> {
         repos::RepoHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
     }
 
     /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
     /// that allows you to access GitHub's repository API.
-    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler {
+    pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler<'_> {
         repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
     /// projects API (classic).
-    pub fn projects(&self) -> projects::ProjectHandler {
+    pub fn projects(&self) -> projects::ProjectHandler<'_> {
         projects::ProjectHandler::new(self)
     }
 
     /// Creates a [`search::SearchHandler`] that allows you to construct general queries
     /// to GitHub's API.
-    pub fn search(&self) -> search::SearchHandler {
+    pub fn search(&self) -> search::SearchHandler<'_> {
         search::SearchHandler::new(self)
     }
 
     /// Creates a [`teams::TeamHandler`] for the specified organization that allows
     /// you to access GitHub's teams API.
-    pub fn teams(&self, owner: impl Into<String>) -> teams::TeamHandler {
+    pub fn teams(&self, owner: impl Into<String>) -> teams::TeamHandler<'_> {
         teams::TeamHandler::new(self, owner.into())
     }
 
     /// Creates a [`users::UserHandler`] for the specified user using the user name
-    pub fn users(&self, user: impl Into<String>) -> users::UserHandler {
+    pub fn users(&self, user: impl Into<String>) -> users::UserHandler<'_> {
         users::UserHandler::new(self, UserRef::ByString(user.into()))
     }
 
     /// Creates a [`users::UserHandler`] for the specified user using the user ID
-    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler {
+    pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler<'_> {
         users::UserHandler::new(self, UserRef::ById(user.into()))
     }
 
@@ -1295,19 +1299,19 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> workflows::WorkflowsHandler {
+    ) -> workflows::WorkflowsHandler<'_> {
         workflows::WorkflowsHandler::new(self, owner.into(), repo.into())
     }
 
     /// Creates an [`events::EventsBuilder`] that allows you to access
     /// GitHub's events API.
-    pub fn events(&self) -> events::EventsBuilder {
+    pub fn events(&self) -> events::EventsBuilder<'_> {
         events::EventsBuilder::new(self)
     }
 
     /// Creates a [`gists::GistsHandler`] that allows you to access
     /// GitHub's Gists API.
-    pub fn gists(&self) -> gists::GistsHandler {
+    pub fn gists(&self) -> gists::GistsHandler<'_> {
         gists::GistsHandler::new(self)
     }
 
@@ -1316,17 +1320,17 @@ impl Octocrab {
         &self,
         owner: impl Into<String>,
         repo: impl Into<String>,
-    ) -> checks::ChecksHandler {
+    ) -> checks::ChecksHandler<'_> {
         checks::ChecksHandler::new(self, owner.into(), repo.into())
     }
 
     /// Creates a [`ratelimit::RateLimitHandler`] that returns the API rate limit.
-    pub fn ratelimit(&self) -> ratelimit::RateLimitHandler {
+    pub fn ratelimit(&self) -> ratelimit::RateLimitHandler<'_> {
         ratelimit::RateLimitHandler::new(self)
     }
 
     /// Creates a [`hooks::HooksHandler`] that returns the API hooks
-    pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler {
+    pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler<'_> {
         hooks::HooksHandler::new(self, owner.into())
     }
 }
