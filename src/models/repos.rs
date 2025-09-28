@@ -341,6 +341,7 @@ pub struct Asset {
     pub state: String,
     pub content_type: String,
     pub size: i64,
+    pub digest: Option<String>,
     pub download_count: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
