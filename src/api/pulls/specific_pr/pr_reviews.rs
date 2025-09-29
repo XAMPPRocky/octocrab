@@ -62,7 +62,7 @@ impl<'octo, 'b> ReviewsBuilder<'octo, 'b> {
     ///     "ecdd80bb57125d7ba9641ffaa4d7d2c19d3f3091",
     ///     "This is close to perfect! Please address the suggested inline change.",
     ///     ReviewAction::RequestChanges,
-    ///     [ReviewComment{ path: "file.md", position: 6, body: "Please add more information".to_string() }]
+    ///     [ReviewComment{ path: "file.md", position: 6, body: "Please add more information".to_string() }].to_vec()
     ///  )
     ///  .await?;
     ///  # Ok(())
