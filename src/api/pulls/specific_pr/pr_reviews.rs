@@ -52,8 +52,8 @@ impl<'octo, 'b> ReviewsBuilder<'octo, 'b> {
     /// ```no_run
     /// # use octocrab::models::pulls::{ReviewAction, ReviewComment};
     ///
-    /// async fn run() -> octocrab::Result<()> {
-    ///  let octocrab = octocrab::Octocrab::default();
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
     ///
     ///  let _ = octocrab.pulls("owner", "repo")
     ///  .pull_number(42)
@@ -62,11 +62,11 @@ impl<'octo, 'b> ReviewsBuilder<'octo, 'b> {
     ///     "ecdd80bb57125d7ba9641ffaa4d7d2c19d3f3091",
     ///     "This is close to perfect! Please address the suggested inline change.",
     ///     ReviewAction::RequestChanges,
-    ///     [ReviewComment{ path: "file.md", position: 6, body: "Please add more information" }]
+    ///     [ReviewComment{ path: "file.md", position: 6, body: "Please add more information".to_string() }]
     ///  )
     ///  .await?;
-    ///  Ok(())
-    /// }
+    ///  # Ok(())
+    /// # }
     /// ```
     pub async fn create_review(
         &self,
