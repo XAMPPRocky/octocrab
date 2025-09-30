@@ -1,3 +1,4 @@
+use octocrab::Octocrab;
 use serde_json::json;
 use wiremock::{
     matchers::{method, path_regex},
@@ -19,4 +20,14 @@ pub async fn setup_error_handler(mock_server: &MockServer, message: &str) {
         })))
         .mount(mock_server)
         .await;
+}
+
+// Sets up an Octocrab client with the given URI.
+#[allow(dead_code)]
+pub fn setup_octocrab(uri: &str) -> octocrab::Octocrab {
+    Octocrab::builder()
+        .base_uri(uri)
+        .unwrap()
+        .build()
+        .expect("Could not create octocrab client")
 }
