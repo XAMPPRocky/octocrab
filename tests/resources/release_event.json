@@ -48,6 +48,7 @@
         "name": "Last-CI-build",
         "draft": false,
         "prerelease": true,
+        "immutable": false,
         "created_at": "2024-02-26T23:17:41Z",
         "published_at": "2024-02-26T23:17:44Z",
         "assets": [

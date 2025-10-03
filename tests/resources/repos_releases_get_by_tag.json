@@ -30,6 +30,7 @@
   "name": "v0.37.0",
   "draft": false,
   "prerelease": false,
+  "immutable": false,
   "created_at": "2024-03-27T13:57:58Z",
   "published_at": "2024-03-27T13:57:59Z",
   "assets": [

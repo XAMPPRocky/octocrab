@@ -316,6 +316,8 @@ pub struct Release {
     pub body: Option<String>,
     pub draft: bool,
     pub prerelease: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub immutable: Option<bool>,
     pub created_at: Option<DateTime<Utc>>,
     pub published_at: Option<DateTime<Utc>>,
     pub author: Option<crate::models::Author>,
