@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.0](https://github.com/XAMPPRocky/octocrab/compare/v0.46.0...v0.47.0) - 2025-10-06
+
+### Added
+
+- add `immutable` Release field ([#806](https://github.com/XAMPPRocky/octocrab/pull/806))
+
+### Other
+
+- added creating a review (POST "/repos/{owner}/{repo}/pulls/{pull_number}/reviews") ([#805](https://github.com/XAMPPRocky/octocrab/pull/805))
+
 ## [0.46.0](https://github.com/XAMPPRocky/octocrab/compare/v0.45.0...v0.46.0) - 2025-09-28
 
 ### Fixed
