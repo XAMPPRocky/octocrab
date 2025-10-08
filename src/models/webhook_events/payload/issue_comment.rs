@@ -55,12 +55,12 @@ mod test {
             payload.comment.body.as_deref(),
             Some("This is a test comment message.")
         );
-        assert_eq!(payload.issue.number, 3460488379);
+        assert_eq!(payload.issue.number, 1);
         assert_eq!(payload.issue.title, "feat: make unreasonable promises");
-        assert_eq!(payload.repository.id.0, 318475776);
+        assert_eq!(payload.repository.id.0, 1065276716);
         assert_eq!(
             payload.repository.name,
-            "mmoreiradj/sandcastle-monorepo-test"
+            "sandcastle-monorepo-test"
         );
         assert_eq!(payload.sender.id.0, 72556205);
         assert_eq!(payload.sender.login, "mmoreiradj");
