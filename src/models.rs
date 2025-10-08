@@ -1054,6 +1054,14 @@ pub struct Installation {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
+pub struct InstallationLite {
+    pub id: InstallationId,
+    pub node_id: String,
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct InstallationPermissions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actions: Option<String>,
