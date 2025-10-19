@@ -45,13 +45,15 @@ impl<'octo> AssignmentsHandler<'octo> {
     /// This endpoint can be used without authentication if only public resources are requested.
     ///
     /// ```no_run
+    /// use octocrab::models::AssignmentId;
     /// async fn run() -> octocrab::Result<()> {
-    ///  let octocrab = octocrab::Octocrab::default();
-    ///  const ASSIGNMENT_ID: AssignmentId = 42;
+    ///  let client = octocrab::Octocrab::default();
+    ///  let assignment_id: AssignmentId = 42.into();
     ///  let result = client
     ///         .assignments()
-    ///         .get(ASSIGNMENT_ID.into())
+    ///         .get(assignment_id.into())
     ///         .await;
+    ///     Ok(())
     /// }
     pub async fn get(
         &self,
