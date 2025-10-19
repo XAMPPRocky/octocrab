@@ -1,7 +1,6 @@
-use crate::models::{AssignmentId, UserId};
+use crate::models::{AssignmentId, ClassroomId, OrgId, RepositoryId, UserId};
 use chrono::DateTime;
-use serde::{Deserialize, Deserializer, Serialize};
-use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -9,13 +8,11 @@ use url::Url;
 /// A GitHub Classroom assignment
 pub struct Assignment {
     pub id: AssignmentId,
-    // #[serde(deserialize_with = "deserialize_quoted_boolean")]
     pub public_repo: bool,
     pub title: String,
     #[serde(rename = "type")]
     pub type_: AssignmentType,
     pub invite_link: String,
-    // #[serde(deserialize_with = "deserialize_quoted_boolean")]
     pub invitations_enabled: bool,
     pub slug: String,
     pub students_are_repo_admins: bool,
@@ -44,7 +41,7 @@ pub enum AssignmentType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SimpleCodeRepository {
-    pub id: u32,
+    pub id: RepositoryId,
     pub full_name: String,
     pub html_url: String,
     pub node_id: String,
@@ -55,9 +52,8 @@ pub struct SimpleCodeRepository {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Classroom {
-    pub id: u32,
+    pub id: ClassroomId,
     pub name: String,
-    // #[serde(deserialize_with = "deserialize_quoted_boolean")]
     pub archived: bool,
     pub organization: Option<SimpleOrganization>,
     pub url: String,
@@ -66,7 +62,7 @@ pub struct Classroom {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SimpleOrganization {
-    pub id: u32,
+    pub id: OrgId,
     pub login: String,
     pub node_id: String,
     pub html_url: String,
@@ -125,7 +121,7 @@ pub struct SimpleAssignment {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SimpleClassroom {
-    pub id: u32,
+    pub id: ClassroomId,
     pub name: String,
     pub archived: bool,
     pub url: String,
@@ -147,22 +143,4 @@ pub struct AssignmentGrade {
     pub points_available: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group_name: Option<String>,
-}
-
-fn deserialize_quoted_boolean<'de, D>(deserializer: D) -> Result<bool, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s: String = Deserialize::deserialize(deserializer)?;
-    match bool::from_str(&s) {
-        Ok(b) => Ok(b),
-        Err(_) => match s.as_str() {
-            "true" => Ok(true),
-            "false" => Ok(false),
-            _ => Err(serde::de::Error::custom(format!(
-                "Expected 'true' or 'false', found: {}",
-                s
-            ))),
-        },
-    }
 }

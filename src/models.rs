@@ -141,7 +141,8 @@ id_type!(
     UserOrOrgId,
     WorkflowId,
     TeamInvitationId,
-    AssignmentId
+    AssignmentId,
+    ClassroomId
 );
 
 macro_rules! convert_into {
