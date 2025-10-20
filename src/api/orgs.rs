@@ -5,15 +5,17 @@ mod list_members;
 mod list_repos;
 mod secrets;
 
-use crate::error::HttpSnafu;
-use crate::Octocrab;
-use http::{StatusCode, Uri};
-use snafu::ResultExt;
-
 pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
 pub use self::secrets::OrgSecretsHandler;
+use crate::error::HttpSnafu;
+use crate::models::interaction_limits;
+use crate::models::interaction_limits::InteractionLimit;
+use crate::Octocrab;
+use http::{StatusCode, Uri};
+use interaction_limits::{InteractionLimitExpiry, InteractionLimitType};
+use snafu::ResultExt;
 
 /// A client to GitHub's organization API.
 ///
@@ -236,5 +238,87 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub fn secrets(&self) -> secrets::OrgSecretsHandler<'_> {
         secrets::OrgSecretsHandler::new(self)
+    }
+
+    /// ### Get interaction restrictions for an organization
+    ///
+    /// Shows which type of GitHub user can interact with this organization and when the restriction expires. If there is no restrictions, you will see an empty response.
+    ///
+    /// Fine-grained access tokens for "Get interaction restrictions for an organization"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" organization permissions (read)
+    ///
+    pub async fn get_interaction_restrictions(
+        &self,
+    ) -> crate::Result<interaction_limits::InteractionLimit> {
+        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// ### Set interaction restrictions for an organization
+    ///
+    /// Temporarily restricts interactions to a certain type of GitHub user in any public repository in the given organization. You must be an organization owner to set these restrictions. Setting the interaction limit at the organization level will overwrite any interaction limits that are set for individual repositories owned by the organization.
+    ///
+    /// Fine-grained access tokens for "Set interaction restrictions for an organization"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" organization permissions (write)
+    ///
+    pub async fn set_interaction_restrictions(
+        &self,
+        limit_type: InteractionLimitType,
+        expiry: InteractionLimitExpiry,
+    ) -> crate::Result<InteractionLimit> {
+        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        let body = serde_json::json!({
+            "limit": limit_type,
+            "expiry": expiry,
+        });
+        self.crab.put(route, Some(&body)).await
+    }
+
+    /// ### Remove interaction restrictions for an organization
+    ///
+    /// Removes all interaction restrictions from public repositories in the given organization. You must be an organization owner to remove restrictions.
+    ///
+    /// Fine-grained access tokens for "Remove interaction restrictions for an organization"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" organization permissions (write)
+    ///
+    /// ```no_run
+    ///  async fn run() -> crate::octocrab::Result<()> {
+    ///   let org_name = "example-org".to_string();
+    ///   let crab = octocrab::instance();
+    ///   crab.orgs(org_name).remove_interaction_restrictions().await?;
+    ///   Ok(())
+    ///  }
+    /// ```
+    pub async fn remove_interaction_restrictions(&self) -> crate::Result<()> {
+        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
     }
 }

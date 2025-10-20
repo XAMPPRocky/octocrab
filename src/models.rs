@@ -21,6 +21,7 @@ pub mod commits;
 pub mod events;
 pub mod gists;
 pub mod hooks;
+pub mod interaction_limits;
 pub mod issues;
 pub mod orgs;
 pub mod pulls;

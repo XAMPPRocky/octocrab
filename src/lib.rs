@@ -34,6 +34,7 @@
 //! - [`teams`] Teams
 //! - [`users`] Users
 //! - [`classroom`] GitHub Classroom
+//! - [`workflows`] GitHub Workflows
 //!
 //! #### Getting a Pull Request
 //! ```no_run
