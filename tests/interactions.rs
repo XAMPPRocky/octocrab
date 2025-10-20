@@ -84,6 +84,21 @@ async fn should_respond_to_get_interaction_restrictions() {
     let response = result.unwrap();
     assert_eq!(response.limit, InteractionLimitType::CollaboratorsOnly);
     assert_eq!(response.origin, "organization");
+    //
+    // for a user
+    //
+    let mock_server = setup_mock_http_server("GET", "/user/interaction-limits", &template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    //
+    let result = client.current().get_interaction_restrictions().await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let response = result.unwrap();
+    assert_eq!(response.limit, InteractionLimitType::CollaboratorsOnly);
+    assert_eq!(response.origin, "organization");
 }
 
 #[tokio::test]
@@ -146,6 +161,27 @@ async fn should_respond_to_set_interaction_restrictions() {
     let response = result.unwrap();
     assert_eq!(response.limit, InteractionLimitType::CollaboratorsOnly);
     assert_eq!(response.origin, "organization");
+    //
+    // for a user
+    //
+    let mock_server = setup_mock_http_server("PUT", "/user/interaction-limits", &template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    //
+    let result = client
+        .current()
+        .set_interaction_restrictions(
+            InteractionLimitType::CollaboratorsOnly,
+            InteractionLimitExpiry::OneWeek,
+        )
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let response = result.unwrap();
+    assert_eq!(response.limit, InteractionLimitType::CollaboratorsOnly);
+    assert_eq!(response.origin, "organization");
 }
 
 #[tokio::test]
@@ -185,6 +221,18 @@ async fn should_respond_to_remove_interaction_restrictions() {
         .repos(org_id, repo)
         .remove_interaction_restrictions()
         .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    //
+    // for a user
+    //
+    let mock_server = setup_mock_http_server("DELETE", "/user/interaction-limits", &template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    //
+    let result = client.current().remove_interaction_restrictions().await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
