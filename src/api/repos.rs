@@ -29,6 +29,9 @@ mod teams;
 
 use crate::error::HttpSnafu;
 use crate::models::commits::GitCommitObject;
+use crate::models::interaction_limits::{
+    InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
+};
 use crate::models::{repos, RepositoryId};
 use crate::repos::file::GetReadmeBuilder;
 use crate::{models, params, Octocrab, Result};
@@ -798,6 +801,102 @@ impl<'octo> RepoHandler<'octo> {
             message.into().to_owned(),
             tree.into().to_owned(),
         )
+    }
+
+    /// ### Get interaction restrictions for a repository
+    ///
+    /// Shows which type of GitHub user can interact with this repository and when the restriction expires. If there is no restrictions, you will see an empty response.
+    ///
+    /// Fine-grained access tokens for "Get interaction restrictions for a repository"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" repository permissions (read)
+    ///
+    pub async fn get_interaction_restrictions(&self) -> Result<InteractionLimit> {
+        if let RepoRef::ById(_) = &self.repo {
+            return Err(crate::Error::Other {
+                source: "This endpoint does not support repositories by id, please use `repos` (not `repos_by_id`)"
+                    .into(),
+                backtrace: snafu::Backtrace::capture(),
+            }
+            );
+        }
+        let route = format!("/{}/interaction-limits", &self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// ### Set interaction restrictions for a repository
+    ///
+    /// Temporarily restricts interactions to a certain type of GitHub user within the given repository. You must have owner or admin access to set these restrictions. If an interaction limit is set for the user or organization that owns this repository, you will receive a `409 Conflict` response and will not be able to use this endpoint to change the interaction limit for a single repository.
+    ///
+    /// Fine-grained access tokens for "Set interaction restrictions for a repository"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" repository permissions (write)
+    ///
+    pub async fn set_interaction_restrictions(
+        &self,
+        limit_type: InteractionLimitType,
+        expiry: InteractionLimitExpiry,
+    ) -> crate::Result<InteractionLimit> {
+        if let RepoRef::ById(_) = &self.repo {
+            return Err(crate::Error::Other {
+                source: "This endpoint does not support repositories by id, please use `repos` (not `repos_by_id`)"
+                    .into(),
+                backtrace: snafu::Backtrace::capture(),
+            }
+            );
+        }
+        let route = format!("/{}/interaction-limits", &self.repo);
+        let body = serde_json::json!({
+            "limit": limit_type,
+            "expiry": expiry,
+        });
+        self.crab.put(route, Some(&body)).await
+    }
+
+    /// ### Remove interaction restrictions for a repository
+    ///
+    /// Removes all interaction restrictions from the given repository. You must have owner or admin access to remove restrictions. If the interaction limit is set for the user or organization that owns this repository, you will receive a `409 Conflict` response and will not be able to use this endpoint to change the interaction limit for a single repository.
+    ///
+    /// Fine-grained access tokens for "Remove interaction restrictions for an organization"
+    ///
+    /// This endpoint works with the following fine-grained token types:
+    ///
+    /// - GitHub App user access tokens
+    /// - GitHub App installation access tokens
+    /// - Fine-grained personal access tokens
+    ///
+    /// The fine-grained token must have the following permission set:
+    ///
+    /// - "Administration" organization permissions (write)
+    ///
+    pub async fn remove_interaction_restrictions(&self) -> crate::Result<()> {
+        if let RepoRef::ById(_) = &self.repo {
+            return Err(crate::Error::Other {
+                source: "This endpoint does not support repositories by id, please use `repos` (not `repos_by_id`)"
+                    .into(),
+                backtrace: snafu::Backtrace::capture(),
+            }
+            );
+        }
+        let route = format!("/{}/interaction-limits", &self.repo);
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
     }
 }
 
