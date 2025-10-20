@@ -15,6 +15,7 @@ pub mod actions;
 pub mod activity;
 pub mod apps;
 pub mod checks;
+pub mod classroom;
 pub mod code_scannings;
 pub mod commits;
 pub mod events;
@@ -139,7 +140,9 @@ id_type!(
     UserId,
     UserOrOrgId,
     WorkflowId,
-    TeamInvitationId
+    TeamInvitationId,
+    AssignmentId,
+    ClassroomId
 );
 
 macro_rules! convert_into {

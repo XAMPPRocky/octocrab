@@ -33,6 +33,7 @@
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //! - [`users`] Users
+//! - [`classroom`] GitHub Classroom
 //!
 //! #### Getting a Pull Request
 //! ```no_run
@@ -283,9 +284,9 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, code_scannings, commits, current, events, gists,
-        gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls, ratelimit, repos,
-        search, teams, users, workflows,
+        actions, activity, apps, checks, classroom, code_scannings, commits, current, events,
+        gists, gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls, ratelimit,
+        repos, search, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1332,6 +1333,16 @@ impl Octocrab {
     /// Creates a [`hooks::HooksHandler`] that returns the API hooks
     pub fn hooks(&self, owner: impl Into<String>) -> hooks::HooksHandler<'_> {
         hooks::HooksHandler::new(self, owner.into())
+    }
+
+    /// Creates a [`classroom::AssignmentsHandler`] providing the GitHub Classroom _Assignments_ API
+    pub fn assignments(&self) -> classroom::AssignmentsHandler<'_> {
+        classroom::AssignmentsHandler::new(self)
+    }
+
+    /// Creates a [`classroom::ClassroomHandler`] providing the GitHub Classroom _Classrooms_ API
+    pub fn classrooms(&self) -> classroom::ClassroomHandler<'_> {
+        classroom::ClassroomHandler::new(self)
     }
 }
 
