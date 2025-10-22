@@ -1543,7 +1543,7 @@ impl Octocrab {
         R::from_response(crate::map_github_error(response).await?).await
     }
 
-    /// Send a `PATCH` request with no additional post-processing.
+    /// Send a `PUT` request with no additional post-processing.
     pub async fn _put<B: Serialize + ?Sized>(
         &self,
         uri: impl TryInto<Uri>,
