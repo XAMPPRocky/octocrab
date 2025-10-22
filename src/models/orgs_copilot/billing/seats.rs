@@ -54,7 +54,7 @@ pub struct CopilotSeat {
     pub last_activity_at: Option<DateTime<Utc>>,
     pub last_activity_editor: Option<String>,
     pub plan_type: Option<String>,
-    pub assignee: SimpleUser,
+    pub assignee: Option<SimpleUser>, // null if user has deleted their account within this billing cycle.
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

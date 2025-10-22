@@ -53,7 +53,8 @@ async fn should_return_page_with_billing_seats_info() {
     );
 
     let r = result.unwrap();
-    assert_eq!(r.seats[0].assignee.login, "octocat");
+    let login = r.seats[0].assignee.clone().unwrap().login;
+    assert_eq!(login, "octocat");
     assert_eq!(r.total_seats, 2);
 }
 
