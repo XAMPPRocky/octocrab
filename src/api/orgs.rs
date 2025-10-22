@@ -302,7 +302,7 @@ impl<'octo> OrgHandler<'octo> {
     ///     let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await.expect("failed to retrieve usage");
     /// }
     /// ```
-    pub fn copilot(&self) -> copilot::CopilotHandler {
+    pub fn copilot(&self) -> copilot::CopilotHandler<'octo, '_> {
         copilot::CopilotHandler::new(self)
     }
 

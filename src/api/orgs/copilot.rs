@@ -96,7 +96,7 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
 
     /// Perform seat management operations, such as adding or removing seats.
     /// These will typically affect your billing and require admin/manage billing permissions.
-    pub fn manage_seats(&self) -> copilot_seat_manager::CopilotSeatHandler {
+    pub fn manage_seats(&self) -> copilot_seat_manager::CopilotSeatHandler<'octo, '_> {
         copilot_seat_manager::CopilotSeatHandler::new(self.handler)
     }
 }
