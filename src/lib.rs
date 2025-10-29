@@ -300,6 +300,15 @@ pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 const GITHUB_BASE_URI: &str = "https://api.github.com";
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
+/// This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
+/// generated from Cargo.toml `[package.metadata.github-api].set-headers` array, like
+/// ```
+/// [package.metadata.github-api]
+///
+/// set-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
+/// ```
+include!(concat!(env!("OUT_DIR"), "/headers_metadata.rs"));
+
 #[cfg(feature = "default-client")]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
@@ -1568,6 +1577,12 @@ impl Octocrab {
 
         // In case octocrab needs to support cases where body is strictly streamable, it should use something like reqwest::Body,
         // since it differentiates between retryable bodies, and streams(aka, it implements try_clone(), which is needed for middlewares like retry).
+
+        /// Add headers specified in Cargo.toml
+        /// '[package.metadata.github-api].set-headers' section
+        for kv in _SET_HEADERS_MAP {
+            builder = builder.header(kv.0, kv.1);
+        }
 
         if let Some(body) = body {
             builder = builder.header(http::header::CONTENT_TYPE, "application/json");
