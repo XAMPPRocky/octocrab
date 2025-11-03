@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.1](https://github.com/XAMPPRocky/octocrab/compare/v0.47.0...v0.47.1) - 2025-11-03
+
+### Added
+
+- add missing list workflows filters ([#820](https://github.com/XAMPPRocky/octocrab/pull/820))
+
+### Other
+
+- Modify `_put` method documentation ([#818](https://github.com/XAMPPRocky/octocrab/pull/818))
+- Feature/interactions 537 ([#817](https://github.com/XAMPPRocky/octocrab/pull/817))
+- Added Feature/classrooms #524 ([#815](https://github.com/XAMPPRocky/octocrab/pull/815))
+
 ## [0.47.0](https://github.com/XAMPPRocky/octocrab/compare/v0.46.0...v0.47.0) - 2025-10-06
 
 ### Added
