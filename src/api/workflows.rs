@@ -1,4 +1,4 @@
-use crate::models::RunId;
+use crate::models::{CheckSuiteId, RunId};
 use crate::{models, Octocrab, Page, Result};
 
 pub struct WorkflowsHandler<'octo> {
@@ -189,6 +189,10 @@ pub struct ListRunsBuilder<'octo, 'b> {
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     exclude_pull_requests: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    check_suite_id: Option<CheckSuiteId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    head_sha: Option<String>,
 }
 
 impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
@@ -203,6 +207,8 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
             per_page: None,
             page: None,
             exclude_pull_requests: None,
+            check_suite_id: None,
+            head_sha: None,
         }
     }
 
@@ -247,6 +253,18 @@ impl<'octo, 'b> ListRunsBuilder<'octo, 'b> {
     /// Whether to exclude the pull requests or not.
     pub fn exclude_pull_requests(mut self, exclude_pull_requests: impl Into<bool>) -> Self {
         self.exclude_pull_requests = Some(exclude_pull_requests.into());
+        self
+    }
+
+    /// Returns workflow runs with the check_suite_id that you specify
+    pub fn check_suite_id(mut self, check_suite_id: impl Into<CheckSuiteId>) -> Self {
+        self.check_suite_id = Some(check_suite_id.into());
+        self
+    }
+
+    /// Only returns workflow runs that are associated with the specified head_sha.
+    pub fn head_sha(mut self, head_sha: impl Into<String>) -> Self {
+        self.head_sha = Some(head_sha.into());
         self
     }
 
