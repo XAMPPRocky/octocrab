@@ -187,6 +187,10 @@ pub struct Contents {
 pub enum Event {
     /// The issue or pull request was added to a project board.
     AddedToProject,
+    /// The issue or pull request was added to a project board.
+    AddedToProjectV2,
+    /// Not documented in the Github issue events documentation.
+    AddedToMergeQueue,
     /// The issue or pull request was assigned to a user.
     Assigned,
     /// Auto merge was disabled for a pull request.
@@ -203,6 +207,8 @@ pub enum Event {
     AutoSquashEnabled,
     /// The base reference branch of the pull request changed.
     BaseRefChanged,
+    /// Not documented in the Github issue events documentation.
+    BaseRefDeleted,
     /// Not documented in the Github issue events documentation.
     BaseRefForcePushed,
     /// The issue or pull request was closed. When the commit_id is present, it identifies the commit that closed the issue using "closes / fixes" syntax.
@@ -258,10 +264,16 @@ pub enum Event {
     MovedColumnsInProject,
     /// The issue was pinned.
     Pinned,
+    /// Not documented in the Github issue events documentation.
+    ProjectV2ItemStatusChanged,
+    /// Not documented in the Github issue events documentation.
+    IssueTypeAdded,
     /// A draft pull request was marked as ready for review.
     ReadyForReview,
     /// The issue was referenced from a commit message. The commit_id attribute is the commit SHA1 of where that happened and the commit_repository is where that commit was pushed.
     Referenced,
+    /// Not documented in the Github issue events documentation.
+    RemovedFromMergeQueue,
     /// The issue or pull request was removed from a project board.
     RemovedFromProject,
     /// The issue or pull request title was changed.
