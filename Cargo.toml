@@ -15,7 +15,7 @@ keywords = ["github", "github-api"]
 rust-version = "1.73.0"
 
 [package.metadata.github-api]
-set-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
+request-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]

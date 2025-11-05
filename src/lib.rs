@@ -301,11 +301,11 @@ const GITHUB_BASE_URI: &str = "https://api.github.com";
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 /// This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
-/// generated from Cargo.toml `[package.metadata.github-api].set-headers` array, like
+/// generated from Cargo.toml `[package.metadata.github-api].request-headers` array, like
 /// ```
 /// [package.metadata.github-api]
 ///
-/// set-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
+/// request-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
 /// ```
 include!(concat!(env!("OUT_DIR"), "/headers_metadata.rs"));
 
@@ -1579,7 +1579,7 @@ impl Octocrab {
         // since it differentiates between retryable bodies, and streams(aka, it implements try_clone(), which is needed for middlewares like retry).
 
         /// Add headers specified in Cargo.toml
-        /// '[package.metadata.github-api].set-headers' section
+        /// '[package.metadata.github-api].request-headers' section
         for kv in _SET_HEADERS_MAP {
             builder = builder.header(kv.0, kv.1);
         }

@@ -17,7 +17,7 @@ fn main() {
     let root_package = metadata.root_package().unwrap();
     let custom_metadata = &root_package.metadata;
 
-    let set_headers_array = custom_metadata["github-api"]["set-headers"]
+    let set_headers_array = custom_metadata["github-api"]["request-headers"]
         .as_array()
         .cloned()
         .unwrap_or(Default::default());
@@ -27,7 +27,7 @@ fn main() {
         .map(|x| {
             // split either by ":" or by ": "
             x.split_once(": ")
-                .unwrap_or_else(|| (x.split_once(":")).unwrap_or_default())
+                .unwrap_or_else(|| x.split_once(":").unwrap_or_default())
         })
         .collect::<Vec<(&str, &str)>>();
     let array_creation_static = format!(
