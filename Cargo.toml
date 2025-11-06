@@ -14,6 +14,9 @@ categories = ["web-programming::http-client"]
 keywords = ["github", "github-api"]
 rust-version = "1.73.0"
 
+[package.metadata.github-api]
+request-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]
 all-features = true
@@ -73,6 +76,9 @@ crypto_box = { version = "0.8.2", features = ["seal"] }
 base64 = "0.22.0"
 pretty_assertions = "1.4.0"
 graphql_client = "0.14.0"
+
+[build-dependencies]
+cargo_metadata = "0.23.0"
 
 [features]
 default = [
