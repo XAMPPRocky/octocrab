@@ -49,3 +49,30 @@ impl<'octo, 'r> ListCollaboratorsBuilder<'octo, 'r> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
+
+#[derive(serde::Serialize)]
+pub struct GetCollaboratorPermissionBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r RepoHandler<'octo>,
+    /// The handle for the GitHub user account.
+    #[serde(skip)]
+    username: String,
+}
+
+impl<'octo, 'r> GetCollaboratorPermissionBuilder<'octo, 'r> {
+    pub fn new(handler: &'r RepoHandler<'octo>, username: impl Into<String>) -> Self {
+        Self {
+            handler,
+            username: username.into(),
+        }
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<crate::models::repos::RepoPermission> {
+        let route = format!(
+            "/{}/collaborators/{}/permission",
+            self.handler.repo, self.username
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
