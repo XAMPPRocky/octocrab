@@ -565,7 +565,7 @@ pub mod teams {
         Closed,
     }
 
-    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
     #[serde(rename_all = "snake_case")]
     #[non_exhaustive]
     pub enum Permission {

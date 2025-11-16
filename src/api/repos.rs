@@ -33,6 +33,7 @@ use crate::models::interaction_limits::{
     InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
 };
 use crate::models::{repos, RepositoryId};
+use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
@@ -473,6 +474,20 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_collaborators(&self) -> ListCollaboratorsBuilder<'_, '_> {
         ListCollaboratorsBuilder::new(self)
+    }
+
+    /// Checks the repository permission and role of a collaborator.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let permission = octocrab::instance().repos("owner", "repo").get_contributor_permission("username").send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn get_contributor_permission(
+        &self,
+        username: impl Into<String>,
+    ) -> GetCollaboratorPermissionBuilder<'_, '_> {
+        GetCollaboratorPermissionBuilder::new(self, username)
     }
 
     /// List contributors from a repository.

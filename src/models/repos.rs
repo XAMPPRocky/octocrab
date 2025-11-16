@@ -1,5 +1,5 @@
 use super::*;
-use crate::error::SerdeSnafu;
+use crate::{error::SerdeSnafu, params::teams::Permission};
 use bytes::Bytes;
 use http_body::Body;
 use http_body_util::BodyExt;
@@ -397,6 +397,17 @@ pub struct MergeCommit {
     pub node_id: String,
     pub html_url: String,
     pub comments_url: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoPermission {
+    /// Provides the legacy base roles of admin, write, read, and none, where the
+    /// maintain role is mapped to write and the triage role is mapped to read.
+    pub permission: Permission,
+    /// Provides the name of the assigned role, including custom roles.
+    pub role_name: String,
+    pub user: Collaborator,
 }
 
 /// A HashMap of languages and the number of bytes of code written in that language.
