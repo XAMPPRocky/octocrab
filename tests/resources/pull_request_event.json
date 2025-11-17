@@ -331,7 +331,6 @@
                     "href": "https://api.github.com/repos/wayofthepie/test-events/statuses/184cb4b61e26de7cccc385d37da25cd8bd817d27"
                 }
             },
-            "author_association": "OWNER",
             "active_lock_reason": null,
             "merged": false,
             "mergeable": null,

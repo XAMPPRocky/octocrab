@@ -45,7 +45,6 @@
         "state": "approved",
         "html_url": "https://github.com/LizardByte/RetroArcher/pull/218#pullrequestreview-1294651480",
         "pull_request_url": "https://api.github.com/repos/LizardByte/RetroArcher/pulls/218",
-        "author_association": "NONE",
         "_links": {
           "html": {
             "href": "https://github.com/LizardByte/RetroArcher/pull/218#pullrequestreview-1294651480"
@@ -440,7 +439,6 @@
             "href": "https://api.github.com/repos/LizardByte/RetroArcher/statuses/95da334b60ad7e4fff86806705d5c2909c0c7411"
           }
         },
-        "author_association": "MEMBER",
         "auto_merge": null,
         "active_lock_reason": null
       }

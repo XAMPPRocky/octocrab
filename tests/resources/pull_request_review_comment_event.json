@@ -52,7 +52,6 @@
             "updated_at": "2021-01-20T13:55:24Z",
             "html_url": "https://github.com/wayofthepie/test-events/pull/8#discussion_r560976245",
             "pull_request_url": "https://api.github.com/repos/wayofthepie/test-events/pulls/8",
-            "author_association": "OWNER",
             "_links": {
                 "self": {
                     "href": "https://api.github.com/repos/wayofthepie/test-events/pulls/comments/560976245"
@@ -425,7 +424,6 @@
                     "href": "https://api.github.com/repos/wayofthepie/test-events/statuses/cd166a61872f51c708a595244692729f82753f8c"
                 }
             },
-            "author_association": "OWNER",
             "active_lock_reason": null
         }
     },
