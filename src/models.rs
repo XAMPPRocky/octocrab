@@ -276,6 +276,8 @@ pub enum Event {
     RemovedFromMergeQueue,
     /// The issue or pull request was removed from a project board.
     RemovedFromProject,
+    /// Not documented in the Github issue events documentation.
+    RemovedFromProjectV2,
     /// The issue or pull request title was changed.
     Renamed,
     /// The issue or pull request was reopened.
