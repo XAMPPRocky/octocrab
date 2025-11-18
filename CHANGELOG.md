@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.0](https://github.com/XAMPPRocky/octocrab/compare/v0.47.1...v0.48.0) - 2025-11-18
+
+### Added
+
+- fetch contributor repository permission ([#825](https://github.com/XAMPPRocky/octocrab/pull/825))
+- [**breaking**] Use `Option<AuthorAssociation>` over `String` in `Issue` struct ([#822](https://github.com/XAMPPRocky/octocrab/pull/822))
+
+### Other
+
+- add missing issue event types ([#821](https://github.com/XAMPPRocky/octocrab/pull/821))
+- Remove fields deleted in October 2025 API changes ([#826](https://github.com/XAMPPRocky/octocrab/pull/826))
+- Bump jsonwebtoken to v10 ([#814](https://github.com/XAMPPRocky/octocrab/pull/814))
+- Feature/set http headers #808 ([#819](https://github.com/XAMPPRocky/octocrab/pull/819))
+
 ## [0.47.1](https://github.com/XAMPPRocky/octocrab/compare/v0.47.0...v0.47.1) - 2025-11-03
 
 ### Added
