@@ -58,7 +58,8 @@ pub struct Comment {
     pub body_text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
-    pub author_association: AuthorAssociation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<AuthorAssociation>,
     pub user: Author,
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]

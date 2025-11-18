@@ -279,7 +279,8 @@ pub struct Comment {
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
     pub html_url: String,
-    pub author_association: AuthorAssociation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<AuthorAssociation>,
     #[serde(rename = "_links")]
     pub links: Links,
     pub start_line: Option<u64>,
@@ -312,7 +313,8 @@ pub struct ReviewComment {
     pub updated_at: chrono::DateTime<chrono::Utc>,
     pub html_url: String,
     pub pull_request_url: String,
-    pub author_association: AuthorAssociation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<AuthorAssociation>,
     #[serde(rename = "_links")]
     pub links: Links,
     #[serde(skip_serializing_if = "Option::is_none")]
