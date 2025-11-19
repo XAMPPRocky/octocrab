@@ -11,6 +11,7 @@ fn main() {
 
     let metadata = MetadataCommand::new()
         .manifest_path(&manifest_path)
+        .no_deps()
         .exec()
         .expect("failed to parse `cargo metadata`");
 
