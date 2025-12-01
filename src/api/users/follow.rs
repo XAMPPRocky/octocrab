@@ -38,7 +38,7 @@ impl<'octo, 'b> ListUserFollowerBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::Follower>> {
         // build the route to get this users followers
-        let route = format!("/users/{}/followers", self.handler.user);
+        let route = format!("/{}/followers", self.handler.user);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -80,7 +80,7 @@ impl<'octo, 'b> ListUserFollowingBuilder<'octo, 'b> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<crate::models::Followee>> {
         // build the route to get this users followers
-        let route = format!("/users/{}/following", self.handler.user);
+        let route = format!("/{}/following", self.handler.user);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
