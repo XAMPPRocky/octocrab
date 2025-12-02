@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.1](https://github.com/XAMPPRocky/octocrab/compare/v0.48.0...v0.48.1) - 2025-12-02
+
+### Fixed
+
+- *(build)* don't fetch dependencies ([#828](https://github.com/XAMPPRocky/octocrab/pull/828))
+
 ## [0.48.0](https://github.com/XAMPPRocky/octocrab/compare/v0.47.1...v0.48.0) - 2025-11-18
 
 ### Added
