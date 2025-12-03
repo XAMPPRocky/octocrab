@@ -276,6 +276,10 @@ pub struct Comment {
     pub in_reply_to_id: Option<CommentId>,
     pub user: Option<Author>,
     pub body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
     pub html_url: String,
