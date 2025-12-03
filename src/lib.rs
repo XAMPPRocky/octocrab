@@ -230,6 +230,7 @@ use http::{HeaderMap, HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
 use http_body_util::BodyExt;
 use service::middleware::auth_header::AuthHeaderLayer;
+use service::middleware::cache::{CacheStorage, HttpCacheLayer};
 use std::convert::{Infallible, TryInto};
 use std::fmt;
 use std::future::Future;
@@ -686,6 +687,14 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         Ok(self)
     }
 
+    pub fn cache<C>(mut self, cache: C) -> Self
+    where
+        C: CacheStorage + 'static,
+    {
+        self.config.cache_storage = Some(Arc::new(cache));
+        self
+    }
+
     #[cfg(feature = "retry")]
     #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn set_connector_retry_service<S>(
@@ -878,6 +887,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
 
+        let client = HttpCacheLayer::new(self.config.cache_storage.clone()).layer(client);
+
         if let Some(executor) = self.executor {
             return Ok(Octocrab::new_with_executor(client, auth_state, executor));
         }
@@ -900,6 +911,7 @@ pub struct DefaultOctocrabBuilderConfig {
     upload_uri: Option<Uri>,
     #[cfg(feature = "retry")]
     retry_config: RetryConfig,
+    cache_storage: Option<Arc<dyn CacheStorage>>,
 }
 
 impl Default for DefaultOctocrabBuilderConfig {
@@ -918,6 +930,7 @@ impl Default for DefaultOctocrabBuilderConfig {
             upload_uri: None,
             #[cfg(feature = "retry")]
             retry_config: RetryConfig::Simple(3),
+            cache_storage: None,
         }
     }
 }
