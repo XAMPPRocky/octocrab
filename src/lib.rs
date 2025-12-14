@@ -269,6 +269,7 @@ use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapRespo
 #[cfg(feature = "tracing")]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
+use crate::api::codes_of_conduct;
 use crate::error::{
     HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
     UriParseError, UriParseSnafu, UriSnafu,
@@ -1353,6 +1354,11 @@ impl Octocrab {
     /// Creates a [`classroom::ClassroomHandler`] providing the GitHub Classroom _Classrooms_ API
     pub fn classrooms(&self) -> classroom::ClassroomHandler<'_> {
         classroom::ClassroomHandler::new(self)
+    }
+
+    /// Creates a [`codes_of_conduct::CodesOfConductHandler`] providing the GitHub Codes of Codes of Conduct API
+    pub fn codes_of_conduct(&self) -> codes_of_conduct::CodesOfConductHandler<'_> {
+        codes_of_conduct::CodesOfConductHandler::new(self)
     }
 }
 

@@ -17,6 +17,7 @@ pub mod apps;
 pub mod checks;
 pub mod classroom;
 pub mod code_scannings;
+pub mod codes_of_conduct;
 pub mod commits;
 pub mod events;
 pub mod gists;
