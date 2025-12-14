@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use url::Url;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]

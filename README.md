@@ -29,6 +29,7 @@ Currently, the following modules are available as of version `0.44`.
 - [`activity`] GitHub Activity
 - [`apps`] GitHub Apps
 - [`checks`] GitHub Checks
+- [`codes_of_conduct`] GitHub Codes of Conduct
 - [`code_scannings`] Code Scanning
 - [`commits`] GitHub Commits
 - [`current`] Information about the current user
@@ -54,6 +55,7 @@ Currently, the following modules are available as of version `0.44`.
 [`activity`]: https://docs.rs/octocrab/latest/octocrab/activity/struct.ActivityHandler.html
 [`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/struct.AppsHandler.html
 [`checks`]: https://docs.rs/octocrab/latest/octocrab/checks/struct.ChecksHandler.html
+[`codes_of_conduct`]: https://docs.rs/octocrab/latest/octocrab/codes_of_conduct/struct.CodesOfConductHandler.html
 [`code_scannings`]: https://docs.rs/octocrab/latest/octocrab/code_scannings/struct.CodeScanningsHandler.html
 [`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
