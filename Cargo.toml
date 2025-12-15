@@ -36,7 +36,7 @@ futures = { version = "0.3.15" }
 futures-core = { version = "0.3.15", optional = true }
 futures-util = { version = "0.3.15", optional = true }
 getrandom = { version = "0.2.15", features = ["js"] }
-jsonwebtoken = { version = "10", features = ["rust_crypto"] }
+jsonwebtoken = { version = "10", default-features = false }
 http = "1.0.0"
 http-body = "1.0.0"
 http-body-util = "0.1.0"
@@ -90,6 +90,7 @@ default = [
     "tracing",
     "default-client",
     "rustls-ring",
+    "jwt-rust-crypto",
 ]
 
 follow-redirect = ["tower-http/follow-redirect"]
@@ -97,6 +98,8 @@ retry = ["tower/retry", "futures-util"]
 rustls = ["hyper-rustls"]
 rustls-ring = ["hyper-rustls/ring"]
 rustls-aws-lc-rs = ["hyper-rustls/aws-lc-rs"]
+jwt-aws-lc-rs = ["jsonwebtoken/aws_lc_rs"]
+jwt-rust-crypto = ["jsonwebtoken/rust_crypto"]
 rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
 opentls = ["hyper-tls"]
 stream = ["futures-core", "futures-util"]
