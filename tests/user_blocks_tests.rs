@@ -11,6 +11,7 @@ use octocrab::Octocrab;
 /// Tests API calls related to check runs of a specific commit.
 mod mock_error;
 
+#[expect(dead_code)]
 #[derive(Serialize, Deserialize)]
 struct FakePage<T> {
     items: Vec<T>,

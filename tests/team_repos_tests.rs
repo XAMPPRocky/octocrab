@@ -9,6 +9,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
+#[expect(dead_code)]
 #[derive(Serialize, Deserialize)]
 struct FakePage<T> {
     items: Vec<T>,
