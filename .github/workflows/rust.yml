@@ -21,10 +21,10 @@ jobs:
         # Only run beta/nightly on ubuntu to save resources/space
         include:
           - channel: beta
-            os: ubuntu-latest
+            os: ubuntu
             features: ""
           - channel: nightly
-            os: ubuntu-latest
+            os: ubuntu
             features: ""
 
     steps:
