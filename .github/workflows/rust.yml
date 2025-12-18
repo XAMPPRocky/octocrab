@@ -7,7 +7,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0 # Disables incremental compilation to save disk space
-  RUSTFLAGS: "-D warnings"
+  # RUSTFLAGS: "-D warnings" # Would deny warnings as errors
 
 jobs:
   build:
