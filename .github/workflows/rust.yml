@@ -28,7 +28,7 @@ jobs:
             features: ""
 
     steps:
-      - uses: actions/checkout@v4 # Updated to v4
+      - uses: actions/checkout@v5
 
       - name: Install Rust
         run: rustup default ${{ matrix.channel }}
@@ -60,7 +60,7 @@ jobs:
   wasm-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: swatinem/rust-cache@v2
       - run: |
           rustup default stable
@@ -70,7 +70,7 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: swatinem/rust-cache@v2
       - run: cargo fmt --all -- --check
       - run: cargo clippy --tests --examples
