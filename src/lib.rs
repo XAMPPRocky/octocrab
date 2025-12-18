@@ -1146,6 +1146,39 @@ impl Octocrab {
         Ok((crab, token))
     }
 
+    /// Acquire a GitHub App installation access token that does not expire for
+    /// at least 30 seconds. A cached token will be used if its expiration is
+    /// far enough in the future. Otherwise, a new token will be acquired and
+    /// cached.
+    pub async fn installation_token(&self) -> Result<SecretString> {
+        self.installation_token_with_buffer(chrono::Duration::seconds(30))
+            .await
+    }
+
+    /// Acquire a GitHub App installation access token that does not expire for
+    /// at least the duration specified by [`buffer`]. A cached token will be
+    /// used if its expiration is far enough in the future. Otherwise, a new
+    /// token will be acquired and cached.
+    pub async fn installation_token_with_buffer(
+        &self,
+        buffer: chrono::Duration,
+    ) -> Result<SecretString> {
+        let token = if let AuthState::Installation { ref token, .. } = self.auth_state {
+            token
+        } else {
+            return Err(Error::InstallationTokenInvalidAuth {
+                backtrace: Backtrace::capture(),
+            });
+        };
+
+        let token = match token.valid_token_with_buffer(buffer) {
+            Some(token) => token.into(),
+            None => self.request_installation_auth_token().await?,
+        };
+
+        Ok(token)
+    }
+
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via an access token.
     ///
