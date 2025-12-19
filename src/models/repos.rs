@@ -142,6 +142,7 @@ pub struct Commit {
 
 /// The author of a commit, identified by its name and email, as well as (optionally) a time and a github username
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GitUserTime {
     #[serde(flatten)]
     pub user: CommitAuthor,
@@ -156,6 +157,7 @@ pub struct GitUserTime {
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct CommitAuthor {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -166,6 +168,7 @@ pub struct CommitAuthor {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct FileUpdate {
     pub content: Content,
     pub commit: Commit,
@@ -173,6 +176,7 @@ pub struct FileUpdate {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct FileDeletion {
     pub content: Option<Content>,
     pub commit: Commit,
@@ -180,6 +184,7 @@ pub struct FileDeletion {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct Content {
     pub name: String,
     pub path: String,
@@ -264,6 +269,7 @@ impl crate::FromResponse for ContentItems {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct ContentLinks {
     pub git: Option<Url>,
     pub html: Option<Url>,
@@ -301,6 +307,7 @@ pub struct CommitObject {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct Release {
     pub url: Url,
     pub html_url: Url,
@@ -326,6 +333,7 @@ pub struct Release {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct ReleaseNotes {
     pub name: String,
     pub body: String,
@@ -333,6 +341,7 @@ pub struct ReleaseNotes {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct Asset {
     pub url: Url,
     pub browser_download_url: Url,

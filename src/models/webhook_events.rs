@@ -972,6 +972,7 @@ impl EventInstallation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct EventInstallationId {
     pub id: InstallationId,
     pub node_id: String,
