@@ -11,6 +11,7 @@ use wiremock::{
 
 const PROJECT_ID: u32 = 1002605;
 
+#[expect(dead_code)]
 #[derive(Serialize, Deserialize)]
 struct FakeProject(Project);
 
