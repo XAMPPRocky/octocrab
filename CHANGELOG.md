@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.0](https://github.com/XAMPPRocky/octocrab/compare/v0.48.1...v0.49.0) - 2025-12-19
+
+### Fixed
+
+- [**breaking**] add a cfg to make the crypto backend for jwt configurable ([#834](https://github.com/XAMPPRocky/octocrab/pull/834))
+- incorrect path for followers and followees ([#829](https://github.com/XAMPPRocky/octocrab/pull/829))
+
+### Other
+
+- fix various warnings in CI and deny warnings being reintroduced ([#839](https://github.com/XAMPPRocky/octocrab/pull/839))
+- [**breaking**] mark more structs as `#[non_exhaustive]` ([#840](https://github.com/XAMPPRocky/octocrab/pull/840))
+- Partial implementation of Organization CoPilot APIs ([#747](https://github.com/XAMPPRocky/octocrab/pull/747))
+- [codes-of-conduct] #527 ([#833](https://github.com/XAMPPRocky/octocrab/pull/833))
+
 ## [0.48.1](https://github.com/XAMPPRocky/octocrab/compare/v0.48.0...v0.48.1) - 2025-12-02
 
 ### Fixed
