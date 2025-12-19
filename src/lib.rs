@@ -295,6 +295,14 @@ pub use self::{
     page::Page,
 };
 
+#[cfg(all(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs"))]
+compile_error!(
+    "feature \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" cannot be enabled at the same time"
+);
+
+#[cfg(not(any(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs")))]
+compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" must be enabled");
+
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
