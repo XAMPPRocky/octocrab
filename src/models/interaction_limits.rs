@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub struct InteractionLimit {
     pub limit: InteractionLimitType,
     pub origin: String,
@@ -11,6 +12,7 @@ pub struct InteractionLimit {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum InteractionLimitType {
     ExistingUsers,
     ContributorsOnly,
@@ -19,6 +21,7 @@ pub enum InteractionLimitType {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum InteractionLimitExpiry {
     OneDay,
     ThreeDays,

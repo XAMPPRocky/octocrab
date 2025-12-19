@@ -123,6 +123,7 @@ pub struct Milestone {
 
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitAuthor {
     pub name: String,
     pub email: String,

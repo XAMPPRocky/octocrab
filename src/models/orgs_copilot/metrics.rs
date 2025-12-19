@@ -13,6 +13,7 @@ use super::super::*;
 // Some of these permissions, as of writing, are only available to GitHub Enterprise customers and further limited to Enterprise Administrators.
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotMetrics {
     pub date: NaiveDate,
     pub total_active_users: u32,
@@ -21,6 +22,7 @@ pub struct CopilotMetrics {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotIdeCodeCompletions {
     pub total_engaged_users: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -30,12 +32,14 @@ pub struct CopilotIdeCodeCompletions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Language {
     pub name: String,
     pub total_engaged_users: u32,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Editor {
     pub name: String,
     pub total_engaged_users: u32,
@@ -43,6 +47,7 @@ pub struct Editor {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Model {
     pub name: String,
     pub is_custom_model: bool,
@@ -54,6 +59,7 @@ pub struct Model {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct EditorLanguage {
     pub name: String,
     pub total_engaged_users: u32,

@@ -16,6 +16,7 @@ use super::super::*;
 // Some of these permissions, as of writing, are only available to GitHub Enterprise customers and further limited to Enterprise Administrators.
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotBilling {
     pub seat_breakdown: CopilotSeatBreakdown,
     pub seat_management_setting: String,
@@ -32,6 +33,7 @@ pub struct CopilotBilling {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotSeatBreakdown {
     pub total: u32,
     pub added_this_cycle: u32,
@@ -42,12 +44,14 @@ pub struct CopilotSeatBreakdown {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotBillingSeats {
     pub total_seats: u32,
     pub seats: Vec<CopilotSeat>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CopilotSeat {
     pub created_at: DateTime<Utc>,
     pub pending_cancellation_date: Option<String>,
@@ -58,12 +62,14 @@ pub struct CopilotSeat {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SeatsCreated {
     /// The total number of seats created for the specified user(s).
     pub seats_created: u32,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SeatsCancelled {
     /// The total number of seats set to "pending cancellation" for members of the specified team(s).
     pub seats_cancelled: u32,

@@ -24,6 +24,7 @@ pub struct SelfHostedRunnerLabel {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+#[non_exhaustive]
 pub enum SelfHostedRunnerLabelType {
     ReadOnly,
     Custom,
