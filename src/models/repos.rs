@@ -157,7 +157,6 @@ pub struct GitUserTime {
 /// The author of a commit, identified by its name and email.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[non_exhaustive]
 pub struct CommitAuthor {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
