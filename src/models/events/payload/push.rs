@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::Commit;
 use crate::models::PushId;
 
 /// The payload in a [`super::EventPayload::PushEvent`] type.
@@ -14,7 +15,11 @@ pub struct PushEventPayload {
 
 #[cfg(test)]
 mod test {
-    use crate::models::events::{payload::EventPayload, Event};
+    use crate::models::{
+        events::{payload::EventPayload, Event},
+        repos::CommitAuthor,
+    };
+    use url::Url;
 
     #[test]
     fn should_deserialize_push_event_with_correct_payload() {
