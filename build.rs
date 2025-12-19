@@ -40,5 +40,5 @@ fn main() {
     let out_dir = env::var("OUT_DIR").unwrap(); // build's OUT path
     let dest_path = Path::new(&out_dir).join("headers_metadata.rs");
     fs::write(&dest_path, array_creation_static)
-        .expect(format!("failed to write {}", dest_path.display()).as_str());
+        .unwrap_or_else(|_| panic!("failed to write {}", dest_path.display()));
 }
