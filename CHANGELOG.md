@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.2](https://github.com/XAMPPRocky/octocrab/compare/v0.49.1...v0.49.2) - 2025-12-20
+
+### Added
+
+- Add body_text and body_html to Comment model ([#832](https://github.com/XAMPPRocky/octocrab/pull/832))
+
 ## [0.49.1](https://github.com/XAMPPRocky/octocrab/compare/v0.49.0...v0.49.1) - 2025-12-20
 
 ### Added
