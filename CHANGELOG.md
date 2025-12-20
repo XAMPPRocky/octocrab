@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.1](https://github.com/XAMPPRocky/octocrab/compare/v0.49.0...v0.49.1) - 2025-12-20
+
+### Added
+
+- provide expiration-aware installation token APIs ([#837](https://github.com/XAMPPRocky/octocrab/pull/837))
+
+### Fixed
+
+- Send body for retried requests ([#842](https://github.com/XAMPPRocky/octocrab/pull/842))
+
 ## [0.49.0](https://github.com/XAMPPRocky/octocrab/compare/v0.48.1...v0.49.0) - 2025-12-19
 
 ### Fixed
