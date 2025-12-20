@@ -50,6 +50,8 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
         match self {
             RetryConfig::None => None,
             _ => {
+                let body = req.body().try_clone()?;
+
                 // `Request` can't be cloned
                 let mut new_req = Request::builder()
                     .uri(req.uri())
@@ -59,7 +61,6 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
                     new_req = new_req.header(name, value);
                 }
 
-                let body = req.body().clone();
                 let new_req = new_req.body(body).expect(
                     "This should never panic, as we are cloning a components from existing request",
                 );
