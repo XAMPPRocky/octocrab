@@ -7,7 +7,9 @@ use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use web_time::{Duration, SystemTime};
+#[cfg(feature = "tokio")]
+use web_time::Duration;
+use web_time::SystemTime;
 
 use snafu::*;
 

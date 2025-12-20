@@ -41,6 +41,7 @@ pub struct CommentReactions {
 
 /// Commit Comparison
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitComparison {
     pub ahead_by: i64,
     /// Commit
@@ -60,6 +61,7 @@ pub struct CommitComparison {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitElement {
     pub author: Option<GitUser>,
     pub comment_count: i64,
@@ -72,6 +74,7 @@ pub struct CommitElement {
 
 /// Metaproperties for Git author/committer information.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GitUser {
     pub date: Option<String>,
     pub email: Option<String>,
@@ -79,12 +82,14 @@ pub struct GitUser {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Tree {
     pub sha: String,
     pub url: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Verification {
     pub payload: Option<String>,
     pub reason: String,
@@ -100,6 +105,7 @@ pub type FileStatus = repos::DiffEntryStatus;
 pub type CommitFile = repos::DiffEntry;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitParent {
     pub html_url: Option<String>,
     pub sha: String,
@@ -107,6 +113,7 @@ pub struct CommitParent {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CommitStats {
     pub additions: Option<i64>,
     pub deletions: Option<i64>,
@@ -115,6 +122,7 @@ pub struct CommitStats {
 
 /// Commit
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Commit {
     pub author: Option<Author>,
     pub comments_url: String,
@@ -131,6 +139,7 @@ pub struct Commit {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum GithubCommitStatus {
     Ahead,
     Behind,
@@ -139,6 +148,7 @@ pub enum GithubCommitStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GitCommitObject {
     pub sha: String,
     pub node_id: String,

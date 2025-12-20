@@ -269,6 +269,7 @@ use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapRespo
 #[cfg(feature = "tracing")]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
+use crate::api::codes_of_conduct;
 use crate::error::{
     HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
     UriParseError, UriParseSnafu, UriSnafu,
@@ -294,19 +295,27 @@ pub use self::{
     page::Page,
 };
 
+#[cfg(all(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs"))]
+compile_error!(
+    "feature \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" cannot be enabled at the same time"
+);
+
+#[cfg(not(any(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs")))]
+compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" must be enabled");
+
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
 const GITHUB_BASE_URI: &str = "https://api.github.com";
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
-/// This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
-/// generated from Cargo.toml `[package.metadata.github-api].request-headers` array, like
-/// ```
-/// [package.metadata.github-api]
-///
-/// request-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
-/// ```
+// This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
+// generated from Cargo.toml `[package.metadata.github-api].request-headers` array, like
+// ```
+// [package.metadata.github-api]
+//
+// request-headers = ["X-GitHub-Api-Version: 2022-11-28", ]
+// ```
 include!(concat!(env!("OUT_DIR"), "/headers_metadata.rs"));
 
 #[cfg(feature = "default-client")]
@@ -1146,6 +1155,39 @@ impl Octocrab {
         Ok((crab, token))
     }
 
+    /// Acquire a GitHub App installation access token that does not expire for
+    /// at least 30 seconds. A cached token will be used if its expiration is
+    /// far enough in the future. Otherwise, a new token will be acquired and
+    /// cached.
+    pub async fn installation_token(&self) -> Result<SecretString> {
+        self.installation_token_with_buffer(chrono::Duration::seconds(30))
+            .await
+    }
+
+    /// Acquire a GitHub App installation access token that does not expire for
+    /// at least the duration specified by [`buffer`]. A cached token will be
+    /// used if its expiration is far enough in the future. Otherwise, a new
+    /// token will be acquired and cached.
+    pub async fn installation_token_with_buffer(
+        &self,
+        buffer: chrono::Duration,
+    ) -> Result<SecretString> {
+        let token = if let AuthState::Installation { ref token, .. } = self.auth_state {
+            token
+        } else {
+            return Err(Error::InstallationTokenInvalidAuth {
+                backtrace: Backtrace::capture(),
+            });
+        };
+
+        let token = match token.valid_token_with_buffer(buffer) {
+            Some(token) => token.into(),
+            None => self.request_installation_auth_token().await?,
+        };
+
+        Ok(token)
+    }
+
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via an access token.
     ///
@@ -1353,6 +1395,11 @@ impl Octocrab {
     /// Creates a [`classroom::ClassroomHandler`] providing the GitHub Classroom _Classrooms_ API
     pub fn classrooms(&self) -> classroom::ClassroomHandler<'_> {
         classroom::ClassroomHandler::new(self)
+    }
+
+    /// Creates a [`codes_of_conduct::CodesOfConductHandler`] providing the GitHub Codes of Codes of Conduct API
+    pub fn codes_of_conduct(&self) -> codes_of_conduct::CodesOfConductHandler<'_> {
+        codes_of_conduct::CodesOfConductHandler::new(self)
     }
 }
 
@@ -1578,8 +1625,8 @@ impl Octocrab {
         // In case octocrab needs to support cases where body is strictly streamable, it should use something like reqwest::Body,
         // since it differentiates between retryable bodies, and streams(aka, it implements try_clone(), which is needed for middlewares like retry).
 
-        /// Add headers specified in Cargo.toml
-        /// '[package.metadata.github-api].request-headers' section
+        // Add headers specified in Cargo.toml
+        // '[package.metadata.github-api].request-headers' section
         for kv in _SET_HEADERS_MAP {
             builder = builder.header(kv.0, kv.1);
         }

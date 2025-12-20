@@ -38,6 +38,8 @@ pub enum Error {
     },
     #[snafu(display("Installation Error: Github App authorization is required to target an installation.\n\nFound at {}", backtrace))]
     Installation { backtrace: Backtrace },
+    #[snafu(display("Error getting installation access token: octocrab instance is not an installation.\n\nFound at {}", backtrace))]
+    InstallationTokenInvalidAuth { backtrace: Backtrace },
     InvalidHeaderValue {
         source: http::header::InvalidHeaderValue,
         backtrace: Backtrace,

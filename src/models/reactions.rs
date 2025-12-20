@@ -1,6 +1,7 @@
 use super::*;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum ReactionContent {
     #[serde(rename = "heart")]
     Heart,

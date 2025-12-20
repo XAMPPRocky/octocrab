@@ -1,5 +1,7 @@
 //! The Organization API.
 
+mod copilot;
+mod copilot_seat_manager;
 mod events;
 mod list_members;
 mod list_repos;
@@ -290,6 +292,18 @@ impl<'octo> OrgHandler<'octo> {
             "expiry": expiry,
         });
         self.crab.put(route, Some(&body)).await
+    }
+
+    /// Handle copilot-related calls on the organization
+    ///
+    /// # Examples
+    /// ```no_run
+    /// async fn run() {
+    ///     let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await.expect("failed to retrieve usage");
+    /// }
+    /// ```
+    pub fn copilot(&self) -> copilot::CopilotHandler<'octo, '_> {
+        copilot::CopilotHandler::new(self)
     }
 
     /// ### Remove interaction restrictions for an organization
