@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.3](https://github.com/XAMPPRocky/octocrab/compare/v0.49.2...v0.49.3) - 2025-12-21
+
+### Added
+
+- Http caching & Conditional requests ([#831](https://github.com/XAMPPRocky/octocrab/pull/831))
+
 ## [0.49.2](https://github.com/XAMPPRocky/octocrab/compare/v0.49.1...v0.49.2) - 2025-12-20
 
 ### Added
