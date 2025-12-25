@@ -680,6 +680,23 @@ pub struct Milestone {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[non_exhaustive]
+pub enum SquashMergeCommitTitle {
+    PrTitle,
+    CommitOrPrTitle,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[non_exhaustive]
+pub enum SquashMergeCommitMessage {
+    PrBody,
+    CommitMessages,
+    Blank,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Repository {
     pub id: RepositoryId,
@@ -843,6 +860,10 @@ pub struct Repository {
     pub template_repository: Option<Box<Repository>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_squash_merge: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub squash_merge_commit_title: Option<SquashMergeCommitTitle>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub squash_merge_commit_message: Option<SquashMergeCommitMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_merge_commit: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
