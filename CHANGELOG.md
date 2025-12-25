@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.4](https://github.com/XAMPPRocky/octocrab/compare/v0.49.3...v0.49.4) - 2025-12-25
+
+### Added
+
+- Add squash_merge_commit_title, squash_merge_commit_title to repo model ([#845](https://github.com/XAMPPRocky/octocrab/pull/845))
+
 ## [0.49.3](https://github.com/XAMPPRocky/octocrab/compare/v0.49.2...v0.49.3) - 2025-12-21
 
 ### Added
