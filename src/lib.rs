@@ -243,11 +243,14 @@ use std::marker::PhantomData;
 use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+
+#[cfg(feature = "default-client")]
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
 use hyper::{Request, Response};
 
+#[cfg(feature = "default-client")]
 use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
@@ -255,7 +258,10 @@ use snafu::*;
 use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
+
+#[cfg(feature = "default-client")]
 use http::header::USER_AGENT;
+
 use http::request::Builder;
 #[cfg(feature = "opentls")]
 use hyper_tls::HttpsConnector;
@@ -269,18 +275,27 @@ use tower::retry::{Retry, RetryLayer};
 #[cfg(feature = "timeout")]
 use hyper_timeout::TimeoutConnector;
 
-use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
+#[cfg(feature = "retry")]
+use tower_http::classify::ServerErrorsFailureClass;
+
+use tower_http::map_response_body::MapResponseBodyLayer;
 
 #[cfg(feature = "tracing")]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::api::codes_of_conduct;
 use crate::error::{
-    HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
-    UriParseError, UriParseSnafu, UriSnafu,
+    HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError,
+    UriParseSnafu, UriSnafu,
 };
 
+#[cfg(feature = "default-client")]
+use crate::error::HyperSnafu;
+
+#[cfg(feature = "default-client")]
 use crate::service::middleware::base_uri::BaseUriLayer;
+
+#[cfg(feature = "default-client")]
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 #[cfg(feature = "retry")]

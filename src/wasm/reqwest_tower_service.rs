@@ -25,6 +25,10 @@ where
     BodyError(Body::Error),
     #[error("HTTP error: {0}")]
     HttpError(#[from] http::Error),
+    #[error("Invalid URI parts: {0}")]
+    InvalidUriParts(#[from] http::uri::InvalidUriParts),
+    #[error("Channel canceled")]
+    ChannelCanceled(#[from] futures::channel::oneshot::Canceled),
 }
 
 impl<Body> tower::Service<http::Request<Body>> for ReqwestTowerService
@@ -103,8 +107,7 @@ where
     let status = reqwest_response.status();
     let bytes = reqwest_response.bytes().await?;
 
-    let mut response =
-        http::Response::new(BoxBody::new(http_body_util::Full::new(bytes)));
+    let mut response = http::Response::new(BoxBody::new(http_body_util::Full::new(bytes)));
 
     *response.status_mut() = status;
     *response.headers_mut() = headers;
