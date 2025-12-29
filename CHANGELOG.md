@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- WebAssembly (WASM) support via `wasm::wasm_builder()` ([#224](https://github.com/XAMPPRocky/octocrab/issues/224))
+  - New `wasm` module with `ReqwestTowerService` for WASM compatibility
+  - Support for using Octocrab in browser-based applications (Yew, Leptos, etc.)
+  - Example and documentation for WASM usage
+
 ## [0.49.4](https://github.com/XAMPPRocky/octocrab/compare/v0.49.3...v0.49.4) - 2025-12-25
 
 ### Added
