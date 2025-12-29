@@ -74,6 +74,11 @@ tower-http = { version = "0.6.1", features = ["map-response-body", "trace"] }
 tracing = { version = "0.1.37", features = ["log"], optional = true }
 url = { version = "2.2.2", features = ["serde"] }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4.54"
+reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
+thiserror = "2.0"
+
 [dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
     "macros",

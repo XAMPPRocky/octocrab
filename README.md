@@ -203,6 +203,46 @@ octocrab::initialise(octocrab::Octocrab::builder());
 let octocrab = octocrab::instance();
 ```
 
+## WebAssembly (WASM) Support
+
+Octocrab now supports WebAssembly targets, allowing you to use it in browser-based applications
+with frameworks like Yew, Leptos, or Dioxus. Due to WASM's single-threaded nature, a special
+builder is provided for WASM targets.
+
+### Usage in WASM
+
+When using Octocrab in a WASM environment:
+
+1. Add octocrab to your `Cargo.toml` with default features disabled:
+```toml
+[dependencies]
+octocrab = { version = "0.49", default-features = false }
+```
+
+2. Use the `wasm::wasm_builder()` function to create your instance:
+```rust
+#[cfg(target_arch = "wasm32")]
+async fn github_api_example() -> octocrab::Result<()> {
+    let mut octocrab = octocrab::wasm::wasm_builder()
+        .build()?;
+
+    // Add authentication if needed
+    octocrab = octocrab.user_access_token("your_token".to_string())?;
+
+    // Use octocrab normally
+    let repo = octocrab.repos("XAMPPRocky", "octocrab").get().await?;
+    Ok(())
+}
+```
+
+The WASM builder automatically configures:
+- A reqwest-based Tower service compatible with WASM
+- The GitHub API base URL
+- The `wasm-bindgen-futures` executor
+- Proper handling of non-Send futures in WASM
+
+See the [`wasm_example.rs`](examples/wasm_example.rs) for a complete example.
+
 ## GitHub Webhook Support
 
 `octocrab` provides [deserializable datatypes](https://docs.rs/octocrab/latest/octocrab/models/webhook_events/index.html)

@@ -222,6 +222,10 @@ pub mod models;
 pub mod params;
 pub mod service;
 
+#[cfg(target_arch = "wasm32")]
+#[cfg_attr(docsrs, doc(cfg(target_arch = "wasm32")))]
+pub mod wasm;
+
 use api::repos::RepoRef;
 use api::users::UserRef;
 use body::OctoBody;
