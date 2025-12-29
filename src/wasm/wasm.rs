@@ -25,8 +25,8 @@ use crate::{AuthState, LayerReady, NoConfig};
 /// # Ok(())
 /// # }
 /// ```
-pub fn wasm_builder(
-) -> crate::OctocrabBuilder<ReqwestTowerService, NoConfig, AuthState, LayerReady> {
+pub fn wasm_builder() -> crate::OctocrabBuilder<ReqwestTowerService, NoConfig, AuthState, LayerReady>
+{
     let reqwest_client = ReqwestTowerService {
         base_url: Some(("https".parse().unwrap(), "api.github.com".parse().unwrap())),
         client: reqwest::Client::new(),

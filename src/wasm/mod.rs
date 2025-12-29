@@ -32,5 +32,5 @@
 mod reqwest_tower_service;
 mod wasm;
 
-pub use reqwest_tower_service::{ReqwestTowerService, ReqwestTowerError};
+pub use reqwest_tower_service::{ReqwestTowerError, ReqwestTowerService};
 pub use wasm::wasm_builder;

@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use http::uri::{Authority, Scheme};
-use http_body_util::BodyExt;
 use http_body_util::combinators::BoxBody;
+use http_body_util::BodyExt;
 use std::task::Poll;
 
 /// A tower Service implementation that wraps reqwest for WASM compatibility.

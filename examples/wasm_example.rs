@@ -23,13 +23,10 @@ pub async fn example_usage() -> octocrab::Result<()> {
     // octocrab = octocrab.user_access_token("your_github_token".to_string())?;
 
     // Now you can use octocrab as you normally would!
-    
+
     // Example: Get information about a repository
-    let repo = octocrab
-        .repos("XAMPPRocky", "octocrab")
-        .get()
-        .await?;
-    
+    let repo = octocrab.repos("XAMPPRocky", "octocrab").get().await?;
+
     println!("Repository: {}", repo.name);
     println!("Stars: {}", repo.stargazers_count.unwrap_or(0));
     println!("Description: {}", repo.description.unwrap_or_default());
@@ -55,7 +52,7 @@ fn main() {
     // wasm_bindgen_futures::spawn_local(async {
     //     example_usage().await.expect("Failed to run example");
     // });
-    
+
     wasm_bindgen_futures::spawn_local(async {
         if let Err(e) = example_usage().await {
             eprintln!("Error: {}", e);
