@@ -1,7 +1,7 @@
 //! Authentication related types and functions.
 
-use crate::models::AppId;
 use crate::Result;
+use crate::{models::AppId, Octocrab};
 use either::Either;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
@@ -257,6 +257,93 @@ impl DeviceCodes {
                 },
             }
         }
+    }
+}
+
+/// See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app#using-the-web-application-flow-to-generate-a-user-access-token
+#[derive(serde::Serialize)]
+pub struct ExchangeWebFlowCodeBuilder<
+    'octo,
+    'client_id,
+    'code,
+    'client_secret,
+    'redirect_uri,
+    'code_verifier,
+    'repository_id,
+> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    /// The client ID for your GitHub App.
+    client_id: &'client_id str,
+    /// The code you received in the previous step.
+    code: &'code str,
+    /// The client secret for your GitHub App.
+    client_secret: &'client_secret str,
+    /// The URL in your application where users will be sent after authorization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    redirect_uri: Option<&'redirect_uri str>,
+    /// For the PKCE challenge.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    code_verifier: Option<&'code_verifier str>,
+    /// The ID of a single repository that the user access token can access.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repository_id: Option<&'repository_id str>,
+}
+
+impl<'octo, 'client_id, 'code, 'client_secret, 'redirect_uri, 'code_verifier, 'repository_id>
+    ExchangeWebFlowCodeBuilder<
+        'octo,
+        'client_id,
+        'code,
+        'client_secret,
+        'redirect_uri,
+        'code_verifier,
+        'repository_id,
+    >
+{
+    pub fn new(
+        crab: &'octo Octocrab,
+        client_id: &'client_id SecretString,
+        client_secret: &'client_secret SecretString,
+        code: &'code str,
+    ) -> Self {
+        Self {
+            crab,
+            client_id: client_id.expose_secret(),
+            code,
+            client_secret: client_secret.expose_secret(),
+            redirect_uri: None,
+            code_verifier: None,
+            repository_id: None,
+        }
+    }
+
+    /// Set the `redirect_uri` for exchange web flow code request to be created.
+    pub fn redirect_uri(mut self, redirect_uri: &'redirect_uri str) -> Self {
+        self.redirect_uri = Some(redirect_uri);
+        self
+    }
+
+    /// Set the `code_verifier` for exchange web flow code request to be created.
+    pub fn code_verifier(mut self, code_verifier: &'code_verifier str) -> Self {
+        self.code_verifier = Some(code_verifier);
+        self
+    }
+
+    /// Set the `repository_id` for exchange web flow code request to be created.
+    pub fn repository_id(mut self, repository_id: &'repository_id str) -> Self {
+        self.repository_id = Some(repository_id);
+        self
+    }
+
+    /// Sends the actual request.
+    /// Exchange a code for a user access token
+    ///
+    /// see: https://docs.github.com/en/developers/apps/identifying-and-authorizing-users-for-github-apps
+    ///
+    pub async fn send(self) -> crate::Result<OAuth> {
+        let route = "/login/oauth/access_token";
+        self.crab.post(route, Some(&self)).await
     }
 }
 
