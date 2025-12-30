@@ -19,7 +19,24 @@ request-headers = ["X-GitHub-Api-Version: 2022-11-28"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]
-all-features = true
+# Cannot use all-features because jwt-aws-lc-rs and jwt-rust-crypto are mutually exclusive.
+# This list should include all features EXCEPT jwt-aws-lc-rs.
+# When adding new features, remember to add them here too.
+features = [
+    "default-client",
+    "follow-redirect",
+    "jwt-rust-crypto",
+    # "jwt-aws-lc-rs",  # Excluded: conflicts with jwt-rust-crypto
+    "opentls",
+    "retry",
+    "rustls",
+    "rustls-aws-lc-rs",
+    "rustls-ring",
+    "rustls-webpki-tokio",
+    "stream",
+    "timeout",
+    "tracing",
+]
 rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
 
@@ -90,6 +107,7 @@ graphql_client = "0.14.0"
 [build-dependencies]
 cargo_metadata = "0.23.0"
 
+# NOTE: When adding new features, also add them to [package.metadata.docs.rs].features
 [features]
 default = [
     "follow-redirect",
