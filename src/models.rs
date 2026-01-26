@@ -545,6 +545,16 @@ pub struct SimpleUser {
     pub r#type: String,
     pub site_admin: bool,
     pub starred_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_view_type: Option<String>,
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ItemGitUser {
+    pub date: Option<String>,
+    pub email: Option<String>,
+    pub name: Option<String>,
 }
 
 /// A user that is following another user
