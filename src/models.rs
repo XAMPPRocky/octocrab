@@ -230,6 +230,8 @@ pub enum Event {
     ConvertedNoteToIssue,
     /// The issue was closed and converted to a discussion.
     ConvertedToDiscussion,
+    /// Copilot started working on this pull request. This is undocumented, but has been observed in the wild.
+    CopilotWorkStarted,
     /// The issue or pull request was referenced from another issue or pull request.
     #[serde(rename = "cross-referenced")]
     CrossReferenced,
