@@ -43,6 +43,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
     /// ```no_run
+    /// # use octocrab::models::repos::RepoVariables;
     /// # async fn run() -> octocrab::Result<RepoVariables> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// let variables = octocrab.repos("owner", "repo")
@@ -63,7 +64,8 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<RepositoryVariable> {
+    /// # use octocrab::models::repos::RepoVariable;
+    /// # async fn run() -> octocrab::Result<RepoVariable> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// let variable = octocrab.repos("owner", "repo")
     ///     .variables()
@@ -162,7 +164,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// let repo = octocrab.repos("owner", "repo")
     ///     .variables()
-    ///     .delete_variable("EMAIL")
+    ///     .delete("EMAIL")
     ///     .await?;
     ///
     /// # Ok(())
