@@ -10,7 +10,6 @@ use url::Url;
 pub mod dependabot;
 pub mod secret_scanning_alert;
 pub mod secrets;
-pub mod variables;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -66,6 +65,21 @@ pub struct RepoCommitPage {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification: Option<Verification>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RepoVariable {
+    pub name: String,
+    pub value: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoVariables {
+    pub total_count: i32,
+    pub variables: Vec<RepoVariable>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -4,7 +4,7 @@ mod mock_error;
 use chrono::DateTime;
 use mock_error::setup_error_handler;
 use octocrab::{
-    models::repos::variables::{RepositoryVariable, RepositoryVariables},
+    models::repos::{RepoVariable, RepoVariables},
     Octocrab,
 };
 use wiremock::{
@@ -105,7 +105,7 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 
 #[tokio::test]
 async fn should_return_repo_variables() {
-    let repo_variables: RepositoryVariables =
+    let repo_variables: RepoVariables =
         serde_json::from_str(include_str!("resources/repo_variables.json")).unwrap();
 
     let template = ResponseTemplate::new(200).set_body_json(&repo_variables);
@@ -128,7 +128,7 @@ async fn should_return_repo_variables() {
     assert_eq!(
         item.variables,
         vec![
-            RepositoryVariable {
+            RepoVariable {
                 name: String::from("USERNAME"),
                 value: String::from("octocat"),
                 created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
@@ -138,7 +138,7 @@ async fn should_return_repo_variables() {
                     .unwrap()
                     .into(),
             },
-            RepositoryVariable {
+            RepoVariable {
                 name: String::from("EMAIL"),
                 value: String::from("octocat@github.com"),
                 created_at: DateTime::parse_from_rfc3339("2020-01-10T10:59:22Z")
@@ -154,7 +154,7 @@ async fn should_return_repo_variables() {
 
 #[tokio::test]
 async fn should_return_repo_variable() {
-    let repo_variables: RepositoryVariable =
+    let repo_variables: RepoVariable =
         serde_json::from_str(include_str!("resources/repo_variable.json")).unwrap();
 
     let template = ResponseTemplate::new(200).set_body_json(&repo_variables);
@@ -174,7 +174,7 @@ async fn should_return_repo_variable() {
     let item = result.unwrap();
     assert_eq!(
         item,
-        RepositoryVariable {
+        RepoVariable {
             name: String::from("USERNAME"),
             value: String::from("octocat"),
             created_at: DateTime::parse_from_rfc3339("2021-08-10T14:59:22Z")

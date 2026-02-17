@@ -1,5 +1,7 @@
 use http::StatusCode;
 
+use crate::models::repos::RepoVariables;
+
 use super::RepoHandler;
 
 /// A client to GitHub's repository variables API.
@@ -41,21 +43,19 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
+    /// # async fn run() -> octocrab::Result<RepoVariables> {
     /// # let octocrab = octocrab::Octocrab::default();
-    ///
-    /// let all_variables = octocrab.repos("owner", "repo")
+    /// let variables = octocrab.repos("owner", "repo")
     ///     .variables()
     ///     .list()
     ///     .await?;
     ///
-    /// # Ok(())
+    /// # Ok(variables)
     /// # }
-    pub async fn list(
-        &self,
-    ) -> crate::Result<crate::models::repos::variables::RepositoryVariables> {
+    /// ```
+    pub async fn list(&self) -> crate::Result<RepoVariables> {
         let route = format!("/{}/actions/variables", self.handler.repo);
-        self.handler.crab.get(route, None::<&()>).await
+        self.handler.crab.get(route, Some(&self)).await
     }
 
     /// Gets a specific variable in a repository.
@@ -63,19 +63,19 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
+    /// # async fn run() -> octocrab::Result<RepositoryVariable> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// let variable = octocrab.repos("owner", "repo")
     ///     .variables()
     ///     .get("EMAIL")
     ///     .await?;
     ///
-    /// # Ok(())
+    /// # Ok(variable)
     /// # }
     pub async fn get(
         &self,
         variable_name: impl AsRef<str>,
-    ) -> crate::Result<crate::models::repos::variables::RepositoryVariable> {
+    ) -> crate::Result<crate::models::repos::RepoVariable> {
         let route = format!(
             "/{}/actions/variables/{variable_name}",
             self.handler.repo,
