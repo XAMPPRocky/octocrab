@@ -68,6 +68,21 @@ pub struct RepoCommitPage {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RepoVariable {
+    pub name: String,
+    pub value: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoVariables {
+    pub total_count: i32,
+    pub variables: Vec<RepoVariable>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Verification {
     pub verified: bool,

@@ -26,6 +26,7 @@ mod stargazers;
 mod status;
 mod tags;
 mod teams;
+mod variables;
 
 use crate::error::HttpSnafu;
 use crate::models::commits::GitCommitObject;
@@ -35,6 +36,7 @@ use crate::models::interaction_limits::{
 use crate::models::{repos, RepositoryId};
 use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
+use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
@@ -772,6 +774,10 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets on the repository
     pub fn secrets(&self) -> RepoSecretsHandler<'_> {
         RepoSecretsHandler::new(self)
+    }
+
+    pub fn variables(&self) -> RepoVariablesHandler<'_> {
+        RepoVariablesHandler::new(self)
     }
 
     /// Handle dependabot alerts on the repository
