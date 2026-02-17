@@ -4,10 +4,7 @@ mod mock_error;
 use chrono::DateTime;
 use mock_error::setup_error_handler;
 use octocrab::{
-    models::repos::variables::{
-        CreateRepositoryVariable, CreateRepositoryVariableResponse, RepositoryVariable,
-        RepositoryVariables,
-    },
+    models::repos::variables::{RepositoryVariable, RepositoryVariables},
     Octocrab,
 };
 use wiremock::{
@@ -38,10 +35,10 @@ async fn setup_get_api(template: ResponseTemplate, variables_path: &str) -> Mock
     mock_server
 }
 
-async fn setup_put_api(template: ResponseTemplate, variables_path: &str) -> MockServer {
+async fn setup_post_api(template: ResponseTemplate, variables_path: &str) -> MockServer {
     let mock_server = MockServer::start().await;
 
-    Mock::given(method("PUT"))
+    Mock::given(method("POST"))
         .and(path(format!(
             "/repos/{OWNER}/{REPO}/actions/variables{variables_path}"
         )))
@@ -51,7 +48,31 @@ async fn setup_put_api(template: ResponseTemplate, variables_path: &str) -> Mock
 
     setup_error_handler(
         &mock_server,
-        &format!("PUT on /repos/{OWNER}/{REPO}/actions/variables{variables_path} was not received"),
+        &format!(
+            "POST on /repos/{OWNER}/{REPO}/actions/variables{variables_path} was not received"
+        ),
+    )
+    .await;
+
+    mock_server
+}
+
+async fn setup_patch_api(template: ResponseTemplate, variables_path: &str) -> MockServer {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("PATCH"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/actions/variables{variables_path}"
+        )))
+        .respond_with(template)
+        .mount(&mock_server)
+        .await;
+
+    setup_error_handler(
+        &mock_server,
+        &format!(
+            "PATCH on /repos/{OWNER}/{REPO}/actions/variables{variables_path} was not received"
+        ),
     )
     .await;
 
@@ -169,14 +190,11 @@ async fn should_return_repo_variable() {
 #[tokio::test]
 async fn should_add_variable() {
     let template = ResponseTemplate::new(201);
-    let mock_server = setup_put_api(template, "/USERNAME").await;
+    let mock_server = setup_post_api(template, "/USERNAME").await;
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .create_or_update(&CreateRepositoryVariable {
-            name: "USERNAME",
-            value: "octocat",
-        })
+        .create("USERNAME", "octocat")
         .await;
 
     assert!(
@@ -184,22 +202,16 @@ async fn should_add_variable() {
         "expected successful result, got error: {:#?}",
         result
     );
-
-    let item = result.unwrap();
-    assert_eq!(item, CreateRepositoryVariableResponse::Created);
 }
 
 #[tokio::test]
 async fn should_update_variable_204() {
     let template = ResponseTemplate::new(204);
-    let mock_server = setup_put_api(template, "/USERNAME").await;
+    let mock_server = setup_patch_api(template, "/USERNAME").await;
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .create_or_update(&CreateRepositoryVariable {
-            name: "USERNAME",
-            value: "octocat",
-        })
+        .update("USERNAME", "octocat")
         .await;
 
     assert!(
@@ -207,9 +219,6 @@ async fn should_update_variable_204() {
         "expected successful result, got error: {:#?}",
         result
     );
-
-    let item = result.unwrap();
-    assert_eq!(item, CreateRepositoryVariableResponse::Updated);
 }
 
 #[tokio::test]

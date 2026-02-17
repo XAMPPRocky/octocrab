@@ -1,7 +1,6 @@
 use http::StatusCode;
 
 use super::RepoHandler;
-use crate::models::repos::variables::{CreateRepositoryVariable, CreateRepositoryVariableResponse};
 
 /// A client to GitHub's repository variables API.
 ///
@@ -85,51 +84,67 @@ impl<'octo> RepoVariablesHandler<'octo> {
         self.handler.crab.get(route, None::<&()>).await
     }
 
-    /// Creates or updates a repository variable that you can reference in a GitHub Actions workflow.
+    /// Creates a repository variable that you can reference in a GitHub Actions workflow.
     /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
     /// OAuth tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let octocrab = octocrab::Octocrab::default();
-    /// use octocrab::models::repos::variables::{CreateRepositoryVariable, CreateRepositoryVariableResponse};
-    ///
-    /// let result = octocrab.repos("owner", "repo")
+    /// octocrab.repos("owner", "repo")
     ///     .variables()
-    ///     .create_or_update(&CreateRepositoryVariable{
-    ///         name: "GH_TOKEN",
-    ///         value: "octocat@github.com",
-    ///     })
+    ///     .create("EMAIL", "octocat@github.com")
     ///     .await?;
-    ///
-    /// match result {
-    ///    CreateRepositoryVariableResponse::Created => println!("Created variable!"),
-    ///    CreateRepositoryVariableResponse::Updated => println!("Updated variable!"),
-    /// }
     ///
     /// # Ok(())
     /// # }
-    pub async fn create_or_update(
-        &self,
-        variable: &CreateRepositoryVariable<'_>,
-    ) -> crate::Result<CreateRepositoryVariableResponse> {
+    pub async fn create(&self, variable_name: &str, variable_value: &str) -> crate::Result<()> {
+        let route = format!("/{}/actions/variables/{variable_name}", self.handler.repo,);
+        let variable = serde_json::json!({ "name": variable_name, "value": variable_value });
+
+        let resp = self.handler.crab._post(route, Some(&variable)).await?;
+
+        let resp = crate::map_github_error(resp).await?;
+        match resp.status() {
+            StatusCode::CREATED => Ok(()),
+            status_code => Err(crate::Error::Other {
+                source: format!(
+                    "Unexpected status code from create request: {}",
+                    status_code.as_str()
+                )
+                .into(),
+                backtrace: snafu::Backtrace::capture(),
+            }),
+        }
+    }
+
+    /// Updates a repository variable that you can reference in a GitHub Actions workflow.
+    /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
+    /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.repos("owner", "repo")
+    ///     .variables()
+    ///     .update("EMAIL", "octocat@github.com")
+    ///     .await?;
+    ///
+    /// # Ok(())
+    /// # }
+    pub async fn update(&self, variable_name: &str, variable_value: &str) -> crate::Result<()> {
         let route = format!(
             "/{}/actions/variables/{variable_name}",
             self.handler.repo,
-            variable_name = variable.name
+            variable_name = variable_name
         );
-
-        let resp = {
-            let resp = self.handler.crab._put(route, Some(variable)).await?;
-            crate::map_github_error(resp).await?
-        };
-
+        let body = serde_json::json!({ "value": variable_value });
+        let resp = self.handler.crab._patch(route, Some(&body)).await?;
+        let resp = crate::map_github_error(resp).await?;
         match resp.status() {
-            StatusCode::CREATED => Ok(CreateRepositoryVariableResponse::Created),
-            StatusCode::NO_CONTENT => Ok(CreateRepositoryVariableResponse::Updated),
+            StatusCode::NO_CONTENT => Ok(()),
             status_code => Err(crate::Error::Other {
                 source: format!(
-                    "Unexpected status code from request: {}",
+                    "Unexpected status code from update request: {}",
                     status_code.as_str()
                 )
                 .into(),
