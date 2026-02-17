@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.6](https://github.com/XAMPPRocky/octocrab/compare/v0.49.5...v0.49.6) - 2026-02-17
+
+### Added
+
+- repository variables handler ([#857](https://github.com/XAMPPRocky/octocrab/pull/857))
+
+### Other
+
+- Add Event::CopilotWorkStarted ([#854](https://github.com/XAMPPRocky/octocrab/pull/854))
+- actualized `Commit` for GET `/search/commits` ([#851](https://github.com/XAMPPRocky/octocrab/pull/851))
+
 ## [0.49.5](https://github.com/XAMPPRocky/octocrab/compare/v0.49.4...v0.49.5) - 2025-12-30
 
 ### Fixed
