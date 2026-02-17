@@ -10,6 +10,7 @@ use url::Url;
 pub mod dependabot;
 pub mod secret_scanning_alert;
 pub mod secrets;
+pub mod variables;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
