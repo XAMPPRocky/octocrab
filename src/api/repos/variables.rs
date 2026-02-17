@@ -6,13 +6,35 @@ use crate::models::repos::variables::{CreateRepositoryVariable, CreateRepository
 /// A client to GitHub's repository variables API.
 ///
 /// Created with [`RepoHandler`].
+#[derive(serde::Serialize)]
 pub struct RepoVariablesHandler<'octo> {
+    #[serde(skip)]
     handler: &'octo RepoHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
 }
 
 impl<'octo> RepoVariablesHandler<'octo> {
     pub(crate) fn new(repo: &'octo RepoHandler<'octo>) -> Self {
-        Self { handler: repo }
+        Self {
+            handler: repo,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
     }
 
     /// Lists all repository variables.
@@ -25,12 +47,12 @@ impl<'octo> RepoVariablesHandler<'octo> {
     ///
     /// let all_variables = octocrab.repos("owner", "repo")
     ///     .variables()
-    ///     .get_variables()
+    ///     .list()
     ///     .await?;
     ///
     /// # Ok(())
     /// # }
-    pub async fn get_variables(
+    pub async fn list(
         &self,
     ) -> crate::Result<crate::models::repos::variables::RepositoryVariables> {
         let route = format!("/{}/actions/variables", self.handler.repo);
@@ -46,12 +68,12 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// # let octocrab = octocrab::Octocrab::default();
     /// let variable = octocrab.repos("owner", "repo")
     ///     .variables()
-    ///     .get_variable("EMAIL")
+    ///     .get("EMAIL")
     ///     .await?;
     ///
     /// # Ok(())
     /// # }
-    pub async fn get_variable(
+    pub async fn get(
         &self,
         variable_name: impl AsRef<str>,
     ) -> crate::Result<crate::models::repos::variables::RepositoryVariable> {
@@ -74,7 +96,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     ///
     /// let result = octocrab.repos("owner", "repo")
     ///     .variables()
-    ///     .create_or_update_variable(&CreateRepositoryVariable{
+    ///     .create_or_update(&CreateRepositoryVariable{
     ///         name: "GH_TOKEN",
     ///         value: "octocat@github.com",
     ///     })
@@ -87,7 +109,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     ///
     /// # Ok(())
     /// # }
-    pub async fn create_or_update_variable(
+    pub async fn create_or_update(
         &self,
         variable: &CreateRepositoryVariable<'_>,
     ) -> crate::Result<CreateRepositoryVariableResponse> {
@@ -130,7 +152,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     ///
     /// # Ok(())
     /// # }
-    pub async fn delete_variable(&self, variable_name: impl AsRef<str>) -> crate::Result<()> {
+    pub async fn delete(&self, variable_name: impl AsRef<str>) -> crate::Result<()> {
         let route = format!(
             "/{}/actions/variables/{variable_name}",
             self.handler.repo,

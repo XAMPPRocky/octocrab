@@ -92,7 +92,7 @@ async fn should_return_repo_variables() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .get_variables()
+        .list()
         .await;
 
     assert!(
@@ -141,7 +141,7 @@ async fn should_return_repo_variable() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .get_variable("USERNAME")
+        .get("USERNAME")
         .await;
 
     assert!(
@@ -173,7 +173,7 @@ async fn should_add_variable() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .create_or_update_variable(&CreateRepositoryVariable {
+        .create_or_update(&CreateRepositoryVariable {
             name: "USERNAME",
             value: "octocat",
         })
@@ -196,7 +196,7 @@ async fn should_update_variable_204() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .create_or_update_variable(&CreateRepositoryVariable {
+        .create_or_update(&CreateRepositoryVariable {
             name: "USERNAME",
             value: "octocat",
         })
@@ -219,7 +219,7 @@ async fn should_delete_variable() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .delete_variable("USERNAME")
+        .delete("USERNAME")
         .await;
 
     assert!(
@@ -236,7 +236,7 @@ async fn should_noop_variable_500() {
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
-        .delete_variable("GH_TOKEN")
+        .delete("GH_TOKEN")
         .await;
 
     assert!(
