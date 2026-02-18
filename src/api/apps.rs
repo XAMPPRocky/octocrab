@@ -107,4 +107,14 @@ impl<'octo> AppsRequestHandler<'octo> {
 
         self.crab.get(&route, None::<&()>).await
     }
+
+    /// Get a GitHub App by its slug.
+    pub async fn get_app(
+        &self,
+        app_slug: impl AsRef<str>,
+    ) -> crate::Result<crate::models::apps::App> {
+        let route = format!("/apps/{app_slug}", app_slug = app_slug.as_ref());
+
+        self.crab.get(&route, None::<&()>).await
+    }
 }
