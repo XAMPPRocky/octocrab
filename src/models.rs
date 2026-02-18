@@ -266,6 +266,8 @@ pub enum Event {
     Milestoned,
     /// The issue or pull request was moved between columns in a project board.
     MovedColumnsInProject,
+    /// The issue or pull request was marked as sub issue of another issue. This is not documented in the Github issue events documentation, but has been observed in the wild.
+    ParentIssueAdded,
     /// The issue was pinned.
     Pinned,
     /// Not documented in the Github issue events documentation.
