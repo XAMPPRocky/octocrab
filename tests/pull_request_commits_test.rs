@@ -3,12 +3,11 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::repos::RepoCommit;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 
 /// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
-mod mock_error;
+mod test_common;
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
@@ -30,10 +29,6 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
