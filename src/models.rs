@@ -232,6 +232,8 @@ pub enum Event {
     ConvertedToDiscussion,
     /// Copilot started working on this pull request. This is undocumented, but has been observed in the wild.
     CopilotWorkStarted,
+    /// Copilot finished working on this pull request. This is undocumented, but has been observed in the wild.
+    CopilotWorkFinished,
     /// The issue or pull request was referenced from another issue or pull request.
     #[serde(rename = "cross-referenced")]
     CrossReferenced,
