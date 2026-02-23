@@ -304,8 +304,10 @@ pub enum Event {
     ReviewRequestRemoved,
     /// The pull request was reviewed.
     Reviewed,
-    /// In this issue or pull request, 
+    /// Some issue or pull request was added as a sub issue of this issue. This is not documented in the Github issue events documentation, but has been observed in the wild.
     SubIssueAdded,
+    /// Some issue or pull request was removed as a sub issue of this issue. This is not documented in the Github issue events documentation, but has been observed in the wild.
+    SubIssueRemoved,
     /// Someone subscribed to receive notifications for an issue or pull request.
     Subscribed,
     /// The issue was transferred to another repository.
