@@ -213,6 +213,8 @@ pub enum Event {
     BaseRefDeleted,
     /// Not documented in the Github issue events documentation.
     BaseRefForcePushed,
+    /// The issue or pull request was blocked by another issue or pull request. This is not documented in the Github issue events documentation, but has been observed in the wild.
+    BlockingAdded,
     /// The issue or pull request was closed. When the commit_id is present, it identifies the commit that closed the issue using "closes / fixes" syntax.
     Closed,
     /// A comment was added to the issue or pull request.
@@ -270,12 +272,16 @@ pub enum Event {
     MovedColumnsInProject,
     /// The issue or pull request was marked as sub issue of another issue. This is not documented in the Github issue events documentation, but has been observed in the wild.
     ParentIssueAdded,
+    /// The issue or pull request was removed as a sub issue of another issue. This is not documented in the Github issue events documentation, but has been observed in the wild.
+    ParentIssueRemoved,
     /// The issue was pinned.
     Pinned,
     /// Not documented in the Github issue events documentation.
     ProjectV2ItemStatusChanged,
     /// Not documented in the Github issue events documentation.
     IssueTypeAdded,
+    /// Not documented in the Github issue events documentation.
+    IssueTypeRemoved,
     /// A draft pull request was marked as ready for review.
     ReadyForReview,
     /// The issue was referenced from a commit message. The commit_id attribute is the commit SHA1 of where that happened and the commit_repository is where that commit was pushed.
@@ -298,6 +304,8 @@ pub enum Event {
     ReviewRequestRemoved,
     /// The pull request was reviewed.
     Reviewed,
+    /// In this issue or pull request, 
+    SubIssueAdded,
     /// Someone subscribed to receive notifications for an issue or pull request.
     Subscribed,
     /// The issue was transferred to another repository.
