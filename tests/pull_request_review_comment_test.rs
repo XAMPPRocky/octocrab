@@ -1,22 +1,18 @@
+use test_common::setup_octocrab;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 use octocrab::models::pulls::Comment;
 use octocrab::models::CommentId;
-use octocrab::Octocrab;
 
-use crate::mock_error::setup_error_handler;
+use crate::test_common::setup_error_handler;
 
 /// Unit test for calls to the `/repos/{owner}/{repo}/pulls/comments/{comment_id}` endpoint
-mod mock_error;
+mod test_common;
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
 const COMMENT_ID: u64 = 42;
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
-}
 
 #[tokio::test]
 async fn should_work_with_review_comment() {

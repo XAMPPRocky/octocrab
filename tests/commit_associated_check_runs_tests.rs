@@ -1,12 +1,12 @@
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
+mod test_common;
 
-use mock_error::setup_error_handler;
 use octocrab::models::checks::ListCheckRuns;
 use octocrab::models::CheckRunId;
 use octocrab::params::repos::Reference;
-use octocrab::{Error, Octocrab};
+use octocrab::Error;
 use serde_json::{json, Value};
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -28,10 +28,6 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]

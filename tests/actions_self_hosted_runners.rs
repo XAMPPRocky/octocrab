@@ -1,10 +1,9 @@
 // Tests for calls to the actions self-hosted runners API:
 // - /repos/{owner}/{repo}/actions/runners
 // - /orgs/{org}/actions/runners
-mod mock_error;
+mod test_common;
 
 use http::StatusCode;
-use mock_error::setup_error_handler;
 use octocrab::{
     models::{
         actions::{SelfHostedRunner, SelfHostedRunnerJitConfig, SelfHostedRunnerToken},
@@ -14,6 +13,7 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use test_common::setup_error_handler;
 use wiremock::{
     matchers::{body_json, method, path},
     Mock, MockServer, ResponseTemplate,

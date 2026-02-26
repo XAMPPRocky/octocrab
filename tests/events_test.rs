@@ -1,13 +1,12 @@
 // Tests for calls to the /repos/{owner}/{repo}/events API.
-mod mock_error;
+mod test_common;
 
-use mock_error::setup_error_handler;
 use octocrab::{
     etag::{EntityTag, Etagged},
     models::events,
-    Octocrab,
 };
 use serde::{Deserialize, Serialize};
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -27,10 +26,6 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
         .await;
     setup_error_handler(&mock_server, "GET on /events was not received").await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]

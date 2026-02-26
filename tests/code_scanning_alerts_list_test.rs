@@ -3,11 +3,10 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::code_scannings::CodeScanningAlert;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 
-mod mock_error;
+mod test_common;
 
 const OWNER: &str = "org";
 const REPO: &str = "some-repo";
@@ -39,10 +38,6 @@ async fn setup_codescanning_list_api(template: ResponseTemplate, is_org: bool) -
         .await;
     }
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
