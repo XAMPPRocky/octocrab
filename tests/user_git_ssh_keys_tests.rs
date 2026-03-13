@@ -4,12 +4,11 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::GitSshKey;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
+mod test_common;
 
 const GIT_SSH_KEY_ID: u64 = 42;
 
@@ -31,10 +30,6 @@ async fn setup_git_ssh_keys_mock(
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]
