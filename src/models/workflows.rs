@@ -120,6 +120,7 @@ pub enum Status {
     InProgress,
     Completed,
     Failed,
+    Waiting,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
