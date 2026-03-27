@@ -190,7 +190,7 @@ async fn should_return_repo_variable() {
 #[tokio::test]
 async fn should_add_variable() {
     let template = ResponseTemplate::new(201);
-    let mock_server = setup_post_api(template, "/USERNAME").await;
+    let mock_server = setup_post_api(template, "").await;
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
