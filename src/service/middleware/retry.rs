@@ -50,7 +50,12 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
         match self {
             RetryConfig::None => None,
             _ => {
-                let body = req.body().try_clone()?;
+                // This returns none if the body is empty. Just return an empty body
+                // instead so that we retry GET requests.
+                let body = match req.body().try_clone() {
+                    Some(b) => b,
+                    None => OctoBody::empty()
+                };
 
                 // `Request` can't be cloned
                 let mut new_req = Request::builder()
