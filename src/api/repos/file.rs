@@ -32,11 +32,51 @@ impl<'octo, 'r> GetContentBuilder<'octo, 'r> {
         self
     }
 
+    /// Get the file content raw.
+    pub fn raw(self) -> GetRawContentBuilder<'octo, 'r> {
+        GetRawContentBuilder {
+            content_builder: self,
+        }
+    }
+
     /// Sends the actual request.
     pub async fn send(self) -> Result<models::repos::ContentItems> {
         let path = self.path.clone().unwrap_or(String::from(""));
         let route = format!("/{}/contents/{path}", self.handler.repo, path = path,);
         self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+pub struct GetRawContentBuilder<'octo, 'r> {
+    content_builder: GetContentBuilder<'octo, 'r>,
+}
+
+impl<'octo, 'r> GetRawContentBuilder<'octo, 'r> {
+    /// The content path.
+    pub fn path(mut self, path: impl Into<String>) -> Self {
+        self.content_builder = self.content_builder.path(path);
+        self
+    }
+
+    /// The name of the commit/branch/tag.
+    /// Default: the repository’s default branch (usually `master)
+    pub fn r#ref(mut self, r#ref: impl Into<String>) -> Self {
+        self.content_builder = self.content_builder.r#ref(r#ref);
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
+        let handler = self.content_builder.handler;
+
+        let path = self.content_builder.path.clone().unwrap_or(String::from(""));
+        let route = format!("/{}/contents/{path}", handler.repo, path = path,);
+        let uri = handler.crab.parameterized_uri(route, Some(&self.content_builder))?;
+
+        let mut headers = http::header::HeaderMap::with_capacity(1);
+        headers.insert(ACCEPT, "application/vnd.github.v3.raw".parse().unwrap());
+
+        crate::map_github_error(handler.crab._get_with_headers(uri, Some(headers)).await?).await
     }
 }
 
