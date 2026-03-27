@@ -39,18 +39,14 @@ async fn setup_post_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!(
-            "/repos/{OWNER}/{REPO}/actions/variables"
-        )))
+        .and(path(format!("/repos/{OWNER}/{REPO}/actions/variables")))
         .respond_with(template)
         .mount(&mock_server)
         .await;
 
     setup_error_handler(
         &mock_server,
-        &format!(
-            "POST on /repos/{OWNER}/{REPO}/actions/variables was not received"
-        ),
+        &format!("POST on /repos/{OWNER}/{REPO}/actions/variables was not received"),
     )
     .await;
 
