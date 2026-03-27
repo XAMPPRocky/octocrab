@@ -69,9 +69,15 @@ impl<'octo, 'r> GetRawContentBuilder<'octo, 'r> {
     pub async fn send(self) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let handler = self.content_builder.handler;
 
-        let path = self.content_builder.path.clone().unwrap_or(String::from(""));
+        let path = self
+            .content_builder
+            .path
+            .clone()
+            .unwrap_or(String::from(""));
         let route = format!("/{}/contents/{path}", handler.repo, path = path,);
-        let uri = handler.crab.parameterized_uri(route, Some(&self.content_builder))?;
+        let uri = handler
+            .crab
+            .parameterized_uri(route, Some(&self.content_builder))?;
 
         let mut headers = http::header::HeaderMap::with_capacity(1);
         headers.insert(ACCEPT, "application/vnd.github.v3.raw".parse().unwrap());
