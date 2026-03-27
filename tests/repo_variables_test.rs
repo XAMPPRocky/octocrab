@@ -35,12 +35,12 @@ async fn setup_get_api(template: ResponseTemplate, variables_path: &str) -> Mock
     mock_server
 }
 
-async fn setup_post_api(template: ResponseTemplate, variables_path: &str) -> MockServer {
+async fn setup_post_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
         .and(path(format!(
-            "/repos/{OWNER}/{REPO}/actions/variables{variables_path}"
+            "/repos/{OWNER}/{REPO}/actions/variables"
         )))
         .respond_with(template)
         .mount(&mock_server)
@@ -49,7 +49,7 @@ async fn setup_post_api(template: ResponseTemplate, variables_path: &str) -> Moc
     setup_error_handler(
         &mock_server,
         &format!(
-            "POST on /repos/{OWNER}/{REPO}/actions/variables{variables_path} was not received"
+            "POST on /repos/{OWNER}/{REPO}/actions/variables was not received"
         ),
     )
     .await;
@@ -190,7 +190,7 @@ async fn should_return_repo_variable() {
 #[tokio::test]
 async fn should_add_variable() {
     let template = ResponseTemplate::new(201);
-    let mock_server = setup_post_api(template, "").await;
+    let mock_server = setup_post_api(template).await;
     let result = setup_octocrab(&mock_server.uri())
         .repos(OWNER.to_owned(), REPO.to_owned())
         .variables()
