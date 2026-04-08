@@ -1,9 +1,9 @@
 /// Tests generating release notes:
 /// /repos/{owner}/{repo}/releases/generate-notes
-mod mock_error;
-use mock_error::setup_error_handler;
+mod test_common;
+
 use octocrab::models::repos::ReleaseNotes;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -25,10 +25,6 @@ async fn setup_api(template: ResponseTemplate) -> MockServer {
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 #[tokio::test]

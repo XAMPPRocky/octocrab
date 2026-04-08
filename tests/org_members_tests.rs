@@ -1,9 +1,9 @@
 // Tests for calls to the /repos/{owner}/members API.
-mod mock_error;
+mod test_common;
 
-use mock_error::setup_error_handler;
-use octocrab::{models::Author, Octocrab, Page};
+use octocrab::{models::Author, Page};
 use serde::{Deserialize, Serialize};
+use test_common::{setup_error_handler, setup_octocrab};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -48,10 +48,6 @@ async fn setup_check_membership_api(template: ResponseTemplate) -> MockServer {
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 const ORG: &str = "org";

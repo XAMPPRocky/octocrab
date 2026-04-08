@@ -3,12 +3,11 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
 use octocrab::models::code_scannings::CodeScanningAlert;
 use octocrab::params::AlertState;
-use octocrab::Octocrab;
+use test_common::{setup_error_handler, setup_octocrab};
 
-mod mock_error;
+mod test_common;
 
 async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServer {
     let owner: &str = "org";
@@ -31,10 +30,6 @@ async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServe
     )
     .await;
     mock_server
-}
-
-fn setup_octocrab(uri: &str) -> Octocrab {
-    Octocrab::builder().base_uri(uri).unwrap().build().unwrap()
 }
 
 const OWNER: &str = "org";
