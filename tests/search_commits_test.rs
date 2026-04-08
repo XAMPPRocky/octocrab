@@ -8,7 +8,7 @@ use wiremock::{
 
 use mock_error::setup_error_handler;
 use octocrab::{
-    models::{self, commits::Commit, SimpleUser},
+    models::{self, SimpleUser},
     Octocrab,
 };
 
@@ -45,7 +45,7 @@ pub struct FakePage<T> {
 
 #[tokio::test]
 async fn should_respond_to_search_commits() {
-    let mocked_response: FakePage<Commit> =
+    let mocked_response: FakePage<models::search::CommitSearchResultItem> =
         serde_json::from_str(include_str!("resources/search_commits.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
     let mock_server = setup_mock_http_server("GET", "/search/commits", template).await;
