@@ -29,6 +29,7 @@ pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
+pub mod search;
 pub mod teams;
 pub mod timelines;
 pub mod webhook_events;

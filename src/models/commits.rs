@@ -140,23 +140,6 @@ pub struct Commit {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct SearchResultTextMatch {
-    pub fragment: Option<String>,
-    pub matches: Option<Vec<Match>>,
-    pub object_type: Option<String>,
-    pub object_url: Option<String>,
-    pub property: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct Match {
-    pub indices: Option<Vec<i64>>,
-    pub text: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum GithubCommitStatus {
