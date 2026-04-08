@@ -1267,3 +1267,82 @@ pub struct SshSigningKey {
     pub title: String,
     pub created_at: DateTime<Utc>,
 }
+
+mod maybe_empty {
+    use serde::{Deserialize, Deserializer};
+
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Empty {}
+
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum MaybeEmpty<T> {
+        Empty(Empty),
+        Something(T),
+    }
+
+    impl<T> From<MaybeEmpty<T>> for Option<T> {
+        fn from(value: MaybeEmpty<T>) -> Self {
+            match value {
+                MaybeEmpty::Something(t) => Some(t),
+                _ => None,
+            }
+        }
+    }
+
+    pub fn deserialize<'de, D, T>(d: D) -> Result<Option<T>, D::Error>
+    where
+        T: Deserialize<'de>,
+        D: Deserializer<'de>,
+    {
+        Ok(Option::<MaybeEmpty<T>>::deserialize(d)?.and_then(Into::into))
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        use serde_json::json;
+
+        #[derive(Deserialize, Debug)]
+        struct Struct {
+            #[serde(deserialize_with = "deserialize")]
+            value: Option<u32>,
+        }
+
+        #[test]
+        fn deserialize_null_to_none() {
+            let actual: Struct = serde_json::from_value(json! {
+                {
+                    "value": null,
+                }
+            })
+            .unwrap();
+
+            assert!(actual.value.is_none());
+        }
+
+        #[test]
+        fn deserialize_empty_to_none() {
+            let actual: Struct = serde_json::from_value(json! {
+                {
+                    "value": {},
+                }
+            })
+            .unwrap();
+
+            assert!(actual.value.is_none());
+        }
+
+        #[test]
+        fn deserialize_invalid() {
+            serde_json::from_value::<Struct>(json! {
+                {
+                    "value": "hello world",
+                }
+            })
+            .unwrap_err();
+        }
+    }
+}
