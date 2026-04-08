@@ -1,0 +1,177 @@
+{
+  "url": "https://api.github.com/repos/XAMPPRocky/octocrab/compare/ad64898819efb83f3e2920cb3c1affccb6ff24cb...main",
+  "html_url": "https://github.com/XAMPPRocky/octocrab/compare/ad64898819efb83f3e2920cb3c1affccb6ff24cb...main",
+  "permalink_url": "https://github.com/XAMPPRocky/octocrab/compare/XAMPPRocky:ad64898...XAMPPRocky:3fee114",
+  "diff_url": "https://github.com/XAMPPRocky/octocrab/compare/ad64898819efb83f3e2920cb3c1affccb6ff24cb...main.diff",
+  "patch_url": "https://github.com/XAMPPRocky/octocrab/compare/ad64898819efb83f3e2920cb3c1affccb6ff24cb...main.patch",
+  "base_commit": {
+    "sha": "ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "node_id": "C_kwDOD4Ga3toAKGFkNjQ4OTg4MTllZmI4M2YzZTI5MjBjYjNjMWFmZmNjYjZmZjI0Y2I",
+    "commit": {
+      "author": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-03-30T08:23:03Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2026-03-30T08:23:03Z"
+      },
+      "message": "chore: release v0.49.7 (#863)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+      "tree": {
+        "sha": "1c31c0f2152a91f442c3d9c97cb6a8183752dcf0",
+        "url": "https://api.github.com/repos/XAMPPRocky/octocrab/git/trees/1c31c0f2152a91f442c3d9c97cb6a8183752dcf0"
+      },
+      "url": "https://api.github.com/repos/XAMPPRocky/octocrab/git/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJpyjLnCRC1aQ7uu5UhlAAAR/kQAHSbUE0rvniDIJUQwN6D1Lli\n9+waBz2nfxKjOxG9qRVO+GFnsz9m+ivqBk6mUWrwco2O+x7GpoIVdennRrfPK7cZ\n0hUUt2pYHOxXtbyhcttTpR7fQMHu6NuNOVhYIARr31kM3jJd187T6Ltaot9odn5m\n3Uff8DI9MfF7uGUXg/3y93W8yzbmKF38MLvkWsKi/bWiDlBW7IcRceknS5U3loqZ\nYvNKOGP19tYUF/VyiT6LHB8ZOHtsvXKeLnKq1lMGww3nHItXxmbZAMO0i1CPShgC\nkBinwF8pMDmUISM0/R6u44sXk4xWk55oyJOAFv7oQ3ySoi4SFHWuhm8QqydUBiQv\nIWiXIxvFctswCdJSE4WlsqNHGF+1vhTV7gw/eTukJCTNsqiamfLNSnQiAY98sivs\ntNMUUVSSvtYtuLztspuY92V8t/kvz8FUWuHW47t0Ww96Yh/xj9SzylFKDPEmc0LK\nPcFTPQnWRxn9bjq3ZN+g1F2DNkt9LLLIjb2K8Nt/+td237llqC1p6JifNfCIK9sG\n8j20fiIYT2dT8OLvG38kjMHpqMpRGoLWRmVSeQKvQXwSwPpitJHlKkoN6dD8rkgY\nzcEpX9aNcXDPkAWbTbkA1ZzUHhPsSyMTt/chftraCQGad2J7b0VJcMo45PULrUCE\nzlAHgn3JdwdEdDBqiiu0\n=f/lZ\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 1c31c0f2152a91f442c3d9c97cb6a8183752dcf0\nparent 127c44ad99d0aebdb971e3e00c99365df773437f\nauthor github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> 1774858983 +0200\ncommitter GitHub <noreply@github.com> 1774858983 +0200\n\nchore: release v0.49.7 (#863)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+        "verified_at": "2026-03-30T08:23:04Z"
+      }
+    },
+    "url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "html_url": "https://github.com/XAMPPRocky/octocrab/commit/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "comments_url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb/comments",
+    "author": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "127c44ad99d0aebdb971e3e00c99365df773437f",
+        "url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/127c44ad99d0aebdb971e3e00c99365df773437f",
+        "html_url": "https://github.com/XAMPPRocky/octocrab/commit/127c44ad99d0aebdb971e3e00c99365df773437f"
+      }
+    ]
+  },
+  "merge_base_commit": {
+    "sha": "ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "node_id": "C_kwDOD4Ga3toAKGFkNjQ4OTg4MTllZmI4M2YzZTI5MjBjYjNjMWFmZmNjYjZmZjI0Y2I",
+    "commit": {
+      "author": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-03-30T08:23:03Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2026-03-30T08:23:03Z"
+      },
+      "message": "chore: release v0.49.7 (#863)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+      "tree": {
+        "sha": "1c31c0f2152a91f442c3d9c97cb6a8183752dcf0",
+        "url": "https://api.github.com/repos/XAMPPRocky/octocrab/git/trees/1c31c0f2152a91f442c3d9c97cb6a8183752dcf0"
+      },
+      "url": "https://api.github.com/repos/XAMPPRocky/octocrab/git/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJpyjLnCRC1aQ7uu5UhlAAAR/kQAHSbUE0rvniDIJUQwN6D1Lli\n9+waBz2nfxKjOxG9qRVO+GFnsz9m+ivqBk6mUWrwco2O+x7GpoIVdennRrfPK7cZ\n0hUUt2pYHOxXtbyhcttTpR7fQMHu6NuNOVhYIARr31kM3jJd187T6Ltaot9odn5m\n3Uff8DI9MfF7uGUXg/3y93W8yzbmKF38MLvkWsKi/bWiDlBW7IcRceknS5U3loqZ\nYvNKOGP19tYUF/VyiT6LHB8ZOHtsvXKeLnKq1lMGww3nHItXxmbZAMO0i1CPShgC\nkBinwF8pMDmUISM0/R6u44sXk4xWk55oyJOAFv7oQ3ySoi4SFHWuhm8QqydUBiQv\nIWiXIxvFctswCdJSE4WlsqNHGF+1vhTV7gw/eTukJCTNsqiamfLNSnQiAY98sivs\ntNMUUVSSvtYtuLztspuY92V8t/kvz8FUWuHW47t0Ww96Yh/xj9SzylFKDPEmc0LK\nPcFTPQnWRxn9bjq3ZN+g1F2DNkt9LLLIjb2K8Nt/+td237llqC1p6JifNfCIK9sG\n8j20fiIYT2dT8OLvG38kjMHpqMpRGoLWRmVSeQKvQXwSwPpitJHlKkoN6dD8rkgY\nzcEpX9aNcXDPkAWbTbkA1ZzUHhPsSyMTt/chftraCQGad2J7b0VJcMo45PULrUCE\nzlAHgn3JdwdEdDBqiiu0\n=f/lZ\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 1c31c0f2152a91f442c3d9c97cb6a8183752dcf0\nparent 127c44ad99d0aebdb971e3e00c99365df773437f\nauthor github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> 1774858983 +0200\ncommitter GitHub <noreply@github.com> 1774858983 +0200\n\nchore: release v0.49.7 (#863)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+        "verified_at": "2026-03-30T08:23:04Z"
+      }
+    },
+    "url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "html_url": "https://github.com/XAMPPRocky/octocrab/commit/ad64898819efb83f3e2920cb3c1affccb6ff24cb",
+    "comments_url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/ad64898819efb83f3e2920cb3c1affccb6ff24cb/comments",
+    "author": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "127c44ad99d0aebdb971e3e00c99365df773437f",
+        "url": "https://api.github.com/repos/XAMPPRocky/octocrab/commits/127c44ad99d0aebdb971e3e00c99365df773437f",
+        "html_url": "https://github.com/XAMPPRocky/octocrab/commit/127c44ad99d0aebdb971e3e00c99365df773437f"
+      }
+    ]
+  },
+  "status": "ahead",
+  "ahead_by": 1,
+  "behind_by": 0,
+  "total_commits": 1,
+  "commits": [],
+  "files": []
+}

@@ -29,6 +29,7 @@ pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
+pub mod search;
 pub mod teams;
 pub mod timelines;
 pub mod webhook_events;
@@ -565,9 +566,10 @@ pub struct SimpleUser {
     pub user_view_type: Option<String>,
 }
 
+/// Metaproperties for Git author/committer information.
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct ItemGitUser {
+pub struct GitUser {
     pub date: Option<String>,
     pub email: Option<String>,
     pub name: Option<String>,
@@ -910,6 +912,177 @@ pub struct Repository {
     pub parent: Option<Box<Repository>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<Box<Repository>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct MinimalRepository {
+    pub allow_forking: Option<bool>,
+    pub archive_url: Url,
+    pub archived: Option<bool>,
+    pub assignees_url: String,
+    pub blobs_url: Url,
+    pub branches_url: String,
+    pub clone_url: Option<String>,
+    /// Code Of Conduct
+    pub code_of_conduct: Option<codes_of_conduct::CodeOfConduct>,
+    pub collaborators_url: String,
+    pub comments_url: Url,
+    pub commits_url: Url,
+    pub compare_url: Url,
+    pub contents_url: Url,
+    pub contributors_url: Url,
+    pub created_at: Option<String>,
+    /// The custom properties that were defined for the repository. The keys are the custom
+    /// property names, and the values are the corresponding custom property values.
+    pub custom_properties: Option<HashMap<String, Option<serde_json::Value>>>,
+    pub default_branch: Option<String>,
+    pub delete_branch_on_merge: Option<bool>,
+    pub deployments_url: String,
+    pub description: Option<String>,
+    pub disabled: Option<bool>,
+    pub downloads_url: Url,
+    pub events_url: Url,
+    pub fork: bool,
+    pub forks: Option<i64>,
+    pub forks_count: Option<i64>,
+    pub forks_url: Url,
+    pub full_name: String,
+    pub git_commits_url: Url,
+    pub git_refs_url: Url,
+    pub git_tags_url: Url,
+    pub git_url: Option<String>,
+    pub has_discussions: Option<bool>,
+    pub has_downloads: Option<bool>,
+    pub has_issues: Option<bool>,
+    pub has_pages: Option<bool>,
+    pub has_projects: Option<bool>,
+    pub has_wiki: Option<bool>,
+    pub homepage: Option<String>,
+    pub hooks_url: Url,
+    pub html_url: Url,
+    pub id: i64,
+    pub is_template: Option<bool>,
+    pub issue_comment_url: Url,
+    pub issue_events_url: Url,
+    pub issues_url: Url,
+    pub keys_url: Url,
+    pub labels_url: Url,
+    pub language: Option<String>,
+    pub languages_url: Url,
+    pub license: Option<License>,
+    pub merges_url: Url,
+    pub milestones_url: Url,
+    pub mirror_url: Option<String>,
+    pub name: String,
+    pub network_count: Option<i64>,
+    pub node_id: String,
+    pub notifications_url: Url,
+    pub open_issues: Option<i64>,
+    pub open_issues_count: Option<i64>,
+    /// A GitHub user.
+    pub owner: SimpleUser,
+    pub permissions: Option<Permissions>,
+    pub private: bool,
+    pub pulls_url: Url,
+    pub pushed_at: Option<String>,
+    pub releases_url: Url,
+    pub role_name: Option<String>,
+    pub security_and_analysis: Option<SecurityAndAnalysis>,
+    /// The size of the repository, in kilobytes. Size is calculated hourly. When a repository is
+    /// initially created, the size is 0.
+    pub size: Option<i64>,
+    pub ssh_url: Option<String>,
+    pub stargazers_count: Option<i64>,
+    pub stargazers_url: Url,
+    pub statuses_url: Url,
+    pub subscribers_count: Option<i64>,
+    pub subscribers_url: Url,
+    pub subscription_url: Url,
+    pub svn_url: Option<String>,
+    pub tags_url: Url,
+    pub teams_url: Url,
+    pub temp_clone_token: Option<String>,
+    pub topics: Option<Vec<String>>,
+    pub trees_url: Url,
+    pub updated_at: Option<String>,
+    pub url: Url,
+    pub visibility: Option<String>,
+    pub watchers: Option<i64>,
+    pub watchers_count: Option<i64>,
+    pub web_commit_signoff_required: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SecurityAndAnalysis {
+    /// Enable or disable GitHub Advanced Security for the repository.
+    ///
+    /// For standalone Code Scanning or Secret Protection products, this parameter cannot be used.
+    pub advanced_security: Option<AdvancedSecurity>,
+    pub code_security: Option<CodeSecurity>,
+    /// Enable or disable Dependabot security updates for the repository.
+    pub dependabot_security_updates: Option<DependabotSecurityUpdates>,
+    pub secret_scanning: Option<SecretScanning>,
+    pub secret_scanning_ai_detection: Option<SecretScanningAiDetection>,
+    pub secret_scanning_non_provider_patterns: Option<SecretScanningNonProviderPatterns>,
+    pub secret_scanning_push_protection: Option<SecretScanningPushProtection>,
+}
+
+/// Enable or disable GitHub Advanced Security for the repository.
+///
+/// For standalone Code Scanning or Secret Protection products, this parameter cannot be used.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AdvancedSecurity {
+    pub status: Option<AdvSecStatus>,
+}
+
+/// The enablement status of Dependabot security updates for the repository.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+#[serde(rename_all = "snake_case")]
+pub enum AdvSecStatus {
+    Disabled,
+    Enabled,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CodeSecurity {
+    pub status: Option<AdvSecStatus>,
+}
+
+/// Enable or disable Dependabot security updates for the repository.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DependabotSecurityUpdates {
+    /// The enablement status of Dependabot security updates for the repository.
+    pub status: Option<AdvSecStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SecretScanning {
+    pub status: Option<AdvSecStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SecretScanningAiDetection {
+    pub status: Option<AdvSecStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SecretScanningNonProviderPatterns {
+    pub status: Option<AdvSecStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SecretScanningPushProtection {
+    pub status: Option<AdvSecStatus>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -1266,4 +1439,83 @@ pub struct SshSigningKey {
     pub id: u64,
     pub title: String,
     pub created_at: DateTime<Utc>,
+}
+
+mod maybe_empty {
+    use serde::{Deserialize, Deserializer};
+
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Empty {}
+
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum MaybeEmpty<T> {
+        Empty(Empty),
+        Something(T),
+    }
+
+    impl<T> From<MaybeEmpty<T>> for Option<T> {
+        fn from(value: MaybeEmpty<T>) -> Self {
+            match value {
+                MaybeEmpty::Something(t) => Some(t),
+                _ => None,
+            }
+        }
+    }
+
+    pub fn deserialize<'de, D, T>(d: D) -> Result<Option<T>, D::Error>
+    where
+        T: Deserialize<'de>,
+        D: Deserializer<'de>,
+    {
+        Ok(Option::<MaybeEmpty<T>>::deserialize(d)?.and_then(Into::into))
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        use serde_json::json;
+
+        #[derive(Deserialize, Debug)]
+        struct Struct {
+            #[serde(deserialize_with = "deserialize")]
+            value: Option<u32>,
+        }
+
+        #[test]
+        fn deserialize_null_to_none() {
+            let actual: Struct = serde_json::from_value(json! {
+                {
+                    "value": null,
+                }
+            })
+            .unwrap();
+
+            assert!(actual.value.is_none());
+        }
+
+        #[test]
+        fn deserialize_empty_to_none() {
+            let actual: Struct = serde_json::from_value(json! {
+                {
+                    "value": {},
+                }
+            })
+            .unwrap();
+
+            assert!(actual.value.is_none());
+        }
+
+        #[test]
+        fn deserialize_invalid() {
+            serde_json::from_value::<Struct>(json! {
+                {
+                    "value": "hello world",
+                }
+            })
+            .unwrap_err();
+        }
+    }
 }
