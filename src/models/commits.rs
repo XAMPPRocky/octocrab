@@ -1,4 +1,4 @@
-use crate::models::{self, codes_of_conduct::CodeOfConduct};
+use crate::models::{self};
 
 use super::{reactions::ReactionContent, *};
 
@@ -112,22 +112,24 @@ pub struct CommitStats {
 }
 
 /// Commit
+///
+/// OpenAPI reference: #/components/schemas/commit
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Commit {
-    pub author: Option<SimpleUser>,
+    pub url: Url,
+    pub sha: String,
+    pub node_id: String,
+    pub html_url: Url,
     pub comments_url: Url,
     pub commit: CommitElement,
-    pub committer: Option<ItemGitUser>,
-    pub html_url: Url,
-    pub node_id: String,
+    #[serde(deserialize_with = "maybe_empty::deserialize")]
+    pub author: Option<SimpleUser>,
+    #[serde(deserialize_with = "maybe_empty::deserialize")]
+    pub committer: Option<SimpleUser>,
     pub parents: Vec<CommitParent>,
-    /// Minimal Repository
-    pub repository: MinimalRepository,
-    pub score: f64,
-    pub sha: String,
-    pub text_matches: Option<Vec<SearchResultTextMatch>>,
-    pub url: Url,
+    pub stats: Option<CommitStats>,
+    pub files: Option<Vec<repos::DiffEntry>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
