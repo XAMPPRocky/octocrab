@@ -566,9 +566,10 @@ pub struct SimpleUser {
     pub user_view_type: Option<String>,
 }
 
+/// Metaproperties for Git author/committer information.
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct ItemGitUser {
+pub struct GitUser {
     pub date: Option<String>,
     pub email: Option<String>,
     pub name: Option<String>,

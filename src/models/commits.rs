@@ -72,15 +72,6 @@ pub struct CommitElement {
     pub verification: Option<Verification>,
 }
 
-/// Metaproperties for Git author/committer information.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct GitUser {
-    pub date: Option<String>,
-    pub email: Option<String>,
-    pub name: Option<String>,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Tree {
