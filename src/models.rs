@@ -281,6 +281,8 @@ pub enum Event {
     /// Not documented in the Github issue events documentation.
     ProjectV2ItemStatusChanged,
     /// Not documented in the Github issue events documentation.
+    IssueCommentPinned,
+    /// Not documented in the Github issue events documentation.
     IssueTypeAdded,
     /// Not documented in the Github issue events documentation.
     IssueTypeRemoved,
