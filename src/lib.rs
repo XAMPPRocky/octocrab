@@ -224,7 +224,7 @@ pub mod service;
 
 use api::repos::RepoRef;
 use api::users::UserRef;
-use body::OctoBody;
+pub use body::OctoBody;
 use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;

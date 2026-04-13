@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.7](https://github.com/XAMPPRocky/octocrab/compare/v0.49.6...v0.49.7) - 2026-03-29
+
+### Added
+
+- add missing `waiting` status to Status enum ([#862](https://github.com/XAMPPRocky/octocrab/pull/862))
+
+### Fixed
+
+- *(repos)* create a repo variable doesn't take the name in the path ([#865](https://github.com/XAMPPRocky/octocrab/pull/865))
+
+### Other
+
+- Extend get_content to allow requesting raw_files ([#866](https://github.com/XAMPPRocky/octocrab/pull/866))
+- [retry/rate-limits] Add rate limit handling into the retry config ([#869](https://github.com/XAMPPRocky/octocrab/pull/869))
+- Allow retry policy to run on GET requests ([#867](https://github.com/XAMPPRocky/octocrab/pull/867))
+
+## [0.49.6](https://github.com/XAMPPRocky/octocrab/compare/v0.49.5...v0.49.6) - 2026-03-23
+
+### Added
+
+- *(activity/starring)* add list_repos_starred_by_user ([#861](https://github.com/XAMPPRocky/octocrab/pull/861))
+- added undocumented events ([#858](https://github.com/XAMPPRocky/octocrab/pull/858))
+- repository variables handler ([#857](https://github.com/XAMPPRocky/octocrab/pull/857))
+
+### Other
+
+- Remove Lines Of Code badge from README
+- Add Event::CopilotWorkStarted ([#854](https://github.com/XAMPPRocky/octocrab/pull/854))
+- actualized `Commit` for GET `/search/commits` ([#851](https://github.com/XAMPPRocky/octocrab/pull/851))
+
 ## [0.49.5](https://github.com/XAMPPRocky/octocrab/compare/v0.49.4...v0.49.5) - 2025-12-30
 
 ### Fixed

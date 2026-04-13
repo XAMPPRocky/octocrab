@@ -101,7 +101,7 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// # Ok(())
     /// # }
     pub async fn create(&self, variable_name: &str, variable_value: &str) -> crate::Result<()> {
-        let route = format!("/{}/actions/variables/{variable_name}", self.handler.repo,);
+        let route = format!("/{}/actions/variables", self.handler.repo);
         let variable = serde_json::json!({ "name": variable_name, "value": variable_value });
 
         let resp = self.handler.crab._post(route, Some(&variable)).await?;
