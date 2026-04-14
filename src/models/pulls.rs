@@ -7,7 +7,7 @@ pub struct PullRequest {
     pub url: String,
     pub id: PullRequestId,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub node_id: Option<String>,
+    pub node_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub html_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
