@@ -91,6 +91,7 @@
         "updated_at": "2023-02-12T04:06:09Z",
         "closed_at": null,
         "merged_at": null,
+        "merged": true,
         "merge_commit_sha": "8f282a44bc854809ce4c55cd0c8c554044b2e12a",
         "assignee": null,
         "assignees": [
