@@ -107,6 +107,7 @@
             "updated_at": "2021-01-20T13:55:24Z",
             "closed_at": null,
             "merged_at": null,
+            "merged": false,
             "merge_commit_sha": "3446e82ce99331e1f71fa0472e3877b5f6519258",
             "assignee": {
                 "login": "wayofthepie",
