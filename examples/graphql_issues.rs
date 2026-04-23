@@ -4,6 +4,7 @@
 //! curl -L https://docs.github.com/public/fpt/schema.docs.graphql -o examples/github_schema.graphql
 //! ```
 use graphql_client::GraphQLQuery;
+use octocrab::GraphqlResponse;
 
 #[allow(clippy::upper_case_acronyms)]
 type URI = String;
@@ -37,26 +38,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             break;
         }
 
-        let response: octocrab::Result<graphql_client::Response<issues_query::ResponseData>> =
-            octocrab
-                .graphql(&IssuesQuery::build_query(variables.clone()))
-                .await;
+        let response: octocrab::Result<GraphqlResponse<issues_query::ResponseData>> = octocrab
+            .graphql(&IssuesQuery::build_query(variables.clone()))
+            .await;
 
         match response {
-            Ok(response) => {
+            Ok(GraphqlResponse::Ok(response)) => {
                 println!("Page {page}:");
-                let issues = &response
-                    .data
-                    .as_ref()
-                    .unwrap()
-                    .repository
-                    .as_ref()
-                    .unwrap()
-                    .issues;
+                let issues = &response.data.repository.as_ref().unwrap().issues;
                 print_issues(issues);
                 if !update_page_info(&mut variables, issues) {
                     break;
                 }
+            }
+            Ok(GraphqlResponse::Err(response)) => {
+                println!("{response:#?}");
+                break;
             }
             Err(error) => {
                 println!("{error:#?}");

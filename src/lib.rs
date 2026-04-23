@@ -232,13 +232,13 @@ use http_body_util::BodyExt;
 use service::middleware::auth_header::AuthHeaderLayer;
 use service::middleware::cache::{CacheStorage, HttpCacheLayer};
 use std::convert::{Infallible, TryInto};
-use std::fmt;
 use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+use std::{fmt, usize};
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
@@ -1422,19 +1422,82 @@ impl Octocrab {
     /// from JSON.
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
-    /// let response: serde_json::Value = octocrab::instance()
+    /// let response: octocrab::GraphqlResponse<serde_json::Value> = octocrab::instance()
     ///     .graphql(&serde_json::json!({ "query": "{ viewer { login }}" }))
     ///     .await?;
     ///# Ok(())
     ///# }
     /// ```
-    pub async fn graphql<R: crate::FromResponse>(
+    pub async fn graphql<R: serde::de::DeserializeOwned>(
         &self,
         payload: &(impl serde::Serialize + ?Sized),
     ) -> crate::Result<R> {
-        self.post("/graphql", Some(&serde_json::json!(payload)))
-            .await
+        let response: GraphqlResponse<R> = self
+            .post("/graphql", Some(&serde_json::json!(payload)))
+            .await?;
+
+        match response {
+            GraphqlResponse::Ok(res) => Ok(res.data),
+            GraphqlResponse::Err(errors) => Err(error::Error::Graphql {
+                source: errors.errors.into(),
+                backtrace: Backtrace::capture(),
+            }),
+        }
     }
+}
+
+/// GraphQL Response.
+/// GraphQL can return a response with `data` or `errors`, or both in the case of a partial success.
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum GraphqlResponse<T> {
+    /// A response containing errors.
+    Err(GraphqlErrorResponse<T>),
+    /// A response representing a complete success with no errors.
+    Ok(GraphqlOkResponse<T>),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GraphqlOkResponse<T> {
+    pub data: T,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GraphqlErrorResponse<T> {
+    /// GraphQL returns `data` even in the case of a partial success.
+    pub data: Option<T>,
+    /// A list of errors encountered during the request.
+    pub errors: Vec<GraphqlError>,
+}
+
+/// An individual GraphQL error.
+/// Following the [GraphQL October 2021 Spec](https://spec.graphql.org/October2021/#sec-Errors).
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GraphqlError {
+    /// A description of the error intended for the developer as a guide to understand and correct the error.
+    pub message: String,
+    /// A particular point of reference in the GraphQL query where the error occurred.
+    /// This may be `None` if the error cannot be associated with a particular point
+    pub locations: Option<Vec<GraphqlErrorLocation>>,
+    /// The path to the specific field that caused the error.
+    /// This may be `None` if the error is not associated with a specific field
+    pub path: Option<Vec<GraphqlPathSegment>>,
+    /// Additional error metadata provided by the server.
+    pub extensions: Option<serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GraphqlErrorLocation {
+    pub line: u32,
+    pub column: u32,
+}
+
+/// A path can consist of field names (Strings) and list indices (usize).
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum GraphqlPathSegment {
+    Path(String),
+    Position(usize),
 }
 
 /// # HTTP Methods

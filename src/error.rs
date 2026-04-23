@@ -7,6 +7,8 @@ use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
 use tower::BoxError;
 
+use crate::GraphqlError;
+
 //This is workaround until I figure out how to get TryInto errors to work
 #[derive(Debug)]
 pub struct UriParseError;
@@ -94,6 +96,11 @@ pub enum Error {
         source: jsonwebtoken::errors::Error,
         backtrace: Backtrace,
     },
+    #[snafu(display("GraphQL Error: {}\nFound at {}", source, backtrace))]
+    Graphql {
+        source: GraphqlErrors,
+        backtrace: Backtrace,
+    },
     Other {
         source: Box<dyn std::error::Error + Send + Sync>,
         backtrace: Backtrace,
@@ -130,3 +137,35 @@ impl fmt::Display for GitHubError {
 }
 
 impl std::error::Error for GitHubError {}
+
+#[derive(Debug)]
+pub struct GraphqlErrors(pub Vec<GraphqlError>);
+
+impl From<Vec<GraphqlError>> for GraphqlErrors {
+    fn from(errors: Vec<GraphqlError>) -> Self {
+        Self(errors)
+    }
+}
+
+impl fmt::Display for GraphqlErrors {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} GraphQL Error", self.0.len())?;
+        for (i, error) in self.0.iter().enumerate() {
+            write!(f, "\n{}: {}", i + 1, error.message)?;
+
+            if let Some(path) = &error.path {
+                write!(f, " (path: {:?})", path)?;
+            }
+
+            if let Some(locs) = &error.locations {
+                for loc in locs {
+                    write!(f, "\n at line {}, column {}", loc.line, loc.column)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl std::error::Error for GraphqlErrors {}
