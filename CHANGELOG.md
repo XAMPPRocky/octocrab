@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.8](https://github.com/XAMPPRocky/octocrab/compare/v0.49.7...v0.49.8) - 2026-04-24
+
+### Added
+
+- add structured GraphQL response and error ([#874](https://github.com/XAMPPRocky/octocrab/pull/874))
+
+### Fixed
+
+- Expose OctoBody ([#870](https://github.com/XAMPPRocky/octocrab/pull/870))
+
 ## [0.49.7](https://github.com/XAMPPRocky/octocrab/compare/v0.49.6...v0.49.7) - 2026-03-29
 
 ### Added
