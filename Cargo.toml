@@ -121,7 +121,7 @@ default = [
 ]
 
 follow-redirect = ["tower-http/follow-redirect"]
-retry = ["tower/retry", "futures-util"]
+retry = ["tower/retry", "futures-util", "tokio"]
 rustls = ["hyper-rustls"]
 rustls-ring = ["hyper-rustls/ring"]
 rustls-aws-lc-rs = ["hyper-rustls/aws-lc-rs"]
