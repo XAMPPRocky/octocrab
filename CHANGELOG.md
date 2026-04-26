@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.9](https://github.com/XAMPPRocky/octocrab/compare/v0.49.8...v0.49.9) - 2026-04-26
+
+### Other
+
+- Add 'tokio' dependency to retry configuration ([#875](https://github.com/XAMPPRocky/octocrab/pull/875))
+
 ## [0.49.8](https://github.com/XAMPPRocky/octocrab/compare/v0.49.7...v0.49.8) - 2026-04-24
 
 ### Added
