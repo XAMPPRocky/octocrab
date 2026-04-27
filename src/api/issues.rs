@@ -439,7 +439,11 @@ impl IssueHandler<'_> {
         color: impl AsRef<str>,
         description: impl AsRef<str>,
     ) -> Result<models::Label> {
-        let route = format!("/{}/labels/{}", self.repo, utf8_percent_encode(existing_name.as_ref(), NON_ALPHANUMERIC));
+        let route = format!(
+            "/{}/labels/{}",
+            self.repo,
+            utf8_percent_encode(existing_name.as_ref(), NON_ALPHANUMERIC)
+        );
 
         self.crab
             .patch(
@@ -480,7 +484,11 @@ impl IssueHandler<'_> {
     /// # }
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<()> {
-        let route = format!("/{}/labels/{name}", self.repo, name = utf8_percent_encode(name.as_ref(), NON_ALPHANUMERIC));
+        let route = format!(
+            "/{}/labels/{name}",
+            self.repo,
+            name = utf8_percent_encode(name.as_ref(), NON_ALPHANUMERIC)
+        );
 
         self.crab._delete(route, None::<&()>).await?;
         Ok(())
