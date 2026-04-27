@@ -658,7 +658,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
     /// # use http::Response;
-    ///  async fn run() -> octocrab::Result<()> {
+    ///  async fn run() -> octocrab::Result<octocrab::models::Repository> {
     /// octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .generate("rust")
