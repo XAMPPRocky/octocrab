@@ -79,7 +79,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
             pull_number = self.pr_number,
             review_id = self.review_id
         );
-        self.handler.crab.patch(route, Some(&body.into())).await
+        self.handler.crab.put(route, Some(&body.into())).await
     }
 
     ///Deletes a pull request review that has not been submitted. Submitted reviews cannot be deleted.
