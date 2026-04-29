@@ -478,6 +478,27 @@ impl<'octo> PullRequestHandler<'octo> {
             .await
     }
 
+    // /repos/{owner}/{repo}/pulls/{pull_number}/comments
+    /// Creates a comment of a pull request specified in the first argument
+    pub async fn create_comment(
+        &self,
+        pull_nr: u64,
+        comment: impl Into<String>,
+        commit_id: impl Into<String>,
+        path: impl Into<String>,
+        line: u64,
+    ) -> crate::Result<ReviewComment> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pull_number}/comments",
+            owner = self.owner,
+            repo = self.repo,
+            pull_number = pull_nr,
+        );
+        self.crab
+            .post(route, Some(&json!({ "body": comment.into(), "path": path.into(), "line": line, "commit_id": commit_id.into() })))
+            .await
+    }
+
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
     /// merge a pull request.
     /// ```no_run
