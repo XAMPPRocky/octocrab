@@ -284,6 +284,8 @@ pub enum Event {
     /// Not documented in the Github issue events documentation.
     IssueCommentPinned,
     /// Not documented in the Github issue events documentation.
+    IssueFieldAdded,
+    /// Not documented in the Github issue events documentation.
     IssueTypeAdded,
     /// Not documented in the Github issue events documentation.
     IssueTypeRemoved,
