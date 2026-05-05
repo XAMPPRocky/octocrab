@@ -2,7 +2,6 @@
 
 use crate::Result;
 use crate::{models::AppId, Octocrab};
-use either::Either;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
@@ -211,21 +210,16 @@ impl DeviceCodes {
         &self,
         crab: &crate::Octocrab,
         client_id: &SecretString,
-    ) -> Result<Either<OAuth, Continue>> {
-        let poll: TokenResponse = crab
-            .post(
-                "/login/oauth/access_token",
-                Some(&PollForDevice {
-                    client_id: client_id.expose_secret(),
-                    device_code: &self.device_code,
-                    grant_type: "urn:ietf:params:oauth:grant-type:device_code",
-                }),
-            )
-            .await?;
-        Ok(match poll {
-            TokenResponse::Ok(k) => Either::Left(k),
-            TokenResponse::Continue { error } => Either::Right(error),
-        })
+    ) -> Result<TokenResponse> {
+        crab.post(
+            "/login/oauth/access_token",
+            Some(&PollForDevice {
+                client_id: client_id.expose_secret(),
+                device_code: &self.device_code,
+                grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+            }),
+        )
+        .await
     }
 
     /// Poll Github in a loop until authentication codes become available.
@@ -241,8 +235,8 @@ impl DeviceCodes {
         loop {
             clock.tick().await;
             match self.poll_once(crab, client_id).await? {
-                Either::Left(auth) => return Ok(auth),
-                Either::Right(cont) => match cont {
+                TokenResponse::Ok(auth) => return Ok(auth),
+                TokenResponse::Continue { error } => match error {
                     Continue::SlowDown => {
                         // We were requested to slow down, so add five seconds to the polling
                         // duration.
@@ -356,7 +350,7 @@ struct DeviceFlow<'a> {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum TokenResponse {
+pub enum TokenResponse {
     // We got the auth information.
     Ok(OAuth),
     // We got an error that allows us to continue polling.
