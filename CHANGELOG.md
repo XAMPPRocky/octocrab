@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.50.0](https://github.com/XAMPPRocky/octocrab/compare/v0.49.9...v0.50.0) - 2026-05-05
+
+### Added
+
+- add create_comment to PullRequestHandler ([#880](https://github.com/XAMPPRocky/octocrab/pull/880))
+- Add support for exchanging oauth code for access token ([#780](https://github.com/XAMPPRocky/octocrab/pull/780))
+- add get_app ([#757](https://github.com/XAMPPRocky/octocrab/pull/757))
+- Add ability to update an existing label ([#786](https://github.com/XAMPPRocky/octocrab/pull/786))
+- Added converted_from_draft to Event ([#859](https://github.com/XAMPPRocky/octocrab/pull/859))
+
+### Fixed
+
+- Use PUT not PATCH for pull request reviews ([#879](https://github.com/XAMPPRocky/octocrab/pull/879))
+- cargo fmt, cargo test, Set MSRV to 1.85.0 ([#878](https://github.com/XAMPPRocky/octocrab/pull/878))
+- deser generate repo as respository ([#812](https://github.com/XAMPPRocky/octocrab/pull/812))
+- use new search model on search function
+- revert commit back to correct structure
+
+### Other
+
+- [**breaking**] remove the either dependency ([#883](https://github.com/XAMPPRocky/octocrab/pull/883))
+- added issue_field_added to Event enum ([#882](https://github.com/XAMPPRocky/octocrab/pull/882))
+- update MSRV to 1.95.0
+- don't include unconditional backtrace in Display impl ([#824](https://github.com/XAMPPRocky/octocrab/pull/824))
+- add a simple test for compare commits
+- remove duplicated GitUser
+- create search models submodule
+- move repository model from commits module
+- move maybe_empty to models module
+- remove Option<> for some fields of PullRequest ([#873](https://github.com/XAMPPRocky/octocrab/pull/873))
+
 ## [0.49.9](https://github.com/XAMPPRocky/octocrab/compare/v0.49.8...v0.49.9) - 2026-04-26
 
 ### Other
