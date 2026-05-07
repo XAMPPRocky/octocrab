@@ -1,5 +1,5 @@
 pub mod middleware;
 
-#[cfg(all(target_arch = "wasm32", feature = "wasm-client"))]
-#[cfg_attr(docsrs, doc(cfg(all(target_arch = "wasm32", feature = "wasm-client"))))]
+#[cfg(target_arch = "wasm32")]
+#[cfg_attr(docsrs, doc(cfg(target_arch = "wasm32")))]
 pub mod wasm;

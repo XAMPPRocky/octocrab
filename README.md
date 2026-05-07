@@ -19,13 +19,11 @@ cargo add octocrab
 ```
 
 ### WebAssembly
-For `wasm32-unknown-unknown` browser targets, disable the default client and
-enable the `wasm-client` feature:
+For `wasm32-unknown-unknown` browser targets, disable the default client:
 
 ```toml
 octocrab = { version = "0.50", default-features = false, features = [
     "jwt-rust-crypto",
-    "wasm-client",
 ] }
 ```
 
