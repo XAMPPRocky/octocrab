@@ -332,9 +332,9 @@ compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"j
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-#[cfg(feature = "default-client")]
+#[allow(dead_code)]
 const GITHUB_BASE_URI: &str = "https://api.github.com";
-#[cfg(feature = "default-client")]
+#[allow(dead_code)]
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 // This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
@@ -1207,9 +1207,11 @@ impl Octocrab {
     {
         OctocrabBuilder::new_empty().with_config(DefaultOctocrabBuilderConfig::default())
     }
+}
 
+#[cfg(not(target_arch = "wasm32"))]
+impl Octocrab {
     /// Creates a new `Octocrab`.
-    #[cfg(not(target_arch = "wasm32"))]
     fn new<S>(service: S, auth_state: AuthState) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1226,25 +1228,7 @@ impl Octocrab {
         }
     }
 
-    #[cfg(target_arch = "wasm32")]
-    fn new<S>(service: S, auth_state: AuthState) -> Self
-    where
-        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>> + 'static,
-        S::Future: 'static,
-        S::Error: Into<BoxError>,
-    {
-        let service = Rc::new(RefCell::new(UnsyncBoxService::new(
-            service.map_err(Into::into),
-        )));
-
-        Self {
-            client: service,
-            auth_state,
-        }
-    }
-
     /// Creates a new `Octocrab` with a custom executor
-    #[cfg(not(target_arch = "wasm32"))]
     fn new_with_executor<S>(service: S, auth_state: AuthState, executor: Executor) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1264,9 +1248,28 @@ impl Octocrab {
             auth_state,
         }
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl Octocrab {
+    /// Creates a new `Octocrab`.
+    fn new<S>(service: S, auth_state: AuthState) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>> + 'static,
+        S::Future: 'static,
+        S::Error: Into<BoxError>,
+    {
+        let service = Rc::new(RefCell::new(UnsyncBoxService::new(
+            service.map_err(Into::into),
+        )));
+
+        Self {
+            client: service,
+            auth_state,
+        }
+    }
 
     /// Creates a new `Octocrab` with a custom executor.
-    #[cfg(target_arch = "wasm32")]
     fn new_with_executor<S>(service: S, auth_state: AuthState, _executor: Executor) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>> + 'static,
@@ -1275,7 +1278,9 @@ impl Octocrab {
     {
         Self::new(service, auth_state)
     }
+}
 
+impl Octocrab {
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via a specific installation ID.
     /// Typically you will first construct an `Octocrab` using
