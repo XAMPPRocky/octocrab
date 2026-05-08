@@ -414,7 +414,7 @@ pub mod pulls {
         }
     }
 
-    #[derive(Debug, Copy, Clone, PartialEq, serde::Serialize)]
+    #[derive(Debug, Copy, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
     #[serde(rename_all = "snake_case")]
     #[non_exhaustive]
     pub enum MergeMethod {

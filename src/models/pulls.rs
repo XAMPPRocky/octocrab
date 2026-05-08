@@ -76,6 +76,85 @@ pub struct PullRequest {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct AutoMerge {
+    pub enabled_by: SimpleUser,
+    pub merge_method: crate::params::pulls::MergeMethod,
+    pub commit_title: String,
+    pub commit_message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SimplePullRequest {
+    pub url: String,
+    pub id: PullRequestId,
+    pub node_id: String,
+    pub html_url: Url,
+    pub diff_url: Url,
+    pub patch_url: Url,
+    pub issue_url: Url,
+    pub commits_url: Url,
+    pub review_comments_url: Url,
+    pub review_comment_url: Url,
+    pub comments_url: Url,
+    pub statuses_url: Url,
+    /// The pull request number.  Note that GitHub's REST API
+    /// considers every pull-request an issue with the same number.
+    pub number: u64,
+    pub state: IssueState,
+    #[serde(default)]
+    pub locked: bool,
+    // #[serde(default)]
+    // pub maintainer_can_modify: bool,
+    pub title: String,
+    pub user: Box<SimpleUser>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body: Option<String>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub body_text: Option<String>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub body_html: Option<String>,
+    pub labels: Vec<Label>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub milestone: Option<Box<Milestone>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub active_lock_reason: Option<String>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub mergeable: Option<bool>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub mergeable_state: Option<MergeableState>,
+    // pub merged: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub merged_by: Option<Box<Author>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merge_commit_sha: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignee: Option<Box<SimpleUser>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignees: Option<Vec<SimpleUser>>,
+    pub requested_reviewers: Vec<SimpleUser>,
+    pub requested_teams: Vec<teams::RequestedTeam>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub rebaseable: Option<bool>,
+    pub head: Box<Head>,
+    pub base: Box<Base>,
+    #[serde(rename = "_links")]
+    pub links: Box<Links>,
+    pub author_association: AuthorAssociation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub auto_merge: Option<AutoMerge>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub draft: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Head {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
