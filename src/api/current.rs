@@ -95,8 +95,8 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// ```
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user)
-    pub fn list_repos_for_authenticated_user(&self) -> ListReposForAuthenticatedUserBuilder<'octo> {
-        ListReposForAuthenticatedUserBuilder::new(self.crab)
+    pub fn list_repos_for_authenticated_user(&self, org: Option<String>) -> ListReposForAuthenticatedUserBuilder<'octo> {
+        ListReposForAuthenticatedUserBuilder::new(self.crab, org)
     }
 
     /// List gists for the current authenticated user.
@@ -363,10 +363,13 @@ pub struct ListReposForAuthenticatedUserBuilder<'octo> {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     before: Option<DateTime<Utc>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    org: Option<String>,
 }
 
 impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
-    fn new(crab: &'octo Octocrab) -> Self {
+    fn new(crab: &'octo Octocrab, org: Option<String>) -> Self {
         Self {
             crab,
             visibility: None,
@@ -378,6 +381,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
             page: None,
             since: None,
             before: None,
+            org: org,
         }
     }
 
@@ -460,7 +464,11 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Repository>> {
-        self.crab.get("/user/repos", (&self).into()).await
+        if self.org.is_some() {
+            self.crab.get(format!("/users/{}/repos", self.org.clone().unwrap()), (&self).into()).await
+        } else {
+            self.crab.get("/user/repos", (&self).into()).await
+        }
     }
 }
 
