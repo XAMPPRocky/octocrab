@@ -236,15 +236,11 @@ use service::middleware::auth_header::AuthHeaderLayer;
 use service::middleware::cache::CacheStorage;
 #[cfg(feature = "default-client")]
 use service::middleware::cache::HttpCacheLayer;
-#[cfg(target_arch = "wasm32")]
-use std::cell::RefCell;
 use std::convert::{Infallible, TryInto};
 use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
-#[cfg(target_arch = "wasm32")]
-use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::{fmt, usize};
@@ -262,10 +258,6 @@ use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use snafu::*;
-#[cfg(target_arch = "wasm32")]
-use tower::util::UnsyncBoxService;
-#[cfg(not(target_arch = "wasm32"))]
-use tower::{buffer::Buffer, util::BoxService};
 use tower::{BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
@@ -1161,15 +1153,23 @@ pub enum AuthState {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub type OctocrabService = Buffer<
+pub type OctocrabService = tower::buffer::Buffer<
     http::Request<OctoBody>,
-    <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
+    <tower::util::BoxService<
+        http::Request<OctoBody>,
+        http::Response<BoxBody<Bytes, Error>>,
+        BoxError,
+    > as tower::Service<http::Request<OctoBody>>>::Future,
 >;
 
 #[cfg(target_arch = "wasm32")]
-pub type OctocrabService = Rc<
-    RefCell<
-        UnsyncBoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
+pub type OctocrabService = std::rc::Rc<
+    std::cell::RefCell<
+        tower::util::UnsyncBoxService<
+            http::Request<OctoBody>,
+            http::Response<BoxBody<Bytes, Error>>,
+            BoxError,
+        >,
     >,
 >;
 
@@ -1220,7 +1220,10 @@ impl Octocrab {
         S::Future: Send + 'static,
         S::Error: Into<BoxError>,
     {
-        let service = Buffer::new(BoxService::new(service.map_err(Into::into)), 1024);
+        let service = tower::buffer::Buffer::new(
+            tower::util::BoxService::new(service.map_err(Into::into)),
+            1024,
+        );
 
         Self {
             client: service,
@@ -1238,7 +1241,10 @@ impl Octocrab {
         S::Error: Into<BoxError>,
     {
         // Use Buffer pair to return the background worker
-        let (service, worker) = Buffer::pair(BoxService::new(service.map_err(Into::into)), 1024);
+        let (service, worker) = tower::buffer::Buffer::pair(
+            tower::util::BoxService::new(service.map_err(Into::into)),
+            1024,
+        );
 
         // Execute the background worker with the custom executor
         executor(Box::pin(worker));
@@ -1259,9 +1265,9 @@ impl Octocrab {
         S::Future: 'static,
         S::Error: Into<BoxError>,
     {
-        let service = Rc::new(RefCell::new(UnsyncBoxService::new(
-            service.map_err(Into::into),
-        )));
+        let service = std::rc::Rc::new(std::cell::RefCell::new(
+            tower::util::UnsyncBoxService::new(service.map_err(Into::into)),
+        ));
 
         Self {
             client: service,

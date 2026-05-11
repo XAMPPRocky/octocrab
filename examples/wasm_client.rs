@@ -1,5 +1,5 @@
-cfg_if::cfg_if! {
-    if #[cfg(target_arch = "wasm32")] {
+cfg_select! {
+    target_arch = "wasm32" => {
         use std::sync::Arc;
 
         use http::{header::USER_AGENT, Uri};
@@ -25,7 +25,8 @@ cfg_if::cfg_if! {
         fn main() {
             let _octocrab = build_octocrab().expect("build wasm client");
         }
-    } else {
+    }
+    _ => {
         fn main() {}
     }
 }
