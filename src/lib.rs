@@ -324,9 +324,7 @@ compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"j
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-#[allow(dead_code)]
 const GITHUB_BASE_URI: &str = "https://api.github.com";
-#[allow(dead_code)]
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 // This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
@@ -990,6 +988,98 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
 
         let client = HttpCacheLayer::new(self.config.cache_storage.clone()).layer(client);
+
+        if let Some(executor) = self.executor {
+            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+        }
+
+        Ok(Octocrab::new(client, auth_state))
+    }
+
+    /// Build a browser-compatible client for `wasm32-unknown-unknown`.
+    #[cfg(all(target_arch = "wasm32", not(feature = "default-client")))]
+    pub fn build(self) -> Result<Octocrab> {
+        let client = service::wasm::ReqwestService::new();
+
+        let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
+        hmap.push((
+            http::header::USER_AGENT,
+            HeaderValue::from_str("octocrab").unwrap(),
+        ));
+
+        for preview in &self.config.previews {
+            hmap.push((
+                http::header::ACCEPT,
+                HeaderValue::from_str(crate::format_preview(preview).as_str()).unwrap(),
+            ));
+        }
+
+        let (auth_header, auth_state): (Option<HeaderValue>, _) = match self.config.auth {
+            Auth::None => (None, AuthState::None),
+            Auth::Basic { username, password } => {
+                (None, AuthState::BasicAuth { username, password })
+            }
+            Auth::PersonalToken(token) => (
+                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                AuthState::None,
+            ),
+            Auth::UserAccessToken(token) => (
+                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                AuthState::None,
+            ),
+            Auth::App(app_auth) => (None, AuthState::App(app_auth)),
+            Auth::OAuth(device) => (
+                Some(
+                    format!(
+                        "{} {}",
+                        device.token_type,
+                        &device.access_token.expose_secret()
+                    )
+                    .parse()
+                    .unwrap(),
+                ),
+                AuthState::None,
+            ),
+        };
+
+        for (key, value) in self.config.extra_headers.iter() {
+            hmap.push((
+                key.clone(),
+                HeaderValue::from_str(value.as_str())
+                    .map_err(http::Error::from)
+                    .context(HttpSnafu)?,
+            ));
+        }
+
+        let client = service::middleware::extra_headers::ExtraHeadersLayer::new(Arc::new(hmap))
+            .layer(client);
+
+        let client = MapResponseBodyLayer::new(|body| {
+            BodyExt::map_err(body, |e: Infallible| match e {}).boxed()
+        })
+        .layer(client);
+
+        let base_uri = self
+            .config
+            .base_uri
+            .clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
+
+        let upload_uri = self
+            .config
+            .upload_uri
+            .clone()
+            .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_UPLOAD_URI).unwrap());
+
+        let client =
+            service::middleware::base_uri::BaseUriLayer::new(base_uri.clone()).layer(client);
+
+        let client = service::middleware::auth_header::AuthHeaderLayer::new(
+            auth_header,
+            base_uri,
+            upload_uri,
+        )
+        .layer(client);
 
         if let Some(executor) = self.executor {
             return Ok(Octocrab::new_with_executor(client, auth_state, executor));
