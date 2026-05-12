@@ -27,26 +27,11 @@ octocrab = { version = "0.50", default-features = false, features = [
 ] }
 ```
 
-Then construct Octocrab with the browser-compatible service:
+Then construct Octocrab with the normal builder. On `wasm32` targets, Octocrab
+uses a browser-compatible service automatically:
 
 ```rust
-use std::sync::Arc;
-
-use http::{header::USER_AGENT, Uri};
-use octocrab::service::middleware::base_uri::BaseUriLayer;
-use octocrab::service::middleware::extra_headers::ExtraHeadersLayer;
-use octocrab::service::wasm::ReqwestService;
-use octocrab::{AuthState, OctocrabBuilder};
-
-let octocrab = OctocrabBuilder::new_empty()
-    .with_service(ReqwestService::new())
-    .with_layer(&BaseUriLayer::new(Uri::from_static("https://api.github.com")))
-    .with_layer(&ExtraHeadersLayer::new(Arc::new(vec![(
-        USER_AGENT,
-        "octocrab".parse().unwrap(),
-    )])))
-    .with_auth(AuthState::None)
-    .build()?;
+let octocrab = octocrab::Octocrab::builder().build()?;
 ```
 
 ## Semantic API
