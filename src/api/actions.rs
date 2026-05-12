@@ -10,7 +10,8 @@ use self::self_hosted_runners::{CreateJitRunnerConfigBuilder, ListSelfHostedRunn
 use crate::error::HttpSnafu;
 use crate::etag::{EntityTag, Etagged};
 use crate::models::{
-    workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, RepositoryId, RunId,
+    workflows::WorkflowDispatch, workflows::WorkflowListArtifact, ArtifactId, JobId, RepositoryId,
+    RunId,
 };
 use crate::models::{RunnerGroupId, RunnerId};
 use crate::{params, FromResponse, Octocrab, Page};
@@ -301,6 +302,39 @@ impl<'octo> ActionsHandler<'octo> {
             owner = owner.as_ref(),
             repo = repo.as_ref(),
             run_id = run_id,
+        );
+
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        self.follow_location_to_data(self.crab._get(uri).await?)
+            .await
+    }
+
+    /// Downloads and returns the raw data representing the logs from the job
+    /// specified by `job_id`.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .actions()
+    ///     .download_job_logs("owner", "repo", 1234u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn download_job_logs(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        job_id: JobId,
+    ) -> crate::Result<bytes::Bytes> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/jobs/{job_id}/logs",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            job_id = job_id,
         );
 
         let uri = Uri::builder()
