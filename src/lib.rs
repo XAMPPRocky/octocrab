@@ -311,9 +311,7 @@ compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"j
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
-#[allow(dead_code)]
 const GITHUB_BASE_URI: &str = "https://api.github.com";
-#[allow(dead_code)]
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 // This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
