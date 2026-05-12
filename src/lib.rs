@@ -226,25 +226,15 @@ use api::repos::RepoRef;
 use api::users::UserRef;
 pub use body::OctoBody;
 use chrono::{DateTime, Utc};
-#[cfg(all(feature = "default-client", feature = "tracing"))]
-use http::HeaderMap;
 use http::{HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
 use http_body_util::BodyExt;
-#[cfg(feature = "default-client")]
-use service::middleware::auth_header::AuthHeaderLayer;
 use service::middleware::cache::CacheStorage;
-#[cfg(feature = "default-client")]
-use service::middleware::cache::HttpCacheLayer;
-#[cfg(target_arch = "wasm32")]
-use std::cell::RefCell;
 use std::convert::{Infallible, TryInto};
 use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
-#[cfg(target_arch = "wasm32")]
-use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::{fmt, usize};
@@ -262,15 +252,9 @@ use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use snafu::*;
-#[cfg(target_arch = "wasm32")]
-use tower::util::UnsyncBoxService;
-#[cfg(not(target_arch = "wasm32"))]
-use tower::{buffer::Buffer, util::BoxService};
 use tower::{BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
-#[cfg(feature = "default-client")]
-use http::header::USER_AGENT;
 use http::request::Builder;
 #[cfg(feature = "opentls")]
 use hyper_tls::HttpsConnector;
@@ -298,11 +282,6 @@ use crate::error::{
     HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError,
     UriParseSnafu, UriSnafu,
 };
-
-#[cfg(feature = "default-client")]
-use crate::service::middleware::base_uri::BaseUriLayer;
-#[cfg(feature = "default-client")]
-use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 #[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
@@ -898,9 +877,11 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             )
             // Explicitly disable `on_body_chunk`. The default does nothing.
             .on_body_chunk(())
-            .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
-                tracing::debug!("stream closed");
-            })
+            .on_eos(
+                |_: Option<&http::HeaderMap>, _duration: Duration, _span: &Span| {
+                    tracing::debug!("stream closed");
+                },
+            )
             .on_failure(
                 |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
                     // Called when
@@ -928,7 +909,10 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
         // Add the user agent header required by GitHub
-        hmap.push((USER_AGENT, HeaderValue::from_str("octocrab").unwrap()));
+        hmap.push((
+            http::header::USER_AGENT,
+            HeaderValue::from_str("octocrab").unwrap(),
+        ));
 
         for preview in &self.config.previews {
             hmap.push((
@@ -974,7 +958,9 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             ));
         }
 
-        let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
+        let client =
+            crate::service::middleware::extra_headers::ExtraHeadersLayer::new(Arc::new(hmap))
+                .layer(client);
 
         let client = MapResponseBodyLayer::new(|body| {
             BodyExt::map_err(body, |e| HyperSnafu.into_error(e)).boxed()
@@ -993,11 +979,19 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_UPLOAD_URI).unwrap());
 
-        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
+        let client =
+            crate::service::middleware::base_uri::BaseUriLayer::new(base_uri.clone()).layer(client);
 
-        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
+        let client = crate::service::middleware::auth_header::AuthHeaderLayer::new(
+            auth_header,
+            base_uri,
+            upload_uri,
+        )
+        .layer(client);
 
-        let client = HttpCacheLayer::new(self.config.cache_storage.clone()).layer(client);
+        let client =
+            service::middleware::cache::HttpCacheLayer::new(self.config.cache_storage.clone())
+                .layer(client);
 
         if let Some(executor) = self.executor {
             return Ok(Octocrab::new_with_executor(client, auth_state, executor));
@@ -1161,15 +1155,23 @@ pub enum AuthState {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub type OctocrabService = Buffer<
+pub type OctocrabService = tower::buffer::Buffer<
     http::Request<OctoBody>,
-    <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
+    <tower::util::BoxService<
+        http::Request<OctoBody>,
+        http::Response<BoxBody<Bytes, Error>>,
+        BoxError,
+    > as tower::Service<http::Request<OctoBody>>>::Future,
 >;
 
 #[cfg(target_arch = "wasm32")]
-pub type OctocrabService = Rc<
-    RefCell<
-        UnsyncBoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
+pub type OctocrabService = std::rc::Rc<
+    std::cell::RefCell<
+        tower::util::UnsyncBoxService<
+            http::Request<OctoBody>,
+            http::Response<BoxBody<Bytes, Error>>,
+            BoxError,
+        >,
     >,
 >;
 
@@ -1220,7 +1222,10 @@ impl Octocrab {
         S::Future: Send + 'static,
         S::Error: Into<BoxError>,
     {
-        let service = Buffer::new(BoxService::new(service.map_err(Into::into)), 1024);
+        let service = tower::buffer::Buffer::new(
+            tower::util::BoxService::new(service.map_err(Into::into)),
+            1024,
+        );
 
         Self {
             client: service,
@@ -1238,7 +1243,10 @@ impl Octocrab {
         S::Error: Into<BoxError>,
     {
         // Use Buffer pair to return the background worker
-        let (service, worker) = Buffer::pair(BoxService::new(service.map_err(Into::into)), 1024);
+        let (service, worker) = tower::buffer::Buffer::pair(
+            tower::util::BoxService::new(service.map_err(Into::into)),
+            1024,
+        );
 
         // Execute the background worker with the custom executor
         executor(Box::pin(worker));
@@ -1259,9 +1267,9 @@ impl Octocrab {
         S::Future: 'static,
         S::Error: Into<BoxError>,
     {
-        let service = Rc::new(RefCell::new(UnsyncBoxService::new(
-            service.map_err(Into::into),
-        )));
+        let service = std::rc::Rc::new(std::cell::RefCell::new(
+            tower::util::UnsyncBoxService::new(service.map_err(Into::into)),
+        ));
 
         Self {
             client: service,
