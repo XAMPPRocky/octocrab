@@ -4,14 +4,16 @@ use http_body_util::BodyExt;
 use snafu::ResultExt;
 
 /// A trait for mapping from a `http::Response` to an another type.
-#[async_trait::async_trait]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 pub trait FromResponse: Sized {
     async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
     where
         B: Body<Data = Bytes, Error = crate::Error> + Send;
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 impl<T: serde::de::DeserializeOwned> FromResponse for T {
     async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
     where

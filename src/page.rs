@@ -177,7 +177,8 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
     async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
     where
