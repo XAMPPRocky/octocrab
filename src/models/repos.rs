@@ -259,24 +259,50 @@ impl Content {
     }
 }
 
-#[async_trait::async_trait]
-impl crate::FromResponse for ContentItems {
-    async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
-    where
-        B: Body<Data = Bytes, Error = crate::Error> + Send,
-    {
-        let json: serde_json::Value =
-            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
-                .context(SerdeSnafu)?;
+cfg_if::cfg_if! {
+    if #[cfg(target_arch = "wasm32")] {
+        #[async_trait::async_trait(?Send)]
+        impl crate::FromResponse for ContentItems {
+            async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
+            where
+                B: Body<Data = Bytes, Error = crate::Error>,
+            {
+                let json: serde_json::Value =
+                    serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                        .context(SerdeSnafu)?;
 
-        if json.is_array() {
-            Ok(ContentItems {
-                items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
-            })
-        } else {
-            let items = vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
+                if json.is_array() {
+                    Ok(ContentItems {
+                        items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
+                    })
+                } else {
+                    let items = vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
 
-            Ok(ContentItems { items })
+                    Ok(ContentItems { items })
+                }
+            }
+        }
+    } else {
+        #[async_trait::async_trait]
+        impl crate::FromResponse for ContentItems {
+            async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
+            where
+                B: Body<Data = Bytes, Error = crate::Error> + Send,
+            {
+                let json: serde_json::Value =
+                    serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                        .context(SerdeSnafu)?;
+
+                if json.is_array() {
+                    Ok(ContentItems {
+                        items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
+                    })
+                } else {
+                    let items = vec![serde_json::from_value(json).context(crate::error::SerdeSnafu)?];
+
+                    Ok(ContentItems { items })
+                }
+            }
         }
     }
 }

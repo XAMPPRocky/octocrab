@@ -177,63 +177,128 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
-    async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
-    where
-        B: Body<Data = Bytes, Error = crate::Error> + Send,
-    {
-        let HeaderLinks {
-            first,
-            prev,
-            next,
-            last,
-        } = get_links(response.headers())?;
+cfg_if::cfg_if! {
+    if #[cfg(target_arch = "wasm32")] {
+        #[async_trait::async_trait(?Send)]
+        impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
+            async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+            where
+                B: Body<Data = Bytes, Error = crate::Error>,
+            {
+                let HeaderLinks {
+                    first,
+                    prev,
+                    next,
+                    last,
+                } = get_links(response.headers())?;
 
-        let json: serde_json::Value =
-            serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
-                .context(SerdeSnafu)?;
+                let json: serde_json::Value =
+                    serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                        .context(SerdeSnafu)?;
 
-        if json.is_array() {
-            Ok(Self {
-                items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
-                incomplete_results: None,
-                total_count: None,
-                next,
-                prev,
-                first,
-                last,
-            })
-        } else {
-            let attr = vec![
-                "items",
-                "workflows",
-                "workflow_runs",
-                "jobs",
-                "artifacts",
-                "repositories",
-                "installations",
-                "runners",
-            ]
-            .into_iter()
-            .find(|v| json.get(v).is_some())
-            .ok_or(Box::from(
-                "error decoding pagination result, top-level attribute unknown",
-            ))
-            .context(crate::error::OtherSnafu)?;
+                if json.is_array() {
+                    Ok(Self {
+                        items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
+                        incomplete_results: None,
+                        total_count: None,
+                        next,
+                        prev,
+                        first,
+                        last,
+                    })
+                } else {
+                    let attr = vec![
+                        "items",
+                        "workflows",
+                        "workflow_runs",
+                        "jobs",
+                        "artifacts",
+                        "repositories",
+                        "installations",
+                        "runners",
+                    ]
+                    .into_iter()
+                    .find(|v| json.get(v).is_some())
+                    .ok_or(Box::from(
+                        "error decoding pagination result, top-level attribute unknown",
+                    ))
+                    .context(crate::error::OtherSnafu)?;
 
-            Ok(Self {
-                items: serde_json::from_value(json.get(attr).cloned().unwrap())
-                    .context(crate::error::SerdeSnafu)?,
-                incomplete_results: json
-                    .get("incomplete_results")
-                    .and_then(serde_json::Value::as_bool),
-                total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
-                next,
-                prev,
-                first,
-                last,
-            })
+                    Ok(Self {
+                        items: serde_json::from_value(json.get(attr).cloned().unwrap())
+                            .context(crate::error::SerdeSnafu)?,
+                        incomplete_results: json
+                            .get("incomplete_results")
+                            .and_then(serde_json::Value::as_bool),
+                        total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
+                        next,
+                        prev,
+                        first,
+                        last,
+                    })
+                }
+            }
+        }
+    } else {
+        #[async_trait::async_trait]
+        impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
+            async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+            where
+                B: Body<Data = Bytes, Error = crate::Error> + Send,
+            {
+                let HeaderLinks {
+                    first,
+                    prev,
+                    next,
+                    last,
+                } = get_links(response.headers())?;
+
+                let json: serde_json::Value =
+                    serde_json::from_slice(response.into_body().collect().await?.to_bytes().as_ref())
+                        .context(SerdeSnafu)?;
+
+                if json.is_array() {
+                    Ok(Self {
+                        items: serde_json::from_value(json).context(crate::error::SerdeSnafu)?,
+                        incomplete_results: None,
+                        total_count: None,
+                        next,
+                        prev,
+                        first,
+                        last,
+                    })
+                } else {
+                    let attr = vec![
+                        "items",
+                        "workflows",
+                        "workflow_runs",
+                        "jobs",
+                        "artifacts",
+                        "repositories",
+                        "installations",
+                        "runners",
+                    ]
+                    .into_iter()
+                    .find(|v| json.get(v).is_some())
+                    .ok_or(Box::from(
+                        "error decoding pagination result, top-level attribute unknown",
+                    ))
+                    .context(crate::error::OtherSnafu)?;
+
+                    Ok(Self {
+                        items: serde_json::from_value(json.get(attr).cloned().unwrap())
+                            .context(crate::error::SerdeSnafu)?,
+                        incomplete_results: json
+                            .get("incomplete_results")
+                            .and_then(serde_json::Value::as_bool),
+                        total_count: json.get("total_count").and_then(serde_json::Value::as_u64),
+                        next,
+                        prev,
+                        first,
+                        last,
+                    })
+                }
+            }
         }
     }
 }
