@@ -36,6 +36,7 @@ features = [
     "stream",
     "timeout",
     "tracing",
+    "wasm",
 ]
 rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
@@ -131,3 +132,4 @@ opentls = ["hyper-tls"]
 stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
+wasm = ["jwt-rust-crypto"]
