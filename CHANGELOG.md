@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.51.0](https://github.com/XAMPPRocky/octocrab/compare/v0.50.0...v0.51.0) - 2026-05-09
+
+### Fixed
+
+- [**breaking**] actualized github response model for 'List Pull Requests' ([#886](https://github.com/XAMPPRocky/octocrab/pull/886))
+
 ## [0.50.0](https://github.com/XAMPPRocky/octocrab/compare/v0.49.9...v0.50.0) - 2026-05-05
 
 ### Added
