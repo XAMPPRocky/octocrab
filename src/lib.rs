@@ -1561,7 +1561,7 @@ impl Octocrab {
 
     /// Convenience method to accept any &str, and attempt to convert it to a Uri.
     /// the method also attempts to serialize any parameters into a query string, and append it to the uri.
-    fn parameterized_uri<A, P>(&self, uri: A, parameters: Option<&P>) -> Result<Uri>
+    pub(crate) fn parameterized_uri<A, P>(&self, uri: A, parameters: Option<&P>) -> Result<Uri>
     where
         A: AsRef<str>,
         P: Serialize + ?Sized,
