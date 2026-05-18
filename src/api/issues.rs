@@ -651,6 +651,47 @@ impl IssueHandler<'_> {
     pub fn list_issue_comments(&self) -> ListIssueCommentsBuilder<'_, '_> {
         ListIssueCommentsBuilder::new(self)
     }
+
+    /// Pins a comment in the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .pin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn pin_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        self.crab.put(route, None::<&()>).await
+    }
+
+    /// Unpins a comment from the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .unpin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn unpin_comment(&self, comment_id: CommentId) -> Result<()> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri, None::<&()>).await?;
+
+        if response.status() == 204 {
+            Ok(())
+        } else {
+            crate::map_github_error(response).await.map(drop)
+        }
+    }
 }
 
 #[derive(serde::Serialize)]
