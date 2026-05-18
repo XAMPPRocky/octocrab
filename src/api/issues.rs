@@ -651,6 +651,36 @@ impl IssueHandler<'_> {
     pub fn list_issue_comments(&self) -> ListIssueCommentsBuilder<'_, '_> {
         ListIssueCommentsBuilder::new(self)
     }
+
+    /// Pins a comment in the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .pin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn pin_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        self.crab.put(route, None::<&()>).await
+    }
+
+    /// Unpins a comment from the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .unpin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn unpin_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        self.crab.delete(route, None::<&()>).await
+    }
 }
 
 #[derive(serde::Serialize)]
