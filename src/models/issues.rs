@@ -61,6 +61,8 @@ pub struct Comment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_association: Option<AuthorAssociation>,
     pub user: Author,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pin: Option<Pin>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
@@ -83,4 +85,10 @@ pub struct PullRequestLink {
     pub html_url: Url,
     pub diff_url: Url,
     pub patch_url: Url,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Pin {
+    pinned_at: chrono::DateTime<chrono::Utc>,
+    pinned_by: Author,
 }
