@@ -677,9 +677,20 @@ impl IssueHandler<'_> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn unpin_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
+    pub async fn unpin_comment(&self, comment_id: CommentId) -> Result<()> {
         let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
-        self.crab.delete(route, None::<&()>).await
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri, None::<&()>).await?;
+
+        if response.status() == 204 {
+            Ok(())
+        } else {
+            crate::map_github_error(response).await.map(drop)
+        }
     }
 }
 
