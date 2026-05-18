@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.51.1](https://github.com/XAMPPRocky/octocrab/compare/v0.51.0...v0.51.1) - 2026-05-18
+
+### Added
+
+- support pinned comments ([#894](https://github.com/XAMPPRocky/octocrab/pull/894))
+
 ## [0.51.0](https://github.com/XAMPPRocky/octocrab/compare/v0.50.0...v0.51.0) - 2026-05-09
 
 ### Fixed
