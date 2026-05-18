@@ -17,6 +17,95 @@ use crate::{params, FromResponse, Octocrab, Page};
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode, Uri};
 
+pub struct ListRepositoryArtifacts<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+    name: Option<String>,
+    per_page: Option<u8>,
+    page: Option<u32>,
+    etag: Option<EntityTag>,
+}
+
+impl<'octo> ListRepositoryArtifacts<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+        Self {
+            crab,
+            owner,
+            repo,
+            name: None,
+            per_page: None,
+            page: None,
+            etag: None,
+        }
+    }
+
+    /// Etag for this request.
+    pub fn etag(mut self, etag: Option<EntityTag>) -> Self {
+        self.etag = etag;
+        self
+    }
+
+    /// Filters artifacts by exact match on their name.
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Etagged<Page<WorkflowListArtifact>>> {
+        #[derive(serde::Serialize)]
+        struct Query<'a> {
+            #[serde(skip_serializing_if = "Option::is_none")]
+            name: Option<&'a str>,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            per_page: Option<u8>,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            page: Option<u32>,
+        }
+
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/artifacts",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        let query = Query {
+            name: self.name.as_deref(),
+            per_page: self.per_page,
+            page: self.page,
+        };
+        let uri = self.crab.parameterized_uri(route, Some(&query))?;
+        let mut headers = HeaderMap::new();
+        if let Some(etag) = self.etag {
+            EntityTag::insert_if_none_match_header(&mut headers, etag)?;
+        }
+
+        let response = self.crab._get_with_headers(uri, Some(headers)).await?;
+        let etag = EntityTag::extract_from_response(&response);
+        if response.status() == StatusCode::NOT_MODIFIED {
+            Ok(Etagged { etag, value: None })
+        } else {
+            <Page<WorkflowListArtifact>>::from_response(crate::map_github_error(response).await?)
+                .await
+                .map(|page| Etagged {
+                    etag,
+                    value: Some(page),
+                })
+        }
+    }
+}
+
 pub struct ListWorkflowRunArtifacts<'octo> {
     crab: &'octo Octocrab,
     owner: String,
@@ -416,6 +505,33 @@ impl<'octo> ActionsHandler<'octo> {
         run_id: RunId,
     ) -> ListWorkflowRunArtifacts<'_> {
         ListWorkflowRunArtifacts::new(self.crab, owner.into(), repo.into(), run_id)
+    }
+
+    /// Lists all artifacts for a repository. Anyone with read access to the
+    /// repository can use this endpoint. OAuth app tokens and personal access
+    /// tokens (classic) need the `repo` scope to use this endpoint with a
+    /// private repository.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let artifacts = octocrab::instance()
+    ///     .actions()
+    ///     .list_repository_artifacts("owner", "repo")
+    ///     // optional
+    ///     .name("my-artifact")
+    ///     .per_page(30)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_repository_artifacts(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> ListRepositoryArtifacts<'_> {
+        ListRepositoryArtifacts::new(self.crab, owner.into(), repo.into())
     }
 
     /// Dispatch a workflow run. You must authenticate using an
