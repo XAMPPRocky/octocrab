@@ -1143,10 +1143,8 @@ impl IssueHandler<'_> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn list_sub_issues(&self, issue_number: u64) -> Result<Vec<models::issues::Issue>> {
-        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
-
-        self.crab.get(route, None::<&()>).await
+    pub fn list_sub_issues(&self) -> ListIssueCommentsBuilder<'_, '_> {
+        ListIssueCommentsBuilder::new(self)
     }
 
     /// Links two issues as parent-child.
@@ -1229,5 +1227,51 @@ impl IssueHandler<'_> {
         };
 
         self.crab.patch(route, Some(&body)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListSubIssuesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListSubIssuesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/sub_issues",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
