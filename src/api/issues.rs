@@ -6,7 +6,7 @@ mod list_labels;
 mod update;
 
 use crate::error::HttpSnafu;
-use crate::models::{CommentId, ReactionId};
+use crate::models::{CommentId, IssueId, ReactionId};
 use crate::{models, params, Octocrab, Result};
 use http::Uri;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
@@ -1112,4 +1112,126 @@ impl IssueHandler<'_> {
 
         Ok(())
     }
+}
+
+// SubIssues
+impl IssueHandler<'_> {
+    /// Gets the parent of the sub-issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .get_parent_issue(5)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_parent_issue(&self, sub_issue_number: u64) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{sub_issue_number}/parent", self.repo);
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets all sub-issues of a parent issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_sub_issues(1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn list_sub_issues(&self, issue_number: u64) -> Result<Vec<models::issues::Issue>> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Links two issues as parent-child.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .add_sub_issue(1, 101u64.into(), None)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn add_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+        replace_parent: Option<bool>,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+
+        let body = serde_json::json!({
+            "sub_issue_id": sub_issue_id,
+            "replace_parent": replace_parent.unwrap_or(false)
+        });
+
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Unlinks a sub-issue from the parent.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .remove_sub_issue(1, 101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+
+        let body = serde_json::json!({
+            "sub_issue_id": sub_issue_id,
+        });
+
+        self.crab.delete(route, Some(&body)).await
+    }
+
+    /// Changes priority of sub-issues within the parent.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .reprioritize_sub_issue(1, 101u64.into(), SubIssuePriority::After(99u64.into()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn reprioritize_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+        sub_issue_priority: SubIssuePriority,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues/priority", self.repo);
+
+        let body = match sub_issue_priority {
+            SubIssuePriority::Before(id) => serde_json::json!({
+                "sub_issue_id": sub_issue_id,
+                "before_id": id
+            }),
+            SubIssuePriority::After(id) => serde_json::json!({
+                "sub_issue_id": sub_issue_id,
+                "after_id": id
+            }),
+        };
+
+        self.crab.patch(route, Some(&body)).await
+    }
+}
+
+pub enum SubIssuePriority {
+    Before(IssueId),
+    After(IssueId),
 }
