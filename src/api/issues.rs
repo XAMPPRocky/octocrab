@@ -6,6 +6,7 @@ mod list_labels;
 mod update;
 
 use crate::error::HttpSnafu;
+use crate::models::issues::SubIssuePriority;
 use crate::models::{CommentId, IssueId, ReactionId};
 use crate::{models, params, Octocrab, Result};
 use http::Uri;
@@ -1203,7 +1204,7 @@ impl IssueHandler<'_> {
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
     ///     .issues("owner", "repo")
-    ///     .reprioritize_sub_issue(1, 101u64.into(), SubIssuePriority::After(99u64.into()))
+    ///     .reprioritize_sub_issue(1, 101u64.into(), octocrab::models::issues::SubIssuePriority::After(99u64.into()))
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -1229,9 +1230,4 @@ impl IssueHandler<'_> {
 
         self.crab.patch(route, Some(&body)).await
     }
-}
-
-pub enum SubIssuePriority {
-    Before(IssueId),
-    After(IssueId),
 }

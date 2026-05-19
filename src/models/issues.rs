@@ -92,3 +92,8 @@ pub struct Pin {
     pinned_at: chrono::DateTime<chrono::Utc>,
     pinned_by: Author,
 }
+
+pub enum SubIssuePriority {
+    Before(IssueId),
+    After(IssueId),
+}
