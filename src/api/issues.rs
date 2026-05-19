@@ -1139,12 +1139,15 @@ impl IssueHandler<'_> {
     /// octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .list_sub_issues(1)
+    ///     .per_page(15)
+    ///     .page(2u32)
+    ///     .send()
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    pub fn list_sub_issues(&self) -> ListIssueCommentsBuilder<'_, '_> {
-        ListIssueCommentsBuilder::new(self)
+    pub fn list_sub_issues(&self, issue_number: u64) -> ListSubIssuesBuilder<'_, '_> {
+        ListSubIssuesBuilder::new(self, issue_number)
     }
 
     /// Links two issues as parent-child.
