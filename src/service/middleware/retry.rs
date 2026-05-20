@@ -3,7 +3,9 @@ use http::header::AsHeaderName;
 use http::{HeaderMap, HeaderValue, Request, Response};
 use hyper_util::client::legacy::Error;
 use std::sync::Arc;
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
+
 use tower::retry::Policy;
 
 use crate::body::OctoBody;
@@ -145,11 +147,19 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
                         }?;
 
                         metrics.rate_limited(req, response.status(), *max_retries, wait_secs);
-                        Some(
-                            tokio::time::sleep(Duration::from_secs(wait_secs))
-                                .then(move |_| future::ready(()))
-                                .boxed(),
-                        )
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            Some(
+                                tokio::time::sleep(Duration::from_secs(wait_secs))
+                                    .then(move |_| future::ready(()))
+                                    .boxed(),
+                            )
+                        }
+
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            Some(future::ready(()).boxed())
+                        }
                     } else if response.status().is_server_error() {
                         *max_retries -= 1;
                         metrics.retry_after_error(req, response.status(), *max_retries);

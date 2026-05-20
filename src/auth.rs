@@ -6,8 +6,9 @@ use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-#[cfg(feature = "tokio")]
+#[cfg(all(feature = "tokio", not(target_arch = "wasm32")))]
 use web_time::Duration;
+
 use web_time::SystemTime;
 
 use snafu::*;
@@ -223,7 +224,7 @@ impl DeviceCodes {
     }
 
     /// Poll Github in a loop until authentication codes become available.
-    #[cfg(feature = "tokio")]
+    #[cfg(all(feature = "tokio", not(target_arch = "wasm32")))]
     pub async fn poll_until_available(
         &self,
         crab: &crate::Octocrab,

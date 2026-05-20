@@ -226,11 +226,17 @@ use api::repos::RepoRef;
 use api::users::UserRef;
 pub use body::OctoBody;
 use chrono::{DateTime, Utc};
-use http::{HeaderMap, HeaderValue, Method, Uri};
+#[cfg(not(target_arch = "wasm32"))]
+use http::HeaderMap;
+use http::{HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
 use http_body_util::BodyExt;
+#[cfg(not(target_arch = "wasm32"))]
 use service::middleware::auth_header::AuthHeaderLayer;
-use service::middleware::cache::{CacheStorage, HttpCacheLayer};
+use service::middleware::cache::CacheStorage;
+#[cfg(not(target_arch = "wasm32"))]
+use service::middleware::cache::HttpCacheLayer;
+
 use std::convert::{Infallible, TryInto};
 use std::future::Future;
 use std::io::Write;
@@ -239,47 +245,58 @@ use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::{fmt, usize};
+#[cfg(not(target_arch = "wasm32"))]
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
 use hyper::{Request, Response};
 
+#[cfg(not(target_arch = "wasm32"))]
 use once_cell::sync::Lazy;
+
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use snafu::*;
 use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
+#[cfg(not(target_arch = "wasm32"))]
 use http::header::USER_AGENT;
 use http::request::Builder;
-#[cfg(feature = "opentls")]
+
+#[cfg(all(feature = "opentls", not(target_arch = "wasm32")))]
 use hyper_tls::HttpsConnector;
 
-#[cfg(feature = "rustls")]
+#[cfg(all(feature = "rustls", not(target_arch = "wasm32")))]
 use hyper_rustls::HttpsConnectorBuilder;
 
-#[cfg(feature = "retry")]
+#[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
 use tower::retry::{Retry, RetryLayer};
 
-#[cfg(feature = "timeout")]
+#[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
 use hyper_timeout::TimeoutConnector;
 
-use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
+#[cfg(not(target_arch = "wasm32"))]
+use tower_http::classify::ServerErrorsFailureClass;
+use tower_http::map_response_body::MapResponseBodyLayer;
 
-#[cfg(feature = "tracing")]
+#[cfg(all(feature = "tracing", not(target_arch = "wasm32")))]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::api::codes_of_conduct;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::error::HyperSnafu;
 use crate::error::{
-    HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
-    UriParseError, UriParseSnafu, UriSnafu,
+    HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError,
+    UriParseSnafu, UriSnafu,
 };
 
+#[cfg(not(target_arch = "wasm32"))]
 use crate::service::middleware::base_uri::BaseUriLayer;
+#[cfg(not(target_arch = "wasm32"))]
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
-#[cfg(feature = "retry")]
+#[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
 use crate::service::middleware::retry::RetryConfig;
 
 use auth::{AppAuth, Auth};
@@ -307,7 +324,9 @@ compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"j
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
+#[cfg(not(target_arch = "wasm32"))]
 const GITHUB_BASE_URI: &str = "https://api.github.com";
+#[cfg(not(target_arch = "wasm32"))]
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 // This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
@@ -319,7 +338,7 @@ const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 // ```
 include!(concat!(env!("OUT_DIR"), "/headers_metadata.rs"));
 
-#[cfg(feature = "default-client")]
+#[cfg(all(feature = "default-client", not(target_arch = "wasm32")))]
 static STATIC_INSTANCE: Lazy<arc_swap::ArcSwap<Octocrab>> =
     Lazy::new(|| arc_swap::ArcSwap::from_pointee(Octocrab::default()));
 
@@ -393,7 +412,7 @@ pub async fn map_github_error(
 /// # Ok(())
 /// # }
 /// ```
-#[cfg(feature = "default-client")]
+#[cfg(all(feature = "default-client", not(target_arch = "wasm32")))]
 #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
     STATIC_INSTANCE.swap(Arc::from(crab))
@@ -407,7 +426,7 @@ pub fn initialise(crab: Octocrab) -> Arc<Octocrab> {
 /// let octocrab = octocrab::instance();
 /// }
 /// ```
-#[cfg(feature = "default-client")]
+#[cfg(all(feature = "default-client", not(target_arch = "wasm32")))]
 #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 pub fn instance() -> Arc<Octocrab> {
     STATIC_INSTANCE.load().clone()
@@ -590,7 +609,7 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
 
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     /// Set the retry configuration
-    #[cfg(feature = "retry")]
+    #[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn add_retry_config(mut self, retry_config: RetryConfig) -> Self {
         self.config.retry_config = retry_config;
@@ -598,7 +617,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Set the connect timeout.
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.connect_timeout = timeout;
@@ -606,7 +625,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Set the read timeout.
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_read_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.read_timeout = timeout;
@@ -614,7 +633,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Set the write timeout.
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_write_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.config.write_timeout = timeout;
@@ -695,7 +714,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         self
     }
 
-    #[cfg(feature = "retry")]
+    #[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "retry")))]
     pub fn set_connector_retry_service<S>(
         &self,
@@ -706,7 +725,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         retry_layer.layer(connector)
     }
 
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "timeout")))]
     pub fn set_connect_timeout_service<T>(&self, connector: T) -> TimeoutConnector<T>
     where
@@ -724,7 +743,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     }
 
     /// Build a [`Client`](hyper_util::client::legacy::Client) instance with the current [`Service`] stack.
-    #[cfg(feature = "default-client")]
+    #[cfg(all(feature = "default-client", not(target_arch = "wasm32")))]
     #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
     pub fn build(self) -> Result<Octocrab> {
         let client: hyper_util::client::legacy::Client<_, OctoBody> = {
@@ -901,16 +920,18 @@ pub struct DefaultOctocrabBuilderConfig {
     auth: Auth,
     previews: Vec<&'static str>,
     extra_headers: Vec<(HeaderName, String)>,
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     connect_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     read_timeout: Option<Duration>,
-    #[cfg(feature = "timeout")]
+    #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
     write_timeout: Option<Duration>,
+
     base_uri: Option<Uri>,
     upload_uri: Option<Uri>,
-    #[cfg(feature = "retry")]
+    #[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
     retry_config: RetryConfig,
+
     cache_storage: Option<Arc<dyn CacheStorage>>,
 }
 
@@ -920,16 +941,18 @@ impl Default for DefaultOctocrabBuilderConfig {
             auth: Auth::None,
             previews: Vec::new(),
             extra_headers: Vec::new(),
-            #[cfg(feature = "timeout")]
+            #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
             connect_timeout: None,
-            #[cfg(feature = "timeout")]
+            #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
             read_timeout: None,
-            #[cfg(feature = "timeout")]
+            #[cfg(all(feature = "timeout", not(target_arch = "wasm32")))]
             write_timeout: None,
+
             base_uri: None,
             upload_uri: None,
-            #[cfg(feature = "retry")]
+            #[cfg(all(feature = "retry", not(target_arch = "wasm32")))]
             retry_config: RetryConfig::Simple(3),
+
             cache_storage: None,
         }
     }
@@ -1074,7 +1097,7 @@ impl fmt::Debug for Octocrab {
 /// - `base_uri`: `https://api.github.com`
 /// - `auth`: `None`
 /// - `client`: http client with the `octocrab` user agent.
-#[cfg(feature = "default-client")]
+#[cfg(all(feature = "default-client", not(target_arch = "wasm32")))]
 #[cfg_attr(docsrs, doc(cfg(feature = "default-client")))]
 impl Default for Octocrab {
     fn default() -> Self {
