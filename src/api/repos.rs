@@ -20,6 +20,7 @@ mod merges;
 mod pulls;
 pub mod release_assets;
 pub mod releases;
+mod sbom;
 mod secret_scanning_alerts;
 mod secrets;
 mod stargazers;
@@ -36,6 +37,7 @@ use crate::models::interaction_limits::{
 use crate::models::{repos, RepositoryId};
 use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
+use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
@@ -788,6 +790,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets scanning alerts on the repository
     pub fn secrets_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         RepoSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Handle SBOM report generation
+    pub fn sbom(&self) -> RepoSbomHandler<'_> {
+        RepoSbomHandler::new(self)
     }
 
     /// Creates a new Git commit object.
