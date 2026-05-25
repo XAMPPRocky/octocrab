@@ -8,9 +8,9 @@ use snafu::ResultExt;
 use url::Url;
 
 pub mod dependabot;
+pub mod sbom;
 pub mod secret_scanning_alert;
 pub mod secrets;
-pub mod sbom;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

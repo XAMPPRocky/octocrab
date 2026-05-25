@@ -1,9 +1,9 @@
 use octocrab::{
-    Octocrab,
     models::repos::sbom::{SbomDependencyGraph, SbomFetchResponse},
+    Octocrab,
 };
 
-use tokio::time::{Duration, sleep};
+use tokio::time::{sleep, Duration};
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {

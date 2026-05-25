@@ -1,13 +1,13 @@
 use wiremock::{
-    Mock, MockServer, ResponseTemplate,
     matchers::{method, path},
+    Mock, MockServer, ResponseTemplate,
 };
 
 use mock_error::setup_error_handler;
 use octocrab::models::repos::sbom::SbomDependencyGraph;
 use octocrab::models::repos::sbom::SbomGenerateReportResponse;
-use octocrab::{Octocrab, models::repos::sbom::SbomFetchResponse};
-use serde_json::{Value, json};
+use octocrab::{models::repos::sbom::SbomFetchResponse, Octocrab};
+use serde_json::{json, Value};
 use url::Url;
 
 mod mock_error;
