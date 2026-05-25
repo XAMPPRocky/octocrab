@@ -153,7 +153,7 @@ mod test {
         {
             assert_eq!(payload.action, PullRequestEventAction::Opened);
             assert_eq!(payload.number, 8);
-            assert_eq!(payload.pull_request.id.0, 558121796);
+            assert_eq!(payload.pull_request.id.unwrap().0, 558121796);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }
