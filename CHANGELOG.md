@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Added `sbom` API for fetching GitHub SBOM information using asynchronous endpoints.
-
 ## [0.51.0](https://github.com/XAMPPRocky/octocrab/compare/v0.50.0...v0.51.0) - 2026-05-09
 
 ### Fixed
