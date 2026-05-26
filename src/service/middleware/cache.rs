@@ -12,12 +12,13 @@ use http::{header, request::Request, HeaderMap, HeaderValue, Response, StatusCod
 use http_body::{Body, Frame, SizeHint};
 use http_body_util::{combinators::BoxBody, BodyExt, Full};
 use pin_project::pin_project;
+use serde::{Deserialize, Serialize};
 use tower::{Layer, Service};
 
 // Implementation based on the documentation at:
 // https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28#use-conditional-requests-if-appropriate
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[non_exhaustive]
 /// Cache key identification returned by the GitHub API.
 pub enum CacheKey {
@@ -25,10 +26,11 @@ pub enum CacheKey {
     LastModified(String),
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 /// Cache entry containing the response data as well as response headers.
 pub struct CachedResponse {
     pub body: Vec<u8>,
+    #[serde(with = "http_serde::header_map")]
     pub headers: HeaderMap,
 }
 
