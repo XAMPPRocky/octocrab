@@ -1268,7 +1268,7 @@ impl<'octo, 'r> ListSubIssuesBuilder<'octo, 'r> {
     }
 
     /// Send the actual request.
-    pub async fn send(self) -> Result<crate::Page<models::issues::Comment>> {
+    pub async fn send(self) -> Result<crate::Page<models::issues::Issue>> {
         let route = format!(
             "/{repo}/issues/{issue}/sub_issues",
             repo = self.handler.repo,
