@@ -54,7 +54,7 @@ pub enum PullRequestWebhookEventAction {
 pub struct PullRequestWebhookEventChanges {
     base: Option<PullRequestWebhookEventBase>,
     body: Option<OldValue<String>>,
-    title: Option<OldValue<String>>
+    title: Option<OldValue<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
