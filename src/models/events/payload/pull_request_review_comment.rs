@@ -88,7 +88,7 @@ mod test {
             event.payload.as_ref().unwrap().specific
         {
             assert_eq!(payload.action, PullRequestReviewCommentEventAction::Created);
-            assert_eq!(payload.pull_request.id.0, 558121796);
+            assert_eq!(payload.pull_request.id.unwrap().0, 558121796);
             assert_eq!(payload.comment.id.0, 560976245);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);

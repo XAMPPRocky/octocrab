@@ -1,14 +1,10 @@
-use http::StatusCode;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
 
 use mock_error::setup_error_handler;
-use octocrab::models::{
-    pulls::{PullRequest, SimplePullRequest},
-    PullRequestId, SimpleUser,
-};
+use octocrab::models::pulls::PullRequest;
 use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
@@ -46,7 +42,7 @@ async fn should_respond_to_pull_requests_list() {
     const OWNER: &str = "XAMPPRocky";
     const REPO: &str = "octocrab";
 
-    let mocked_response: Vec<SimplePullRequest> =
+    let mocked_response: Vec<PullRequest> =
         serde_json::from_str(include_str!("resources/pull_requests_list.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
     let mock_server = setup_pull_requests_mock(

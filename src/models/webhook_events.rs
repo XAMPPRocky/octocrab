@@ -1188,7 +1188,7 @@ mod tests {
             pull_request_event.action,
             PullRequestWebhookEventAction::Closed
         );
-        assert_eq!(pull_request_event.pull_request.number, 2);
+        assert_eq!(pull_request_event.pull_request.number, Some(2));
     }
 
     #[test]
