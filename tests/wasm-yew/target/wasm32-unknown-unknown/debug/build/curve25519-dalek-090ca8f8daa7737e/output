@@ -1,0 +1,2 @@
+cargo:rustc-cfg=curve25519_dalek_bits="32"
+cargo:rustc-cfg=curve25519_dalek_backend="serial"

@@ -1,0 +1,1 @@
+pub const _SET_HEADERS_MAP: [(&str, &str); 1] = [("X-GitHub-Api-Version", "2022-11-28")];

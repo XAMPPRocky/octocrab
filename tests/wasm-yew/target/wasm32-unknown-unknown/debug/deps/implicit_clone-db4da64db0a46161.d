@@ -1,0 +1,10 @@
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\implicit_clone-db4da64db0a46161.d: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\sync.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\array.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\map.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\string.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\unsync.rs
+
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\libimplicit_clone-db4da64db0a46161.rmeta: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\sync.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\array.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\map.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\string.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\unsync.rs
+
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\lib.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\sync.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\array.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\map.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\string.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\implicit-clone-0.4.9\src\unsync.rs:

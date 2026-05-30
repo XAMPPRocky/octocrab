@@ -1,0 +1,12 @@
+[package]
+name = "octocrab-yew-wasm-check"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+octocrab = { path = "../..", default-features = false, features = ["jwt-rust-crypto"] }
+yew = { version = "0.21", features = ["csr"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

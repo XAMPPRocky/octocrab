@@ -1,0 +1,11 @@
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\web_time-c47c857102978a68.d: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\mod.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\instant.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\js.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\serde.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\system_time.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\web.rs
+
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\libweb_time-c47c857102978a68.rmeta: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\mod.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\instant.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\js.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\serde.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\system_time.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\web.rs
+
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\lib.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\mod.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\instant.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\js.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\serde.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\time\system_time.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\web-time-1.1.0\src\web.rs:

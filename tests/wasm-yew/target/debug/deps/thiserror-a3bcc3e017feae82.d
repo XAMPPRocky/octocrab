@@ -1,0 +1,14 @@
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\debug\deps\thiserror-a3bcc3e017feae82.d: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\aserror.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\display.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\var.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\private.rs C:\Users\user\Desktop\New\ folder\ (3)\octocrab\tests\wasm-yew\target\debug\build\thiserror-55f416d6b8c173c7\out/private.rs
+
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\debug\deps\libthiserror-a3bcc3e017feae82.rlib: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\aserror.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\display.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\var.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\private.rs C:\Users\user\Desktop\New\ folder\ (3)\octocrab\tests\wasm-yew\target\debug\build\thiserror-55f416d6b8c173c7\out/private.rs
+
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\debug\deps\libthiserror-a3bcc3e017feae82.rmeta: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\aserror.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\display.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\var.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\private.rs C:\Users\user\Desktop\New\ folder\ (3)\octocrab\tests\wasm-yew\target\debug\build\thiserror-55f416d6b8c173c7\out/private.rs
+
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\lib.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\aserror.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\display.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\var.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.18\src\private.rs:
+C:\Users\user\Desktop\New\ folder\ (3)\octocrab\tests\wasm-yew\target\debug\build\thiserror-55f416d6b8c173c7\out/private.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\user\\Desktop\\New folder (3)\\octocrab\\tests\\wasm-yew\\target\\debug\\build\\thiserror-55f416d6b8c173c7\\out

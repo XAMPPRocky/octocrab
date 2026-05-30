@@ -1,0 +1,10 @@
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\gloo_console-b368bdfb774e334f.d: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\console_dbg.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\counter.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\externs.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\macros.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\timer.rs
+
+C:\Users\user\Desktop\New folder (3)\octocrab\tests\wasm-yew\target\wasm32-unknown-unknown\debug\deps\libgloo_console-b368bdfb774e334f.rmeta: C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\lib.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\console_dbg.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\counter.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\externs.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\macros.rs C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\timer.rs
+
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\lib.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\console_dbg.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\counter.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\externs.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\macros.rs:
+C:\Users\user\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\gloo-console-0.3.0\src\timer.rs:
