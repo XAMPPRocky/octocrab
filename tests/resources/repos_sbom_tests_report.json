@@ -1,0 +1,893 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "com.github.XAMPPRocky/octocrab",
+  "documentNamespace": "https://spdx.org/spdxdocs/protobom/f33787fd-093e-4af2-a708-4231e5e0ba89",
+  "comment": "Exact versions could not be resolved for some packages. For more information: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph#dependencies-included.",
+  "creationInfo": {
+    "creators": [
+      "Tool: protobom-v0.0.0-20260522202315-1e74d6c58b14+dirty",
+      "Tool: GitHub.com-Dependency-Graph"
+    ],
+    "created": "2026-05-23T14:09:47Z"
+  },
+  "packages": [
+    {
+      "name": "futures-util",
+      "SPDXID": "SPDXRef-cargo-futures-util-6a8746",
+      "versionInfo": "\u003e= 0.3.0,\u003c 0.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/futures-util"
+        }
+      ]
+    },
+    {
+      "name": "pin-project",
+      "SPDXID": "SPDXRef-cargo-pin-project-e70871",
+      "versionInfo": "\u003e= 1.0.12,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/pin-project"
+        }
+      ]
+    },
+    {
+      "name": "base64",
+      "SPDXID": "SPDXRef-cargo-base64-326192",
+      "versionInfo": "\u003e= 0.22.0,\u003c 0.23.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/base64"
+        }
+      ]
+    },
+    {
+      "name": "wiremock",
+      "SPDXID": "SPDXRef-cargo-wiremock-6edca8",
+      "versionInfo": "\u003e= 0.6.0,\u003c 0.7.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/wiremock"
+        }
+      ]
+    },
+    {
+      "name": "web-time",
+      "SPDXID": "SPDXRef-cargo-web-time-47f750",
+      "versionInfo": "\u003e= 1.1.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/web-time"
+        }
+      ]
+    },
+    {
+      "name": "tokio-test",
+      "SPDXID": "SPDXRef-cargo-tokio-test-bc30c7",
+      "versionInfo": "\u003e= 0.4.2,\u003c 0.5.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/tokio-test"
+        }
+      ]
+    },
+    {
+      "name": "graphql_client",
+      "SPDXID": "SPDXRef-cargo-graphqlclient-da7028",
+      "versionInfo": "\u003e= 0.14.0,\u003c 0.15.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/graphql_client"
+        }
+      ]
+    },
+    {
+      "name": "tower",
+      "SPDXID": "SPDXRef-cargo-tower-21eeae",
+      "versionInfo": "\u003e= 0.5.1,\u003c 0.6.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/tower"
+        }
+      ]
+    },
+    {
+      "name": "tower-http",
+      "SPDXID": "SPDXRef-cargo-tower-http-0138bb",
+      "versionInfo": "\u003e= 0.6.1,\u003c 0.7.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/tower-http"
+        }
+      ]
+    },
+    {
+      "name": "cargo_metadata",
+      "SPDXID": "SPDXRef-cargo-cargometadata-7881f3",
+      "versionInfo": "\u003e= 0.23.0,\u003c 0.24.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/cargo_metadata"
+        }
+      ]
+    },
+    {
+      "name": "cfg-if",
+      "SPDXID": "SPDXRef-cargo-cfg-if-c3dfb8",
+      "versionInfo": "\u003e= 1.0.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/cfg-if"
+        }
+      ]
+    },
+    {
+      "name": "tracing",
+      "SPDXID": "SPDXRef-cargo-tracing-1f7e55",
+      "versionInfo": "\u003e= 0.1.37,\u003c 0.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/tracing"
+        }
+      ]
+    },
+    {
+      "name": "hyper",
+      "SPDXID": "SPDXRef-cargo-hyper-ab46c4",
+      "versionInfo": "\u003e= 1.1.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/hyper"
+        }
+      ]
+    },
+    {
+      "name": "hyper-timeout",
+      "SPDXID": "SPDXRef-cargo-hyper-timeout-4953d9",
+      "versionInfo": "\u003e= 0.5.1,\u003c 0.6.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/hyper-timeout"
+        }
+      ]
+    },
+    {
+      "name": "tokio",
+      "SPDXID": "SPDXRef-cargo-tokio-fc74f9",
+      "versionInfo": "\u003e= 1.17.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/tokio"
+        }
+      ]
+    },
+    {
+      "name": "url",
+      "SPDXID": "SPDXRef-cargo-url-fd662d",
+      "versionInfo": "\u003e= 2.2.2,\u003c 3.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/url"
+        }
+      ]
+    },
+    {
+      "name": "serde_urlencoded",
+      "SPDXID": "SPDXRef-cargo-serdeurlencoded-a0811a",
+      "versionInfo": "\u003e= 0.7.1,\u003c 0.8.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/serde_urlencoded"
+        }
+      ]
+    },
+    {
+      "name": "futures-core",
+      "SPDXID": "SPDXRef-cargo-futures-core-026033",
+      "versionInfo": "\u003e= 0.3.0,\u003c 0.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/futures-core"
+        }
+      ]
+    },
+    {
+      "name": "bytes",
+      "SPDXID": "SPDXRef-cargo-bytes-97da2b",
+      "versionInfo": "\u003e= 1.0.1,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/bytes"
+        }
+      ]
+    },
+    {
+      "name": "hyper-rustls",
+      "SPDXID": "SPDXRef-cargo-hyper-rustls-d8760a",
+      "versionInfo": "\u003e= 0.27.0,\u003c 0.28.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/hyper-rustls"
+        }
+      ]
+    },
+    {
+      "name": "pretty_assertions",
+      "SPDXID": "SPDXRef-cargo-prettyassertions-65e2fa",
+      "versionInfo": "\u003e= 1.4.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/pretty_assertions"
+        }
+      ]
+    },
+    {
+      "name": "chrono",
+      "SPDXID": "SPDXRef-cargo-chrono-60023c",
+      "versionInfo": "\u003e= 0.4.19,\u003c 0.5.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/chrono"
+        }
+      ]
+    },
+    {
+      "name": "http",
+      "SPDXID": "SPDXRef-cargo-http-422067",
+      "versionInfo": "\u003e= 1.0.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/http"
+        }
+      ]
+    },
+    {
+      "name": "futures",
+      "SPDXID": "SPDXRef-cargo-futures-e72405",
+      "versionInfo": "\u003e= 0.3.15,\u003c 0.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/futures"
+        }
+      ]
+    },
+    {
+      "name": "serde_json",
+      "SPDXID": "SPDXRef-cargo-serdejson-3d85b6",
+      "versionInfo": "\u003e= 1.0.64,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/serde_json"
+        }
+      ]
+    },
+    {
+      "name": "serde",
+      "SPDXID": "SPDXRef-cargo-serde-b13cba",
+      "versionInfo": "\u003e= 1.0.126,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/serde"
+        }
+      ]
+    },
+    {
+      "name": "arc-swap",
+      "SPDXID": "SPDXRef-cargo-arc-swap-248e2b",
+      "versionInfo": "\u003e= 1.3.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/arc-swap"
+        }
+      ]
+    },
+    {
+      "name": "getrandom",
+      "SPDXID": "SPDXRef-cargo-getrandom-0a0534",
+      "versionInfo": "\u003e= 0.2.15,\u003c 0.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/getrandom"
+        }
+      ]
+    },
+    {
+      "name": "http-body-util",
+      "SPDXID": "SPDXRef-cargo-http-body-util-294523",
+      "versionInfo": "\u003e= 0.1.0,\u003c 0.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/http-body-util"
+        }
+      ]
+    },
+    {
+      "name": "http-body",
+      "SPDXID": "SPDXRef-cargo-http-body-4f50e2",
+      "versionInfo": "\u003e= 1.0.0,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/http-body"
+        }
+      ]
+    },
+    {
+      "name": "async-trait",
+      "SPDXID": "SPDXRef-cargo-async-trait-2f456d",
+      "versionInfo": "\u003e= 0.1.50,\u003c 0.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/async-trait"
+        }
+      ]
+    },
+    {
+      "name": "secrecy",
+      "SPDXID": "SPDXRef-cargo-secrecy-21d533",
+      "versionInfo": "\u003e= 0.10.3,\u003c 0.11.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/secrecy"
+        }
+      ]
+    },
+    {
+      "name": "percent-encoding",
+      "SPDXID": "SPDXRef-cargo-percent-encoding-e53656",
+      "versionInfo": "\u003e= 2.2.0,\u003c 3.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/percent-encoding"
+        }
+      ]
+    },
+    {
+      "name": "serde_path_to_error",
+      "SPDXID": "SPDXRef-cargo-serdepathtoerror-bcf181",
+      "versionInfo": "\u003e= 0.1.4,\u003c 0.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/serde_path_to_error"
+        }
+      ]
+    },
+    {
+      "name": "snafu",
+      "SPDXID": "SPDXRef-cargo-snafu-be88c4",
+      "versionInfo": "\u003e= 0.8.0,\u003c 0.9.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/snafu"
+        }
+      ]
+    },
+    {
+      "name": "hyper-tls",
+      "SPDXID": "SPDXRef-cargo-hyper-tls-7f52cd",
+      "versionInfo": "\u003e= 0.6.0,\u003c 0.7.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/hyper-tls"
+        }
+      ]
+    },
+    {
+      "name": "once_cell",
+      "SPDXID": "SPDXRef-cargo-oncecell-756d03",
+      "versionInfo": "\u003e= 1.7.2,\u003c 2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/once_cell"
+        }
+      ]
+    },
+    {
+      "name": "crypto_box",
+      "SPDXID": "SPDXRef-cargo-cryptobox-e43ac2",
+      "versionInfo": "\u003e= 0.8.2,\u003c 0.9.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/crypto_box"
+        }
+      ]
+    },
+    {
+      "name": "hyper-util",
+      "SPDXID": "SPDXRef-cargo-hyper-util-b8946b",
+      "versionInfo": "\u003e= 0.1.3,\u003c 0.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/hyper-util"
+        }
+      ]
+    },
+    {
+      "name": "jsonwebtoken",
+      "SPDXID": "SPDXRef-cargo-jsonwebtoken-d1bf0b",
+      "versionInfo": "\u003e= 10.0.0,\u003c 11.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/jsonwebtoken"
+        }
+      ]
+    },
+    {
+      "name": "actions/checkout",
+      "SPDXID": "SPDXRef-githubactions-actions-checkout-3-87103a",
+      "versionInfo": "3",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:githubactions/actions/checkout@3"
+        }
+      ]
+    },
+    {
+      "name": "dtolnay/rust-toolchain",
+      "SPDXID": "SPDXRef-githubactions-dtolnay-rust-toolchain-stable-b5fab3",
+      "versionInfo": "stable",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:githubactions/dtolnay/rust-toolchain@stable"
+        }
+      ]
+    },
+    {
+      "name": "MarcoIeni/release-plz-action",
+      "SPDXID": "SPDXRef-githubactions-MarcoIeni-release-plz-action-0.5-030b71",
+      "versionInfo": "0.5",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:githubactions/MarcoIeni/release-plz-action@0.5"
+        }
+      ]
+    },
+    {
+      "name": "Swatinem/rust-cache",
+      "SPDXID": "SPDXRef-githubactions-Swatinem-rust-cache-2..-1b37f9",
+      "versionInfo": "2.*.*",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:githubactions/Swatinem/rust-cache@2.%2A.%2A"
+        }
+      ]
+    },
+    {
+      "name": "actions/checkout",
+      "SPDXID": "SPDXRef-githubactions-actions-checkout-5..-7acfc6",
+      "versionInfo": "5.*.*",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:githubactions/actions/checkout@5.%2A.%2A"
+        }
+      ]
+    },
+    {
+      "name": "com.github.XAMPPRocky/octocrab",
+      "SPDXID": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "versionInfo": "main",
+      "downloadLocation": "git+https://github.com/XAMPPRocky/octocrab",
+      "filesAnalyzed": false,
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/XAMPPRocky/octocrab@main"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-serde-b13cba",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-percent-encoding-e53656",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-jsonwebtoken-d1bf0b",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-githubactions-dtolnay-rust-toolchain-stable-b5fab3",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-githubactions-Swatinem-rust-cache-2..-1b37f9",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-futures-util-6a8746",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-tracing-1f7e55",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-hyper-ab46c4",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-futures-e72405",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-arc-swap-248e2b",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-snafu-be88c4",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-githubactions-MarcoIeni-release-plz-action-0.5-030b71",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-pin-project-e70871",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-wiremock-6edca8",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-tokio-fc74f9",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-getrandom-0a0534",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-cargometadata-7881f3",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-futures-core-026033",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-bytes-97da2b",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-async-trait-2f456d",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-serdepathtoerror-bcf181",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-oncecell-756d03",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-tower-21eeae",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-tower-http-0138bb",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-chrono-60023c",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-http-422067",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-http-body-4f50e2",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-hyper-tls-7f52cd",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-cryptobox-e43ac2",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-hyper-util-b8946b",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-serdejson-3d85b6",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-secrecy-21d533",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-githubactions-actions-checkout-5..-7acfc6",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-web-time-47f750",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-hyper-rustls-d8760a",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-prettyassertions-65e2fa",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-githubactions-actions-checkout-3-87103a",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-base64-326192",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-tokio-test-bc30c7",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-graphqlclient-da7028",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-cfg-if-c3dfb8",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-hyper-timeout-4953d9",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-url-fd662d",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-serdeurlencoded-a0811a",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relatedSpdxElement": "SPDXRef-cargo-http-body-util-294523",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-github-XAMPPRocky-octocrab-main-000d72",
+      "relationshipType": "DESCRIBES"
+    }
+  ]
+}
