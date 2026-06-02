@@ -124,10 +124,10 @@ pub struct PullRequest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AutoMerge {
-    pub enabled_by: SimpleUser,
+    pub enabled_by: Option<SimpleUser>,
     pub merge_method: crate::params::pulls::MergeMethod,
-    pub commit_title: String,
-    pub commit_message: String,
+    pub commit_title: Option<String>,
+    pub commit_message: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
