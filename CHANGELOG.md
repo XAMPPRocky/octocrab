@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.52.0](https://github.com/XAMPPRocky/octocrab/compare/v0.51.0...v0.52.0) - 2026-06-02
+
+### Added
+
+- Added GitHub async SBOM API endpoints. ([#903](https://github.com/XAMPPRocky/octocrab/pull/903))
+- [**breaking**] made PullRequest to be able to accept SimplePullRequest payload from github ([#902](https://github.com/XAMPPRocky/octocrab/pull/902))
+- add list-artifacts-for-a-repository endpoint ([#896](https://github.com/XAMPPRocky/octocrab/pull/896))
+- support pinned comments ([#894](https://github.com/XAMPPRocky/octocrab/pull/894))
+
+### Other
+
+- add tests for InMemoryCache [cache-redb 2/3] ([#904](https://github.com/XAMPPRocky/octocrab/pull/904))
+- serde support for Cache structs [cache-redb 1/3] ([#905](https://github.com/XAMPPRocky/octocrab/pull/905))
+- add `changes` field to `PullRequestWebhookEventPayload` ([#907](https://github.com/XAMPPRocky/octocrab/pull/907))
+
 ## [0.51.0](https://github.com/XAMPPRocky/octocrab/compare/v0.50.0...v0.51.0) - 2026-05-09
 
 ### Fixed
