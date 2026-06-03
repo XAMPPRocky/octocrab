@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.53.0](https://github.com/XAMPPRocky/octocrab/compare/v0.52.0...v0.53.0) - 2026-06-03
+
+### Fixed
+
+- [**breaking**] correct nullable properties on AutoMerge ([#911](https://github.com/XAMPPRocky/octocrab/pull/911))
+
 ## [0.52.0](https://github.com/XAMPPRocky/octocrab/compare/v0.51.0...v0.52.0) - 2026-06-02
 
 ### Added
