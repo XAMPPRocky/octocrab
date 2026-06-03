@@ -79,7 +79,7 @@ wasm-bindgen-futures = "0.4.54"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
 thiserror = "2.0"
 
-[dev-dependencies]
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { version = "1.17.0", default-features = false, features = [
     "macros",
     "rt-multi-thread",

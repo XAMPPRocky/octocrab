@@ -16,7 +16,7 @@ use octocrab::wasm::wasm_builder;
 #[cfg(target_arch = "wasm32")]
 pub async fn example_usage() -> octocrab::Result<()> {
     // Create an octocrab instance for WASM
-    let mut octocrab = wasm_builder().build()?;
+    let octocrab = wasm_builder().build().unwrap();
 
     // Optionally add authentication
     // If you have a GitHub token, you can authenticate like this:
