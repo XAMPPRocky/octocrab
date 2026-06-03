@@ -52,3 +52,10 @@ pub struct ThreadSubscription {
     pub url: Url,
     pub thread_url: Url,
 }
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct StarredRepository {
+    pub repo: Repository,
+    pub starred_at: DateTime<Utc>,
+}

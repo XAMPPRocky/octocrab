@@ -14,6 +14,111 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Support for using Octocrab in browser-based applications (Yew, Leptos, etc.)
   - Example and documentation for WASM usage
 
+## [0.52.0](https://github.com/XAMPPRocky/octocrab/compare/v0.51.0...v0.52.0) - 2026-06-02
+
+### Added
+
+- Added GitHub async SBOM API endpoints. ([#903](https://github.com/XAMPPRocky/octocrab/pull/903))
+- [**breaking**] made PullRequest to be able to accept SimplePullRequest payload from github ([#902](https://github.com/XAMPPRocky/octocrab/pull/902))
+- add list-artifacts-for-a-repository endpoint ([#896](https://github.com/XAMPPRocky/octocrab/pull/896))
+- support pinned comments ([#894](https://github.com/XAMPPRocky/octocrab/pull/894))
+
+### Other
+
+- add tests for InMemoryCache [cache-redb 2/3] ([#904](https://github.com/XAMPPRocky/octocrab/pull/904))
+- serde support for Cache structs [cache-redb 1/3] ([#905](https://github.com/XAMPPRocky/octocrab/pull/905))
+- add `changes` field to `PullRequestWebhookEventPayload` ([#907](https://github.com/XAMPPRocky/octocrab/pull/907))
+
+## [0.51.0](https://github.com/XAMPPRocky/octocrab/compare/v0.50.0...v0.51.0) - 2026-05-09
+
+### Fixed
+
+- [**breaking**] actualized github response model for 'List Pull Requests' ([#886](https://github.com/XAMPPRocky/octocrab/pull/886))
+
+## [0.50.0](https://github.com/XAMPPRocky/octocrab/compare/v0.49.9...v0.50.0) - 2026-05-05
+
+### Added
+
+- add create_comment to PullRequestHandler ([#880](https://github.com/XAMPPRocky/octocrab/pull/880))
+- Add support for exchanging oauth code for access token ([#780](https://github.com/XAMPPRocky/octocrab/pull/780))
+- add get_app ([#757](https://github.com/XAMPPRocky/octocrab/pull/757))
+- Add ability to update an existing label ([#786](https://github.com/XAMPPRocky/octocrab/pull/786))
+- Added converted_from_draft to Event ([#859](https://github.com/XAMPPRocky/octocrab/pull/859))
+
+### Fixed
+
+- Use PUT not PATCH for pull request reviews ([#879](https://github.com/XAMPPRocky/octocrab/pull/879))
+- cargo fmt, cargo test, Set MSRV to 1.85.0 ([#878](https://github.com/XAMPPRocky/octocrab/pull/878))
+- deser generate repo as respository ([#812](https://github.com/XAMPPRocky/octocrab/pull/812))
+- use new search model on search function
+- revert commit back to correct structure
+
+### Other
+
+- [**breaking**] remove the either dependency ([#883](https://github.com/XAMPPRocky/octocrab/pull/883))
+- added issue_field_added to Event enum ([#882](https://github.com/XAMPPRocky/octocrab/pull/882))
+- update MSRV to 1.95.0
+- don't include unconditional backtrace in Display impl ([#824](https://github.com/XAMPPRocky/octocrab/pull/824))
+- add a simple test for compare commits
+- remove duplicated GitUser
+- create search models submodule
+- move repository model from commits module
+- move maybe_empty to models module
+- remove Option<> for some fields of PullRequest ([#873](https://github.com/XAMPPRocky/octocrab/pull/873))
+
+## [0.49.9](https://github.com/XAMPPRocky/octocrab/compare/v0.49.8...v0.49.9) - 2026-04-26
+
+### Other
+
+- Add 'tokio' dependency to retry configuration ([#875](https://github.com/XAMPPRocky/octocrab/pull/875))
+
+## [0.49.8](https://github.com/XAMPPRocky/octocrab/compare/v0.49.7...v0.49.8) - 2026-04-24
+
+### Added
+
+- add structured GraphQL response and error ([#874](https://github.com/XAMPPRocky/octocrab/pull/874))
+
+### Fixed
+
+- Expose OctoBody ([#870](https://github.com/XAMPPRocky/octocrab/pull/870))
+
+## [0.49.7](https://github.com/XAMPPRocky/octocrab/compare/v0.49.6...v0.49.7) - 2026-03-29
+
+### Added
+
+- add missing `waiting` status to Status enum ([#862](https://github.com/XAMPPRocky/octocrab/pull/862))
+
+### Fixed
+
+- *(repos)* create a repo variable doesn't take the name in the path ([#865](https://github.com/XAMPPRocky/octocrab/pull/865))
+
+### Other
+
+- Extend get_content to allow requesting raw_files ([#866](https://github.com/XAMPPRocky/octocrab/pull/866))
+- [retry/rate-limits] Add rate limit handling into the retry config ([#869](https://github.com/XAMPPRocky/octocrab/pull/869))
+- Allow retry policy to run on GET requests ([#867](https://github.com/XAMPPRocky/octocrab/pull/867))
+
+## [0.49.6](https://github.com/XAMPPRocky/octocrab/compare/v0.49.5...v0.49.6) - 2026-03-23
+
+### Added
+
+- *(activity/starring)* add list_repos_starred_by_user ([#861](https://github.com/XAMPPRocky/octocrab/pull/861))
+- added undocumented events ([#858](https://github.com/XAMPPRocky/octocrab/pull/858))
+- repository variables handler ([#857](https://github.com/XAMPPRocky/octocrab/pull/857))
+
+### Other
+
+- Remove Lines Of Code badge from README
+- Add Event::CopilotWorkStarted ([#854](https://github.com/XAMPPRocky/octocrab/pull/854))
+- actualized `Commit` for GET `/search/commits` ([#851](https://github.com/XAMPPRocky/octocrab/pull/851))
+
+## [0.49.5](https://github.com/XAMPPRocky/octocrab/compare/v0.49.4...v0.49.5) - 2025-12-30
+
+### Fixed
+
+- resolve docs.rs build failure ([#848](https://github.com/XAMPPRocky/octocrab/pull/848))
+>>>>>>> origin/main
+
 ## [0.49.4](https://github.com/XAMPPRocky/octocrab/compare/v0.49.3...v0.49.4) - 2025-12-25
 
 ### Added

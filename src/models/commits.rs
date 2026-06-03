@@ -1,4 +1,4 @@
-use crate::models;
+use crate::models::{self};
 
 use super::{reactions::ReactionContent, *};
 
@@ -72,15 +72,6 @@ pub struct CommitElement {
     pub verification: Option<Verification>,
 }
 
-/// Metaproperties for Git author/committer information.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct GitUser {
-    pub date: Option<String>,
-    pub email: Option<String>,
-    pub name: Option<String>,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Tree {
@@ -121,20 +112,24 @@ pub struct CommitStats {
 }
 
 /// Commit
+///
+/// OpenAPI reference: #/components/schemas/commit
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Commit {
-    pub author: Option<Author>,
-    pub comments_url: String,
-    pub commit: CommitElement,
-    pub committer: Option<Author>,
-    pub files: Option<Vec<repos::DiffEntry>>,
-    pub html_url: String,
-    pub node_id: String,
-    pub parents: Vec<CommitParent>,
+    pub url: Url,
     pub sha: String,
+    pub node_id: String,
+    pub html_url: Url,
+    pub comments_url: Url,
+    pub commit: CommitElement,
+    #[serde(deserialize_with = "maybe_empty::deserialize")]
+    pub author: Option<SimpleUser>,
+    #[serde(deserialize_with = "maybe_empty::deserialize")]
+    pub committer: Option<SimpleUser>,
+    pub parents: Vec<CommitParent>,
     pub stats: Option<CommitStats>,
-    pub url: String,
+    pub files: Option<Vec<repos::DiffEntry>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

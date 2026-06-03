@@ -40,7 +40,7 @@ async fn should_work_with_specific_review() {
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
-    Mock::given(method("PATCH"))
+    Mock::given(method("PUT"))
         .and(path(format!(
             "/repos/{OWNER}/{REPO}/pulls/{PULL_NUMBER}/reviews/{REVIEW_ID}"
         )))

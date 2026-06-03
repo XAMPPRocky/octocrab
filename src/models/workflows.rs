@@ -120,6 +120,7 @@ pub enum Status {
     InProgress,
     Completed,
     Failed,
+    Waiting,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -149,6 +150,18 @@ pub struct WorkflowListArtifact {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub expires_at: DateTime<Utc>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub workflow_run: Option<ArtifactWorkflowRun>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ArtifactWorkflowRun {
+    pub id: crate::models::RunId,
+    pub repository_id: crate::models::RepositoryId,
+    pub head_repository_id: crate::models::RepositoryId,
+    pub head_branch: String,
+    pub head_sha: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]

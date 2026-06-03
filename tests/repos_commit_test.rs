@@ -1,7 +1,10 @@
 mod mock_error;
 
 use mock_error::setup_error_handler;
-use octocrab::{models::repos::RepoCommit, Octocrab};
+use octocrab::{
+    models::{commits::CommitComparison, repos::RepoCommit},
+    Octocrab,
+};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -22,6 +25,27 @@ async fn setup_repos_commits_api(template: ResponseTemplate) -> MockServer {
     setup_error_handler(
         &mock_server,
         &format!("POST on /repos/{owner}/{repo}/commits was not received"),
+    )
+    .await;
+    mock_server
+}
+
+async fn setup_repos_compare_commits_api(template: ResponseTemplate) -> MockServer {
+    let owner: &str = "org";
+    let repo: &str = "some-repo";
+    let base_head: &str = "ad64898819efb83f3e2920cb3c1affccb6ff24cb...main";
+
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path(format!("/repos/{owner}/{repo}/compare/{base_head}")))
+        .respond_with(template.clone())
+        .mount(&mock_server)
+        .await;
+
+    setup_error_handler(
+        &mock_server,
+        &format!("GET on /repos/{owner}/{repo}/compare/{base_head} was not received"),
     )
     .await;
     mock_server
@@ -92,4 +116,30 @@ async fn should_return_list_of_commits() {
                 .to_rfc3339()
         );
     });
+}
+
+#[tokio::test]
+async fn should_return_commit_comparision() {
+    let repos_compare_commits_json: CommitComparison =
+        serde_json::from_str(include_str!("resources/repo_compare_commits.json")).unwrap();
+    let template = ResponseTemplate::new(201).set_body_json(&repos_compare_commits_json);
+    let mock_server = setup_repos_compare_commits_api(template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .commits(OWNER.to_owned(), REPO.to_owned())
+        .compare("ad64898819efb83f3e2920cb3c1affccb6ff24cb", "main")
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+
+    assert_eq!(
+        result.unwrap().base_commit.sha,
+        "ad64898819efb83f3e2920cb3c1affccb6ff24cb"
+    );
 }

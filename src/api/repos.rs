@@ -20,12 +20,14 @@ mod merges;
 mod pulls;
 pub mod release_assets;
 pub mod releases;
+mod sbom;
 mod secret_scanning_alerts;
 mod secrets;
 mod stargazers;
 mod status;
 mod tags;
 mod teams;
+mod variables;
 
 use crate::error::HttpSnafu;
 use crate::models::commits::GitCommitObject;
@@ -35,6 +37,8 @@ use crate::models::interaction_limits::{
 use crate::models::{repos, RepositoryId};
 use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
+use crate::repos::sbom::RepoSbomHandler;
+use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
@@ -656,7 +660,7 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new repository from repository if it is a template.
     /// ```no_run
     /// # use http::Response;
-    ///  async fn run() -> octocrab::Result<()> {
+    ///  async fn run() -> octocrab::Result<octocrab::models::Repository> {
     /// octocrab::instance()
     ///     .repos("owner", "repo")
     ///     .generate("rust")
@@ -774,6 +778,10 @@ impl<'octo> RepoHandler<'octo> {
         RepoSecretsHandler::new(self)
     }
 
+    pub fn variables(&self) -> RepoVariablesHandler<'_> {
+        RepoVariablesHandler::new(self)
+    }
+
     /// Handle dependabot alerts on the repository
     pub fn dependabot(&self) -> RepoDependabotAlertsHandler<'_> {
         RepoDependabotAlertsHandler::new(self)
@@ -782,6 +790,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets scanning alerts on the repository
     pub fn secrets_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         RepoSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Handle SBOM report generation
+    pub fn sbom(&self) -> RepoSbomHandler<'_> {
+        RepoSbomHandler::new(self)
     }
 
     /// Creates a new Git commit object.

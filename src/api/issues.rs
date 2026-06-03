@@ -422,6 +422,41 @@ impl IssueHandler<'_> {
             .await
     }
 
+    /// Updates a label in the repository.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let label = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .update_label("please help", "help wanted", "59dd5a", "")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_label(
+        &self,
+        existing_name: impl AsRef<str>,
+        new_name: impl AsRef<str>,
+        color: impl AsRef<str>,
+        description: impl AsRef<str>,
+    ) -> Result<models::Label> {
+        let route = format!(
+            "/{}/labels/{}",
+            self.repo,
+            utf8_percent_encode(existing_name.as_ref(), NON_ALPHANUMERIC)
+        );
+
+        self.crab
+            .patch(
+                route,
+                Some(&serde_json::json!({
+                    "new_name": new_name.as_ref(),
+                    "color": color.as_ref(),
+                    "description": description.as_ref()
+                })),
+            )
+            .await
+    }
+
     /// Gets a label from the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -449,7 +484,11 @@ impl IssueHandler<'_> {
     /// # }
     /// ```
     pub async fn delete_label(&self, name: impl AsRef<str>) -> Result<()> {
-        let route = format!("/{}/labels/{name}", self.repo, name = name.as_ref(),);
+        let route = format!(
+            "/{}/labels/{name}",
+            self.repo,
+            name = utf8_percent_encode(name.as_ref(), NON_ALPHANUMERIC)
+        );
 
         self.crab._delete(route, None::<&()>).await?;
         Ok(())
@@ -611,6 +650,47 @@ impl IssueHandler<'_> {
     /// ```
     pub fn list_issue_comments(&self) -> ListIssueCommentsBuilder<'_, '_> {
         ListIssueCommentsBuilder::new(self)
+    }
+
+    /// Pins a comment in the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .pin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn pin_comment(&self, comment_id: CommentId) -> Result<models::issues::Comment> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        self.crab.put(route, None::<&()>).await
+    }
+
+    /// Unpins a comment from the issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let comment = octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .unpin_comment(101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn unpin_comment(&self, comment_id: CommentId) -> Result<()> {
+        let route = format!("/{}/issues/comments/{comment_id}/pin", self.repo,);
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri, None::<&()>).await?;
+
+        if response.status() == 204 {
+            Ok(())
+        } else {
+            crate::map_github_error(response).await.map(drop)
+        }
     }
 }
 

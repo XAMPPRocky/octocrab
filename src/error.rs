@@ -7,6 +7,8 @@ use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
 use tower::BoxError;
 
+use crate::GraphqlError;
+
 //This is workaround until I figure out how to get TryInto errors to work
 #[derive(Debug)]
 pub struct UriParseError;
@@ -45,7 +47,7 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
-    #[snafu(display("HTTP Error: {}\n\nFound at {}", source, backtrace))]
+    #[snafu(display("HTTP Error: {}", source))]
     Http {
         source: http::Error,
         backtrace: Backtrace,
@@ -61,37 +63,42 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
-    #[snafu(display("Service Error: {}\n\nFound at {}", source, backtrace))]
+    #[snafu(display("Service Error: {}", source))]
     Service {
         source: BoxError,
         backtrace: Backtrace,
     },
 
-    #[snafu(display("Hyper Error: {}\n\nFound at {}", source, backtrace))]
+    #[snafu(display("Hyper Error: {}", source))]
     Hyper {
         source: hyper::Error,
         backtrace: Backtrace,
     },
 
-    #[snafu(display("Serde Url Encode Error: {}\nFound at {}", source, backtrace))]
+    #[snafu(display("Serde Url Encode Error: {}", source))]
     SerdeUrlEncoded {
         source: serde_urlencoded::ser::Error,
         backtrace: Backtrace,
     },
 
-    #[snafu(display("Serde Error: {}\nFound at {}", source, backtrace))]
+    #[snafu(display("Serde Error: {}", source))]
     Serde {
         source: serde_json::Error,
         backtrace: Backtrace,
     },
-    #[snafu(display("JSON Error in {}: {}\nFound at {}", source.path(), source.inner(), backtrace))]
+    #[snafu(display("JSON Error in {}: {}", source.path(), source.inner()))]
     Json {
         source: serde_path_to_error::Error<serde_json::Error>,
         backtrace: Backtrace,
     },
-    #[snafu(display("JWT Error in {}\nFound at {}", source, backtrace))]
+    #[snafu(display("JWT Error in {}", source))]
     JWT {
         source: jsonwebtoken::errors::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(display("GraphQL Error: {}\nFound at {}", source, backtrace))]
+    Graphql {
+        source: GraphqlErrors,
         backtrace: Backtrace,
     },
     Other {
@@ -130,3 +137,35 @@ impl fmt::Display for GitHubError {
 }
 
 impl std::error::Error for GitHubError {}
+
+#[derive(Debug)]
+pub struct GraphqlErrors(pub Vec<GraphqlError>);
+
+impl From<Vec<GraphqlError>> for GraphqlErrors {
+    fn from(errors: Vec<GraphqlError>) -> Self {
+        Self(errors)
+    }
+}
+
+impl fmt::Display for GraphqlErrors {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} GraphQL Error", self.0.len())?;
+        for (i, error) in self.0.iter().enumerate() {
+            write!(f, "\n{}: {}", i + 1, error.message)?;
+
+            if let Some(path) = &error.path {
+                write!(f, " (path: {:?})", path)?;
+            }
+
+            if let Some(locs) = &error.locations {
+                for loc in locs {
+                    write!(f, "\n at line {}, column {}", loc.line, loc.column)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl std::error::Error for GraphqlErrors {}
