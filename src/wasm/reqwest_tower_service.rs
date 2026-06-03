@@ -40,10 +40,7 @@ where
     type Response = http::Response<BoxBody<Bytes, std::convert::Infallible>>;
     type Error = ReqwestTowerError<Body>;
     type Future = std::pin::Pin<
-        Box<
-            dyn std::future::Future<Output = Result<Self::Response, Self::Error>>
-                + Send,
-        >,
+        Box<dyn std::future::Future<Output = Result<Self::Response, Self::Error>> + Send>,
     >;
 
     fn poll_ready(&mut self, _cx: &mut std::task::Context<'_>) -> Poll<Result<(), Self::Error>> {
