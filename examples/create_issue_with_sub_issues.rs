@@ -6,29 +6,32 @@ async fn main() -> octocrab::Result<()> {
     let octocrab = Octocrab::builder().personal_token(token).build()?;
 
     let created = octocrab
-        .issues("owner", "repo")
-        // Parent issue configuration
-        .create("Parent issue title")
-        .body("Parent issue body")
+        .issues("ahmed-mekky", "octocrab")
+        .create("Parent")
+        // Parent labels/assignees apply to the parent issue.
         .labels(vec!["bug".to_string(), "enhancement".to_string()])
-        .assignees(vec!["octocat".to_string()])
-        // First sub-issue: labels/assignees above applied to parent,
-        // .body/.labels/.assignees below apply to this sub-issue
-        .add_sub_issue("Sub-issue A")
-        .body("Body for sub-issue A")
-        .labels(vec!["good-first-issue".to_string()])
-        .assignees(vec!["octocat".to_string()])
-        // Second sub-issue
-        .add_sub_issue("Sub-issue B")
-        .body("Body for sub-issue B")
-        .labels(vec!["documentation".to_string()])
+        // New sub-issue of Parent
+        .add_sub_issue("Sub-issue A", |sub| {
+            sub.body("Body for sub-issue A")
+                .labels(vec!["good-first-issue".to_string()])
+                // Nested sub-issue
+                .add_sub_issue("Nested under A", |nested| {
+                    nested
+                        .body("Body for the nested sub-issue")
+                        .assignees(vec!["ahmed-mekky".to_string()])
+                })
+        })
+        // Another Parent sub-issue
+        .add_sub_issue("Sub-issue B", |sub| {
+            sub.body("Body for sub-issue B")
+                .assignees(vec!["ahmed-mekky".to_string()])
+                .replace_parent(true)
+        })
+        .body("Parent issue body")
         .send()
         .await?;
 
-    println!("Parent issue: {}", created.parent.html_url);
-    for sub in &created.sub_issues {
-        println!("Sub-issue: {}", sub.html_url);
-    }
+    println!("Parent issue: {}", created.html_url);
 
     Ok(())
 }
