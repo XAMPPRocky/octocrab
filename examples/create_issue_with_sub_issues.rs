@@ -6,7 +6,7 @@ async fn main() -> octocrab::Result<()> {
     let octocrab = Octocrab::builder().personal_token(token).build()?;
 
     let created = octocrab
-        .issues("ahmed-mekky", "octocrab")
+        .issues("owner", "repo")
         .create("Parent")
         // Parent labels/assignees apply to the parent issue.
         .labels(vec!["bug".to_string(), "enhancement".to_string()])
