@@ -177,11 +177,10 @@ impl<'iter, T> IntoIterator for &'iter Page<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
-    async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+impl<T: serde::de::DeserializeOwned> Page<T> {
+    async fn from_response_impl<B>(response: http::Response<B>) -> crate::Result<Self>
     where
-        B: Body<Data = Bytes, Error = crate::Error> + Send,
+        B: Body<Data = Bytes, Error = crate::Error>,
     {
         let HeaderLinks {
             first,
@@ -235,6 +234,26 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 last,
             })
         }
+    }
+}
+
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
+    #[cfg(not(target_arch = "wasm32"))]
+    async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+    where
+        B: Body<Data = Bytes, Error = crate::Error> + Send,
+    {
+        Self::from_response_impl(response).await
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    async fn from_response<B>(response: http::Response<B>) -> crate::Result<Self>
+    where
+        B: Body<Data = Bytes, Error = crate::Error>,
+    {
+        Self::from_response_impl(response).await
     }
 }
 

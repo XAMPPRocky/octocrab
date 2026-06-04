@@ -481,6 +481,7 @@ impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
@@ -503,12 +504,67 @@ where
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Clone + 'static,
+    Svc::Future: 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + 'static,
+    B::Error: Into<BoxError>,
+{
+    pub fn with_executor(
+        self,
+        executor: Executor,
+    ) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+        OctocrabBuilder {
+            service: self.service,
+            auth: self.auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+            executor: Some(executor),
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Add a [`Layer`] to the current [`Service`] stack.
+    pub fn with_layer<L: Layer<Svc>>(
+        self,
+        layer: &L,
+    ) -> OctocrabBuilder<L::Service, Config, Auth, LayerReady> {
+        let Self {
+            service: stack,
+            auth,
+            config,
+            executor,
+            ..
+        } = self;
+        OctocrabBuilder {
+            service: layer.layer(stack),
+            auth,
+            config,
+            executor,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Clone + 'static,
+    Svc::Future: 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + 'static,
     B::Error: Into<BoxError>,
 {
     /// Add a [`Layer`] to the current [`Service`] stack.
@@ -551,12 +607,39 @@ impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Build a [`Client`](OctocrabService) instance with the current [`Service`] stack.
+    pub fn build(self) -> Result<Octocrab, Infallible> {
+        // Transform response body to `BoxBody<Bytes, crate::Error>` and use type erased error to avoid type parameters.
+        let service = MapResponseBodyLayer::new(|b: B| {
+            b.map_err(|e| ServiceSnafu.into_error(e.into())).boxed()
+        })
+        .layer(self.service)
+        .map_err(|e| e.into());
+
+        if let Some(executor) = self.executor {
+            return Ok(Octocrab::new_with_executor(service, self.auth, executor));
+        }
+
+        Ok(Octocrab::new(service, self.auth))
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + Clone + 'static,
+    Svc::Future: 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + 'static,
     B::Error: Into<BoxError>,
 {
     /// Build a [`Client`](OctocrabService) instance with the current [`Service`] stack.
@@ -1050,9 +1133,17 @@ pub enum AuthState {
     },
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub type OctocrabService = Buffer<
     http::Request<OctoBody>,
     <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
+>;
+
+#[cfg(target_arch = "wasm32")]
+pub type OctocrabService = tower::util::BoxCloneService<
+    http::Request<OctoBody>,
+    http::Response<BoxBody<Bytes, Error>>,
+    BoxError
 >;
 
 /// The GitHub API client.
@@ -1091,6 +1182,7 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab`.
+    #[cfg(not(target_arch = "wasm32"))]
     fn new<S>(service: S, auth_state: AuthState) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1107,7 +1199,26 @@ impl Octocrab {
         }
     }
 
+    /// Creates a new `Octocrab`.
+    #[cfg(target_arch = "wasm32")]
+    fn new<S>(service: S, auth_state: AuthState) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
+            + Clone
+            + 'static,
+        S::Future: 'static,
+        S::Error: Into<BoxError>,
+    {
+        let service = tower::util::BoxCloneService::new(service.map_err(Into::into));
+
+        Self {
+            client: service,
+            auth_state,
+        }
+    }
+
     /// Creates a new `Octocrab` with a custom executor
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_with_executor<S>(service: S, auth_state: AuthState, executor: Executor) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1126,6 +1237,19 @@ impl Octocrab {
             client: service,
             auth_state,
         }
+    }
+
+    /// Creates a new `Octocrab` with a custom executor
+    #[cfg(target_arch = "wasm32")]
+    fn new_with_executor<S>(service: S, auth_state: AuthState, _executor: Executor) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
+            + Clone
+            + 'static,
+        S::Future: 'static,
+        S::Error: Into<BoxError>,
+    {
+        Self::new(service, auth_state)
     }
 
     /// Returns a new `Octocrab` based on the current builder but
