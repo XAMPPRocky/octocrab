@@ -6,7 +6,8 @@ mod list_labels;
 mod update;
 
 use crate::error::HttpSnafu;
-use crate::models::{CommentId, ReactionId};
+use crate::models::issues::SubIssuePriority;
+use crate::models::{CommentId, IssueId, ReactionId};
 use crate::{models, params, Octocrab, Result};
 use http::Uri;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
@@ -1111,5 +1112,169 @@ impl IssueHandler<'_> {
         crate::map_github_error(self.crab._delete(route, None::<&()>).await?).await?;
 
         Ok(())
+    }
+}
+
+// SubIssues
+impl IssueHandler<'_> {
+    /// Gets the parent of the sub-issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .get_parent_issue(5)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_parent_issue(&self, sub_issue_number: u64) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{sub_issue_number}/parent", self.repo);
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets all sub-issues of a parent issue.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .list_sub_issues(1)
+    ///     .per_page(15)
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_sub_issues(&self, issue_number: u64) -> ListSubIssuesBuilder<'_, '_> {
+        ListSubIssuesBuilder::new(self, issue_number)
+    }
+
+    /// Links two issues as parent-child.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .add_sub_issue(1, 101u64.into(), None)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn add_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+        replace_parent: Option<bool>,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+
+        let body = serde_json::json!({
+            "sub_issue_id": sub_issue_id,
+            "replace_parent": replace_parent.unwrap_or(false)
+        });
+
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Unlinks a sub-issue from the parent.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .remove_sub_issue(1, 101u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+
+        let body = serde_json::json!({
+            "sub_issue_id": sub_issue_id,
+        });
+
+        self.crab.delete(route, Some(&body)).await
+    }
+
+    /// Changes priority of sub-issues within the parent.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .reprioritize_sub_issue(1, 101u64.into(), octocrab::models::issues::SubIssuePriority::After(99u64.into()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn reprioritize_sub_issue(
+        &self,
+        issue_number: u64,
+        sub_issue_id: IssueId,
+        sub_issue_priority: SubIssuePriority,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/sub_issues/priority", self.repo);
+
+        let body = match sub_issue_priority {
+            SubIssuePriority::Before(id) => serde_json::json!({
+                "sub_issue_id": sub_issue_id,
+                "before_id": id
+            }),
+            SubIssuePriority::After(id) => serde_json::json!({
+                "sub_issue_id": sub_issue_id,
+                "after_id": id
+            }),
+        };
+
+        self.crab.patch(route, Some(&body)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListSubIssuesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListSubIssuesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::Issue>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/sub_issues",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+
+        self.handler.crab.get(route, Some(&self)).await
     }
 }
