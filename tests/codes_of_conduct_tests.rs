@@ -6,7 +6,6 @@ use wiremock::{
 };
 
 use mock_error::setup_error_handler;
-use octocrab::models::codes_of_conduct::CodeOfConduct;
 use octocrab::{models, Octocrab};
 
 async fn setup_mock_http_server(

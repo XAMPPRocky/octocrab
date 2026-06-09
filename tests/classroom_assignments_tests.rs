@@ -61,7 +61,7 @@ async fn should_respond_to_get_assignment() {
     let node_id = response.starter_code_repository.node_id;
     assert_eq!(node_id, "MDEwOlJlcG9zaXRvcnkxMjk2MjY5");
     let private = response.starter_code_repository.private;
-    assert_eq!(private, false);
+    assert!(!private);
     let default_branch = response.starter_code_repository.default_branch;
     assert_eq!(default_branch, "main");
 }
@@ -93,7 +93,7 @@ async fn should_respond_to_list_assignment() {
     let id = assignment.id;
     assert_eq!(id, ASSIGNMENT_ID.into());
     let private = assignment.repository.private;
-    assert_eq!(private, false);
+    assert!(!private);
 }
 
 #[tokio::test]

@@ -2,16 +2,10 @@ mod mock_error;
 
 use mock_error::setup_error_handler;
 use octocrab::{models::orgs_copilot::billing::CopilotBillingSeats, Octocrab};
-use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
-
-#[derive(Serialize, Deserialize)]
-struct FakePage<T> {
-    items: Vec<T>,
-}
 
 async fn setup_billing_api(template: ResponseTemplate) -> MockServer {
     let org = "org";

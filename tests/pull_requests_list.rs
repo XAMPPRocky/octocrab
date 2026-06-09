@@ -10,8 +10,6 @@ use octocrab::Octocrab;
 /// Tests API calls related to check runs of a specific commit.
 mod mock_error;
 
-const SSH_SIGNING_KEY_ID: u64 = 42;
-
 async fn setup_pull_requests_mock(
     http_method: &str,
     mocked_path: &str,

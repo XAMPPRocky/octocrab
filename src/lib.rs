@@ -238,7 +238,7 @@ use std::marker::PhantomData;
 use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
-use std::{fmt, usize};
+use std::fmt;
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
@@ -1194,7 +1194,7 @@ impl Octocrab {
         };
 
         let token = match token.valid_token_with_buffer(buffer) {
-            Some(token) => token.into(),
+            Some(token) => token,
             None => self.request_installation_auth_token().await?,
         };
 

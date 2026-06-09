@@ -16,7 +16,7 @@ pub async fn no_match_header_request_mock<B: Serialize>(
 ) -> Mock {
     let template = ResponseTemplate::new(200)
         .append_header(http::header::ETAG, etag)
-        .set_body_json(&body);
+        .set_body_json(body);
 
     Mock::given(method("GET"))
         .and(path(mocked_path))
@@ -43,7 +43,7 @@ pub async fn etag_miss_request_mock<B: Serialize>(
 ) -> Mock {
     let template = ResponseTemplate::new(200)
         .append_header(http::header::ETAG, response_etag)
-        .set_body_json(&body);
+        .set_body_json(body);
 
     Mock::given(method("GET"))
         .and(path(mocked_path))

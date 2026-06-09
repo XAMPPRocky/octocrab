@@ -129,7 +129,7 @@ impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
                             header_as_i64(headers, "x-ratelimit-reset"),
                         ) {
                             (Some(secs), _, _) => Some(secs),
-                            (None, Some(remaining), Some(reset_ts)) if remaining == 0 => {
+                            (None, Some(0), Some(reset_ts)) => {
                                 Some(std::cmp::max(5, reset_ts - chrono::Utc::now().timestamp())
                                     as u64)
                             }

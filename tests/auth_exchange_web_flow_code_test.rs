@@ -13,14 +13,14 @@ async fn setup_post_api(template: ResponseTemplate) -> MockServer {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!("/login/oauth/access_token")))
+        .and(path("/login/oauth/access_token".to_string()))
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
 
     setup_error_handler(
         &mock_server,
-        &format!("POST on /login/oauth/access_token was not received"),
+        "POST on /login/oauth/access_token was not received",
     )
     .await;
     mock_server
