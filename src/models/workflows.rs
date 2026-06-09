@@ -168,5 +168,6 @@ pub struct ArtifactWorkflowRun {
 #[non_exhaustive]
 pub struct WorkflowDispatch {
     pub r#ref: String,
+    #[serde(skip_serializing_if = "serde_json::Value::is_null")]
     pub inputs: serde_json::Value,
 }
