@@ -232,13 +232,13 @@ use http_body_util::BodyExt;
 use service::middleware::auth_header::AuthHeaderLayer;
 use service::middleware::cache::{CacheStorage, HttpCacheLayer};
 use std::convert::{Infallible, TryInto};
+use std::fmt;
 use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
-use std::fmt;
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};

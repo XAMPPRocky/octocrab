@@ -97,10 +97,7 @@ async fn should_respond_to_list_assignments() {
     )
     .await;
     let client = setup_octocrab(&mock_server.uri());
-    let result = client
-        .classrooms()
-        .list_assignments(classroom_id)
-        .await;
+    let result = client.classrooms().list_assignments(classroom_id).await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
