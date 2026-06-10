@@ -49,7 +49,7 @@ async fn should_respond_to_list_classrooms() {
     let response = result.unwrap();
     assert_eq!(response.len(), 1);
     assert_eq!(response[0].name, "Programming Elixir");
-    assert_eq!(response[0].archived, false);
+    assert!(!response[0].archived);
     assert_eq!(
         response[0].url,
         "https://classroom.github.com/classrooms/1-programming-elixir"
@@ -69,7 +69,7 @@ async fn should_respond_to_get_classroom() {
     )
     .await;
     let client = setup_octocrab(&mock_server.uri());
-    let result = client.classrooms().get_classroom(classroom_id.into()).await;
+    let result = client.classrooms().get_classroom(classroom_id).await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -77,7 +77,7 @@ async fn should_respond_to_get_classroom() {
     );
     let response = result.unwrap();
     assert_eq!(response.name, "Programming Elixir");
-    assert_eq!(response.archived, false);
+    assert!(!response.archived);
     assert_eq!(
         response.url,
         "https://classroom.github.com/classrooms/1-programming-elixir"
@@ -97,10 +97,7 @@ async fn should_respond_to_list_assignments() {
     )
     .await;
     let client = setup_octocrab(&mock_server.uri());
-    let result = client
-        .classrooms()
-        .list_assignments(classroom_id.into())
-        .await;
+    let result = client.classrooms().list_assignments(classroom_id).await;
     assert!(
         result.is_ok(),
         "expected successful result, got error: {:#?}",
@@ -109,6 +106,6 @@ async fn should_respond_to_list_assignments() {
     let response = result.unwrap();
     assert_eq!(response.len(), 1);
     assert_eq!(response[0].title, "Intro to Binaries");
-    assert_eq!(response[0].public_repo, false);
+    assert!(!response[0].public_repo);
     assert_eq!(response[0].language, "ruby");
 }
