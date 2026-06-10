@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.53.1](https://github.com/XAMPPRocky/octocrab/compare/v0.53.0...v0.53.1) - 2026-06-10
+
+### Added
+
+- support sub-issues ([#898](https://github.com/XAMPPRocky/octocrab/pull/898))
+
+### Fixed
+
+- Omit input object if null. Github expects object or nothing. ([#918](https://github.com/XAMPPRocky/octocrab/pull/918))
+
+### Other
+
+- cargo clippy --tests --examples --fix ([#920](https://github.com/XAMPPRocky/octocrab/pull/920))
+- Use std::sync::LazyLock over once_cell::sync::Lazy ([#919](https://github.com/XAMPPRocky/octocrab/pull/919))
+
 ## [0.53.0](https://github.com/XAMPPRocky/octocrab/compare/v0.52.0...v0.53.0) - 2026-06-03
 
 ### Fixed
