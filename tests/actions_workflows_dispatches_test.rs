@@ -2,12 +2,14 @@ mod mock_error;
 
 use mock_error::setup_error_handler;
 use octocrab::Octocrab;
+use serde::Serialize;
+use serde_json::json;
 use wiremock::{
-    matchers::{method, path},
+    matchers::{body_json, method, path},
     Mock, MockServer, ResponseTemplate,
 };
 
-async fn setup_post_api(template: ResponseTemplate) -> MockServer {
+async fn setup_post_api(template: ResponseTemplate, request: impl Serialize) -> MockServer {
     let owner: &str = "org";
     let repo: &str = "some-repo";
     let workflow_id: &str = "workflow.yaml";
@@ -18,6 +20,7 @@ async fn setup_post_api(template: ResponseTemplate) -> MockServer {
         .and(path(format!(
             "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
         )))
+        .and(body_json(request))
         .respond_with(template.clone())
         .mount(&mock_server)
         .await;
@@ -42,7 +45,16 @@ const REF: &str = "ref";
 #[tokio::test]
 async fn should_be_ok_with_204() {
     let template = ResponseTemplate::new(204);
-    let mock_server = setup_post_api(template).await;
+    let mock_server = setup_post_api(
+        template,
+        json!({
+            "ref": REF,
+            "inputs": {
+                "foo": "bar"
+            }
+        }),
+    )
+    .await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
@@ -65,9 +77,42 @@ async fn should_be_ok_with_204() {
 }
 
 #[tokio::test]
+async fn should_omit_inputs_when_not_provided() {
+    let template = ResponseTemplate::new(204);
+    let mock_server = setup_post_api(template, json!({ "ref": REF })).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .actions()
+        .create_workflow_dispatch(
+            OWNER.to_owned(),
+            REPO.to_owned(),
+            WORKFLOW_ID.to_owned(),
+            REF.to_owned(),
+        )
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
 async fn should_be_err_with_500() {
     let template = ResponseTemplate::new(500);
-    let mock_server = setup_post_api(template).await;
+    let mock_server = setup_post_api(
+        template,
+        json!({
+            "ref": REF,
+            "inputs": {
+                "foo": "bar"
+            }
+        }),
+    )
+    .await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
