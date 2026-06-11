@@ -28,6 +28,7 @@ features = [
     "jwt-rust-crypto",
     # "jwt-aws-lc-rs",  # Excluded: conflicts with jwt-rust-crypto
     "opentls",
+    "redb",
     "retry",
     "rustls",
     "rustls-aws-lc-rs",
@@ -73,6 +74,8 @@ hyper-tls = { version = "0.6.0", optional = true }
 hyper-util = { version = "0.1.3", features = ["http1"] }
 percent-encoding = "2.2.0"
 pin-project = "1.0.12"
+postcard = { version = "1.1.3", features = ["alloc"], optional = true }
+redb = { version = "4.1.0", optional = true }
 secrecy = "0.10.3"
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
@@ -102,6 +105,7 @@ crypto_box = { version = "0.8.2", features = ["seal"] }
 base64 = "0.22.0"
 pretty_assertions = "1.4.0"
 graphql_client = "0.14.0"
+tempfile = "3.27.0"
 
 [build-dependencies]
 cargo_metadata = "0.23.0"
@@ -131,3 +135,8 @@ opentls = ["hyper-tls"]
 stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
+cache-redb = ["redb", "postcard"]
+
+[[test]]
+name = "cache_redb_test"
+required-features = ["cache-redb"]
