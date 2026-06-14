@@ -26,6 +26,7 @@ features = [
     "default-client",
     "follow-redirect",
     "jwt-rust-crypto",
+    "wasm",
     # "jwt-aws-lc-rs",  # Excluded: conflicts with jwt-rust-crypto
     "opentls",
     "retry",
@@ -126,6 +127,7 @@ rustls-ring = ["hyper-rustls/ring"]
 rustls-aws-lc-rs = ["hyper-rustls/aws-lc-rs"]
 jwt-aws-lc-rs = ["jsonwebtoken/aws_lc_rs"]
 jwt-rust-crypto = ["jsonwebtoken/rust_crypto"]
+wasm = ["jwt-rust-crypto"]
 rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
 opentls = ["hyper-tls"]
 stream = ["futures-core", "futures-util"]

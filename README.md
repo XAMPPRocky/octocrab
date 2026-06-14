@@ -18,6 +18,20 @@ Run this command in your terminal to add the latest version of `Octocrab`.
 cargo add octocrab
 ```
 
+## Using Octocrab With WebAssembly
+
+Browser-based WebAssembly projects, including Yew apps, should disable the
+default client features and enable Octocrab's `wasm` feature:
+
+```toml
+octocrab = { version = "0.53", default-features = false, features = ["wasm"] }
+```
+
+The default features include native HTTP client support for server and desktop
+targets. Those native networking dependencies do not compile for
+`wasm32-unknown-unknown`, while the `wasm` feature keeps the shared models,
+builders, and response parsing available for browser projects.
+
 ## Semantic API
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
