@@ -293,8 +293,8 @@ use crate::api::codes_of_conduct;
 #[cfg(feature = "default-client")]
 use crate::error::HyperSnafu;
 use crate::error::{
-    HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
-    UriParseError, UriParseSnafu, UriSnafu,
+    HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu, UriParseError,
+    UriParseSnafu, UriSnafu,
 };
 
 #[cfg(feature = "default-client")]
