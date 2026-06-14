@@ -226,19 +226,32 @@ use api::repos::RepoRef;
 use api::users::UserRef;
 pub use body::OctoBody;
 use chrono::{DateTime, Utc};
-use http::{HeaderMap, HeaderValue, Method, Uri};
+#[cfg(all(feature = "default-client", feature = "tracing"))]
+use http::HeaderMap;
+use http::{HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
 use http_body_util::BodyExt;
+#[cfg(feature = "default-client")]
 use service::middleware::auth_header::AuthHeaderLayer;
-use service::middleware::cache::{CacheStorage, HttpCacheLayer};
+use service::middleware::cache::CacheStorage;
+#[cfg(feature = "default-client")]
+use service::middleware::cache::HttpCacheLayer;
+#[cfg(target_arch = "wasm32")]
+use std::cell::RefCell;
 use std::convert::{Infallible, TryInto};
 use std::fmt;
 use std::future::Future;
 use std::io::Write;
 use std::marker::PhantomData;
 use std::pin::Pin;
+#[cfg(target_arch = "wasm32")]
+use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+#[cfg(any(
+    feature = "timeout",
+    all(feature = "default-client", feature = "tracing")
+))]
 use web_time::Duration;
 
 use http::{header::HeaderName, StatusCode};
@@ -247,9 +260,14 @@ use hyper::{Request, Response};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use snafu::*;
-use tower::{buffer::Buffer, util::BoxService, BoxError, Layer, Service, ServiceExt};
+#[cfg(target_arch = "wasm32")]
+use tower::util::UnsyncBoxService;
+#[cfg(not(target_arch = "wasm32"))]
+use tower::{buffer::Buffer, util::BoxService};
+use tower::{BoxError, Layer, Service, ServiceExt};
 
 use bytes::Bytes;
+#[cfg(feature = "default-client")]
 use http::header::USER_AGENT;
 use http::request::Builder;
 #[cfg(feature = "opentls")]
@@ -264,18 +282,24 @@ use tower::retry::{Retry, RetryLayer};
 #[cfg(feature = "timeout")]
 use hyper_timeout::TimeoutConnector;
 
-use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapResponseBodyLayer};
+#[cfg(all(feature = "default-client", feature = "tracing"))]
+use tower_http::classify::ServerErrorsFailureClass;
+use tower_http::map_response_body::MapResponseBodyLayer;
 
 #[cfg(feature = "tracing")]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
 use crate::api::codes_of_conduct;
+#[cfg(feature = "default-client")]
+use crate::error::HyperSnafu;
 use crate::error::{
-    HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
+    HttpSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
     UriParseError, UriParseSnafu, UriSnafu,
 };
 
+#[cfg(feature = "default-client")]
 use crate::service::middleware::base_uri::BaseUriLayer;
+#[cfg(feature = "default-client")]
 use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 
 #[cfg(feature = "retry")]
@@ -306,7 +330,9 @@ compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"j
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
 
+#[allow(dead_code)]
 const GITHUB_BASE_URI: &str = "https://api.github.com";
+#[allow(dead_code)]
 const GITHUB_BASE_UPLOAD_URI: &str = "https://uploads.github.com";
 
 // This `include!` gives us pub const _SET_HEADERS_MAP: [(&str, &str)]
@@ -480,6 +506,7 @@ impl<Config, Auth> OctocrabBuilder<NoSvc, Config, Auth, NotLayerReady> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
@@ -502,10 +529,65 @@ where
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + 'static,
+    Svc::Future: 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    pub fn with_executor(
+        self,
+        executor: Executor,
+    ) -> OctocrabBuilder<Svc, Config, Auth, LayerReady> {
+        OctocrabBuilder {
+            service: self.service,
+            auth: self.auth,
+            config: self.config,
+            _layer_ready: PhantomData,
+            executor: Some(executor),
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Add a [`Layer`] to the current [`Service`] stack.
+    pub fn with_layer<L: Layer<Svc>>(
+        self,
+        layer: &L,
+    ) -> OctocrabBuilder<L::Service, Config, Auth, LayerReady> {
+        let Self {
+            service: stack,
+            auth,
+            config,
+            executor,
+            ..
+        } = self;
+        OctocrabBuilder {
+            service: layer.layer(stack),
+            auth,
+            config,
+            executor,
+            _layer_ready: PhantomData,
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<Svc, Config, Auth, B> OctocrabBuilder<Svc, Config, Auth, LayerReady>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + 'static,
+    Svc::Future: 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + 'static,
     B::Error: Into<BoxError>,
@@ -550,10 +632,37 @@ impl<Svc, Auth, LayerState> OctocrabBuilder<Svc, NoConfig, Auth, LayerState> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
 where
     Svc: Service<Request<OctoBody>, Response = Response<B>> + Send + 'static,
     Svc::Future: Send + 'static,
+    Svc::Error: Into<BoxError>,
+    B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
+    B::Error: Into<BoxError>,
+{
+    /// Build a [`Client`](OctocrabService) instance with the current [`Service`] stack.
+    pub fn build(self) -> Result<Octocrab, Infallible> {
+        // Transform response body to `BoxBody<Bytes, crate::Error>` and use type erased error to avoid type parameters.
+        let service = MapResponseBodyLayer::new(|b: B| {
+            b.map_err(|e| ServiceSnafu.into_error(e.into())).boxed()
+        })
+        .layer(self.service)
+        .map_err(|e| e.into());
+
+        if let Some(executor) = self.executor {
+            return Ok(Octocrab::new_with_executor(service, self.auth, executor));
+        }
+
+        Ok(Octocrab::new(service, self.auth))
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<Svc, B, LayerState> OctocrabBuilder<Svc, NoConfig, AuthState, LayerState>
+where
+    Svc: Service<Request<OctoBody>, Response = Response<B>> + 'static,
+    Svc::Future: 'static,
     Svc::Error: Into<BoxError>,
     B: http_body::Body<Data = bytes::Bytes> + Send + Sync + 'static,
     B::Error: Into<BoxError>,
@@ -1049,9 +1158,17 @@ pub enum AuthState {
     },
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub type OctocrabService = Buffer<
     http::Request<OctoBody>,
     <BoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError> as tower::Service<http::Request<OctoBody>>>::Future
+>;
+
+#[cfg(target_arch = "wasm32")]
+pub type OctocrabService = Rc<
+    RefCell<
+        UnsyncBoxService<http::Request<OctoBody>, http::Response<BoxBody<Bytes, Error>>, BoxError>,
+    >,
 >;
 
 /// The GitHub API client.
@@ -1090,6 +1207,7 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab`.
+    #[cfg(not(target_arch = "wasm32"))]
     fn new<S>(service: S, auth_state: AuthState) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1106,7 +1224,26 @@ impl Octocrab {
         }
     }
 
+    /// Creates a new `Octocrab`.
+    #[cfg(target_arch = "wasm32")]
+    fn new<S>(service: S, auth_state: AuthState) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>> + 'static,
+        S::Future: 'static,
+        S::Error: Into<BoxError>,
+    {
+        let service = Rc::new(RefCell::new(UnsyncBoxService::new(
+            service.map_err(Into::into),
+        )));
+
+        Self {
+            client: service,
+            auth_state,
+        }
+    }
+
     /// Creates a new `Octocrab` with a custom executor
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_with_executor<S>(service: S, auth_state: AuthState, executor: Executor) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
@@ -1127,6 +1264,16 @@ impl Octocrab {
         }
     }
 
+    /// Creates a new `Octocrab` with a custom executor.
+    #[cfg(target_arch = "wasm32")]
+    fn new_with_executor<S>(service: S, auth_state: AuthState, _executor: Executor) -> Self
+    where
+        S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>> + 'static,
+        S::Future: 'static,
+        S::Error: Into<BoxError>,
+    {
+        Self::new(service, auth_state)
+    }
     /// Returns a new `Octocrab` based on the current builder but
     /// authorizing via a specific installation ID.
     /// Typically you will first construct an `Octocrab` using
@@ -1810,15 +1957,32 @@ impl Octocrab {
         &self,
         request: Request<OctoBody>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
-        let mut svc = self.client.clone();
-        let response: Response<BoxBody<Bytes, crate::Error>> = svc
-            .ready()
-            .await
-            .context(ServiceSnafu)?
-            .call(request)
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let mut svc = self.client.clone();
+            let response: Response<BoxBody<Bytes, crate::Error>> = svc
+                .ready()
+                .await
+                .context(ServiceSnafu)?
+                .call(request)
+                .await
+                .context(ServiceSnafu)?;
+            Ok(response)
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            futures::future::poll_fn(|cx| self.client.borrow_mut().poll_ready(cx))
+                .await
+                .context(ServiceSnafu)?;
+
+            let response: Response<BoxBody<Bytes, crate::Error>> = {
+                let mut svc = self.client.borrow_mut();
+                svc.call(request)
+            }
             .await
             .context(ServiceSnafu)?;
-        Ok(response)
+            Ok(response)
+        }
         //todo: attempt to downcast error to something more specific before returning. (Currently having trouble with this because I am not accustomed with snafu)
         // map_err(|err| {
         //     // Error decorating request
