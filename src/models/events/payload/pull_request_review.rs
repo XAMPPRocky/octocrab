@@ -78,7 +78,7 @@ mod test {
         if let Some(EventPayload::PullRequestReviewEvent(ref payload)) =
             event.payload.as_ref().unwrap().specific
         {
-            assert_eq!(payload.pull_request.id.unwrap().0, 1237933052);
+            assert_eq!(payload.pull_request.id.0, 1237933052);
         } else {
             panic!("unexpected event payload encountered: {:#?}", event.payload);
         }
