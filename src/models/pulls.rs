@@ -4,10 +4,20 @@ use crate::models::commits::CommentReactions;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PullRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<PullRequestId>,
+    /* `pull-request-minimal`` required fields.
+     * Always available on *every* pull-request payload.
+     */
+    pub id: PullRequestId,
+    /// The pull request number.  Note that GitHub's REST API
+    /// considers every pull-request an issue with the same number.
+    pub number: u64,
+    pub url: String,
+    pub head: Box<Head>,
+    pub base: Box<Base>,
+    /*
+     * `pull-request-simple` additional required fields.
+     * Always available on Projects V2 and WebhookEventPayload::PullRequest.
+     */
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -28,17 +38,10 @@ pub struct PullRequest {
     pub comments_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statuses_url: Option<Url>,
-    /// The pull request number.  Note that GitHub's REST API
-    /// considers every pull-request an issue with the same number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<IssueState>,
     #[serde(default)]
     pub locked: bool,
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maintainer_can_modify: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -63,6 +66,15 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
+    /*
+     * `pull-request` additional required fields,
+     * Always available in WebhookEventPayload::PullRequest.
+     */
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maintainer_can_modify: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mergeable_state: Option<MergeableState>,
@@ -70,37 +82,7 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merged: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub merged_by: Option<Box<Author>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub merge_commit_sha: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<Box<Author>>,
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignees: Option<Vec<Author>>,
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requested_reviewers: Option<Vec<Author>>,
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requested_teams: Option<Vec<teams::RequestedTeam>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rebaseable: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub head: Option<Box<Head>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub base: Option<Box<Base>>,
-    #[serde(rename = "_links")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub links: Option<Box<Links>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub author_association: Option<AuthorAssociation>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub auto_merge: Option<Box<AutoMerge>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub draft: Option<bool>,
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub additions: Option<u64>,
@@ -119,6 +101,33 @@ pub struct PullRequest {
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<u64>,
+    /*
+     * optional fields, may be available in payloads
+     */
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merge_commit_sha: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignee: Option<Box<Author>>,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignees: Option<Vec<Author>>,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested_reviewers: Option<Vec<Author>>,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested_teams: Option<Vec<teams::RequestedTeam>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rebaseable: Option<bool>,
+    #[serde(rename = "_links")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<Box<Links>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<AuthorAssociation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub auto_merge: Option<Box<AutoMerge>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub draft: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
