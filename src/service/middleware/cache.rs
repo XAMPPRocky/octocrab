@@ -1,4 +1,6 @@
 pub mod mem;
+#[cfg(feature = "redb")]
+pub mod redb;
 
 use std::{
     future::Future,
