@@ -2542,85 +2542,127 @@ impl Octocrab {
         &self,
         request: http::Request<impl Into<OctoBody>>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
-        let (mut parts, body) = request.into_parts();
+        let (parts, body) = request.into_parts();
+        let method = parts.method;
+        let uri = parts.uri;
+        let version = parts.version;
+        let headers = parts.headers;
         let body: OctoBody = body.into();
-        // Saved request that we can retry later if necessary
-        let auth_header: Option<HeaderValue> = match self.auth_state {
-            AuthState::None => None,
-            #[cfg(feature = "jwt")]
-            AuthState::App(ref app) => Some(
-                HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
-                    .map_err(http::Error::from)
-                    .context(HttpSnafu)?,
-            ),
-            AuthState::BasicAuth {
-                ref username,
-                ref password,
-            } => {
-                // Equivalent implementation of: https://github.com/seanmonstar/reqwest/blob/df2b3baadc1eade54b1c22415792b778442673a4/src/util.rs#L3-L23
-                use base64::prelude::BASE64_STANDARD;
-                use base64::write::EncoderWriter;
+        #[cfg(feature = "jwt")]
+        let (first_body, retry_body) = match body
+            .try_clone()
+            .or_else(|| http_body::Body::is_end_stream(&body).then(OctoBody::empty))
+        {
+            Some(cloned_body) => (cloned_body, Some(body)),
+            None => (body, None),
+        };
+        #[cfg(not(feature = "jwt"))]
+        let first_body = body;
 
-                let mut buf = b"Basic ".to_vec();
-                {
-                    let mut encoder = EncoderWriter::new(&mut buf, &BASE64_STANDARD);
-                    write!(encoder, "{username}:{password}").expect("writing to a Vec never fails");
-                }
-                Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
-            }
-            #[cfg(feature = "jwt")]
-            AuthState::Installation { ref token, .. } => {
-                let token = if let Some(token) = token.valid_token() {
-                    token
-                } else {
-                    self.request_installation_auth_token().await?
-                };
+        let send_request = |body| {
+            let method = method.clone();
+            let uri = uri.clone();
+            let mut headers = headers.clone();
 
-                Some(
-                    HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
+            async move {
+                let auth_header: Option<HeaderValue> = match self.auth_state {
+                    AuthState::None => None,
+                    #[cfg(feature = "jwt")]
+                    AuthState::App(ref app) => Some(
+                        HeaderValue::from_str(
+                            format!("Bearer {}", app.generate_bearer_token()?).as_str(),
+                        )
                         .map_err(http::Error::from)
                         .context(HttpSnafu)?,
-                )
+                    ),
+                    AuthState::BasicAuth {
+                        ref username,
+                        ref password,
+                    } => {
+                        // Equivalent implementation of: https://github.com/seanmonstar/reqwest/blob/df2b3baadc1eade54b1c22415792b778442673a4/src/util.rs#L3-L23
+                        use base64::prelude::BASE64_STANDARD;
+                        use base64::write::EncoderWriter;
+
+                        let mut buf = b"Basic ".to_vec();
+                        {
+                            let mut encoder = EncoderWriter::new(&mut buf, &BASE64_STANDARD);
+                            write!(encoder, "{username}:{password}")
+                                .expect("writing to a Vec never fails");
+                        }
+                        Some(
+                            HeaderValue::from_bytes(&buf)
+                                .expect("base64 is always valid HeaderValue"),
+                        )
+                    }
+                    #[cfg(feature = "jwt")]
+                    AuthState::Installation { ref token, .. } => {
+                        let token = if let Some(token) = token.valid_token() {
+                            token
+                        } else {
+                            self.request_installation_auth_token().await?
+                        };
+
+                        Some(
+                            HeaderValue::from_str(
+                                format!("Bearer {}", token.expose_secret()).as_str(),
+                            )
+                            .map_err(http::Error::from)
+                            .context(HttpSnafu)?,
+                        )
+                    }
+                    AuthState::AccessToken { ref token } => Some(
+                        HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
+                            .map_err(http::Error::from)
+                            .context(HttpSnafu)?,
+                    ),
+                };
+
+                if let Some(mut auth_header) = auth_header {
+                    // Only set the auth_header if the authority (host) is api.github.com or empty (destined for
+                    // GitHub). Otherwise, leave it off as we could have been redirected
+                    // away from GitHub (via follow_location_to_data()), and we don't
+                    // want to give our credentials to third-party services.
+                    match uri.authority() {
+                        None => {
+                            auth_header.set_sensitive(true);
+                            headers.insert(http::header::AUTHORIZATION, auth_header);
+                        }
+                        Some(authority) if authority == "api.github.com" => {
+                            auth_header.set_sensitive(true);
+                            headers.insert(http::header::AUTHORIZATION, auth_header);
+                        }
+                        Some(_) => {
+                            // Don't insert auth header.
+                        }
+                    }
+                }
+
+                let mut request = http::Request::builder()
+                    .method(method)
+                    .uri(uri)
+                    .version(version)
+                    .body(body)
+                    .context(HttpSnafu)?;
+                *request.headers_mut() = headers;
+
+                self.send(request).await
             }
-            AuthState::AccessToken { ref token } => Some(
-                HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
-                    .map_err(http::Error::from)
-                    .context(HttpSnafu)?,
-            ),
         };
 
-        if let Some(mut auth_header) = auth_header {
-            // Only set the auth_header if the authority (host) is api.github.com or empty (destined for
-            // GitHub). Otherwise, leave it off as we could have been redirected
-            // away from GitHub (via follow_location_to_data()), and we don't
-            // want to give our credentials to third-party services.
-            match parts.uri.authority() {
-                None => {
-                    auth_header.set_sensitive(true);
-                    parts
-                        .headers
-                        .insert(http::header::AUTHORIZATION, auth_header);
-                }
-                Some(authority) if authority == "api.github.com" => {
-                    auth_header.set_sensitive(true);
-                    parts
-                        .headers
-                        .insert(http::header::AUTHORIZATION, auth_header);
-                }
-                Some(_) => {
-                    // Don't insert auth header.
-                }
-            }
-        }
-
-        let request = http::Request::from_parts(parts, body);
-
-        let response = self.send(request).await?;
+        let response = send_request(first_body).await?;
 
         #[cfg(feature = "jwt")]
         if StatusCode::UNAUTHORIZED == response.status() {
             if let AuthState::Installation { ref token, .. } = self.auth_state {
                 token.clear();
+
+                if let Some(body) = retry_body {
+                    let response = send_request(body).await?;
+                    if StatusCode::UNAUTHORIZED == response.status() {
+                        token.clear();
+                    }
+                    return Ok(response);
+                }
             }
         }
         Ok(response)
