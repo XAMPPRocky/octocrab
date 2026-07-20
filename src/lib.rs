@@ -587,6 +587,24 @@ impl<Svc, Config, LayerState> OctocrabBuilder<Svc, Config, NoAuth, LayerState> {
     }
 }
 
+#[cfg(all(feature = "rustls", not(feature = "opentls")))]
+fn default_rustls_crypto_provider() -> Arc<rustls::crypto::CryptoProvider> {
+    #[cfg(feature = "rustls-aws-lc-rs")]
+    {
+        Arc::new(rustls::crypto::aws_lc_rs::default_provider())
+    }
+    #[cfg(all(feature = "rustls-ring", not(feature = "rustls-aws-lc-rs")))]
+    {
+        Arc::new(rustls::crypto::ring::default_provider())
+    }
+    #[cfg(not(any(feature = "rustls-aws-lc-rs", feature = "rustls-ring")))]
+    {
+        compile_error!(
+            "the `rustls` feature requires one of the `rustls-ring` or `rustls-aws-lc-rs` features to be enabled"
+        )
+    }
+}
+
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     /// Set the retry configuration
     #[cfg(feature = "retry")]
@@ -733,11 +751,19 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             #[cfg(all(feature = "rustls", not(feature = "opentls")))]
             let connector = {
                 let builder = HttpsConnectorBuilder::new();
+                // Allow user to have installed a runtime default.
+                // If not, we ship with _our_ recommended default.
+                let provider = rustls::crypto::CryptoProvider::get_default()
+                    .map(|arc| arc.clone())
+                    .unwrap_or_else(default_rustls_crypto_provider);
                 #[cfg(feature = "rustls-webpki-tokio")]
-                let builder = builder.with_webpki_roots();
+                let builder = builder
+                    .with_provider_and_webpki_roots(provider)
+                    .map_err(Into::into)
+                    .context(error::OtherSnafu)?;
                 #[cfg(not(feature = "rustls-webpki-tokio"))]
                 let builder = builder
-                    .with_native_roots()
+                    .with_provider_and_native_roots(provider)
                     .map_err(Into::into)
                     .context(error::OtherSnafu)?; // enabled the `rustls-native-certs` feature in hyper-rustls
 
