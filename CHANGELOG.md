@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.1](https://github.com/XAMPPRocky/octocrab/compare/v0.54.0...v0.54.1) - 2026-07-20
+
+### Added
+
+- Add override of default crypto provider ([#931](https://github.com/XAMPPRocky/octocrab/pull/931))
+
 ## [0.54.0](https://github.com/XAMPPRocky/octocrab/compare/v0.53.1...v0.54.0) - 2026-06-22
 
 ### Fixed
