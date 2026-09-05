@@ -75,6 +75,13 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
+    #[cfg(feature = "reqwest")]
+    #[snafu(display("Reqwest Error: {}", source))]
+    Reqwest {
+        source: reqwest::Error,
+        backtrace: Backtrace,
+    },
+
     #[snafu(display("Serde Url Encode Error: {}", source))]
     SerdeUrlEncoded {
         source: serde_urlencoded::ser::Error,
