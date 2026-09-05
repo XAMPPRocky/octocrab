@@ -63,3 +63,16 @@ pub struct GistRevision {
     pub files: BTreeMap<String, GistFile>,
     pub url: Url,
 }
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct GistComment {
+    pub id: CommentId,
+    pub node_id: String,
+    pub url: Url,
+    pub body: String,
+    pub user: Option<Author>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub author_association: AuthorAssociation,
+}

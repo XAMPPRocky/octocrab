@@ -8,6 +8,7 @@ pub mod codes_of_conduct;
 pub mod commits;
 pub mod current;
 pub mod events;
+pub mod gist_comments;
 pub mod gists;
 pub mod gitignore;
 pub mod hooks;

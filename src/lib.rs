@@ -287,8 +287,8 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, commits, current, events,
-        gists, gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls, ratelimit,
-        repos, search, teams, users, workflows,
+        gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls,
+        ratelimit, repos, search, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,

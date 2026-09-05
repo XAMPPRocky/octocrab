@@ -17,6 +17,7 @@ pub use self::list_commits::ListCommitsBuilder;
 pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder, ListUserGistsBuilder};
 
 use crate::{
+    gist_comments,
     models::gists::{Gist, GistRevision},
     Octocrab, Result,
 };
@@ -25,7 +26,7 @@ use crate::{
 ///
 /// Created with [`Octocrab::gists`].
 pub struct GistsHandler<'octo> {
-    crab: &'octo Octocrab,
+    pub(crate) crab: &'octo Octocrab,
 }
 
 impl<'octo> GistsHandler<'octo> {
@@ -371,6 +372,28 @@ impl<'octo> GistsHandler<'octo> {
     pub async fn fork(&self, gist_id: impl AsRef<str>) -> Result<Gist> {
         let route = format!("/gists/{gist_id}/forks", gist_id = gist_id.as_ref());
         self.crab.post(route, None::<&()>).await
+    }
+
+    /// Access the comments API for the given `gist_id`. See [GitHub API
+    /// Docs][docs] for information about the comments endpoints.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .gists()
+    ///     .comments_for("00000000000000000000000000000000")
+    ///     .list_comments()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/gists/comments?apiVersion=2022-11-28
+    pub fn comments_for(
+        &self,
+        gist_id: impl AsRef<str>,
+    ) -> gist_comments::GistCommentsHandler<'_, '_> {
+        gist_comments::GistCommentsHandler::new(self, gist_id.as_ref().to_string())
     }
 }
 
