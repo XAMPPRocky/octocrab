@@ -1,7 +1,6 @@
 use futures_util::{future, FutureExt};
 use http::header::AsHeaderName;
 use http::{HeaderMap, HeaderValue, Request, Response};
-use hyper_util::client::legacy::Error;
 use std::sync::Arc;
 use std::time::Duration;
 use tower::retry::Policy;
@@ -76,13 +75,17 @@ pub enum RetryConfig {
     },
 }
 
-impl<B> Policy<Request<OctoBody>, Response<B>, Error> for RetryConfig {
+// Generic over the inner service's error type `E` (not just its response
+// body `B`) so that this policy can be reused with any leaf transport
+// service, e.g. both the default hyper-based client and the optional
+// reqwest-based client (see `crate::service::middleware::reqwest_connector`).
+impl<B, E> Policy<Request<OctoBody>, Response<B>, E> for RetryConfig {
     type Future = future::BoxFuture<'static, ()>;
 
     fn retry(
         &mut self,
         req: &mut Request<OctoBody>,
-        result: &mut Result<Response<B>, Error>,
+        result: &mut Result<Response<B>, E>,
     ) -> Option<Self::Future> {
         match self {
             RetryConfig::None => None,

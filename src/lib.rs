@@ -605,6 +605,28 @@ fn default_rustls_crypto_provider() -> Arc<rustls::crypto::CryptoProvider> {
     }
 }
 
+/// Which [`reqwest::Client`] [`OctocrabBuilder::build_with_reqwest`] should
+/// use.
+#[cfg(feature = "reqwest")]
+#[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
+pub enum ReqwestClientConfig {
+    /// Build a fresh [`reqwest::Client`], honoring this builder's
+    /// `set_connect_timeout`/`set_read_timeout` settings (see
+    /// [`OctocrabBuilder::set_connect_timeout`] and
+    /// [`OctocrabBuilder::set_read_timeout`]). Note that `reqwest` has no
+    /// separate write timeout, so `set_write_timeout` is not applied here.
+    Default,
+    /// Use this caller-provided, already-configured [`reqwest::Client`].
+    Custom(reqwest::Client),
+}
+
+#[cfg(feature = "reqwest")]
+impl From<reqwest::Client> for ReqwestClientConfig {
+    fn from(client: reqwest::Client) -> Self {
+        Self::Custom(client)
+    }
+}
+
 impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady> {
     /// Set the retry configuration
     #[cfg(feature = "retry")]
@@ -840,19 +862,212 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         #[cfg(feature = "follow-redirect")]
         let client = tower_http::follow_redirect::FollowRedirectLayer::new().layer(client);
 
+        let executor = self.executor;
+        let PreparedConfig {
+            extra_headers,
+            auth_header,
+            auth_state,
+            base_uri,
+            upload_uri,
+            cache_storage,
+        } = Self::prepare_config(self.config)?;
+
+        let client = ExtraHeadersLayer::new(Arc::new(extra_headers)).layer(client);
+
+        let client = MapResponseBodyLayer::new(|body| {
+            BodyExt::map_err(body, |e| HyperSnafu.into_error(e)).boxed()
+        })
+        .layer(client);
+
+        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
+
+        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
+
+        let client = HttpCacheLayer::new(cache_storage).layer(client);
+
+        if let Some(executor) = executor {
+            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+        }
+
+        Ok(Octocrab::new(client, auth_state))
+    }
+
+    /// Build an [`Octocrab`] instance backed by [`reqwest::Client`] instead
+    /// of the default `hyper`-based client.
+    ///
+    /// This routes requests through the same Tower middleware stack as
+    /// [`Self::build`] (retries, tracing, extra headers, base URI rewriting,
+    /// auth headers, and HTTP caching), but executes them with `reqwest`.
+    /// This is useful when you want `reqwest`'s HTTP/proxy handling, e.g. to
+    /// pick up the `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` environment
+    /// variables, or an explicit [`reqwest::Proxy`], while still keeping
+    /// Octocrab's authentication, retry, and caching behavior.
+    ///
+    /// Accepts a [`ReqwestClientConfig`], or (via [`Into`]) a
+    /// caller-provided [`reqwest::Client`] directly:
+    /// - [`ReqwestClientConfig::Default`] builds a fresh [`reqwest::Client`],
+    ///   honoring this builder's [`Self::set_connect_timeout`] and
+    ///   [`Self::set_read_timeout`] settings (there is no equivalent for
+    ///   [`Self::set_write_timeout`], since `reqwest` has no separate write
+    ///   timeout).
+    /// - [`ReqwestClientConfig::Custom`] (or simply passing a
+    ///   [`reqwest::Client`]) uses your own, already-configured client,
+    ///   e.g. with a custom [`reqwest::Proxy`] or TLS settings. This
+    ///   builder's timeout settings are ignored in this case; configure
+    ///   them directly on the [`reqwest::ClientBuilder`] instead.
+    ///
+    /// This method is purely additive: it does not change the behavior of
+    /// [`Self::build`], and existing code is unaffected.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// // Using a default client (respects `set_connect_timeout`/`set_read_timeout`):
+    /// let octocrab = octocrab::Octocrab::builder()
+    ///     .personal_token(String::from("token"))
+    ///     .build_with_reqwest(octocrab::ReqwestClientConfig::Default)?;
+    ///
+    /// // Using a custom client, e.g. with a proxy:
+    /// let http_client = reqwest::Client::builder()
+    ///     // e.g. `.proxy(reqwest::Proxy::all("https://my-proxy:8080")?)`
+    ///     .build()
+    ///     .unwrap();
+    ///
+    /// let octocrab = octocrab::Octocrab::builder()
+    ///     .personal_token(String::from("token"))
+    ///     .build_with_reqwest(http_client)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "reqwest")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
+    pub fn build_with_reqwest(self, client: impl Into<ReqwestClientConfig>) -> Result<Octocrab> {
+        use crate::service::middleware::reqwest_connector::ReqwestConnector;
+
+        let http_client = match client.into() {
+            ReqwestClientConfig::Custom(client) => client,
+            ReqwestClientConfig::Default => {
+                let mut builder = reqwest::Client::builder();
+
+                #[cfg(feature = "timeout")]
+                {
+                    if let Some(connect_timeout) = self.config.connect_timeout {
+                        builder = builder.connect_timeout(connect_timeout);
+                    }
+                    if let Some(read_timeout) = self.config.read_timeout {
+                        builder = builder.read_timeout(read_timeout);
+                    }
+                }
+
+                builder
+                    .build()
+                    .map_err(Into::into)
+                    .context(error::OtherSnafu)?
+            }
+        };
+
+        let client = ReqwestConnector::new(http_client);
+
+        #[cfg(feature = "retry")]
+        let client = RetryLayer::new(self.config.retry_config.clone()).layer(client);
+
+        #[cfg(feature = "tracing")]
+        let client = TraceLayer::new_for_http()
+            .make_span_with(|req: &Request<OctoBody>| {
+                tracing::debug_span!(
+                    "HTTP",
+                     http.method = %req.method(),
+                     http.url = %req.uri(),
+                     http.status_code = tracing::field::Empty,
+                     otel.name = req.extensions().get::<&'static str>().unwrap_or(&"HTTP"),
+                     otel.kind = "client",
+                     otel.status_code = tracing::field::Empty,
+                )
+            })
+            .on_request(|_req: &Request<OctoBody>, _span: &Span| {
+                tracing::debug!("requesting");
+            })
+            .on_response(
+                |res: &Response<BoxBody<Bytes, crate::Error>>, _latency: Duration, span: &Span| {
+                    let status = res.status();
+                    span.record("http.status_code", status.as_u16());
+                    if status.is_client_error() || status.is_server_error() {
+                        span.record("otel.status_code", "ERROR");
+                    }
+                },
+            )
+            // Explicitly disable `on_body_chunk`. The default does nothing.
+            .on_body_chunk(())
+            .on_eos(|_: Option<&HeaderMap>, _duration: Duration, _span: &Span| {
+                tracing::debug!("stream closed");
+            })
+            .on_failure(
+                |ec: ServerErrorsFailureClass, _latency: Duration, span: &Span| {
+                    span.record("otel.status_code", "ERROR");
+                    match ec {
+                        ServerErrorsFailureClass::StatusCode(status) => {
+                            span.record("http.status_code", status.as_u16());
+                            tracing::error!("failed with status {}", status)
+                        }
+                        ServerErrorsFailureClass::Error(err) => {
+                            tracing::error!("failed with error {}", err)
+                        }
+                    }
+                },
+            )
+            .layer(client);
+
+        // `TraceLayer` wraps the response body for per-frame instrumentation
+        // (`on_body_chunk`/`on_eos`). Box it back down into a plain
+        // `BoxBody<Bytes, crate::Error>` so that the remaining layers (which
+        // are agnostic to which leaf transport produced the response) see
+        // the same body type used throughout the rest of Octocrab's Tower
+        // stack.
+        #[cfg(feature = "tracing")]
+        let client = MapResponseBodyLayer::new(|body| BodyExt::boxed(body)).layer(client);
+
+        #[cfg(feature = "follow-redirect")]
+        let client = tower_http::follow_redirect::FollowRedirectLayer::new().layer(client);
+
+        let executor = self.executor;
+        let PreparedConfig {
+            extra_headers,
+            auth_header,
+            auth_state,
+            base_uri,
+            upload_uri,
+            cache_storage,
+        } = Self::prepare_config(self.config)?;
+
+        let client = ExtraHeadersLayer::new(Arc::new(extra_headers)).layer(client);
+
+        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
+
+        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
+
+        let client = HttpCacheLayer::new(cache_storage).layer(client);
+
+        if let Some(executor) = executor {
+            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+        }
+
+        Ok(Octocrab::new(client, auth_state))
+    }
+
+    /// Computes the extra headers, auth header/state, and base/upload URIs
+    /// shared by [`Self::build`] and [`Self::build_with_reqwest`].
+    fn prepare_config(config: DefaultOctocrabBuilderConfig) -> Result<PreparedConfig> {
         let mut hmap: Vec<(HeaderName, HeaderValue)> = vec![];
 
         // Add the user agent header required by GitHub
         hmap.push((USER_AGENT, HeaderValue::from_str("octocrab").unwrap()));
 
-        for preview in &self.config.previews {
+        for preview in &config.previews {
             hmap.push((
                 http::header::ACCEPT,
                 HeaderValue::from_str(crate::format_preview(preview).as_str()).unwrap(),
             ));
         }
 
-        let (auth_header, auth_state): (Option<HeaderValue>, _) = match self.config.auth {
+        let (auth_header, auth_state): (Option<HeaderValue>, _) = match config.auth {
             Auth::None => (None, AuthState::None),
             Auth::Basic { username, password } => {
                 (None, AuthState::BasicAuth { username, password })
@@ -880,7 +1095,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             ),
         };
 
-        for (key, value) in self.config.extra_headers.iter() {
+        for (key, value) in config.extra_headers.iter() {
             hmap.push((
                 key.clone(),
                 HeaderValue::from_str(value.as_str())
@@ -889,37 +1104,36 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
             ));
         }
 
-        let client = ExtraHeadersLayer::new(Arc::new(hmap)).layer(client);
-
-        let client = MapResponseBodyLayer::new(|body| {
-            BodyExt::map_err(body, |e| HyperSnafu.into_error(e)).boxed()
-        })
-        .layer(client);
-
-        let base_uri = self
-            .config
+        let base_uri = config
             .base_uri
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_URI).unwrap());
 
-        let upload_uri = self
-            .config
+        let upload_uri = config
             .upload_uri
             .clone()
             .unwrap_or_else(|| Uri::from_str(GITHUB_BASE_UPLOAD_URI).unwrap());
 
-        let client = BaseUriLayer::new(base_uri.clone()).layer(client);
-
-        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
-
-        let client = HttpCacheLayer::new(self.config.cache_storage.clone()).layer(client);
-
-        if let Some(executor) = self.executor {
-            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
-        }
-
-        Ok(Octocrab::new(client, auth_state))
+        Ok(PreparedConfig {
+            extra_headers: hmap,
+            auth_header,
+            auth_state,
+            base_uri,
+            upload_uri,
+            cache_storage: config.cache_storage.clone(),
+        })
     }
+}
+
+/// Intermediate result of [`OctocrabBuilder::prepare_config`], shared
+/// between [`OctocrabBuilder::build`] and [`OctocrabBuilder::build_with_reqwest`].
+struct PreparedConfig {
+    extra_headers: Vec<(HeaderName, HeaderValue)>,
+    auth_header: Option<HeaderValue>,
+    auth_state: AuthState,
+    base_uri: Uri,
+    upload_uri: Uri,
+    cache_storage: Option<Arc<dyn CacheStorage>>,
 }
 
 pub struct DefaultOctocrabBuilderConfig {
