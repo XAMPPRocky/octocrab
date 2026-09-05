@@ -105,7 +105,7 @@ impl<'octo, 'b> GistCommentsHandler<'octo, 'b> {
     /// let comment = octocrab::instance()
     ///     .gists()
     ///     .comments_for("00_gist_id_00")
-    ///     .get_comment(1u64.into())
+    ///     .get_comment(1u64)
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -131,7 +131,7 @@ impl<'octo, 'b> GistCommentsHandler<'octo, 'b> {
     /// let comment = octocrab::instance()
     ///     .gists()
     ///     .comments_for("00_gist_id_00")
-    ///     .update_comment(1u64.into(), "This is an update to a comment in a gist")
+    ///     .update_comment(1u64, "This is an update to a comment in a gist")
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -162,7 +162,7 @@ impl<'octo, 'b> GistCommentsHandler<'octo, 'b> {
     /// octocrab::instance()
     ///     .gists()
     ///     .comments_for("00_gist_id_00")
-    ///     .delete_comment(1u64.into())
+    ///     .delete_comment(1u64)
     ///     .await?;
     /// # Ok(())
     /// # }
