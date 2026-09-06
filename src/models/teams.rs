@@ -30,6 +30,36 @@ pub struct Team {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct FullTeam {
+    pub id: TeamId,
+    pub node_id: String,
+    pub url: Url,
+    pub html_url: Url,
+    pub name: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub privacy: TeamPrivacy,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notification_setting: Option<String>,
+    pub permission: String,
+    pub members_url: Url,
+    pub repositories_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent: Option<Team>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub members_count: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repos_count: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization: Option<orgs::Organization>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RequestedReviewers {
     pub users: Vec<Author>,
     pub teams: Vec<Team>,
