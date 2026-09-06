@@ -5,7 +5,9 @@ use crate::models::interaction_limits::{
 };
 use crate::models::{interaction_limits, UpdateUserProfile};
 use crate::{
-    models::{self, gists::Gist, orgs::MembershipInvitation, Installation, Repository},
+    models::{
+        self, gists::Gist, orgs::MembershipInvitation, teams::FullTeam, Installation, Repository,
+    },
     Octocrab, Page, Result,
 };
 use chrono::{DateTime, Utc};
@@ -181,6 +183,25 @@ impl<'octo> CurrentAuthHandler<'octo> {
         &self,
     ) -> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
         ListOrgMembershipsForAuthenticatedUserBuilder::new(self.crab)
+    }
+
+    /// List all of the teams across all of the organizations to which the
+    /// authenticated user belongs.
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .current()
+    ///     .list_all_teams_for_auth_user()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#list-teams-for-the-authenticated-user)
+    pub fn list_all_teams_for_auth_user(&self) -> ListAllTeamsForAuthUserBuilder<'octo> {
+        ListAllTeamsForAuthUserBuilder::new(self.crab)
     }
 
     /// ### Get interaction restrictions for your public repositories
@@ -675,5 +696,54 @@ impl<'octo> ListAppInstallationsAccessibleToUserBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Installation>> {
         self.crab.get("/user/installations", (&self).into()).await
+    }
+}
+
+/// A builder pattern struct for listing all of the teams across all of the
+/// organizations to which the authenticated user belongs.
+///
+/// Created by [`CurrentAuthHandler::list_all_teams_for_auth_user`].
+///
+/// [`CurrentAuthHandler::list_all_teams_for_auth_user`]: ./struct.CurrentAuthHandler.html#method.list_all_teams_for_auth_user
+#[derive(serde::Serialize)]
+pub struct ListAllTeamsForAuthUserBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u8>,
+}
+
+impl<'octo> ListAllTeamsForAuthUserBuilder<'octo> {
+    fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#list-teams-for-the-authenticated-user--parameters)
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#list-teams-for-the-authenticated-user--parameters)
+    pub fn page(mut self, page: impl Into<u8>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<FullTeam>> {
+        self.crab.get("/user/teams", (&self).into()).await
     }
 }
