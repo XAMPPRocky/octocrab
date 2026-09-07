@@ -114,6 +114,7 @@ pub use copilot::billing::{
 pub use copilot::metrics::CopilotMetrics;
 pub mod packages;
 pub mod pulls;
+pub mod pr_stacks;
 pub mod reactions;
 pub mod repos;
 pub mod rulesets;

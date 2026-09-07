@@ -35,6 +35,7 @@ pub mod keys;
 mod merges;
 pub mod pages;
 mod pulls;
+mod pr_stacks;
 pub mod release_assets;
 pub mod releases;
 pub mod rulesets;
@@ -123,6 +124,7 @@ pub use pages::{
     RepoPagesBuildsHandler, RepoPagesDeploymentsHandler, RepoPagesHandler, UpdatePagesSiteBuilder,
 };
 pub use pulls::ListPullsBuilder;
+pub use pr_stacks::StackedPrsHandler;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::{ListReleaseReactionsBuilder, ReleasesHandler};
 pub use rulesets::{
@@ -1753,6 +1755,25 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn dependency_graph(&self) -> RepoDependencyGraphHandler<'octo> {
         RepoDependencyGraphHandler::new(self.crab, self.repo.clone())
+    }
+
+    /// Returns a [`StackedPrsHandler`] to interact with GitHub's Stacked
+    /// Pull Requests API for this repository.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .stacks()
+    ///     .list()
+    ///     .await?;
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// See <https://docs.github.com/en/rest/pulls/stacks?apiVersion=2022-11-28>
+    pub fn stacks(&self) -> StackedPrsHandler<'_> {
+        StackedPrsHandler::new(self)
     }
 
     /// Handle SBOM report generation
