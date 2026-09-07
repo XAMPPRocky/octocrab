@@ -48,12 +48,7 @@ async fn should_list_stacks() {
     .await;
 
     let client = setup_octocrab(&mock_server.uri());
-    let page = client
-        .repos(OWNER, REPO)
-        .stacks()
-        .list()
-        .await
-        .unwrap();
+    let page = client.repos(OWNER, REPO).stacks().list().await.unwrap();
 
     assert_eq!(page.items.len(), 1);
     assert_eq!(page.items[0], stack);
@@ -121,7 +116,9 @@ async fn should_add_to_stack() {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!("/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/add")))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/add"
+        )))
         .respond_with(ResponseTemplate::new(200).set_body_json(&stack))
         .mount(&mock_server)
         .await;
@@ -151,7 +148,9 @@ async fn should_remove_from_stack_partial() {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!("/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/unstack")))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/unstack"
+        )))
         .respond_with(ResponseTemplate::new(200).set_body_json(&stack))
         .mount(&mock_server)
         .await;
@@ -180,7 +179,9 @@ async fn should_remove_from_stack_dissolved() {
     let mock_server = MockServer::start().await;
 
     Mock::given(method("POST"))
-        .and(path(format!("/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/unstack")))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/stacks/{STACK_NUMBER}/unstack"
+        )))
         .respond_with(ResponseTemplate::new(204))
         .mount(&mock_server)
         .await;

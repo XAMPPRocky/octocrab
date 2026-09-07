@@ -80,3 +80,98 @@ pub struct PrStack {
     /// Ordered list of pull requests in this stack, from bottom to top.
     pub pull_requests: Vec<StackedPrEntry>,
 }
+
+// ── Stack-aware PR field ────────────────────────────────────────────────────
+
+/// Stack membership summary embedded in a [`crate::models::pulls::PullRequest`]
+/// response when the PR belongs to a stack.
+///
+/// Only available when the `stack-prs` Cargo feature is enabled.
+///
+/// See <https://docs.github.com/en/pull-requests/reference/stacked-pull-requests-rest-and-graphql-apis>
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PullRequestStackSummary {
+    /// Stack number within the repository.
+    pub number: u64,
+    /// Zero-based position of this PR in the stack (0 = bottom).
+    pub position: u64,
+    /// Total number of PRs in the stack.
+    pub size: u64,
+    /// The ultimate base branch the entire stack targets.
+    pub base: StackBase,
+}
+
+// ── Async merge models ──────────────────────────────────────────────────────
+
+/// Merge method for an asynchronous merge request.
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum AsyncMergeMethod {
+    Default,
+    Merge,
+    Squash,
+    Rebase,
+}
+
+/// Merge action strategy for an asynchronous merge request.
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum AsyncMergeAction {
+    Default,
+    DirectMerge,
+    MergeQueue,
+}
+
+/// Status of an asynchronous merge operation.
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum AsyncMergeStatus {
+    Pending,
+    Merged,
+    Enqueued,
+    Failed,
+}
+
+/// Details payload of an async merge result. GitHub returns one of three
+/// shapes depending on the current status.
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum AsyncMergeDetails {
+    /// Merge is pending or enqueued: includes the operation UUID and parameters.
+    Pending {
+        message: String,
+        uuid: String,
+        merge_method: AsyncMergeMethod,
+        merge_action: AsyncMergeAction,
+        expected_head_sha: String,
+    },
+    /// Merge succeeded: includes the resulting merge commit SHA.
+    Merged { message: String, sha: String },
+    /// Merge failed or was rejected.
+    Failed { message: String },
+}
+
+/// Result returned by the asynchronous merge endpoints.
+///
+/// Returned by both:
+/// - `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` (submit)
+/// - `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` (poll)
+#[cfg(feature = "stack-prs")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AsyncMergeResult {
+    /// Current status of the merge operation.
+    pub status: AsyncMergeStatus,
+    /// Operation-specific details.
+    pub details: AsyncMergeDetails,
+}

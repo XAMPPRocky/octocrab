@@ -148,7 +148,10 @@ impl<'octo> StackedPrsHandler<'octo> {
         let route = format!("/{}/stacks", self.handler.repo);
         self.handler
             .crab
-            .post(route, Some(&serde_json::json!({ "pull_requests": pull_requests })))
+            .post(
+                route,
+                Some(&serde_json::json!({ "pull_requests": pull_requests })),
+            )
             .await
     }
 
@@ -203,7 +206,10 @@ impl<'octo> StackedPrsHandler<'octo> {
         let route = format!("/{}/stacks/{}/add", self.handler.repo, stack_number);
         self.handler
             .crab
-            .post(route, Some(&serde_json::json!({ "pull_requests": pull_requests })))
+            .post(
+                route,
+                Some(&serde_json::json!({ "pull_requests": pull_requests })),
+            )
             .await
     }
 
@@ -238,16 +244,9 @@ impl<'octo> StackedPrsHandler<'octo> {
     /// }
     /// # Ok(()) }
     /// ```
-    pub async fn remove_from_stack(
-        &self,
-        stack_number: u64,
-    ) -> crate::Result<Option<PrStack>> {
+    pub async fn remove_from_stack(&self, stack_number: u64) -> crate::Result<Option<PrStack>> {
         let route = format!("/{}/stacks/{}/unstack", self.handler.repo, stack_number);
-        let response = self
-            .handler
-            .crab
-            ._post(route, None::<&()>)
-            .await?;
+        let response = self.handler.crab._post(route, None::<&()>).await?;
         match response.status() {
             StatusCode::NO_CONTENT => Ok(None),
             _ => {

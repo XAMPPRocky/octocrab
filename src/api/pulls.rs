@@ -16,11 +16,15 @@ pub use self::{
     create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
+#[cfg(feature = "stack-prs")]
+pub use merge_async::MergeAsyncBuilder;
 
 mod comment;
 mod create;
 mod list;
 mod merge;
+#[cfg(feature = "stack-prs")]
+mod merge_async;
 mod specific_pr;
 mod update;
 
@@ -658,5 +662,74 @@ where {
             );
         }
         request
+    }
+
+    /// Submit an asynchronous merge for a pull request.
+    ///
+    /// This is the required method for merging stacked pull requests. When
+    /// merging a stacked PR, all PRs in the stack up to and including this one
+    /// are merged into the base branch.
+    ///
+    /// Use [`PullRequestHandler::get_merge_async_result`] to poll for the
+    /// result using the UUID returned in [`AsyncMergeDetails::Pending`].
+    ///
+    /// Requires the `stack-prs` Cargo feature.
+    ///
+    /// # API
+    /// `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::models::pr_stacks::AsyncMergeMethod;
+    ///
+    /// let result = octocrab::instance()
+    ///     .pulls("owner", "repo")
+    ///     .merge_async(42)
+    ///     .merge_method(AsyncMergeMethod::Squash)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(()) }
+    /// ```
+    #[cfg(feature = "stack-prs")]
+    pub fn merge_async(&self, pr_number: u64) -> MergeAsyncBuilder<'_, '_> {
+        MergeAsyncBuilder::new(self, pr_number)
+    }
+
+    /// Fetch the result of a previously submitted asynchronous merge.
+    ///
+    /// Use the `uuid` returned in the `details` field of the initial
+    /// [`AsyncMergeResult`] to poll for the final outcome.
+    ///
+    /// Results are retained for 24 hours. After that, the endpoint returns 404.
+    ///
+    /// Requires the `stack-prs` Cargo feature.
+    ///
+    /// # API
+    /// `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let result = octocrab::instance()
+    ///     .pulls("owner", "repo")
+    ///     .get_merge_async_result(42, "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    ///     .await?;
+    /// # Ok(()) }
+    /// ```
+    #[cfg(feature = "stack-prs")]
+    pub async fn get_merge_async_result(
+        &self,
+        pr_number: u64,
+        uuid: &str,
+    ) -> crate::Result<crate::models::pr_stacks::AsyncMergeResult> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/merge-async/{uuid}",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr_number,
+            uuid = uuid,
+        );
+        self.crab.get(route, None::<&()>).await
     }
 }
