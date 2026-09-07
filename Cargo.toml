@@ -34,6 +34,7 @@ features = [
     "rustls-aws-lc-rs",
     "rustls-ring",
     "rustls-webpki-tokio",
+    "stack-prs",
     "stream",
     "timeout",
     "tracing",
@@ -135,3 +136,4 @@ reqwest = ["dep:reqwest"]
 stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
+stack-prs = []

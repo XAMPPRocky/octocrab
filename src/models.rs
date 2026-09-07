@@ -28,6 +28,7 @@ pub mod memberships;
 pub mod meta;
 pub mod orgs;
 pub mod orgs_copilot;
+pub mod pr_stacks;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
