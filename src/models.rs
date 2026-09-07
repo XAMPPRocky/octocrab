@@ -25,6 +25,7 @@ pub mod hooks;
 pub mod interaction_limits;
 pub mod issues;
 pub mod memberships;
+pub mod meta;
 pub mod orgs;
 pub mod orgs_copilot;
 pub mod pulls;
