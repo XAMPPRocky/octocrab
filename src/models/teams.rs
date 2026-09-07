@@ -1,5 +1,7 @@
 use super::*;
 
+pub use super::memberships::TeamMembership;
+
 use chrono;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

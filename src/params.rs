@@ -575,6 +575,8 @@ pub mod teams {
         Maintain,
         Triage,
     }
+
+    pub use crate::models::memberships::Role;
 }
 
 pub mod workflows {

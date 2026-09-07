@@ -6,12 +6,18 @@ mod edit;
 mod invitations;
 mod list;
 mod members;
+mod memberships;
 mod team_repos;
 
 pub use self::{
-    children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    invitations::ListTeamInvitationsBuilder, list::ListTeamsBuilder,
-    members::ListTeamMembersBuilder, team_repos::TeamRepoHandler,
+    children::ListChildTeamsBuilder,
+    create::CreateTeamBuilder,
+    edit::EditTeamBuilder,
+    invitations::ListTeamInvitationsBuilder,
+    list::ListTeamsBuilder,
+    members::ListTeamMembersBuilder,
+    memberships::TeamMembershipBuilder,
+    team_repos::{ListTeamRepositoriesBuilder, TeamRepoHandler},
 };
 use http::Uri;
 use snafu::ResultExt;
@@ -194,5 +200,21 @@ impl<'octo> TeamHandler<'octo> {
     /// ```
     pub fn invitations(&self, team_slug: impl Into<String>) -> ListTeamInvitationsBuilder<'_, '_> {
         ListTeamInvitationsBuilder::new(self, team_slug.into())
+    }
+
+    /// Creates a new `TeamMembershipBuilder` for the specified team,
+    /// that allows you to manage this team's memberships.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let membership = octocrab::instance()
+    ///     .teams("owner")
+    ///     .memberships("team")
+    ///     .get("username")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn memberships(&self, team_slug: impl Into<String>) -> TeamMembershipBuilder<'_> {
+        TeamMembershipBuilder::new(self.crab, self.owner.clone(), team_slug.into())
     }
 }
