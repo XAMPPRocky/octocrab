@@ -27,6 +27,7 @@ pub mod issues;
 pub mod orgs;
 pub mod orgs_copilot;
 pub mod pulls;
+pub mod pr_stacks;
 pub mod reactions;
 pub mod repos;
 pub mod search;

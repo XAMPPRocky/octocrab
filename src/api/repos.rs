@@ -18,6 +18,7 @@ pub mod forks;
 mod generate;
 mod merges;
 mod pulls;
+mod pr_stacks;
 pub mod release_assets;
 pub mod releases;
 mod sbom;
@@ -49,6 +50,7 @@ pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
+pub use pr_stacks::StackedPrsHandler;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
@@ -790,6 +792,25 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets scanning alerts on the repository
     pub fn secrets_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         RepoSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Returns a [`StackedPrsHandler`] to interact with GitHub's Stacked
+    /// Pull Requests API for this repository.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .stacks()
+    ///     .list()
+    ///     .await?;
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// See <https://docs.github.com/en/rest/pulls/stacks?apiVersion=2022-11-28>
+    pub fn stacks(&self) -> StackedPrsHandler<'_> {
+        StackedPrsHandler::new(self)
     }
 
     /// Handle SBOM report generation

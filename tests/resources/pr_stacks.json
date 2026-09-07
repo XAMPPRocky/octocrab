@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "number": 1,
+  "node_id": "ST_kwDOABCD1234",
+  "url": "https://api.github.com/repos/XAMPPRocky/octocrab/stacks/1",
+  "base": { "ref": "main" },
+  "open": true,
+  "created_at": "2024-01-15T10:00:00Z",
+  "pull_requests": [
+    {
+      "number": 101,
+      "state": "open",
+      "draft": false,
+      "merged_at": null,
+      "head": { "ref": "feature/part-1", "sha": "abc123def456" }
+    },
+    {
+      "number": 102,
+      "state": "open",
+      "draft": false,
+      "merged_at": null,
+      "head": { "ref": "feature/part-2", "sha": "def456abc789" }
+    }
+  ]
+}
