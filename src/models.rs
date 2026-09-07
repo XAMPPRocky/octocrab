@@ -24,7 +24,11 @@ pub mod gists;
 pub mod hooks;
 pub mod interaction_limits;
 pub mod issues;
+<<<<<<< Updated upstream
 pub mod memberships;
+=======
+pub mod meta;
+>>>>>>> Stashed changes
 pub mod orgs;
 pub mod orgs_copilot;
 pub mod pulls;

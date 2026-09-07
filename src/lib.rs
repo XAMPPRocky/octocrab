@@ -35,6 +35,7 @@
 //! - [`users`] Users
 //! - [`classroom`] GitHub Classroom
 //! - [`workflows`] GitHub Workflows
+//! - [`meta`] GitHub Meta data
 //!
 //! #### Getting a Pull Request
 //! ```no_run
@@ -218,6 +219,7 @@ mod page;
 
 pub mod auth;
 pub mod etag;
+pub mod meta;
 pub mod models;
 pub mod params;
 pub mod service;
@@ -1482,6 +1484,12 @@ impl Octocrab {
     /// about `gitignore`.
     pub fn gitignore(&self) -> gitignore::GitignoreHandler<'_> {
         gitignore::GitignoreHandler::new(self)
+    }
+
+    /// Creates a [`meta::MetaHandler`] for accessing information
+    /// about the GitHub metadata API.
+    pub fn meta(&self) -> meta::MetaHandler<'_> {
+        meta::MetaHandler::new(self)
     }
 
     /// Creates a [`issues::IssueHandler`] for the repo specified at `owner/repo`,
