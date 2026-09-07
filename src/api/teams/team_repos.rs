@@ -1,6 +1,6 @@
 use crate::error::HttpSnafu;
 use crate::params;
-use crate::{models, FromResponse, Octocrab, Result};
+use crate::{models, FromResponse, Octocrab, Page, Result};
 use http::header::ACCEPT;
 use http::request::Builder;
 use http::{StatusCode, Uri};
@@ -26,6 +26,24 @@ pub struct TeamRepoHandler<'octo> {
 impl<'octo> TeamRepoHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, org: String, team: String) -> Self {
         Self { crab, org, team }
+    }
+
+    /// Lists the repositories a team has access to.
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let repos = octocrab::instance()
+    ///     .teams("owner")
+    ///     .repos("team")
+    ///     .list()
+    ///     .per_page(10)
+    ///     .page(1u8)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list(&self) -> ListTeamRepositoriesBuilder<'octo, '_> {
+        ListTeamRepositoriesBuilder::new(self)
     }
 
     /// Checks if a team manages a repository, returning the repository if it does.
@@ -139,5 +157,52 @@ impl<'octo> TeamRepoHandler<'octo> {
             )
             .await?;
         Ok(())
+    }
+}
+
+/// A builder pattern struct for listing the repositories of a team.
+///
+/// Created by [`TeamRepoHandler::list`].
+///
+/// [`TeamRepoHandler::list`]: ./struct.TeamRepoHandler.html#method.list
+#[derive(serde::Serialize)]
+pub struct ListTeamRepositoriesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r TeamRepoHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListTeamRepositoriesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r TeamRepoHandler<'octo>) -> Self {
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page.
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<Page<models::Repository>> {
+        let route = format!(
+            "/orgs/{org}/teams/{team}/repos",
+            org = self.handler.org,
+            team = self.handler.team,
+        );
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

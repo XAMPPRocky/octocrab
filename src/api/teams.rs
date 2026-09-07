@@ -9,9 +9,13 @@ mod members;
 mod team_repos;
 
 pub use self::{
-    children::ListChildTeamsBuilder, create::CreateTeamBuilder, edit::EditTeamBuilder,
-    invitations::ListTeamInvitationsBuilder, list::ListTeamsBuilder,
-    members::ListTeamMembersBuilder, team_repos::TeamRepoHandler,
+    children::ListChildTeamsBuilder,
+    create::CreateTeamBuilder,
+    edit::EditTeamBuilder,
+    invitations::ListTeamInvitationsBuilder,
+    list::ListTeamsBuilder,
+    members::ListTeamMembersBuilder,
+    team_repos::{ListTeamRepositoriesBuilder, TeamRepoHandler},
 };
 use http::Uri;
 use snafu::ResultExt;
