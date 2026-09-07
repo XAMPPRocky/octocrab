@@ -20,6 +20,12 @@ pub struct PullRequestWebhookEventPayload {
     pub changes: Option<PullRequestWebhookEventChanges>,
     pub requested_reviewer: Option<Author>,
     pub requested_team: Option<RequestedTeam>,
+    /// Top-level stack object. Only present on `stacked` action events.
+    ///
+    /// Requires the `stack-prs` Cargo feature.
+    #[cfg(feature = "stack-prs")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stack: Option<Box<crate::models::pr_stacks::PrStack>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -47,6 +53,12 @@ pub enum PullRequestWebhookEventAction {
     Unassigned,
     Unlabeled,
     Unlocked,
+    /// A pull request was added to or removed from a stack.
+    ///
+    /// The `stack` field in the event payload contains the updated stack.
+    /// Requires the `stack-prs` Cargo feature.
+    #[cfg(feature = "stack-prs")]
+    Stacked,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

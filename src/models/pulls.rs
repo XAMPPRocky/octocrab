@@ -128,6 +128,12 @@ pub struct PullRequest {
     pub auto_merge: Option<Box<AutoMerge>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub draft: Option<bool>,
+    /// Stack membership summary. Present when this PR belongs to a stack.
+    ///
+    /// Requires the `stack-prs` Cargo feature.
+    #[cfg(feature = "stack-prs")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stack: Option<Box<crate::models::pr_stacks::PullRequestStackSummary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

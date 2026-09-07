@@ -34,8 +34,8 @@ mod invitations;
 pub mod keys;
 mod merges;
 pub mod pages;
-mod pulls;
 mod pr_stacks;
+mod pulls;
 pub mod release_assets;
 pub mod releases;
 pub mod rulesets;
@@ -123,8 +123,8 @@ pub use pages::{
     CreatePagesDeploymentBuilder, CreatePagesSiteBuilder, ListPagesBuildsBuilder,
     RepoPagesBuildsHandler, RepoPagesDeploymentsHandler, RepoPagesHandler, UpdatePagesSiteBuilder,
 };
-pub use pulls::ListPullsBuilder;
 pub use pr_stacks::StackedPrsHandler;
+pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::{ListReleaseReactionsBuilder, ReleasesHandler};
 pub use rulesets::{
