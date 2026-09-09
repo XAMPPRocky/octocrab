@@ -133,3 +133,51 @@ async fn should_respond_to_gpg_key_delete() {
         result
     );
 }
+
+#[tokio::test]
+async fn should_respond_to_list_user_gpg_keys() {
+    let mocked_response: Vec<GpgKey> =
+        serde_json::from_str(include_str!("resources/user_gpg_keys.json")).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
+    let mock_server = setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client
+        .users("some_other_user")
+        .list_user_gpg_keys()
+        .per_page(42)
+        .page(3u32)
+        .send()
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let response = result.unwrap();
+    let name = &response.items.first().unwrap().name;
+    assert_eq!(name, "Octocat's GPG Key");
+}
+
+#[tokio::test]
+async fn should_respond_to_gpg_keys_list_user_gpg_keys() {
+    let mocked_response: Vec<GpgKey> =
+        serde_json::from_str(include_str!("resources/user_gpg_keys.json")).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
+    let mock_server = setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
+    let client = setup_octocrab(&mock_server.uri());
+    let result = client
+        .users("some_other_user")
+        .gpg_keys()
+        .per_page(42)
+        .page(3u32)
+        .list_user_gpg_keys()
+        .await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got error: {:#?}",
+        result
+    );
+    let response = result.unwrap();
+    let name = &response.items.first().unwrap().name;
+    assert_eq!(name, "Octocat's GPG Key");
+}
