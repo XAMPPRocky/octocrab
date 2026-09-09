@@ -9,7 +9,7 @@ use self::user_repos::ListUserReposBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
 use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
-use crate::api::users::user_gpg_keys::UserGpgKeysOpsBuilder;
+pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use crate::api::users::user_social_accounts::UserSocialAccountsOpsBuilder;
 use crate::api::users::user_ssh_signing_keys::UserSshSigningKeysOpsBuilder;
 use crate::models::UserId;
@@ -199,6 +199,31 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete a GPG key for the authenticated user
     pub fn gpg_keys(&self) -> UserGpgKeysOpsBuilder<'_, '_> {
         UserGpgKeysOpsBuilder::new(self)
+    }
+
+    /// List GPG keys for the given user, allowing for pagination.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /users/{username}/gpg_keys`
+    ///
+    /// # Examples
+    ///
+    /// * Fetch 10 recent GPG keys for the user with login "foouser":
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let gpg_keys = octocrab::instance()
+    ///         .users("foouser")
+    ///         .list_user_gpg_keys()
+    ///         .page(1u32)
+    ///         .per_page(10u8)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/gpg-keys?apiVersion=2022-11-28#list-gpg-keys-for-a-user
+    pub fn list_user_gpg_keys(&self) -> ListUserGpgKeysBuilder<'_, '_> {
+        ListUserGpgKeysBuilder::new(self)
     }
 
     ///Git SSH keys operations builder

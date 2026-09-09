@@ -143,4 +143,47 @@ impl<'octo, 'b> UserGpgKeysOpsBuilder<'octo, 'b> {
 
         Ok(())
     }
+
+    ///## List GPG keys for a user
+    ///
+    ///Lists the GPG keys for a user. This information is accessible by anyone.
+    ///
+    ///See: [GitHub API Documentation][docs] for `GET /users/{username}/gpg_keys`
+    ///
+    ///# Examples
+    ///
+    ///```no_run
+    ///  use octocrab::models::GpgKey;
+    ///  use octocrab::{Page, Result};
+    ///  async fn run() -> Result<Page<GpgKey>> {
+    ///    octocrab::instance()
+    ///        .users("some_user")
+    ///        .list_user_gpg_keys()
+    ///        .per_page(42)
+    ///        .page(3u32)
+    ///        .send()
+    ///        .await
+    ///  }
+    ///```
+    ///
+    ///[docs]: https://docs.github.com/en/rest/users/gpg-keys?apiVersion=2022-11-28#list-gpg-keys-for-a-user
+    pub async fn list_user_gpg_keys(&self) -> crate::Result<Page<GpgKey>> {
+        let route = format!("/{}/gpg_keys", self.handler.user);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+
+    /// Sends the request to list GPG keys for a user.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /users/{username}/gpg_keys`
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/gpg-keys?apiVersion=2022-11-28#list-gpg-keys-for-a-user
+    pub async fn send(&self) -> crate::Result<Page<GpgKey>> {
+        self.list_user_gpg_keys().await
+    }
 }
+
+/// A builder pattern struct for listing a user's GPG keys.
+///
+/// Created by [`UserHandler::list_user_gpg_keys`].
+pub type ListUserGpgKeysBuilder<'octo, 'b> = UserGpgKeysOpsBuilder<'octo, 'b>;
+

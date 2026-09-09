@@ -10,6 +10,7 @@ use url::Url;
 
 use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
+pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 
 pub mod actions;
 pub mod activity;
@@ -21,6 +22,7 @@ pub mod codes_of_conduct;
 pub mod commits;
 pub mod events;
 pub mod gists;
+pub mod gpg_keys;
 pub mod hooks;
 pub mod interaction_limits;
 pub mod issues;
@@ -1371,57 +1373,6 @@ pub struct UserEmailInfo {
     pub primary: bool,
     pub verified: bool,
     pub visibility: Option<EmailVisibilityState>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VerifiedEmailInfo {
-    pub email: String,
-    pub verified: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SubKeyInfo {
-    pub id: u64,
-    pub primary_key_id: u64,
-    pub key_id: String,
-    pub public_key: String,
-    pub emails: Vec<VerifiedEmailInfo>,
-    pub subkeys: Option<Vec<SubKeyInfo>>,
-    pub can_sign: bool,
-    pub can_encrypt_comms: bool,
-    pub can_encrypt_storage: bool,
-    pub can_certify: bool,
-    pub created_at: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub expires_at: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub raw_key: Option<String>,
-    pub revoked: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GpgKey {
-    pub id: u64,
-    pub name: String,
-    pub primary_key_id: u64,
-    pub key_id: String,
-    pub public_key: String,
-    pub emails: Vec<VerifiedEmailInfo>,
-    pub subkeys: Vec<SubKeyInfo>,
-    pub can_sign: bool,
-    pub can_encrypt_comms: bool,
-    pub can_encrypt_storage: bool,
-    pub can_certify: bool,
-    pub created_at: DateTime<Utc>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        default,
-        deserialize_with = "date_serde::deserialize_opt"
-    )]
-    pub expires_at: Option<DateTime<Utc>>,
-    pub revoked: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub raw_key: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
