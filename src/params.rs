@@ -618,4 +618,30 @@ pub mod users {
             Private,
         }
     }
+
+    pub mod hovercard {
+        use serde::{Deserialize, Serialize};
+
+        /// Identifies which additional information you'd like to receive about the person's hovercard.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(rename_all = "snake_case")]
+        #[non_exhaustive]
+        pub enum SubjectType {
+            Organization,
+            Repository,
+            Issue,
+            PullRequest,
+        }
+
+        impl std::fmt::Display for SubjectType {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    Self::Organization => write!(f, "organization"),
+                    Self::Repository => write!(f, "repository"),
+                    Self::Issue => write!(f, "issue"),
+                    Self::PullRequest => write!(f, "pull_request"),
+                }
+            }
+        }
+    }
 }

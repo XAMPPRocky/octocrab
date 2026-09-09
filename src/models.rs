@@ -11,6 +11,7 @@ use url::Url;
 use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
+pub use hovercard::{Hovercard, HovercardContext};
 
 pub mod actions;
 pub mod activity;
@@ -24,6 +25,7 @@ pub mod events;
 pub mod gists;
 pub mod gpg_keys;
 pub mod hooks;
+pub mod hovercard;
 pub mod interaction_limits;
 pub mod issues;
 pub mod memberships;

@@ -1,9 +1,11 @@
 //! Get data about the currently authenticated user.
 
+use http::StatusCode;
+
 use crate::models::interaction_limits::{
     InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
 };
-use crate::models::{interaction_limits, UpdateUserProfile};
+use crate::models::{interaction_limits, Followee, Follower, UpdateUserProfile};
 use crate::{
     models::{
         self, gists::Gist, orgs::MembershipInvitation, teams::FullTeam, Installation, Repository,
@@ -273,6 +275,126 @@ impl<'octo> CurrentAuthHandler<'octo> {
         let route = "/user/interaction-limits";
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
+    }
+
+    /// List the people the authenticated user follows.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /user/following`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let following = octocrab::instance()
+    ///         .current()
+    ///         .follows()
+    ///         .per_page(100u8)
+    ///         .page(1u32)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#list-the-people-the-authenticated-user-follows
+    pub fn follows(&self) -> ListCurrentUserFollowingBuilder<'octo> {
+        ListCurrentUserFollowingBuilder::new(self.crab)
+    }
+
+    /// Check if a person is followed by the authenticated user.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /user/following/{username}`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let is_following = octocrab::instance()
+    ///         .current()
+    ///         .is_following("octocat")
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#check-if-a-person-is-followed-by-the-authenticated-user
+    pub async fn is_following(&self, username: impl AsRef<str>) -> crate::Result<bool> {
+        let route = format!("/user/following/{}", username.as_ref());
+        let response = self.crab._get(route).await?;
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => {
+                crate::map_github_error(response).await?;
+                Ok(false)
+            }
+        }
+    }
+
+    /// Follow a user.
+    ///
+    /// See: [GitHub API Documentation][docs] for `PUT /user/following/{username}`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     octocrab::instance()
+    ///         .current()
+    ///         .follow("octocat")
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#follow-a-user
+    pub async fn follow(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!("/user/following/{}", username.as_ref());
+        let uri = self.crab.parameterized_uri(route, None::<&()>)?;
+        let response = self.crab._put(uri, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Unfollow a user.
+    ///
+    /// See: [GitHub API Documentation][docs] for `DELETE /user/following/{username}`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     octocrab::instance()
+    ///         .current()
+    ///         .unfollow("octocat")
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#unfollow-a-user
+    pub async fn unfollow(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!("/user/following/{}", username.as_ref());
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// List followers of the authenticated user.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /user/followers`
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let followers = octocrab::instance()
+    ///         .current()
+    ///         .list_followers()
+    ///         .per_page(100u8)
+    ///         .page(1u32)
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#list-followers-of-a-user
+    pub fn list_followers(&self) -> ListCurrentUserFollowersBuilder<'octo> {
+        ListCurrentUserFollowersBuilder::new(self.crab)
     }
 }
 
@@ -745,5 +867,89 @@ impl<'octo> ListAllTeamsForAuthUserBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<FullTeam>> {
         self.crab.get("/user/teams", (&self).into()).await
+    }
+}
+
+/// A builder pattern struct for listing the people the authenticated user follows.
+///
+/// Created by [`CurrentAuthHandler::follows`].
+#[derive(serde::Serialize)]
+pub struct ListCurrentUserFollowingBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListCurrentUserFollowingBuilder<'octo> {
+    fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<Followee>> {
+        self.crab.get("/user/following", Some(&self)).await
+    }
+}
+
+/// A builder pattern struct for listing followers of the authenticated user.
+///
+/// Created by [`CurrentAuthHandler::list_followers`].
+#[derive(serde::Serialize)]
+pub struct ListCurrentUserFollowersBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListCurrentUserFollowersBuilder<'octo> {
+    fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<Page<Follower>> {
+        self.crab.get("/user/followers", Some(&self)).await
     }
 }

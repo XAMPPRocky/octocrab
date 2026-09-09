@@ -5,6 +5,7 @@ use std::backtrace::Backtrace;
 use http::StatusCode;
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
+pub use self::hovercard::HovercardBuilder;
 pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
@@ -17,6 +18,7 @@ use crate::params::users::emails::EmailVisibilityState;
 use crate::{error, GitHubError, Octocrab};
 
 mod follow;
+mod hovercard;
 mod user_blocks;
 mod user_emails;
 mod user_git_ssh_keys;
@@ -249,5 +251,30 @@ impl<'octo> UserHandler<'octo> {
     ///* Delete an SSH signing key for the authenticated user
     pub fn ssh_signing_keys(&self) -> UserSshSigningKeysOpsBuilder<'_, '_> {
         UserSshSigningKeysOpsBuilder::new(self)
+    }
+
+    /// Get contextual information for a user.
+    ///
+    /// Provides hovercard information. You can find out more about someone in
+    /// relation to their pull requests, issues, repositories, and organizations.
+    ///
+    /// See: [GitHub API Documentation][docs] for `GET /users/{username}/hovercard`
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    ///     let hovercard = octocrab::instance()
+    ///         .users("octocat")
+    ///         .hovercard()
+    ///         .send()
+    ///         .await?;
+    /// #   Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [docs]: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-contextual-information-for-a-user
+    pub fn hovercard(&self) -> HovercardBuilder<'_, '_> {
+        HovercardBuilder::new(self)
     }
 }
