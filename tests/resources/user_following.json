@@ -1,0 +1,22 @@
+[
+  {
+    "login": "hubot",
+    "id": 2,
+    "node_id": "MDQ6VXNlcjI=",
+    "avatar_url": "https://github.com/images/error/hubot_happy.gif",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hubot",
+    "html_url": "https://github.com/hubot",
+    "followers_url": "https://api.github.com/users/hubot/followers",
+    "following_url": "https://api.github.com/users/hubot/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hubot/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hubot/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hubot/subscriptions",
+    "organizations_url": "https://api.github.com/users/hubot/orgs",
+    "repos_url": "https://api.github.com/users/hubot/repos",
+    "events_url": "https://api.github.com/users/hubot/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hubot/received_events",
+    "type": "User",
+    "site_admin": false
+  }
+]
