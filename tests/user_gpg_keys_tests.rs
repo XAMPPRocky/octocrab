@@ -139,8 +139,7 @@ async fn should_respond_to_list_user_gpg_keys() {
     let mocked_response: Vec<GpgKey> =
         serde_json::from_str(include_str!("resources/user_gpg_keys.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server =
-        setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
+    let mock_server = setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_other_user")
@@ -164,8 +163,7 @@ async fn should_respond_to_gpg_keys_list_user_gpg_keys() {
     let mocked_response: Vec<GpgKey> =
         serde_json::from_str(include_str!("resources/user_gpg_keys.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server =
-        setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
+    let mock_server = setup_gpg_keys_mock("GET", "/users/some_other_user/gpg_keys", template).await;
     let client = setup_octocrab(&mock_server.uri());
     let result = client
         .users("some_other_user")
@@ -183,4 +181,3 @@ async fn should_respond_to_gpg_keys_list_user_gpg_keys() {
     let name = &response.items.first().unwrap().name;
     assert_eq!(name, "Octocat's GPG Key");
 }
-

@@ -5,11 +5,11 @@ use std::backtrace::Backtrace;
 use http::StatusCode;
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
+pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
 use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
-pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use crate::api::users::user_social_accounts::UserSocialAccountsOpsBuilder;
 use crate::api::users::user_ssh_signing_keys::UserSshSigningKeysOpsBuilder;
 use crate::models::UserId;

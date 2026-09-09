@@ -186,4 +186,3 @@ impl<'octo, 'b> UserGpgKeysOpsBuilder<'octo, 'b> {
 ///
 /// Created by [`UserHandler::list_user_gpg_keys`].
 pub type ListUserGpgKeysBuilder<'octo, 'b> = UserGpgKeysOpsBuilder<'octo, 'b>;
-
