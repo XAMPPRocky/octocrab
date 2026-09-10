@@ -34,6 +34,7 @@ pub(crate) mod secret_scanning_alerts;
 mod secrets;
 pub mod security_advisories;
 mod stargazers;
+pub mod stats;
 mod status;
 mod tags;
 mod teams;
@@ -84,6 +85,7 @@ pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
 pub use stargazers::ListStarGazersBuilder;
+pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
@@ -861,6 +863,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle GitHub Pages on the repository
     pub fn pages(&self) -> RepoPagesHandler<'octo, '_> {
         RepoPagesHandler::new(self)
+    }
+
+    /// Handle repository statistics
+    pub fn stats(&self) -> RepoStatsHandler<'octo, '_> {
+        RepoStatsHandler::new(self)
     }
 
     /// Handle traffic metrics on the repository

@@ -14,6 +14,7 @@ pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use repos::pages;
 pub use repos::secret_scanning_alert;
+pub use repos::stats;
 pub use repos::Activity;
 pub use repos::ActivityType;
 pub use repos::Autolink;
@@ -22,6 +23,10 @@ pub use repos::InvitationPermission;
 pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
+pub use repos::{
+    CodeFrequency, CommitActivity, ContributorActivity, ContributorWeeklyActivity,
+    ParticipationStats, PunchCard,
+};
 pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
 pub use repos::{
     PageBuild, PageBuildError, PageBuildStatus, PagesBuildType, PagesDeployment, PagesDeploymentId,

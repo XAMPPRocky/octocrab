@@ -12,8 +12,10 @@ pub mod pages;
 pub mod sbom;
 pub mod secret_scanning_alert;
 pub mod secrets;
+pub mod stats;
 
 pub use pages::*;
+pub use stats::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
