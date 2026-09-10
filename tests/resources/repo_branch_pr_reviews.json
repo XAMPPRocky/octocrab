@@ -1,0 +1,17 @@
+{
+  "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/required_pull_request_reviews",
+  "dismiss_stale_reviews": true,
+  "require_code_owner_reviews": true,
+  "required_approving_review_count": 2,
+  "require_last_push_approval": true,
+  "dismissal_restrictions": {
+    "users": [],
+    "teams": [],
+    "apps": []
+  },
+  "bypass_pull_request_allowances": {
+    "users": [],
+    "teams": [],
+    "apps": []
+  }
+}

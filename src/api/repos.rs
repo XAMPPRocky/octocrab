@@ -9,7 +9,7 @@ use snafu::ResultExt;
 
 mod activity;
 mod autolinks;
-mod branches;
+pub mod branches;
 pub mod code_scanning;
 mod collaborators;
 mod comments;
@@ -57,7 +57,14 @@ use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use activity::{ListActivitiesBuilder, RepoActivityHandler};
 pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
-pub use branches::ListBranchesBuilder;
+pub use branches::{
+    ListBranchesBuilder, RepoBranchAdminEnforcementHandler, RepoBranchProtectionHandler,
+    RepoBranchPullRequestReviewsHandler, RepoBranchRestrictionAppsHandler,
+    RepoBranchRestrictionTeamsHandler, RepoBranchRestrictionUsersHandler,
+    RepoBranchRestrictionsHandler, RepoBranchSignaturesHandler,
+    RepoBranchStatusCheckContextsHandler, RepoBranchStatusChecksHandler, RepoBranchesHandler,
+    UpdateBranchProtectionBuilder, UpdatePullRequestReviewsBuilder, UpdateStatusChecksBuilder,
+};
 pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
@@ -492,6 +499,11 @@ impl<'octo> RepoHandler<'octo> {
     #[allow(deprecated)]
     pub fn tag_protection(&self) -> RepoTagProtectionHandler<'octo, '_> {
         RepoTagProtectionHandler::new(self)
+    }
+
+    /// Handle branches and branch protection on the repository
+    pub fn branches(&self) -> RepoBranchesHandler<'octo, '_> {
+        RepoBranchesHandler::new(self)
     }
 
     /// List branches from a repository.

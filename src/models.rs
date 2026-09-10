@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use repos::branches;
 pub use repos::environments;
 pub use repos::pages;
 pub use repos::secret_scanning_alert;
@@ -25,6 +26,11 @@ pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 #[allow(deprecated)]
 pub use repos::TagProtection;
+pub use repos::{
+    AdminEnforcement, BranchLinks, BranchProtection, BranchProtectionRestrictions,
+    BranchProtectionSummary, DetailedBranch, DismissalRestrictions, ProtectionFlag,
+    RequiredPullRequestReviews, RequiredStatusChecks, StatusCheck,
+};
 pub use repos::{
     BranchPolicyType, CustomDeploymentProtectionRule, CustomDeploymentProtectionRules,
     CustomDeploymentRuleApp, CustomDeploymentRuleApps, DeploymentBranchPolicies,

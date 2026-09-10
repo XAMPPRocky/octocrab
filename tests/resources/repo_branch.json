@@ -1,0 +1,102 @@
+{
+  "name": "main",
+  "commit": {
+    "sha": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+    "node_id": "MDY6Q29tbWl0NmRjNWU0ZTBiZjI0Mjc0MmMxMjIwNjE1NTFhYzA5N2NjNThmMzA0Ng==",
+    "commit": {
+      "author": {
+        "name": "Monalisa Octocat",
+        "email": "support@github.com",
+        "date": "2011-04-14T16:00:49Z"
+      },
+      "committer": {
+        "name": "Monalisa Octocat",
+        "email": "support@github.com",
+        "date": "2011-04-14T16:00:49Z"
+      },
+      "message": "Fix all the bugs",
+      "tree": {
+        "sha": "691272480426f78a01389700373040042703c827",
+        "url": "https://api.github.com/repos/octocat/Hello-World/tree/691272480426f78a01389700373040042703c827"
+      },
+      "url": "https://api.github.com/repos/octocat/Hello-World/git/commits/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/octocat/Hello-World/commits/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+    "html_url": "https://github.com/octocat/Hello-World/commit/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+    "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d/comments",
+    "author": {
+      "login": "octocat",
+      "id": 1,
+      "node_id": "MDQ6VXNlcjE=",
+      "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/octocat",
+      "html_url": "https://github.com/octocat",
+      "followers_url": "https://api.github.com/users/octocat/followers",
+      "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+      "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+      "organizations_url": "https://api.github.com/users/octocat/orgs",
+      "repos_url": "https://api.github.com/users/octocat/repos",
+      "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/octocat/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "octocat",
+      "id": 1,
+      "node_id": "MDQ6VXNlcjE=",
+      "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/octocat",
+      "html_url": "https://github.com/octocat",
+      "followers_url": "https://api.github.com/users/octocat/followers",
+      "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+      "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+      "organizations_url": "https://api.github.com/users/octocat/orgs",
+      "repos_url": "https://api.github.com/users/octocat/repos",
+      "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/octocat/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "553c2077f0edc3d5dc5d17262f6aa498e69d6f8e",
+        "url": "https://api.github.com/repos/octocat/Hello-World/commits/553c2077f0edc3d5dc5d17262f6aa498e69d6f8e"
+      }
+    ]
+  },
+  "_links": {
+    "html": "https://github.com/octocat/Hello-World/tree/main",
+    "self": "https://api.github.com/repos/octocat/Hello-World/branches/main"
+  },
+  "protected": true,
+  "protection": {
+    "enabled": true,
+    "required_status_checks": {
+      "enforcement_level": "non_admins",
+      "contexts": [
+        "continuous-integration/travis-ci"
+      ],
+      "checks": [
+        {
+          "context": "continuous-integration/travis-ci",
+          "app_id": 12345
+        }
+      ]
+    }
+  },
+  "protection_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection"
+}

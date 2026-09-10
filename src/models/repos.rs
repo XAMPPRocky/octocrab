@@ -7,6 +7,7 @@ use hyper::Response;
 use snafu::ResultExt;
 use url::Url;
 
+pub mod branches;
 pub mod dependabot;
 pub mod environments;
 pub mod pages;
@@ -15,6 +16,7 @@ pub mod secret_scanning_alert;
 pub mod secrets;
 pub mod stats;
 
+pub use branches::*;
 pub use environments::*;
 pub use pages::*;
 pub use stats::*;
