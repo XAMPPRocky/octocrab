@@ -696,3 +696,73 @@ pub struct Activity {
     #[serde(default)]
     pub actor: Option<Author>,
 }
+
+/// The permission associated with a repository invitation.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/collaborators/invitations?apiVersion=2022-11-28#list-repository-invitations)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum InvitationPermission {
+    Read,
+    Write,
+    Admin,
+    Triage,
+    Maintain,
+    #[serde(untagged)]
+    Other(String),
+}
+
+impl std::fmt::Display for InvitationPermission {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Read => write!(f, "read"),
+            Self::Write => write!(f, "write"),
+            Self::Admin => write!(f, "admin"),
+            Self::Triage => write!(f, "triage"),
+            Self::Maintain => write!(f, "maintain"),
+            Self::Other(s) => write!(f, "{s}"),
+        }
+    }
+}
+
+impl From<&str> for InvitationPermission {
+    fn from(s: &str) -> Self {
+        match s {
+            "read" => Self::Read,
+            "write" => Self::Write,
+            "admin" => Self::Admin,
+            "triage" => Self::Triage,
+            "maintain" => Self::Maintain,
+            other => Self::Other(other.to_string()),
+        }
+    }
+}
+
+impl From<String> for InvitationPermission {
+    fn from(s: String) -> Self {
+        Self::from(s.as_str())
+    }
+}
+
+/// A repository invitation.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/collaborators/invitations?apiVersion=2022-11-28#list-repository-invitations)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepositoryInvitation {
+    pub id: InvitationId,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
+    pub repository: Repository,
+    #[serde(default)]
+    pub invitee: Option<Author>,
+    #[serde(default)]
+    pub inviter: Option<Author>,
+    pub permissions: InvitationPermission,
+    pub created_at: DateTime<Utc>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expired: Option<bool>,
+    pub url: Url,
+    pub html_url: Url,
+}

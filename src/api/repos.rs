@@ -22,6 +22,7 @@ pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+mod invitations;
 mod keys;
 mod merges;
 mod pulls;
@@ -66,6 +67,9 @@ pub use deployments::{
 pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use invitations::{
+    ListRepoInvitationsBuilder, RepoInvitationsHandler, UpdateRepoInvitationBuilder,
+};
 pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
@@ -832,6 +836,16 @@ impl<'octo> RepoHandler<'octo> {
         event_type: impl Into<String>,
     ) -> CreateDispatchBuilder<'octo, '_> {
         CreateDispatchBuilder::new(self, event_type.into())
+    }
+
+    /// Handle invitations on the repository
+    pub fn invitations(&self) -> RepoInvitationsHandler<'octo, '_> {
+        RepoInvitationsHandler::new(self)
+    }
+
+    /// Creates a [`ListRepoInvitationsBuilder`] to list open invitations for the repository.
+    pub fn list_invitations(&self) -> ListRepoInvitationsBuilder<'octo, '_> {
+        ListRepoInvitationsBuilder::new(self)
     }
 
     /// Handle deploy keys on the repository

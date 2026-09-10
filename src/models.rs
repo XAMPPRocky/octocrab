@@ -17,7 +17,9 @@ pub use repos::Activity;
 pub use repos::ActivityType;
 pub use repos::Autolink;
 pub use repos::DeployKey;
+pub use repos::InvitationPermission;
 pub use repos::RepoTopics;
+pub use repos::RepositoryInvitation;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
@@ -135,6 +137,7 @@ id_type!(
     DeploymentId,
     DeploymentStatusId,
     InstallationId,
+    InvitationId,
     IssueEventId,
     IssueId,
     JobId,

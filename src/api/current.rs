@@ -396,6 +396,48 @@ impl<'octo> CurrentAuthHandler<'octo> {
     pub fn list_followers(&self) -> ListCurrentUserFollowersBuilder<'octo> {
         ListCurrentUserFollowersBuilder::new(self.crab)
     }
+
+    /// A client to GitHub's repository invitations API for the authenticated user.
+    pub fn repository_invitations(&self) -> UserRepoInvitationsHandler<'octo> {
+        UserRepoInvitationsHandler::new(self.crab)
+    }
+
+    /// List repository invitations for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/collaborators/invitations?apiVersion=2022-11-28#list-repository-invitations-for-the-authenticated-user)
+    pub fn list_repository_invitations(&self) -> ListUserRepoInvitationsBuilder<'octo> {
+        ListUserRepoInvitationsBuilder::new(self.crab)
+    }
+
+    /// Accept a repository invitation for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/collaborators/invitations?apiVersion=2022-11-28#accept-a-repository-invitation)
+    pub async fn accept_repository_invitation(
+        &self,
+        invitation_id: impl Into<crate::models::InvitationId>,
+    ) -> Result<()> {
+        let route = format!("/user/repository_invitations/{}", invitation_id.into());
+        let response = self.crab._patch(route, None::<&()>).await?;
+        if response.status() != http::StatusCode::NO_CONTENT {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Decline a repository invitation for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/collaborators/invitations?apiVersion=2022-11-28#decline-a-repository-invitation)
+    pub async fn decline_repository_invitation(
+        &self,
+        invitation_id: impl Into<crate::models::InvitationId>,
+    ) -> Result<()> {
+        let route = format!("/user/repository_invitations/{}", invitation_id.into());
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if response.status() != http::StatusCode::NO_CONTENT {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
 }
 
 /// A builder pattern struct for listing starred repositories.
@@ -951,5 +993,91 @@ impl<'octo> ListCurrentUserFollowersBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Follower>> {
         self.crab.get("/user/followers", Some(&self)).await
+    }
+}
+
+/// Handler for repository invitations for the authenticated user.
+///
+/// Created with [`CurrentAuthHandler::repository_invitations`].
+pub struct UserRepoInvitationsHandler<'octo> {
+    crab: &'octo Octocrab,
+}
+
+impl<'octo> UserRepoInvitationsHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self { crab }
+    }
+
+    /// Lists open repository invitations for the authenticated user.
+    pub fn list(&self) -> ListUserRepoInvitationsBuilder<'octo> {
+        ListUserRepoInvitationsBuilder::new(self.crab)
+    }
+
+    /// Accepts a repository invitation for the authenticated user.
+    pub async fn accept(
+        &self,
+        invitation_id: impl Into<crate::models::InvitationId>,
+    ) -> Result<()> {
+        let route = format!("/user/repository_invitations/{}", invitation_id.into());
+        let response = self.crab._patch(route, None::<&()>).await?;
+        if response.status() != http::StatusCode::NO_CONTENT {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Declines a repository invitation for the authenticated user.
+    pub async fn decline(
+        &self,
+        invitation_id: impl Into<crate::models::InvitationId>,
+    ) -> Result<()> {
+        let route = format!("/user/repository_invitations/{}", invitation_id.into());
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if response.status() != http::StatusCode::NO_CONTENT {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+}
+
+/// A builder pattern struct for listing repository invitations for the authenticated user.
+///
+/// Created by [`CurrentAuthHandler::list_repository_invitations`] or [`UserRepoInvitationsHandler::list`].
+#[derive(serde::Serialize)]
+pub struct ListUserRepoInvitationsBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListUserRepoInvitationsBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100). Default: 30.
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<Page<crate::models::repos::RepositoryInvitation>> {
+        self.crab
+            .get("/user/repository_invitations", Some(&self))
+            .await
     }
 }
