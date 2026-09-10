@@ -434,6 +434,32 @@ pub struct MergeCommit {
     pub comments_url: String,
 }
 
+/// Result of syncing a fork branch with its upstream repository.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct MergedUpstream {
+    #[serde(default)]
+    pub message: Option<String>,
+    #[serde(default)]
+    pub merge_type: Option<String>,
+    #[serde(default)]
+    pub base_branch: Option<String>,
+}
+
+impl MergedUpstream {
+    pub fn new(
+        message: Option<String>,
+        merge_type: Option<String>,
+        base_branch: Option<String>,
+    ) -> Self {
+        Self {
+            message,
+            merge_type,
+            base_branch,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RepoPermission {

@@ -70,7 +70,7 @@ pub use branches::{
 pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
-pub use commits::ListCommitsBuilder;
+pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
 pub use dependabot::RepoDependabotAlertsHandler;
 pub use deployments::{
@@ -557,6 +557,54 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
         ListCommitsBuilder::new(self)
+    }
+
+    /// List branches where the given commit is the HEAD commit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    pub async fn branches_where_head(
+        &self,
+        commit_sha: impl AsRef<str>,
+    ) -> Result<Vec<models::repos::Branch>> {
+        let route = format!(
+            "/{}/commits/{}/branches-where-head",
+            self.repo,
+            commit_sha.as_ref()
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Compare two commits on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    pub fn compare_commits(
+        &self,
+        base: impl Into<String>,
+        head: impl Into<String>,
+    ) -> RepoCompareCommitsBuilder<'octo, '_> {
+        RepoCompareCommitsBuilder::new(self, format!("{}...{}", base.into(), head.into()))
+    }
+
+    /// Compare two commits or revisions using a basehead range (e.g. "base...head" or "base..head").
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    pub fn compare_commits_range(
+        &self,
+        basehead: impl Into<String>,
+    ) -> RepoCompareCommitsBuilder<'octo, '_> {
+        RepoCompareCommitsBuilder::new(self, basehead.into())
+    }
+
+    /// Sync a fork branch with the upstream repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#sync-a-fork-branch-with-the-upstream-repository)
+    pub async fn merge_upstream(
+        &self,
+        branch: impl Into<String>,
+    ) -> Result<models::repos::MergedUpstream> {
+        let route = format!("/{}/merge-upstream", self.repo);
+        let body = serde_json::json!({ "branch": branch.into() });
+        self.crab.post(route, Some(&body)).await
     }
 
     /// List teams from a repository.

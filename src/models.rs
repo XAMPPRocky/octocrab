@@ -23,6 +23,7 @@ pub use repos::ActivityType;
 pub use repos::Autolink;
 pub use repos::DeployKey;
 pub use repos::InvitationPermission;
+pub use repos::MergedUpstream;
 pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 #[allow(deprecated)]

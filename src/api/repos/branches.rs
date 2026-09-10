@@ -105,6 +105,26 @@ impl<'octo, 'r> RepoBranchesHandler<'octo, 'r> {
     pub fn protection(&self, branch: impl Into<String>) -> RepoBranchProtectionHandler<'octo, 'r> {
         RepoBranchProtectionHandler::new(self.handler, branch.into())
     }
+
+    /// Sync a fork branch with the upstream repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#sync-a-fork-branch-with-the-upstream-repository)
+    pub async fn merge_upstream(
+        &self,
+        branch: impl Into<String>,
+    ) -> Result<models::repos::MergedUpstream> {
+        self.handler.merge_upstream(branch).await
+    }
+
+    /// List branches where the given commit is the HEAD commit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    pub async fn where_head(
+        &self,
+        commit_sha: impl AsRef<str>,
+    ) -> Result<Vec<models::repos::Branch>> {
+        self.handler.branches_where_head(commit_sha).await
+    }
 }
 
 /// A builder pattern struct for listing branches in a repository.

@@ -4,11 +4,11 @@ mod associated_pull_requests;
 mod compare_commit;
 mod create_comment;
 
-pub use associated_pull_requests::PullRequestTarget;
-
 pub use self::create_comment::CreateCommentBuilder;
 use crate::params::repos::Reference;
 use crate::{models, Octocrab, Result};
+pub use associated_pull_requests::PullRequestTarget;
+pub use compare_commit::CompareCommitsBuilder;
 
 pub struct CommitHandler<'octo> {
     crab: &'octo Octocrab,
@@ -31,6 +31,29 @@ impl<'octo> CommitHandler<'octo> {
         head: impl Into<String>,
     ) -> compare_commit::CompareCommitsBuilder<'_, '_> {
         compare_commit::CompareCommitsBuilder::new(self, base.into(), head.into())
+    }
+
+    pub fn compare_range(
+        &self,
+        basehead: impl Into<String>,
+    ) -> compare_commit::CompareCommitsBuilder<'_, '_> {
+        compare_commit::CompareCommitsBuilder::new_range(self, basehead.into())
+    }
+
+    /// List branches where the given commit is the HEAD commit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    pub async fn branches_where_head(
+        &self,
+        commit_sha: impl AsRef<str>,
+    ) -> Result<Vec<models::repos::Branch>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/commits/{sha}/branches-where-head",
+            owner = self.owner,
+            repo = self.repo,
+            sha = commit_sha.as_ref()
+        );
+        self.crab.get(route, None::<&()>).await
     }
 
     pub fn associated_check_runs(
