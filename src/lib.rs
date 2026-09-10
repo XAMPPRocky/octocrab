@@ -288,9 +288,9 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, classroom, code_scannings, commits, current, events,
-        gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls,
-        ratelimit, repos, search, security_advisories, teams, users, workflows,
+        actions, activity, apps, checks, classroom, code_scannings, commits, current, enterprises,
+        events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, projects,
+        pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1544,6 +1544,12 @@ impl Octocrab {
     /// Creates a [`markdown::MarkdownHandler`].
     pub fn markdown(&self) -> markdown::MarkdownHandler<'_> {
         markdown::MarkdownHandler::new(self)
+    }
+
+    /// Creates an [`enterprises::EnterpriseHandler`] for the specified enterprise,
+    /// that allows you to access GitHub's enterprise API.
+    pub fn enterprises(&self, enterprise: impl Into<String>) -> enterprises::EnterpriseHandler<'_> {
+        enterprises::EnterpriseHandler::new(self, enterprise.into())
     }
 
     /// Creates an [`orgs::OrgHandler`] for the specified organization,

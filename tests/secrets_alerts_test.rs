@@ -119,3 +119,35 @@ async fn check_secrets_alert_locations_list_200() {
 
     assert_eq!(items.len(), 13);
 }
+
+#[tokio::test]
+async fn check_secrets_alert_singular_alias_and_filters() {
+    use wiremock::matchers::query_param;
+
+    let s: &str = include_str!("resources/check_secrets_alerts.json");
+    let alert: Vec<SecretScanningAlert> = serde_json::from_str(s).unwrap();
+    let template = ResponseTemplate::new(200).set_body_json(&alert);
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/secret-scanning/alerts"
+        )))
+        .and(query_param("hide_secret", "true"))
+        .and(query_param("resolution", "false_positive,wont_fix"))
+        .respond_with(template)
+        .mount(&mock_server)
+        .await;
+
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .repos(OWNER.to_owned(), REPO.to_owned())
+        .secret_scanning() // Singular alias
+        .hide_secret(true)
+        .resolution(vec!["false_positive".to_string(), "wont_fix".to_string()])
+        .get_alerts()
+        .await;
+
+    assert!(result.is_ok());
+}

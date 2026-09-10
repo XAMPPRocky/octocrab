@@ -8,52 +8,74 @@ pub struct RepoSecretScanningAlertsHandler<'octo> {
     params: Params,
 }
 
-#[derive(serde::Serialize)]
-struct Params {
+pub(crate) fn serialize_comma_separated<S>(
+    val: &Option<Vec<String>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match val {
+        Some(v) => serializer.serialize_str(&v.join(",")),
+        None => serializer.serialize_none(),
+    }
+}
+
+#[derive(serde::Serialize, Default, Clone)]
+pub(crate) struct Params {
     #[serde(skip_serializing_if = "Option::is_none")]
-    per_page: Option<u8>,
+    pub per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    page: Option<u32>,
+    pub page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    state: Option<String>,
+    pub state: Option<String>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_comma_separated"
+    )]
+    pub resolution: Option<Vec<String>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_comma_separated"
+    )]
+    pub validity: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    resolution: Option<Vec<String>>,
+    pub sort: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    validity: Option<Vec<String>>,
+    pub direction: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sort: Option<String>,
+    pub secret_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    direction: Option<String>,
+    pub exclude_secret_types: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    secret_type: Option<String>,
+    pub providers: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    before: Option<String>,
+    pub exclude_providers: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    after: Option<String>,
+    pub assignee: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    is_publicly_leaked: Option<bool>,
+    pub before: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    is_multi_repo: Option<bool>,
+    pub after: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_publicly_leaked: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_multi_repo: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hide_secret: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_bypassed: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub included_metadata: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_email_hash: Option<String>,
 }
 
 impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     pub(crate) fn new(repo: &'octo RepoHandler<'octo>) -> Self {
         Self {
             handler: repo,
-            params: Params {
-                per_page: None,
-                page: None,
-                state: None,
-                after: None,
-                before: None,
-                is_multi_repo: None,
-                is_publicly_leaked: None,
-                resolution: None,
-                sort: None,
-                direction: None,
-                secret_type: None,
-                validity: None,
-            },
+            params: Params::default(),
         }
     }
 
@@ -110,6 +132,54 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     /// Filter Secret Scanning Alerts by secret_type.
     pub fn secret_type(mut self, secret_type: impl Into<String>) -> Self {
         self.params.secret_type = Some(secret_type.into());
+        self
+    }
+
+    /// Exclude Secret Scanning Alerts by secret_type.
+    pub fn exclude_secret_types(mut self, exclude_secret_types: impl Into<String>) -> Self {
+        self.params.exclude_secret_types = Some(exclude_secret_types.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by provider slug.
+    pub fn providers(mut self, providers: impl Into<String>) -> Self {
+        self.params.providers = Some(providers.into());
+        self
+    }
+
+    /// Exclude Secret Scanning Alerts by provider slug.
+    pub fn exclude_providers(mut self, exclude_providers: impl Into<String>) -> Self {
+        self.params.exclude_providers = Some(exclude_providers.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by assignee.
+    pub fn assignee(mut self, assignee: impl Into<String>) -> Self {
+        self.params.assignee = Some(assignee.into());
+        self
+    }
+
+    /// Hide secrets in results.
+    pub fn hide_secret(mut self, hide_secret: impl Into<bool>) -> Self {
+        self.params.hide_secret = Some(hide_secret.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by push protection bypass status.
+    pub fn is_bypassed(mut self, is_bypassed: impl Into<bool>) -> Self {
+        self.params.is_bypassed = Some(is_bypassed.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by attached metadata fields.
+    pub fn included_metadata(mut self, included_metadata: impl Into<String>) -> Self {
+        self.params.included_metadata = Some(included_metadata.into());
+        self
+    }
+
+    /// Filter Secret Scanning Alerts by attached owner_email metadata hash.
+    pub fn owner_email_hash(mut self, owner_email_hash: impl Into<String>) -> Self {
+        self.params.owner_email_hash = Some(owner_email_hash.into());
         self
     }
 
@@ -186,6 +256,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     ///             state: "dismissed",
     ///             resolution: Some("no_bandwidth"),
     ///             resolution_comment: Some("I don't have time to fix this right now"),
+    ///             ..Default::default()
     ///         })
     ///     )
     ///     .await?;
