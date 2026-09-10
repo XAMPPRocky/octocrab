@@ -22,6 +22,7 @@ pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+pub mod hooks;
 mod invitations;
 mod keys;
 mod merges;
@@ -69,6 +70,10 @@ pub use deployments::{
 pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use hooks::{
+    ListHooksBuilder, ListRepoHookDeliveriesBuilder, RepoHookDeliveriesHandler, RepoHooksHandler,
+    UpdateHookBuilder, UpdateHookConfigBuilder,
+};
 pub use invitations::{
     ListRepoInvitationsBuilder, RepoInvitationsHandler, UpdateRepoInvitationBuilder,
 };
@@ -644,6 +649,11 @@ impl<'octo> RepoHandler<'octo> {
         events::ListRepoEventsBuilder::new(self)
     }
 
+    /// Handle webhooks on the repository.
+    pub fn hooks(&self) -> hooks::RepoHooksHandler<'octo, '_> {
+        hooks::RepoHooksHandler::new(self)
+    }
+
     /// Creates a new webhook for the specified repository.
     ///
     /// # Notes
@@ -676,10 +686,7 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         hook: crate::models::hooks::Hook,
     ) -> crate::Result<crate::models::hooks::Hook> {
-        let route = format!("/{}/hooks", self.repo);
-        let res = self.crab.post(route, Some(&hook)).await?;
-
-        Ok(res)
+        self.hooks().create(hook).await
     }
 
     /// Gets the combined status for the specified reference.

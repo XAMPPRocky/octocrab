@@ -79,3 +79,62 @@ pub struct Delivery {
     pub repository_id: Option<InstallationId>,
     pub redelivery: bool,
 }
+
+/// Detailed information about a webhook delivery, including request and response payloads.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/webhooks?apiVersion=2022-11-28#get-a-delivery-for-a-repository-webhook)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeliveryDetail {
+    pub id: HookDeliveryId,
+    pub guid: String,
+    pub delivered_at: DateTime<Utc>,
+    pub redelivery: bool,
+    pub duration: f64,
+    pub status: String,
+    pub status_code: usize,
+    pub event: String,
+    #[serde(default)]
+    pub action: Option<String>,
+    #[serde(default)]
+    pub installation_id: Option<InstallationId>,
+    #[serde(default)]
+    pub repository_id: Option<RepositoryId>,
+    #[serde(default)]
+    pub throttled_at: Option<DateTime<Utc>>,
+    #[serde(default)]
+    pub url: Option<String>,
+    pub request: DeliveryRequest,
+    pub response: DeliveryResponse,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeliveryRequest {
+    #[serde(default)]
+    pub headers: Option<serde_json::Value>,
+    #[serde(default)]
+    pub payload: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeliveryResponse {
+    #[serde(default)]
+    pub headers: Option<serde_json::Value>,
+    #[serde(default)]
+    pub payload: Option<String>,
+}
+
+/// Parameters for updating a webhook configuration.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct UpdateHookConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content_type: Option<ContentType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secret: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub insecure_ssl: Option<String>,
+}

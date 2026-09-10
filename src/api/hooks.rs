@@ -67,4 +67,25 @@ impl<'octo> HooksHandler<'octo> {
     ) -> RetryDeliveryBuilder<'_, '_> {
         RetryDeliveryBuilder::new(self, hook_id, delivery_id)
     }
+
+    /// Gets a delivery for a webhook.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/webhooks?apiVersion=2022-11-28#get-a-delivery-for-a-repository-webhook)
+    pub async fn get_delivery(
+        &self,
+        hook_id: HookId,
+        delivery_id: HookDeliveryId,
+    ) -> crate::Result<crate::models::hooks::DeliveryDetail> {
+        let route = match self.repo.clone() {
+            Some(repo) => format!(
+                "/repos/{}/{}/hooks/{}/deliveries/{}",
+                self.owner, repo, hook_id, delivery_id
+            ),
+            None => format!(
+                "/orgs/{}/hooks/{}/deliveries/{}",
+                self.owner, hook_id, delivery_id
+            ),
+        };
+        self.crab.get(route, None::<&()>).await
+    }
 }
