@@ -863,7 +863,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -896,7 +896,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         let body = serde_json::json!({
             "limit": limit_type,
             "expiry": expiry,

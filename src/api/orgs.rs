@@ -269,7 +269,7 @@ impl<'octo> OrgHandler<'octo> {
     pub async fn get_interaction_restrictions(
         &self,
     ) -> crate::Result<interaction_limits::InteractionLimit> {
-        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        let route = format!("/orgs/{}/interaction-limits", self.owner);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -294,7 +294,7 @@ impl<'octo> OrgHandler<'octo> {
         limit_type: InteractionLimitType,
         expiry: InteractionLimitExpiry,
     ) -> crate::Result<InteractionLimit> {
-        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        let route = format!("/orgs/{}/interaction-limits", self.owner);
         let body = serde_json::json!({
             "limit": limit_type,
             "expiry": expiry,
@@ -339,7 +339,7 @@ impl<'octo> OrgHandler<'octo> {
     ///  }
     /// ```
     pub async fn remove_interaction_restrictions(&self) -> crate::Result<()> {
-        let route = format!("/orgs/{}/interaction-limits", &self.owner);
+        let route = format!("/orgs/{}/interaction-limits", self.owner);
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
     }

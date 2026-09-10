@@ -76,9 +76,9 @@ impl<'octo, 'b> ReviewsBuilder<'octo, 'b> {
     ) -> crate::Result<crate::models::pulls::Review> {
         let url = format!(
             "/repos/{owner}/{repo}/pulls/{pull_number}/reviews",
-            owner = &self.handler.owner,
-            repo = &self.handler.repo,
-            pull_number = &self.pr_number
+            owner = self.handler.owner,
+            repo = self.handler.repo,
+            pull_number = self.pr_number
         );
         let body = &serde_json::json!({ "body": body.into(), "event": event, "commit_id": commit_id.into(), "comments": comments });
         self.handler.crab.post(url, Some(&body)).await
