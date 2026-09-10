@@ -21,7 +21,7 @@ mod pulls;
 pub mod release_assets;
 pub mod releases;
 mod sbom;
-mod secret_scanning_alerts;
+pub(crate) mod secret_scanning_alerts;
 mod secrets;
 pub mod security_advisories;
 mod stargazers;
@@ -792,6 +792,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets scanning alerts on the repository
     pub fn secrets_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         RepoSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Handle secret scanning alerts on the repository (alias for [`secrets_scanning`][RepoHandler::secrets_scanning]).
+    pub fn secret_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
+        self.secrets_scanning()
     }
 
     /// Handle SBOM report generation

@@ -5,11 +5,13 @@ mod copilot_seat_manager;
 mod events;
 mod list_members;
 mod list_repos;
+mod secret_scanning_alerts;
 mod secrets;
 
 pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
+pub use self::secret_scanning_alerts::OrgSecretScanningAlertsHandler;
 pub use self::secrets::OrgSecretsHandler;
 pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
@@ -38,6 +40,18 @@ impl<'octo> OrgHandler<'octo> {
     /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#list-repository-security-advisories-for-an-organization
     pub fn security_advisories(&self) -> OrgSecurityAdvisoriesHandler<'octo> {
         OrgSecurityAdvisoriesHandler::new(self.crab, self.owner.clone())
+    }
+
+    /// Handle secret scanning alerts for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/secret-scanning?apiVersion=2022-11-28#list-secret-scanning-alerts-for-an-organization
+    pub fn secret_scanning(&self) -> OrgSecretScanningAlertsHandler<'_> {
+        OrgSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Handle secret scanning alerts for the organization (alias for [`secret_scanning`][OrgHandler::secret_scanning]).
+    pub fn secrets_scanning(&self) -> OrgSecretScanningAlertsHandler<'_> {
+        self.secret_scanning()
     }
 
     /// Add or update organization membership

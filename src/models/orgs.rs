@@ -1,5 +1,6 @@
 use super::*;
 pub mod secrets;
+pub use super::repos::secret_scanning_alert;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]

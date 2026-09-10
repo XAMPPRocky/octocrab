@@ -61,6 +61,7 @@ async fn main() {
                 state: "resolved",
                 resolution: Some("used_in_tests"),
                 resolution_comment: Some("Mock value that is used in tests"),
+                ..Default::default()
             }),
         )
         .await

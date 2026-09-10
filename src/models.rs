@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use repos::secret_scanning_alert;
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
