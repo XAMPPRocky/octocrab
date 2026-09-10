@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/octocat/Hello-World",
+    "title": "octocat/Hello-World: My first repository",
+    "count": 350,
+    "uniques": 120
+  },
+  {
+    "path": "/octocat/Hello-World/blob/main/README.md",
+    "title": "Hello-World/README.md at main · octocat/Hello-World",
+    "count": 150,
+    "uniques": 80
+  }
+]

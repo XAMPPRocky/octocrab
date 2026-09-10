@@ -436,3 +436,263 @@ pub struct RepoPermission {
 
 /// A HashMap of languages and the number of bytes of code written in that language.
 pub type Languages = std::collections::HashMap<String, i64>;
+
+/// A deploy key for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeployKey {
+    pub id: KeyId,
+    pub key: String,
+    pub url: Url,
+    pub title: String,
+    pub verified: bool,
+    pub created_at: DateTime<Utc>,
+    pub read_only: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_by: Option<String>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub last_used: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
+/// A single traffic breakdown entry.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TrafficEntry {
+    pub timestamp: DateTime<Utc>,
+    pub count: u64,
+    pub uniques: u64,
+}
+
+/// Clones breakdown for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-repository-clones)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Clones {
+    pub count: u64,
+    pub uniques: u64,
+    pub clones: Vec<TrafficEntry>,
+}
+
+/// Page views breakdown for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-page-views)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Views {
+    pub count: u64,
+    pub uniques: u64,
+    pub views: Vec<TrafficEntry>,
+}
+
+/// Top referral path traffic for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-paths)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PathTraffic {
+    pub path: String,
+    pub title: String,
+    pub count: u64,
+    pub uniques: u64,
+}
+
+/// Top referral source traffic for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-sources)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ReferrerTraffic {
+    pub referrer: String,
+    pub count: u64,
+    pub uniques: u64,
+}
+
+/// An autolink reference for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Autolink {
+    pub id: AutolinkId,
+    pub key_prefix: String,
+    pub url_template: String,
+    pub is_alphanumeric: bool,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+/// A deployment in a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deployments/deployments?apiVersion=2022-11-28#get-a-deployment)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Deployment {
+    pub url: Url,
+    pub id: DeploymentId,
+    pub node_id: String,
+    pub sha: String,
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub task: String,
+    pub payload: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub original_environment: Option<String>,
+    pub environment: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creator: Option<Author>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub statuses_url: Url,
+    pub repository_url: Url,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transient_environment: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub production_environment: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub performed_via_github_app: Option<serde_json::Value>,
+}
+
+/// The state of a deployment status.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deployments/statuses?apiVersion=2022-11-28)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DeploymentStatusState {
+    Error,
+    Failure,
+    Inactive,
+    InProgress,
+    Queued,
+    Pending,
+    Success,
+}
+
+/// A status of a deployment.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deployments/statuses?apiVersion=2022-11-28#get-a-deployment-status)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeploymentStatus {
+    pub url: Url,
+    pub id: DeploymentStatusId,
+    pub node_id: String,
+    pub state: DeploymentStatusState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creator: Option<Author>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_url: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deployment_url: Url,
+    pub repository_url: Url,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub log_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub performed_via_github_app: Option<serde_json::Value>,
+}
+
+/// The topics of a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-all-repository-topics)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoTopics {
+    pub names: Vec<String>,
+}
+
+impl std::ops::Deref for RepoTopics {
+    type Target = [String];
+
+    fn deref(&self) -> &Self::Target {
+        &self.names
+    }
+}
+
+/// The type of activity that was performed in a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-activities)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum ActivityType {
+    Push,
+    ForcePush,
+    BranchCreation,
+    BranchDeletion,
+    PrMerge,
+    MergeQueueMerge,
+    #[serde(untagged)]
+    Other(String),
+}
+
+impl std::fmt::Display for ActivityType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Push => write!(f, "push"),
+            Self::ForcePush => write!(f, "force_push"),
+            Self::BranchCreation => write!(f, "branch_creation"),
+            Self::BranchDeletion => write!(f, "branch_deletion"),
+            Self::PrMerge => write!(f, "pr_merge"),
+            Self::MergeQueueMerge => write!(f, "merge_queue_merge"),
+            Self::Other(s) => write!(f, "{s}"),
+        }
+    }
+}
+
+impl From<&str> for ActivityType {
+    fn from(s: &str) -> Self {
+        match s {
+            "push" => Self::Push,
+            "force_push" => Self::ForcePush,
+            "branch_creation" => Self::BranchCreation,
+            "branch_deletion" => Self::BranchDeletion,
+            "pr_merge" => Self::PrMerge,
+            "merge_queue_merge" => Self::MergeQueueMerge,
+            other => Self::Other(other.to_string()),
+        }
+    }
+}
+
+impl From<String> for ActivityType {
+    fn from(s: String) -> Self {
+        Self::from(s.as_str())
+    }
+}
+
+/// A repository activity entry.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-activities)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Activity {
+    pub id: ActivityId,
+    pub node_id: String,
+    pub before: String,
+    pub after: String,
+    pub r#ref: String,
+    pub timestamp: DateTime<Utc>,
+    pub activity_type: ActivityType,
+    #[serde(default)]
+    pub actor: Option<Author>,
+}

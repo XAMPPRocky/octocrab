@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCb3Y2n...",
+    "url": "https://api.github.com/repos/octocat/Hello-World/keys/1",
+    "title": "octocat@my-mac",
+    "verified": true,
+    "created_at": "2014-12-10T15:53:42Z",
+    "read_only": true,
+    "added_by": "octocat",
+    "last_used": "2014-12-10T15:53:42Z",
+    "enabled": true
+  },
+  {
+    "id": 2,
+    "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcF84...",
+    "url": "https://api.github.com/repos/octocat/Hello-World/keys/2",
+    "title": "ci-runner",
+    "verified": true,
+    "created_at": "2015-01-15T09:22:11Z",
+    "read_only": false,
+    "added_by": "octocat",
+    "last_used": null,
+    "enabled": true
+  }
+]

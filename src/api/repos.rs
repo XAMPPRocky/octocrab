@@ -7,16 +7,22 @@ use http::Uri;
 use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
+mod activity;
+mod autolinks;
 mod branches;
 pub mod code_scanning;
 mod collaborators;
+mod comments;
 mod commits;
 mod contributors;
 mod dependabot;
+mod deployments;
+mod dispatches;
 pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+mod keys;
 mod merges;
 mod pulls;
 pub mod release_assets;
@@ -29,6 +35,8 @@ mod stargazers;
 mod status;
 mod tags;
 mod teams;
+mod topics;
+mod traffic;
 mod variables;
 
 use crate::error::HttpSnafu;
@@ -42,14 +50,23 @@ use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
+pub use activity::{ListActivitiesBuilder, RepoActivityHandler};
+pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
 pub use branches::ListBranchesBuilder;
 pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
+pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
 pub use commits::ListCommitsBuilder;
 pub use contributors::ListContributorsBuilder;
 pub use dependabot::RepoDependabotAlertsHandler;
+pub use deployments::{
+    CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
+    ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
+};
+pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
@@ -61,6 +78,8 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
+pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
+pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
 
 #[derive(Clone)]
 pub(crate) enum RepoRef {
@@ -775,6 +794,59 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle activity on the repository
+    pub fn activity(&self) -> RepoActivityHandler<'octo, '_> {
+        RepoActivityHandler::new(self)
+    }
+
+    /// Creates a [`ListActivitiesBuilder`] to list activity on the repository.
+    pub fn list_activities(&self) -> ListActivitiesBuilder<'octo, '_> {
+        ListActivitiesBuilder::new(self)
+    }
+
+    /// Handle autolinks on the repository
+    pub fn autolinks(&self) -> RepoAutolinksHandler<'octo, '_> {
+        RepoAutolinksHandler::new(self)
+    }
+
+    /// Handle commit comments on the repository
+    pub fn comments(&self) -> RepoCommentsHandler<'octo, '_> {
+        RepoCommentsHandler::new(self)
+    }
+
+    /// Handle deployments on the repository
+    pub fn deployments(&self) -> RepoDeploymentsHandler<'octo, '_> {
+        RepoDeploymentsHandler::new(self)
+    }
+
+    /// Handle dispatches on the repository
+    pub fn dispatches(&self) -> RepoDispatchesHandler<'octo, '_> {
+        RepoDispatchesHandler::new(self)
+    }
+
+    /// Creates a [`CreateDispatchBuilder`] to trigger a `repository_dispatch` webhook event.
+    pub fn create_dispatch(
+        &self,
+        event_type: impl Into<String>,
+    ) -> CreateDispatchBuilder<'octo, '_> {
+        CreateDispatchBuilder::new(self, event_type.into())
+    }
+
+    /// Handle deploy keys on the repository
+    pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
+        RepoKeysHandler::new(self)
+    }
+
+    /// Handle traffic metrics on the repository
+    pub fn traffic(&self) -> RepoTrafficHandler<'octo, '_> {
+        RepoTrafficHandler::new(self)
+    }
+
+    /// Handle topics on the repository
+    pub fn topics(&self) -> RepoTopicsHandler<'octo, '_> {
+        RepoTopicsHandler::new(self)
     }
 
     /// Handle secrets on the repository

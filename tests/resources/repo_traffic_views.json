@@ -1,0 +1,16 @@
+{
+  "count": 1234,
+  "uniques": 456,
+  "views": [
+    {
+      "timestamp": "2024-01-01T00:00:00Z",
+      "count": 600,
+      "uniques": 220
+    },
+    {
+      "timestamp": "2024-01-02T00:00:00Z",
+      "count": 634,
+      "uniques": 236
+    }
+  ]
+}

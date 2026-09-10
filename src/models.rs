@@ -13,6 +13,13 @@ pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use repos::secret_scanning_alert;
+pub use repos::Activity;
+pub use repos::ActivityType;
+pub use repos::Autolink;
+pub use repos::DeployKey;
+pub use repos::RepoTopics;
+pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
+pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
@@ -113,22 +120,27 @@ macro_rules! id_type {
 }
 
 id_type!(
+    ActivityId,
     ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
     AppId,
     ArtifactId,
     AssetId,
+    AutolinkId,
     BranchProtectionRuleId,
     CardId,
     CheckSuiteId,
     CheckRunId,
     CodeScanningId,
     CommentId,
+    DeploymentId,
+    DeploymentStatusId,
     InstallationId,
     IssueEventId,
     IssueId,
     JobId,
     HookId,
     HookDeliveryId,
+    KeyId,
     LabelId,
     MilestoneId,
     NotificationId,
