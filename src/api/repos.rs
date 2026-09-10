@@ -8,6 +8,7 @@ use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
 mod branches;
+pub mod code_scanning;
 mod collaborators;
 mod commits;
 mod contributors;
@@ -42,6 +43,7 @@ use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use branches::ListBranchesBuilder;
+pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use commits::ListCommitsBuilder;
 pub use contributors::ListContributorsBuilder;
@@ -807,6 +809,16 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle repository security advisories
     pub fn security_advisories(&self) -> RepoSecurityAdvisoriesHandler<'octo, '_> {
         RepoSecurityAdvisoriesHandler::new(self)
+    }
+
+    /// Handle code scanning on the repository
+    pub fn code_scanning(&self) -> RepoCodeScanningHandler<'octo, '_> {
+        RepoCodeScanningHandler::new(self)
+    }
+
+    /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
+    pub fn code_scannings(&self) -> RepoCodeScanningHandler<'octo, '_> {
+        self.code_scanning()
     }
 
     /// Creates a new Git commit object.

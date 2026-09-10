@@ -1,0 +1,13 @@
+{
+  "state": "configured",
+  "languages": [
+    "javascript",
+    "python"
+  ],
+  "runner_type": "standard",
+  "runner_label": null,
+  "query_suite": "default",
+  "threat_model": "remote",
+  "updated_at": "2023-01-01T00:00:00Z",
+  "schedule": "weekly"
+}

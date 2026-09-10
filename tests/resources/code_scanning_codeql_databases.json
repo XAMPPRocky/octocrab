@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1001,
+    "name": "javascript-database",
+    "language": "javascript",
+    "uploader": {
+      "login": "octocat",
+      "id": 1,
+      "node_id": "MDQ6VXNlcjE=",
+      "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/octocat",
+      "html_url": "https://github.com/octocat",
+      "followers_url": "https://api.github.com/users/octocat/followers",
+      "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+      "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+      "organizations_url": "https://api.github.com/users/octocat/orgs",
+      "repos_url": "https://api.github.com/users/octocat/repos",
+      "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/octocat/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "content_type": "application/zip",
+    "size": 1234567,
+    "created_at": "2020-09-01T17:15:32Z",
+    "updated_at": "2020-09-01T17:15:32Z",
+    "url": "https://api.github.com/repos/octocat/Hello-World/code-scanning/codeql/databases/javascript",
+    "commit_oid": "4b6472266afd7b471e86085a6659e8c7f2b119da"
+  }
+]

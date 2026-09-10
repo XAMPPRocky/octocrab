@@ -1,0 +1,24 @@
+[
+  {
+    "ref": "refs/heads/main",
+    "analysis_key": ".github/workflows/codeql.yml:analyze",
+    "environment": "{\"language\":\"javascript\"}",
+    "category": ".github/workflows/codeql.yml:analyze/language:javascript",
+    "state": "open",
+    "commit_sha": "4b6472266afd7b471e86085a6659e8c7f2b119da",
+    "message": {
+      "text": "This path contains an injection vulnerability."
+    },
+    "location": {
+      "path": "server.js",
+      "start_line": 23,
+      "end_line": 25,
+      "start_column": 4,
+      "end_column": 12
+    },
+    "html_url": "https://github.com/octocat/Hello-World/security/code-scanning/42",
+    "classifications": [
+      "source"
+    ]
+  }
+]

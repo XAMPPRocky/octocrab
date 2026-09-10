@@ -1,5 +1,6 @@
 //! The Organization API.
 
+mod code_scanning;
 mod copilot;
 mod copilot_seat_manager;
 mod events;
@@ -8,6 +9,7 @@ mod list_repos;
 mod secret_scanning_alerts;
 mod secrets;
 
+pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
 pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
@@ -52,6 +54,18 @@ impl<'octo> OrgHandler<'octo> {
     /// Handle secret scanning alerts for the organization (alias for [`secret_scanning`][OrgHandler::secret_scanning]).
     pub fn secrets_scanning(&self) -> OrgSecretScanningAlertsHandler<'_> {
         self.secret_scanning()
+    }
+
+    /// Handle code scanning alerts for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-code-scanning-alerts-for-an-organization
+    pub fn code_scanning(&self) -> OrgCodeScanningHandler<'octo, '_> {
+        OrgCodeScanningHandler::new(self)
+    }
+
+    /// Handle code scanning alerts for the organization (alias for [`code_scanning`][OrgHandler::code_scanning]).
+    pub fn code_scannings(&self) -> OrgCodeScanningHandler<'octo, '_> {
+        self.code_scanning()
     }
 
     /// Add or update organization membership
