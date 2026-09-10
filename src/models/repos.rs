@@ -611,3 +611,20 @@ pub struct DeploymentStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub performed_via_github_app: Option<serde_json::Value>,
 }
+
+/// The topics of a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-all-repository-topics)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoTopics {
+    pub names: Vec<String>,
+}
+
+impl std::ops::Deref for RepoTopics {
+    type Target = [String];
+
+    fn deref(&self) -> &Self::Target {
+        &self.names
+    }
+}

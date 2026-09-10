@@ -15,6 +15,7 @@ pub use hovercard::{Hovercard, HovercardContext};
 pub use repos::secret_scanning_alert;
 pub use repos::Autolink;
 pub use repos::DeployKey;
+pub use repos::RepoTopics;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};

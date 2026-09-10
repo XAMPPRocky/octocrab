@@ -33,6 +33,7 @@ mod stargazers;
 mod status;
 mod tags;
 mod teams;
+mod topics;
 mod traffic;
 mod variables;
 
@@ -73,6 +74,7 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
+pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
 pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
 
 #[derive(Clone)]
@@ -813,6 +815,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle traffic metrics on the repository
     pub fn traffic(&self) -> RepoTrafficHandler<'octo, '_> {
         RepoTrafficHandler::new(self)
+    }
+
+    /// Handle topics on the repository
+    pub fn topics(&self) -> RepoTopicsHandler<'octo, '_> {
+        RepoTopicsHandler::new(self)
     }
 
     /// Handle secrets on the repository
