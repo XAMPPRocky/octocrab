@@ -43,7 +43,12 @@ async fn should_list_deploy_keys() {
     let mocked_response: Vec<DeployKey> =
         serde_json::from_str(include_str!("resources/repo_deploy_keys.json")).unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
-    let mock_server = setup_deploy_keys_mock("GET", format!("/repos/{OWNER}/{REPO}/keys").as_str(), template).await;
+    let mock_server = setup_deploy_keys_mock(
+        "GET",
+        format!("/repos/{OWNER}/{REPO}/keys").as_str(),
+        template,
+    )
+    .await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
@@ -87,11 +92,7 @@ async fn should_get_deploy_key() {
     .await;
     let client = setup_octocrab(&mock_server.uri());
 
-    let result = client
-        .repos(OWNER, REPO)
-        .keys()
-        .get(KEY_ID)
-        .await;
+    let result = client.repos(OWNER, REPO).keys().get(KEY_ID).await;
 
     assert!(
         result.is_ok(),
@@ -121,7 +122,10 @@ async fn should_create_deploy_key() {
     let result = client
         .repos(OWNER, REPO)
         .keys()
-        .create("octocat@my-mac", "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCb3Y2n...")
+        .create(
+            "octocat@my-mac",
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCb3Y2n...",
+        )
         .read_only(true)
         .send()
         .await;
@@ -148,11 +152,7 @@ async fn should_delete_deploy_key() {
     .await;
     let client = setup_octocrab(&mock_server.uri());
 
-    let result = client
-        .repos(OWNER, REPO)
-        .keys()
-        .delete(KEY_ID)
-        .await;
+    let result = client.repos(OWNER, REPO).keys().delete(KEY_ID).await;
 
     assert!(
         result.is_ok(),
