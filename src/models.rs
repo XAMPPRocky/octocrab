@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use repos::environments;
 pub use repos::pages;
 pub use repos::secret_scanning_alert;
 pub use repos::stats;
@@ -24,6 +25,12 @@ pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 #[allow(deprecated)]
 pub use repos::TagProtection;
+pub use repos::{
+    BranchPolicyType, CustomDeploymentProtectionRule, CustomDeploymentProtectionRules,
+    CustomDeploymentRuleApp, CustomDeploymentRuleApps, DeploymentBranchPolicies,
+    DeploymentBranchPolicy, DeploymentBranchPolicySettings, Environment, EnvironmentProtectionRule,
+    EnvironmentProtectionRuleReviewer, EnvironmentReviewer, Environments, ReviewerType,
+};
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use repos::{
     CodeFrequency, CommitActivity, ContributorActivity, ContributorWeeklyActivity,
@@ -185,7 +192,10 @@ id_type!(
     TeamInvitationId,
     TagProtectionId,
     AssignmentId,
-    ClassroomId
+    ClassroomId,
+    EnvironmentId,
+    BranchPolicyId,
+    ProtectionRuleId
 );
 
 macro_rules! convert_into {

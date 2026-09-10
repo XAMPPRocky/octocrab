@@ -1,0 +1,11 @@
+{
+  "total_count": 1,
+  "available_custom_deployment_protection_rule_integrations": [
+    {
+      "id": 1515,
+      "slug": "my-custom-app",
+      "integration_url": "https://api.github.com/apps/my-custom-app",
+      "node_id": "MDExOkludGVncmF0aW9uMTUxNQ=="
+    }
+  ]
+}

@@ -18,6 +18,7 @@ mod contributors;
 mod dependabot;
 mod deployments;
 mod dispatches;
+pub mod environments;
 pub mod events;
 mod file;
 pub mod forks;
@@ -68,6 +69,13 @@ pub use deployments::{
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
 };
 pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
+pub use environments::{
+    CreateDeploymentBranchPolicyBuilder, CreateOrUpdateEnvironmentBuilder,
+    ListCustomDeploymentRuleAppsBuilder, ListDeploymentBranchPoliciesBuilder,
+    ListEnvironmentsBuilder, RepoEnvironmentBranchPoliciesHandler,
+    RepoEnvironmentProtectionRulesHandler, RepoEnvironmentsHandler,
+    UpdateDeploymentBranchPolicyBuilder,
+};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use hooks::{
@@ -852,6 +860,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle deployments on the repository
     pub fn deployments(&self) -> RepoDeploymentsHandler<'octo, '_> {
         RepoDeploymentsHandler::new(self)
+    }
+
+    /// Handle environments and deployment protection rules on the repository
+    pub fn environments(&self) -> RepoEnvironmentsHandler<'octo, '_> {
+        RepoEnvironmentsHandler::new(self)
     }
 
     /// Handle dispatches on the repository

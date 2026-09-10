@@ -1,0 +1,47 @@
+{
+  "total_count": 1,
+  "environments": [
+    {
+      "id": 1610879487,
+      "node_id": "MDExOkVudmlyb25tZW50MTYxMDg3OTQ4Nw==",
+      "name": "staging",
+      "url": "https://api.github.com/repos/octocat/hello-world/environments/staging",
+      "html_url": "https://github.com/octocat/hello-world/deployments/activity_log?environments_filter=staging",
+      "created_at": "2020-11-20T21:40:48Z",
+      "updated_at": "2020-11-20T21:40:48Z",
+      "can_admins_bypass": true,
+      "protection_rules": [
+        {
+          "id": 3515,
+          "node_id": "MDQ6R2F0ZTM1MTU=",
+          "type": "wait_timer",
+          "wait_timer": 30
+        },
+        {
+          "id": 3516,
+          "node_id": "MDQ6R2F0ZTM1MTY=",
+          "type": "required_reviewers",
+          "prevent_self_review": false,
+          "reviewers": [
+            {
+              "type": "User",
+              "reviewer": {
+                "login": "octocat",
+                "id": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": 3517,
+          "node_id": "MDQ6R2F0ZTM1MTc=",
+          "type": "branch_policy"
+        }
+      ],
+      "deployment_branch_policy": {
+        "protected_branches": false,
+        "custom_branch_policies": true
+      }
+    }
+  ]
+}
