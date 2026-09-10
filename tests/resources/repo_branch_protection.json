@@ -1,0 +1,76 @@
+{
+  "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection",
+  "required_status_checks": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/required_status_checks",
+    "strict": true,
+    "contexts": [
+      "continuous-integration/travis-ci"
+    ],
+    "checks": [
+      {
+        "context": "continuous-integration/travis-ci",
+        "app_id": 12345
+      }
+    ],
+    "contexts_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/required_status_checks/contexts",
+    "enforcement_level": "non_admins"
+  },
+  "enforce_admins": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/enforce_admins",
+    "enabled": true
+  },
+  "required_pull_request_reviews": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/required_pull_request_reviews",
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": true,
+    "required_approving_review_count": 2,
+    "require_last_push_approval": true,
+    "dismissal_restrictions": {
+      "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/dismissal_restrictions",
+      "users_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/dismissal_restrictions/users",
+      "teams_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/dismissal_restrictions/teams",
+      "users": [],
+      "teams": [],
+      "apps": []
+    },
+    "bypass_pull_request_allowances": {
+      "users": [],
+      "teams": [],
+      "apps": []
+    }
+  },
+  "restrictions": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/restrictions",
+    "users_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/restrictions/users",
+    "teams_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/restrictions/teams",
+    "apps_url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/restrictions/apps",
+    "users": [],
+    "teams": [],
+    "apps": []
+  },
+  "required_linear_history": {
+    "enabled": true
+  },
+  "allow_force_pushes": {
+    "enabled": false
+  },
+  "allow_deletions": {
+    "enabled": false
+  },
+  "block_creations": {
+    "enabled": false
+  },
+  "required_conversation_resolution": {
+    "enabled": true
+  },
+  "lock_branch": {
+    "enabled": false
+  },
+  "allow_fork_syncing": {
+    "enabled": false
+  },
+  "required_signatures": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/branches/main/protection/required_signatures",
+    "enabled": true
+  }
+}

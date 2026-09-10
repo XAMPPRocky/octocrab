@@ -7,36 +7,47 @@ use http::Uri;
 use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
-mod activity;
-mod autolinks;
-mod branches;
+pub mod activity;
+pub mod all_repositories;
+pub mod autolinks;
+pub mod branches;
 pub mod code_scanning;
+pub mod codeowners;
 mod collaborators;
-mod comments;
+pub mod comments;
 mod commits;
 mod contributors;
+pub mod custom_properties;
 mod dependabot;
-mod deployments;
+pub mod deployments;
 mod dispatches;
+pub mod environments;
 pub mod events;
 mod file;
 pub mod forks;
 mod generate;
-mod keys;
+pub mod hooks;
+mod invitations;
+pub mod keys;
 mod merges;
+pub mod pages;
 mod pulls;
 pub mod release_assets;
 pub mod releases;
+pub mod rulesets;
 mod sbom;
 pub(crate) mod secret_scanning_alerts;
 mod secrets;
+pub mod security;
 pub mod security_advisories;
 mod stargazers;
+pub mod stats;
 mod status;
-mod tags;
+pub mod tags;
 mod teams;
-mod topics;
-mod traffic;
+pub mod topics;
+pub mod traffic;
+pub mod transfer;
 mod variables;
 
 use crate::error::HttpSnafu;
@@ -51,35 +62,74 @@ use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use activity::{ListActivitiesBuilder, RepoActivityHandler};
+pub use all_repositories::ListAllRepositoriesBuilder;
 pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
-pub use branches::ListBranchesBuilder;
+pub use branches::{
+    ListBranchesBuilder, RepoBranchAdminEnforcementHandler, RepoBranchProtectionHandler,
+    RepoBranchPullRequestReviewsHandler, RepoBranchRestrictionAppsHandler,
+    RepoBranchRestrictionTeamsHandler, RepoBranchRestrictionUsersHandler,
+    RepoBranchRestrictionsHandler, RepoBranchSignaturesHandler,
+    RepoBranchStatusCheckContextsHandler, RepoBranchStatusChecksHandler, RepoBranchesHandler,
+    UpdateBranchProtectionBuilder, UpdatePullRequestReviewsBuilder, UpdateStatusChecksBuilder,
+};
 pub use code_scanning::RepoCodeScanningHandler;
+pub use codeowners::ListCodeownersErrorsBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
-pub use commits::ListCommitsBuilder;
+pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
+pub use custom_properties::RepoCustomPropertiesHandler;
 pub use dependabot::RepoDependabotAlertsHandler;
 pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
 };
 pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
+pub use environments::{
+    CreateDeploymentBranchPolicyBuilder, CreateOrUpdateEnvironmentBuilder,
+    ListCustomDeploymentRuleAppsBuilder, ListDeploymentBranchPoliciesBuilder,
+    ListEnvironmentsBuilder, RepoEnvironmentBranchPoliciesHandler,
+    RepoEnvironmentProtectionRulesHandler, RepoEnvironmentsHandler,
+    UpdateDeploymentBranchPolicyBuilder,
+};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use hooks::{
+    ListHooksBuilder, ListRepoHookDeliveriesBuilder, RepoHookDeliveriesHandler, RepoHooksHandler,
+    UpdateHookBuilder, UpdateHookConfigBuilder,
+};
+pub use invitations::{
+    ListRepoInvitationsBuilder, RepoInvitationsHandler, UpdateRepoInvitationBuilder,
+};
 pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
 pub use merges::MergeBranchBuilder;
+pub use pages::{
+    CreatePagesDeploymentBuilder, CreatePagesSiteBuilder, ListPagesBuildsBuilder,
+    RepoPagesBuildsHandler, RepoPagesDeploymentsHandler, RepoPagesHandler, UpdatePagesSiteBuilder,
+};
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
+pub use rulesets::{
+    GetRepoRulesetBuilder, ListRepoRuleSuitesBuilder, ListRepoRulesetsBuilder,
+    ListRulesForBranchBuilder, RepoRuleSuitesHandler, RepoRulesetsHandler,
+};
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
+pub use security::{
+    RepoAutomatedSecurityFixesHandler, RepoPrivateVulnerabilityReportingHandler,
+    RepoVulnerabilityAlertsHandler,
+};
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
 pub use stargazers::ListStarGazersBuilder;
+pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
-pub use tags::ListTagsBuilder;
+#[allow(deprecated)]
+pub use tags::{ListTagsBuilder, RepoTagProtectionHandler, RepoTagsHandler};
 pub use teams::ListTeamsBuilder;
 pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
 pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
+pub use transfer::TransferRepoBuilder;
 
 #[derive(Clone)]
 pub(crate) enum RepoRef {
@@ -455,6 +505,42 @@ impl<'octo> RepoHandler<'octo> {
         ListTagsBuilder::new(self)
     }
 
+    /// Handle tags on the repository.
+    pub fn tags(&self) -> RepoTagsHandler<'octo, '_> {
+        RepoTagsHandler::new(self)
+    }
+
+    /// Handle tag protection on the repository.
+    #[deprecated(
+        note = "Tag protection is closing down in GitHub. Use repository rulesets instead."
+    )]
+    #[allow(deprecated)]
+    pub fn tag_protection(&self) -> RepoTagProtectionHandler<'octo, '_> {
+        RepoTagProtectionHandler::new(self)
+    }
+
+    /// Handle branches and branch protection on the repository
+    pub fn branches(&self) -> RepoBranchesHandler<'octo, '_> {
+        RepoBranchesHandler::new(self)
+    }
+
+    /// Handle rulesets on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28)
+    pub fn rulesets(&self) -> RepoRulesetsHandler<'octo, '_> {
+        RepoRulesetsHandler::new(self)
+    }
+
+    /// Get all active rules that apply to the specified branch.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-rules-for-a-branch)
+    pub fn rules_for_branch(
+        &self,
+        branch: impl Into<String>,
+    ) -> ListRulesForBranchBuilder<'octo, '_> {
+        self.rulesets().rules_for_branch(branch)
+    }
+
     /// List branches from a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -479,6 +565,54 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_commits(&self) -> ListCommitsBuilder<'_, '_> {
         ListCommitsBuilder::new(self)
+    }
+
+    /// List branches where the given commit is the HEAD commit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    pub async fn branches_where_head(
+        &self,
+        commit_sha: impl AsRef<str>,
+    ) -> Result<Vec<models::repos::Branch>> {
+        let route = format!(
+            "/{}/commits/{}/branches-where-head",
+            self.repo,
+            commit_sha.as_ref()
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Compare two commits on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    pub fn compare_commits(
+        &self,
+        base: impl Into<String>,
+        head: impl Into<String>,
+    ) -> RepoCompareCommitsBuilder<'octo, '_> {
+        RepoCompareCommitsBuilder::new(self, format!("{}...{}", base.into(), head.into()))
+    }
+
+    /// Compare two commits or revisions using a basehead range (e.g. "base...head" or "base..head").
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    pub fn compare_commits_range(
+        &self,
+        basehead: impl Into<String>,
+    ) -> RepoCompareCommitsBuilder<'octo, '_> {
+        RepoCompareCommitsBuilder::new(self, basehead.into())
+    }
+
+    /// Sync a fork branch with the upstream repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#sync-a-fork-branch-with-the-upstream-repository)
+    pub async fn merge_upstream(
+        &self,
+        branch: impl Into<String>,
+    ) -> Result<models::repos::MergedUpstream> {
+        let route = format!("/{}/merge-upstream", self.repo);
+        let body = serde_json::json!({ "branch": branch.into() });
+        self.crab.post(route, Some(&body)).await
     }
 
     /// List teams from a repository.
@@ -618,6 +752,11 @@ impl<'octo> RepoHandler<'octo> {
         events::ListRepoEventsBuilder::new(self)
     }
 
+    /// Handle webhooks on the repository.
+    pub fn hooks(&self) -> hooks::RepoHooksHandler<'octo, '_> {
+        hooks::RepoHooksHandler::new(self)
+    }
+
     /// Creates a new webhook for the specified repository.
     ///
     /// # Notes
@@ -650,10 +789,7 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         hook: crate::models::hooks::Hook,
     ) -> crate::Result<crate::models::hooks::Hook> {
-        let route = format!("/{}/hooks", self.repo);
-        let res = self.crab.post(route, Some(&hook)).await?;
-
-        Ok(res)
+        self.hooks().create(hook).await
     }
 
     /// Gets the combined status for the specified reference.
@@ -759,6 +895,25 @@ impl<'octo> RepoHandler<'octo> {
             .await
     }
 
+    /// Stream the repository contents as a .zip
+    pub async fn download_zipball(
+        &self,
+        reference: impl Into<params::repos::Commitish>,
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
+        let route = format!(
+            "/{repo}/zipball/{reference}",
+            repo = self.repo,
+            reference = reference.into(),
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        self.crab
+            .follow_location_to_data(self.crab._get(uri).await?)
+            .await
+    }
+
     /// Check if a user is a repository collaborator
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let route = format!(
@@ -821,6 +976,11 @@ impl<'octo> RepoHandler<'octo> {
         RepoDeploymentsHandler::new(self)
     }
 
+    /// Handle environments and deployment protection rules on the repository
+    pub fn environments(&self) -> RepoEnvironmentsHandler<'octo, '_> {
+        RepoEnvironmentsHandler::new(self)
+    }
+
     /// Handle dispatches on the repository
     pub fn dispatches(&self) -> RepoDispatchesHandler<'octo, '_> {
         RepoDispatchesHandler::new(self)
@@ -834,9 +994,29 @@ impl<'octo> RepoHandler<'octo> {
         CreateDispatchBuilder::new(self, event_type.into())
     }
 
+    /// Handle invitations on the repository
+    pub fn invitations(&self) -> RepoInvitationsHandler<'octo, '_> {
+        RepoInvitationsHandler::new(self)
+    }
+
+    /// Creates a [`ListRepoInvitationsBuilder`] to list open invitations for the repository.
+    pub fn list_invitations(&self) -> ListRepoInvitationsBuilder<'octo, '_> {
+        ListRepoInvitationsBuilder::new(self)
+    }
+
     /// Handle deploy keys on the repository
     pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
         RepoKeysHandler::new(self)
+    }
+
+    /// Handle GitHub Pages on the repository
+    pub fn pages(&self) -> RepoPagesHandler<'octo, '_> {
+        RepoPagesHandler::new(self)
+    }
+
+    /// Handle repository statistics
+    pub fn stats(&self) -> RepoStatsHandler<'octo, '_> {
+        RepoStatsHandler::new(self)
     }
 
     /// Handle traffic metrics on the repository
@@ -883,6 +1063,23 @@ impl<'octo> RepoHandler<'octo> {
         RepoSecurityAdvisoriesHandler::new(self)
     }
 
+    /// Handle vulnerability alerts for the repository
+    pub fn vulnerability_alerts(&self) -> RepoVulnerabilityAlertsHandler<'octo, '_> {
+        RepoVulnerabilityAlertsHandler::new(self)
+    }
+
+    /// Handle automated security fixes (Dependabot security updates) for the repository
+    pub fn automated_security_fixes(&self) -> RepoAutomatedSecurityFixesHandler<'octo, '_> {
+        RepoAutomatedSecurityFixesHandler::new(self)
+    }
+
+    /// Handle private vulnerability reporting for the repository
+    pub fn private_vulnerability_reporting(
+        &self,
+    ) -> RepoPrivateVulnerabilityReportingHandler<'octo, '_> {
+        RepoPrivateVulnerabilityReportingHandler::new(self)
+    }
+
     /// Handle code scanning on the repository
     pub fn code_scanning(&self) -> RepoCodeScanningHandler<'octo, '_> {
         RepoCodeScanningHandler::new(self)
@@ -891,6 +1088,27 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
     pub fn code_scannings(&self) -> RepoCodeScanningHandler<'octo, '_> {
         self.code_scanning()
+    }
+
+    /// List CODEOWNERS syntax errors in the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-codeowners-errors)
+    pub fn codeowners_errors(&self) -> ListCodeownersErrorsBuilder<'octo, '_> {
+        ListCodeownersErrorsBuilder::new(self)
+    }
+
+    /// Handle repository custom property values.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/custom-properties?apiVersion=2022-11-28)
+    pub fn custom_properties(&self) -> RepoCustomPropertiesHandler<'octo, '_> {
+        RepoCustomPropertiesHandler::new(self)
+    }
+
+    /// Transfer a repository to a new owner.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#transfer-a-repository)
+    pub fn transfer(&self, new_owner: impl Into<String>) -> TransferRepoBuilder<'octo, '_> {
+        TransferRepoBuilder::new(self, new_owner.into())
     }
 
     /// Creates a new Git commit object.

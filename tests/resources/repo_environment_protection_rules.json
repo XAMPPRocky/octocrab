@@ -1,0 +1,16 @@
+{
+  "total_count": 1,
+  "custom_deployment_protection_rules": [
+    {
+      "id": 3515,
+      "node_id": "MDQ6R2F0ZTM1MTU=",
+      "enabled": true,
+      "app": {
+        "id": 1515,
+        "slug": "my-custom-app",
+        "integration_url": "https://api.github.com/apps/my-custom-app",
+        "node_id": "MDExOkludGVncmF0aW9uMTUxNQ=="
+      }
+    }
+  ]
+}

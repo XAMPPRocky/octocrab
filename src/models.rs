@@ -12,14 +12,50 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use repos::branches;
+pub use repos::codeowners;
+pub use repos::custom_properties;
+pub use repos::environments;
+pub use repos::pages;
 pub use repos::secret_scanning_alert;
+pub use repos::security;
+pub use repos::stats;
 pub use repos::Activity;
 pub use repos::ActivityType;
 pub use repos::Autolink;
+pub use repos::CodeownersError;
+pub use repos::CodeownersErrors;
+pub use repos::CustomPropertyValue;
 pub use repos::DeployKey;
+pub use repos::InvitationPermission;
+pub use repos::MergedUpstream;
 pub use repos::RepoTopics;
+pub use repos::RepositoryInvitation;
+#[allow(deprecated)]
+pub use repos::TagProtection;
+pub use repos::{
+    AdminEnforcement, BranchLinks, BranchProtection, BranchProtectionRestrictions,
+    BranchProtectionSummary, DetailedBranch, DismissalRestrictions, ProtectionFlag,
+    RequiredPullRequestReviews, RequiredStatusChecks, StatusCheck,
+};
+pub use repos::{AutomatedSecurityFixes, PrivateVulnerabilityReporting};
+pub use repos::{
+    BranchPolicyType, CustomDeploymentProtectionRule, CustomDeploymentProtectionRules,
+    CustomDeploymentRuleApp, CustomDeploymentRuleApps, DeploymentBranchPolicies,
+    DeploymentBranchPolicy, DeploymentBranchPolicySettings, Environment, EnvironmentProtectionRule,
+    EnvironmentProtectionRuleReviewer, EnvironmentReviewer, Environments, ReviewerType,
+};
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
+pub use repos::{
+    CodeFrequency, CommitActivity, ContributorActivity, ContributorWeeklyActivity,
+    ParticipationStats, PunchCard,
+};
 pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
+pub use repos::{
+    PageBuild, PageBuildError, PageBuildStatus, PagesBuildType, PagesDeployment, PagesDeploymentId,
+    PagesDeploymentStatus, PagesDeploymentStatusState, PagesDomainHealth, PagesHealthCheck,
+    PagesHttpsCertificate, PagesSite, PagesSource, UpdatePagesSource,
+};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
@@ -44,12 +80,22 @@ pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
+pub mod rulesets;
 pub mod search;
 pub mod security_advisories;
 pub mod teams;
 pub mod timelines;
 pub mod webhook_events;
 pub mod workflows;
+
+pub use rulesets::{
+    BypassActorType, BypassMode, PropertyTargetDefinition, RefNameCondition, RepoRule,
+    RepositoryIdCondition, RepositoryNameCondition, RepositoryPropertyCondition, Rule,
+    RuleEvaluation, RuleEvaluationResult, RuleEvaluationSource, RuleSuite, RuleSuiteId,
+    RuleSuiteResult, RuleSuiteSummary, Ruleset, RulesetBypassActor, RulesetConditions,
+    RulesetEnforcement, RulesetId, RulesetLink, RulesetLinks, RulesetSourceType, RulesetTarget,
+    UpdateRuleset,
+};
 
 mod date_serde;
 
@@ -135,6 +181,7 @@ id_type!(
     DeploymentId,
     DeploymentStatusId,
     InstallationId,
+    InvitationId,
     IssueEventId,
     IssueId,
     JobId,
@@ -145,6 +192,7 @@ id_type!(
     MilestoneId,
     NotificationId,
     OrgId,
+    PageBuildId,
     ProjectId,
     ProjectColumnId,
     PullRequestId,
@@ -166,8 +214,12 @@ id_type!(
     UserOrOrgId,
     WorkflowId,
     TeamInvitationId,
+    TagProtectionId,
     AssignmentId,
-    ClassroomId
+    ClassroomId,
+    EnvironmentId,
+    BranchPolicyId,
+    ProtectionRuleId
 );
 
 macro_rules! convert_into {

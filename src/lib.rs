@@ -28,14 +28,49 @@
 //! - [`pulls`] Pull Requests
 //! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
-//! - [`repos::forks`] Repository forks
-//! - [`repos::releases`] Repository releases
+//!   - [`repos::activity`] Repository activity
+//!   - [`repos::autolinks`] Autolinks
+//!   - [`repos::branches`] Branches and branch protection
+//!   - [`repos::codeowners`] CODEOWNERS errors
+//!   - [`repos::comments`] Commit comments
+//!   - [`repos::custom_properties`] Repository custom property values
+//!   - [`repos::deployments`] Deployments and deployment statuses
+//!   - [`repos::environments`] Environments and deployment protection rules
+//!   - [`repos::forks`] Repository forks
+//!   - [`repos::hooks`] Repository webhooks
+//!   - [`repos::keys`] Deploy keys
+//!   - [`repos::pages`] GitHub Pages
+//!   - [`repos::releases`] Repository releases
+//!   - [`repos::rulesets`] Repository rulesets and rule suites
+//!   - [`repos::security`] Vulnerability alerts and automated security fixes
+//!   - [`repos::stats`] Repository statistics
+//!   - [`repos::topics`] Repository topics
+//!   - [`repos::traffic`] Repository traffic
+//!   - [`repos::transfer`] Repository transfer
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //! - [`users`] Users
 //! - [`classroom`] GitHub Classroom
 //! - [`workflows`] GitHub Workflows
 //! - [`meta`] GitHub Meta data
+//!
+//! #### Working with Repositories
+//! ```no_run
+//! # async fn run() -> octocrab::Result<()> {
+//! let octocrab = octocrab::instance();
+//! let repo = octocrab.repos("octocrab", "repo");
+//!
+//! // Fetch repository metadata
+//! let info = repo.get().await?;
+//!
+//! // Check if vulnerability alerts are enabled
+//! let alerts_enabled = repo.vulnerability_alerts().check().await?;
+//!
+//! // List active rules that apply to a branch
+//! let rules = repo.rules_for_branch("main").send().await?;
+//! # Ok(())
+//! # }
+//! ```
 //!
 //! #### Getting a Pull Request
 //! ```no_run
@@ -1528,6 +1563,24 @@ impl Octocrab {
     }
 
     /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's commits API (getting commits, comparing
+    /// commits, listing branches for HEAD commit, and managing commit comments).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::instance();
+    /// let commits = octocrab.commits("owner", "repo");
+    ///
+    /// // Compare two commits
+    /// let comparison = commits.compare("base-sha", "head-sha").send().await?;
+    ///
+    /// // List branches where a commit is the HEAD
+    /// let branches = commits.branches_where_head("commit-sha").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn commits(
         &self,
         owner: impl Into<String>,
@@ -1570,6 +1623,30 @@ impl Octocrab {
 
     /// Creates a [`repos::RepoHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's repository API.
+    ///
+    /// Provides access to branches and branch protection, repository rulesets,
+    /// deployment environments, webhooks, security and vulnerability alerts,
+    /// traffic statistics, GitHub Pages, deploy keys, autolinks, custom properties,
+    /// commit comments, repository transfer, archive downloads, and more.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::instance();
+    /// let repo = octocrab.repos("owner", "repo");
+    ///
+    /// // Get repository metadata
+    /// let data = repo.get().await?;
+    ///
+    /// // Access branch protection rules
+    /// let protection = repo.branches().protection("main").get().await?;
+    ///
+    /// // Check Dependabot vulnerability alerts
+    /// let alerts_enabled = repo.vulnerability_alerts().check().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn repos(
         &self,
         owner: impl Into<String>,
@@ -1580,8 +1657,38 @@ impl Octocrab {
 
     /// Creates a [`repos::RepoHandler`] for the repo specified at repository ID,
     /// that allows you to access GitHub's repository API.
+    ///
+    /// See [`Octocrab::repos`] for details on available repository operations.
     pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler<'_> {
         repos::RepoHandler::new(self, RepoRef::ById(id.into()))
+    }
+
+    /// List all public repositories in the order that they were created.
+    ///
+    /// Pagination is controlled by the `since` parameter specifying the integer ID
+    /// of the last repository seen, returning a [`Page<models::Repository>`].
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-public-repositories)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::instance();
+    /// let page = octocrab.all_repositories().since(1000u64).send().await?;
+    /// for repo in page {
+    ///     println!("Repository: {}", repo.name);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn all_repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
+        repos::ListAllRepositoriesBuilder::new(self)
+    }
+
+    /// List all public repositories in the order that they were created (alias for [`all_repositories`][Octocrab::all_repositories]).
+    pub fn repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
+        self.all_repositories()
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's

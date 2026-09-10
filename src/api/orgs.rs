@@ -6,6 +6,7 @@ mod copilot_seat_manager;
 mod events;
 mod list_members;
 mod list_repos;
+mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 
@@ -13,6 +14,9 @@ pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningH
 pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
+pub use self::rulesets::{
+    ListOrgRuleSuitesBuilder, ListOrgRulesetsBuilder, OrgRuleSuitesHandler, OrgRulesetsHandler,
+};
 pub use self::secret_scanning_alerts::OrgSecretScanningAlertsHandler;
 pub use self::secrets::OrgSecretsHandler;
 pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
@@ -66,6 +70,13 @@ impl<'octo> OrgHandler<'octo> {
     /// Handle code scanning alerts for the organization (alias for [`code_scanning`][OrgHandler::code_scanning]).
     pub fn code_scannings(&self) -> OrgCodeScanningHandler<'octo, '_> {
         self.code_scanning()
+    }
+
+    /// Handle rulesets for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28
+    pub fn rulesets(&self) -> OrgRulesetsHandler<'octo, '_> {
+        OrgRulesetsHandler::new(self)
     }
 
     /// Add or update organization membership

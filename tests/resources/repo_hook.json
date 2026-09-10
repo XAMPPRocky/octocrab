@@ -1,0 +1,27 @@
+{
+  "type": "Repository",
+  "id": 1,
+  "name": "web",
+  "active": true,
+  "events": [
+    "push",
+    "pull_request"
+  ],
+  "config": {
+    "content_type": "json",
+    "insecure_ssl": "0",
+    "url": "https://example.com/webhook",
+    "secret": "********"
+  },
+  "updated_at": "2022-11-28T00:00:00Z",
+  "created_at": "2022-11-28T00:00:00Z",
+  "url": "https://api.github.com/repos/owner/repo/hooks/1",
+  "test_url": "https://api.github.com/repos/owner/repo/hooks/1/test",
+  "ping_url": "https://api.github.com/repos/owner/repo/hooks/1/pings",
+  "deliveries_url": "https://api.github.com/repos/owner/repo/hooks/1/deliveries",
+  "last_response": {
+    "code": 200,
+    "status": "success",
+    "message": "OK"
+  }
+}

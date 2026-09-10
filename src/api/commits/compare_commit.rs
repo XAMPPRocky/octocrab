@@ -6,6 +6,8 @@ pub struct CompareCommitsBuilder<'octo, 'r> {
     handler: &'r super::CommitHandler<'octo>,
     base: String,
     head: String,
+    #[serde(skip)]
+    custom_basehead: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -22,6 +24,18 @@ impl<'octo, 'r> CompareCommitsBuilder<'octo, 'r> {
             handler,
             base,
             head,
+            custom_basehead: None,
+            page: None,
+            per_page: None,
+        }
+    }
+
+    pub(crate) fn new_range(handler: &'r super::CommitHandler<'octo>, basehead: String) -> Self {
+        Self {
+            handler,
+            base: String::new(),
+            head: String::new(),
+            custom_basehead: Some(basehead),
             page: None,
             per_page: None,
         }
@@ -41,12 +55,15 @@ impl<'octo, 'r> CompareCommitsBuilder<'octo, 'r> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<models::commits::CommitComparison> {
+        let basehead = match self.custom_basehead {
+            Some(ref bh) => bh.clone(),
+            None => format!("{}...{}", self.base, self.head),
+        };
         let route = format!(
-            "/repos/{owner}/{repo}/compare/{base}...{head}",
+            "/repos/{owner}/{repo}/compare/{basehead}",
             owner = self.handler.owner,
             repo = self.handler.repo,
-            base = self.base,
-            head = self.head,
+            basehead = basehead,
         );
 
         self.handler.crab.get(route, Some(&self)).await

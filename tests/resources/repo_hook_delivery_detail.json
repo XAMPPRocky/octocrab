@@ -1,0 +1,29 @@
+{
+  "id": 42,
+  "guid": "7d9b7738-4261-460d-83b6-9818f657a66b",
+  "delivered_at": "2022-11-28T00:00:00Z",
+  "redelivery": false,
+  "duration": 0.05,
+  "status": "OK",
+  "status_code": 200,
+  "event": "push",
+  "action": null,
+  "installation_id": null,
+  "repository_id": 12345,
+  "url": "https://api.github.com/repos/owner/repo/hooks/1/deliveries/42",
+  "request": {
+    "headers": {
+      "User-Agent": "GitHub-Hookshot/7d9b773",
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "ref": "refs/heads/main"
+    }
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "text/plain"
+    },
+    "payload": "OK"
+  }
+}
