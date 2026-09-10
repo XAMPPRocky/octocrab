@@ -1,0 +1,12 @@
+[
+  {
+    "referrer": "Google",
+    "count": 100,
+    "uniques": 80
+  },
+  {
+    "referrer": "github.com",
+    "count": 50,
+    "uniques": 40
+  }
+]

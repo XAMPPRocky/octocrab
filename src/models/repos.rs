@@ -461,3 +461,57 @@ pub struct DeployKey {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
 }
+
+/// A single traffic breakdown entry.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TrafficEntry {
+    pub timestamp: DateTime<Utc>,
+    pub count: u64,
+    pub uniques: u64,
+}
+
+/// Clones breakdown for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-repository-clones)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Clones {
+    pub count: u64,
+    pub uniques: u64,
+    pub clones: Vec<TrafficEntry>,
+}
+
+/// Page views breakdown for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-page-views)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Views {
+    pub count: u64,
+    pub uniques: u64,
+    pub views: Vec<TrafficEntry>,
+}
+
+/// Top referral path traffic for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-paths)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PathTraffic {
+    pub path: String,
+    pub title: String,
+    pub count: u64,
+    pub uniques: u64,
+}
+
+/// Top referral source traffic for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-sources)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ReferrerTraffic {
+    pub referrer: String,
+    pub count: u64,
+    pub uniques: u64,
+}

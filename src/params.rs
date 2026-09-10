@@ -477,6 +477,15 @@ pub mod repos {
         FullName,
     }
 
+    /// The time frame to display traffic results for.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum TrafficInterval {
+        Day,
+        Week,
+    }
+
     /// A Git reference, either a branch, tag, or rev.
     #[derive(Debug, Clone)]
     pub enum Reference {

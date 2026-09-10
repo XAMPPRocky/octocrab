@@ -30,6 +30,7 @@ mod stargazers;
 mod status;
 mod tags;
 mod teams;
+mod traffic;
 mod variables;
 
 use crate::error::HttpSnafu;
@@ -63,6 +64,7 @@ pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
 pub use teams::ListTeamsBuilder;
+pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
 
 #[derive(Clone)]
 pub(crate) enum RepoRef {
@@ -782,6 +784,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle deploy keys on the repository
     pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
         RepoKeysHandler::new(self)
+    }
+
+    /// Handle traffic metrics on the repository
+    pub fn traffic(&self) -> RepoTrafficHandler<'octo, '_> {
+        RepoTrafficHandler::new(self)
     }
 
     /// Handle secrets on the repository

@@ -14,6 +14,7 @@ pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use repos::secret_scanning_alert;
 pub use repos::DeployKey;
+pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
