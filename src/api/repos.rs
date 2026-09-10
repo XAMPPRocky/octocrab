@@ -16,6 +16,7 @@ mod commits;
 mod contributors;
 mod dependabot;
 mod deployments;
+mod dispatches;
 pub mod events;
 mod file;
 pub mod forks;
@@ -60,6 +61,7 @@ pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
 };
+pub use dispatches::{CreateDispatchBuilder, RepoDispatchesHandler};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
@@ -805,6 +807,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle deployments on the repository
     pub fn deployments(&self) -> RepoDeploymentsHandler<'octo, '_> {
         RepoDeploymentsHandler::new(self)
+    }
+
+    /// Handle dispatches on the repository
+    pub fn dispatches(&self) -> RepoDispatchesHandler<'octo, '_> {
+        RepoDispatchesHandler::new(self)
+    }
+
+    /// Creates a [`CreateDispatchBuilder`] to trigger a `repository_dispatch` webhook event.
+    pub fn create_dispatch(
+        &self,
+        event_type: impl Into<String>,
+    ) -> CreateDispatchBuilder<'octo, '_> {
+        CreateDispatchBuilder::new(self, event_type.into())
     }
 
     /// Handle deploy keys on the repository
