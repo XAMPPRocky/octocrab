@@ -16,6 +16,7 @@ pub use repos::secret_scanning_alert;
 pub use repos::Autolink;
 pub use repos::DeployKey;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
+pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
@@ -127,6 +128,8 @@ id_type!(
     CheckRunId,
     CodeScanningId,
     CommentId,
+    DeploymentId,
+    DeploymentStatusId,
     InstallationId,
     IssueEventId,
     IssueId,

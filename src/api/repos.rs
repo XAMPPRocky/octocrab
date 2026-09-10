@@ -14,6 +14,7 @@ mod collaborators;
 mod commits;
 mod contributors;
 mod dependabot;
+mod deployments;
 pub mod events;
 mod file;
 pub mod forks;
@@ -52,6 +53,10 @@ pub use collaborators::ListCollaboratorsBuilder;
 pub use commits::ListCommitsBuilder;
 pub use contributors::ListContributorsBuilder;
 pub use dependabot::RepoDependabotAlertsHandler;
+pub use deployments::{
+    CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
+    ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
+};
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
 pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
@@ -786,6 +791,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle autolinks on the repository
     pub fn autolinks(&self) -> RepoAutolinksHandler<'octo, '_> {
         RepoAutolinksHandler::new(self)
+    }
+
+    /// Handle deployments on the repository
+    pub fn deployments(&self) -> RepoDeploymentsHandler<'octo, '_> {
+        RepoDeploymentsHandler::new(self)
     }
 
     /// Handle deploy keys on the repository
