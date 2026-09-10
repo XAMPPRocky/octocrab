@@ -929,7 +929,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
     }

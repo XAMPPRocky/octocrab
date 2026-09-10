@@ -778,7 +778,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 // Allow user to have installed a runtime default.
                 // If not, we ship with _our_ recommended default.
                 let provider = rustls::crypto::CryptoProvider::get_default()
-                    .map(|arc| arc.clone())
+                    .cloned()
                     .unwrap_or_else(default_rustls_crypto_provider);
                 #[cfg(feature = "rustls-webpki-tokio")]
                 let builder = builder
@@ -1088,7 +1088,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                     format!(
                         "{} {}",
                         device.token_type,
-                        &device.access_token.expose_secret()
+                        device.access_token.expose_secret()
                     )
                     .parse()
                     .unwrap(),

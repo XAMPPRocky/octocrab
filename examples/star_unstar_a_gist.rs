@@ -66,7 +66,7 @@ async fn main() -> octocrab::Result<()> {
         println!("Starred {gist_id}.", gist_id = &args.gist_id)
     } else {
         gists_handler.unstar(&args.gist_id).await?;
-        println!("Un-starred {gist_id}.", gist_id = &args.gist_id)
+        println!("Un-starred {gist_id}.", gist_id = args.gist_id)
     }
     Ok(())
 }
