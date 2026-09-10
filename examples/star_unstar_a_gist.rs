@@ -53,20 +53,20 @@ async fn main() -> octocrab::Result<()> {
     let is_starred = gists_handler.is_starred(&args.gist_id).await?;
 
     if is_starred && args.star {
-        println!("{gist_id} is already starred.", gist_id = &args.gist_id);
+        println!("{gist_id} is already starred.", gist_id = args.gist_id);
         return Ok(());
     }
     if !is_starred && !args.star {
-        println!("{gist_id} is already un-starred.", gist_id = &args.gist_id);
+        println!("{gist_id} is already un-starred.", gist_id = args.gist_id);
         return Ok(());
     }
 
     if args.star {
         gists_handler.star(&args.gist_id).await?;
-        println!("Starred {gist_id}.", gist_id = &args.gist_id)
+        println!("Starred {gist_id}.", gist_id = args.gist_id)
     } else {
         gists_handler.unstar(&args.gist_id).await?;
-        println!("Un-starred {gist_id}.", gist_id = &args.gist_id)
+        println!("Un-starred {gist_id}.", gist_id = args.gist_id)
     }
     Ok(())
 }

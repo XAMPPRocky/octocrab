@@ -33,8 +33,8 @@ fn main() {
         .collect::<Vec<(&str, &str)>>();
     let array_creation_static = format!(
         "pub const _SET_HEADERS_MAP: [(&str, &str); {}] = {:?};",
-        &set_headers_array.len(),
-        &set_headers_array
+        set_headers_array.len(),
+        set_headers_array
     );
 
     let out_dir = env::var("OUT_DIR").unwrap(); // build's OUT path

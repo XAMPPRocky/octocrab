@@ -23,6 +23,7 @@ pub mod releases;
 mod sbom;
 mod secret_scanning_alerts;
 mod secrets;
+pub mod security_advisories;
 mod stargazers;
 mod status;
 mod tags;
@@ -53,6 +54,7 @@ pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
+pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
@@ -797,6 +799,11 @@ impl<'octo> RepoHandler<'octo> {
         RepoSbomHandler::new(self)
     }
 
+    /// Handle repository security advisories
+    pub fn security_advisories(&self) -> RepoSecurityAdvisoriesHandler<'octo, '_> {
+        RepoSecurityAdvisoriesHandler::new(self)
+    }
+
     /// Creates a new Git commit object.
     /// See <https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit>
     /// ```no_run
@@ -856,7 +863,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -889,7 +896,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         let body = serde_json::json!({
             "limit": limit_type,
             "expiry": expiry,
@@ -922,7 +929,7 @@ impl<'octo> RepoHandler<'octo> {
             }
             );
         }
-        let route = format!("/{}/interaction-limits", &self.repo);
+        let route = format!("/{}/interaction-limits", self.repo);
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
     }

@@ -1,0 +1,102 @@
+[
+  {
+    "ghsa_id": "GHSA-aaaa-bbbb-cccc",
+    "cve_id": "CVE-2023-54321",
+    "url": "https://api.github.com/repos/octocat/Hello-World/security-advisories/GHSA-aaaa-bbbb-cccc",
+    "html_url": "https://github.com/octocat/Hello-World/security-advisories/GHSA-aaaa-bbbb-cccc",
+    "summary": "Sample Repository Security Advisory",
+    "description": "Detailed description of the repository security advisory",
+    "severity": "high",
+    "author": {
+      "login": "octocat",
+      "id": 1,
+      "node_id": "MDQ6VXNlcjE=",
+      "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/octocat",
+      "html_url": "https://github.com/octocat",
+      "followers_url": "https://api.github.com/users/octocat/followers",
+      "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+      "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+      "organizations_url": "https://api.github.com/users/octocat/orgs",
+      "repos_url": "https://api.github.com/users/octocat/repos",
+      "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/octocat/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "publisher": null,
+    "identifiers": [
+      {
+        "type": "GHSA",
+        "value": "GHSA-aaaa-bbbb-cccc"
+      }
+    ],
+    "state": "published",
+    "created_at": "2023-01-01T00:00:00Z",
+    "updated_at": "2023-01-02T00:00:00Z",
+    "published_at": "2023-01-03T00:00:00Z",
+    "closed_at": null,
+    "withdrawn_at": null,
+    "submission": {
+      "accepted": true
+    },
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "sample-package"
+        },
+        "vulnerable_version_range": "< 1.0.0",
+        "first_patched_version": null,
+        "patched_versions": "1.0.0",
+        "vulnerable_functions": ["bar"]
+      }
+    ],
+    "cvss_severities": null,
+    "cwes": [
+      {
+        "cwe_id": "CWE-79",
+        "name": "Cross-site Scripting"
+      }
+    ],
+    "cwe_ids": ["CWE-79"],
+    "credits": [
+      {
+        "login": "octocat",
+        "type": "finder"
+      }
+    ],
+    "credits_detailed": [
+      {
+        "user": {
+          "login": "octocat",
+          "id": 1,
+          "node_id": "MDQ6VXNlcjE=",
+          "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/octocat",
+          "html_url": "https://github.com/octocat",
+          "followers_url": "https://api.github.com/users/octocat/followers",
+          "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+          "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+          "organizations_url": "https://api.github.com/users/octocat/orgs",
+          "repos_url": "https://api.github.com/users/octocat/repos",
+          "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/octocat/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "type": "finder",
+        "state": "accepted"
+      }
+    ],
+    "collaborating_users": [],
+    "collaborating_teams": [],
+    "private_fork": null
+  }
+]
