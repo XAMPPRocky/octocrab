@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use repos::pages;
 pub use repos::secret_scanning_alert;
 pub use repos::Activity;
 pub use repos::ActivityType;
@@ -22,6 +23,11 @@ pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use repos::{Deployment, DeploymentStatus, DeploymentStatusState};
+pub use repos::{
+    PageBuild, PageBuildError, PageBuildStatus, PagesBuildType, PagesDeployment, PagesDeploymentId,
+    PagesDeploymentStatus, PagesDeploymentStatusState, PagesDomainHealth, PagesHealthCheck,
+    PagesHttpsCertificate, PagesSite, PagesSource, UpdatePagesSource,
+};
 pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
@@ -148,6 +154,7 @@ id_type!(
     MilestoneId,
     NotificationId,
     OrgId,
+    PageBuildId,
     ProjectId,
     ProjectColumnId,
     PullRequestId,

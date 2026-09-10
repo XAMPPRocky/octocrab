@@ -25,6 +25,7 @@ mod generate;
 mod invitations;
 mod keys;
 mod merges;
+pub mod pages;
 mod pulls;
 pub mod release_assets;
 pub mod releases;
@@ -72,6 +73,10 @@ pub use invitations::{
 };
 pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
 pub use merges::MergeBranchBuilder;
+pub use pages::{
+    CreatePagesDeploymentBuilder, CreatePagesSiteBuilder, ListPagesBuildsBuilder,
+    RepoPagesBuildsHandler, RepoPagesDeploymentsHandler, RepoPagesHandler, UpdatePagesSiteBuilder,
+};
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
@@ -851,6 +856,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle deploy keys on the repository
     pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
         RepoKeysHandler::new(self)
+    }
+
+    /// Handle GitHub Pages on the repository
+    pub fn pages(&self) -> RepoPagesHandler<'octo, '_> {
+        RepoPagesHandler::new(self)
     }
 
     /// Handle traffic metrics on the repository
