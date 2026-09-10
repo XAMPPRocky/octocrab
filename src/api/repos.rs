@@ -36,7 +36,7 @@ pub mod security_advisories;
 mod stargazers;
 pub mod stats;
 mod status;
-mod tags;
+pub mod tags;
 mod teams;
 mod topics;
 mod traffic;
@@ -87,7 +87,8 @@ pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdv
 pub use stargazers::ListStarGazersBuilder;
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
-pub use tags::ListTagsBuilder;
+#[allow(deprecated)]
+pub use tags::{ListTagsBuilder, RepoTagProtectionHandler, RepoTagsHandler};
 pub use teams::ListTeamsBuilder;
 pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
 pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
@@ -464,6 +465,20 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_tags(&self) -> ListTagsBuilder<'_, '_> {
         ListTagsBuilder::new(self)
+    }
+
+    /// Handle tags on the repository.
+    pub fn tags(&self) -> RepoTagsHandler<'octo, '_> {
+        RepoTagsHandler::new(self)
+    }
+
+    /// Handle tag protection on the repository.
+    #[deprecated(
+        note = "Tag protection is closing down in GitHub. Use repository rulesets instead."
+    )]
+    #[allow(deprecated)]
+    pub fn tag_protection(&self) -> RepoTagProtectionHandler<'octo, '_> {
+        RepoTagProtectionHandler::new(self)
     }
 
     /// List branches from a repository.

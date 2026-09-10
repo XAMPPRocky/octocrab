@@ -22,6 +22,8 @@ pub use repos::DeployKey;
 pub use repos::InvitationPermission;
 pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
+#[allow(deprecated)]
+pub use repos::TagProtection;
 pub use repos::{Clones, PathTraffic, ReferrerTraffic, TrafficEntry, Views};
 pub use repos::{
     CodeFrequency, CommitActivity, ContributorActivity, ContributorWeeklyActivity,
@@ -181,6 +183,7 @@ id_type!(
     UserOrOrgId,
     WorkflowId,
     TeamInvitationId,
+    TagProtectionId,
     AssignmentId,
     ClassroomId
 );

@@ -771,3 +771,28 @@ pub struct RepositoryInvitation {
     pub url: Url,
     pub html_url: Url,
 }
+
+/// A tag protection state for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/tags?apiVersion=2022-11-28#list-tag-protection-states-for-a-repository)
+#[deprecated(note = "Tag protection is closing down in GitHub. Use repository rulesets instead.")]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TagProtection {
+    pub id: TagProtectionId,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub created_at: Option<DateTime<Utc>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    pub pattern: String,
+}
