@@ -515,3 +515,22 @@ pub struct ReferrerTraffic {
     pub count: u64,
     pub uniques: u64,
 }
+
+/// An autolink reference for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Autolink {
+    pub id: AutolinkId,
+    pub key_prefix: String,
+    pub url_template: String,
+    pub is_alphanumeric: bool,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub updated_at: Option<DateTime<Utc>>,
+}
+

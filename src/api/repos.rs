@@ -7,6 +7,7 @@ use http::Uri;
 use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
+mod autolinks;
 mod branches;
 pub mod code_scanning;
 mod collaborators;
@@ -44,6 +45,7 @@ use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
+pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
 pub use branches::ListBranchesBuilder;
 pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
@@ -779,6 +781,11 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle autolinks on the repository
+    pub fn autolinks(&self) -> RepoAutolinksHandler<'octo, '_> {
+        RepoAutolinksHandler::new(self)
     }
 
     /// Handle deploy keys on the repository

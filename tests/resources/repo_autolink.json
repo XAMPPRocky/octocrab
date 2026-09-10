@@ -1,0 +1,7 @@
+{
+  "id": 1,
+  "key_prefix": "TICKET-",
+  "url_template": "https://example.com/TICKET?query=<num>",
+  "is_alphanumeric": true,
+  "updated_at": "2024-01-01T12:00:00Z"
+}
