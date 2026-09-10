@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
 pub mod activity;
@@ -36,6 +37,7 @@ pub mod pulls;
 pub mod reactions;
 pub mod repos;
 pub mod search;
+pub mod security_advisories;
 pub mod teams;
 pub mod timelines;
 pub mod webhook_events;

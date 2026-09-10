@@ -290,7 +290,7 @@ pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, commits, current, events,
         gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, projects, pulls,
-        ratelimit, repos, search, teams, users, workflows,
+        ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1660,6 +1660,11 @@ impl Octocrab {
     /// Creates a [`codes_of_conduct::CodesOfConductHandler`] providing the GitHub Codes of Codes of Conduct API
     pub fn codes_of_conduct(&self) -> codes_of_conduct::CodesOfConductHandler<'_> {
         codes_of_conduct::CodesOfConductHandler::new(self)
+    }
+
+    /// Creates a [`security_advisories::SecurityAdvisoriesHandler`] providing GitHub's Security Advisories API.
+    pub fn security_advisories(&self) -> security_advisories::SecurityAdvisoriesHandler<'_> {
+        security_advisories::SecurityAdvisoriesHandler::new(self)
     }
 }
 

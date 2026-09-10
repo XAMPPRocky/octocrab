@@ -23,6 +23,7 @@ pub mod releases;
 mod sbom;
 mod secret_scanning_alerts;
 mod secrets;
+pub mod security_advisories;
 mod stargazers;
 mod status;
 mod tags;
@@ -53,6 +54,7 @@ pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
+pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
 pub use stargazers::ListStarGazersBuilder;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use tags::ListTagsBuilder;
@@ -795,6 +797,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle SBOM report generation
     pub fn sbom(&self) -> RepoSbomHandler<'_> {
         RepoSbomHandler::new(self)
+    }
+
+    /// Handle repository security advisories
+    pub fn security_advisories(&self) -> RepoSecurityAdvisoriesHandler<'octo, '_> {
+        RepoSecurityAdvisoriesHandler::new(self)
     }
 
     /// Creates a new Git commit object.

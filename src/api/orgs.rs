@@ -11,6 +11,7 @@ pub use self::events::ListOrgEventsBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
 pub use self::secrets::OrgSecretsHandler;
+pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
 use crate::models::interaction_limits;
 use crate::models::interaction_limits::InteractionLimit;
@@ -30,6 +31,13 @@ pub struct OrgHandler<'octo> {
 impl<'octo> OrgHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String) -> Self {
         Self { crab, owner }
+    }
+
+    /// Handle security advisories for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#list-repository-security-advisories-for-an-organization
+    pub fn security_advisories(&self) -> OrgSecurityAdvisoriesHandler<'octo> {
+        OrgSecurityAdvisoriesHandler::new(self.crab, self.owner.clone())
     }
 
     /// Add or update organization membership
