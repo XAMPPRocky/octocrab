@@ -28,25 +28,25 @@
 //! - [`pulls`] Pull Requests
 //! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
-//! - [`repos::activity`] Repository activity
-//! - [`repos::autolinks`] Autolinks
-//! - [`repos::branches`] Branches and branch protection
-//! - [`repos::codeowners`] CODEOWNERS errors
-//! - [`repos::comments`] Commit comments
-//! - [`repos::custom_properties`] Repository custom property values
-//! - [`repos::deployments`] Deployments and deployment statuses
-//! - [`repos::environments`] Environments and deployment protection rules
-//! - [`repos::forks`] Repository forks
-//! - [`repos::hooks`] Repository webhooks
-//! - [`repos::keys`] Deploy keys
-//! - [`repos::pages`] GitHub Pages
-//! - [`repos::releases`] Repository releases
-//! - [`repos::rulesets`] Repository rulesets and rule suites
-//! - [`repos::security`] Vulnerability alerts and automated security fixes
-//! - [`repos::stats`] Repository statistics
-//! - [`repos::topics`] Repository topics
-//! - [`repos::traffic`] Repository traffic
-//! - [`repos::transfer`] Repository transfer
+//!   - [`repos::activity`] Repository activity
+//!   - [`repos::autolinks`] Autolinks
+//!   - [`repos::branches`] Branches and branch protection
+//!   - [`repos::codeowners`] CODEOWNERS errors
+//!   - [`repos::comments`] Commit comments
+//!   - [`repos::custom_properties`] Repository custom property values
+//!   - [`repos::deployments`] Deployments and deployment statuses
+//!   - [`repos::environments`] Environments and deployment protection rules
+//!   - [`repos::forks`] Repository forks
+//!   - [`repos::hooks`] Repository webhooks
+//!   - [`repos::keys`] Deploy keys
+//!   - [`repos::pages`] GitHub Pages
+//!   - [`repos::releases`] Repository releases
+//!   - [`repos::rulesets`] Repository rulesets and rule suites
+//!   - [`repos::security`] Vulnerability alerts and automated security fixes
+//!   - [`repos::stats`] Repository statistics
+//!   - [`repos::topics`] Repository topics
+//!   - [`repos::traffic`] Repository traffic
+//!   - [`repos::transfer`] Repository transfer
 //! - [`search`] Using GitHub's search.
 //! - [`teams`] Teams
 //! - [`users`] Users
