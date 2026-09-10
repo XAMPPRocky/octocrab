@@ -19,7 +19,8 @@ pub struct Comment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line: Option<u64>,
     pub commit_id: String,
-    pub user: Author,
+    #[serde(default)]
+    pub user: Option<Author>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,

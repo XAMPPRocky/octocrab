@@ -11,6 +11,7 @@ mod autolinks;
 mod branches;
 pub mod code_scanning;
 mod collaborators;
+mod comments;
 mod commits;
 mod contributors;
 mod dependabot;
@@ -50,6 +51,7 @@ pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
 pub use branches::ListBranchesBuilder;
 pub use code_scanning::RepoCodeScanningHandler;
 pub use collaborators::ListCollaboratorsBuilder;
+pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
 pub use commits::ListCommitsBuilder;
 pub use contributors::ListContributorsBuilder;
 pub use dependabot::RepoDependabotAlertsHandler;
@@ -791,6 +793,11 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle autolinks on the repository
     pub fn autolinks(&self) -> RepoAutolinksHandler<'octo, '_> {
         RepoAutolinksHandler::new(self)
+    }
+
+    /// Handle commit comments on the repository
+    pub fn comments(&self) -> RepoCommentsHandler<'octo, '_> {
+        RepoCommentsHandler::new(self)
     }
 
     /// Handle deployments on the repository
