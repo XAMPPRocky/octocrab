@@ -17,6 +17,7 @@ pub mod events;
 mod file;
 pub mod forks;
 mod generate;
+mod keys;
 mod merges;
 mod pulls;
 pub mod release_assets;
@@ -50,6 +51,7 @@ pub use contributors::ListContributorsBuilder;
 pub use dependabot::RepoDependabotAlertsHandler;
 pub use file::{DeleteFileBuilder, GetContentBuilder, UpdateFileBuilder};
 pub use generate::GenerateRepositoryBuilder;
+pub use keys::{CreateKeyBuilder, ListKeysBuilder, RepoKeysHandler};
 pub use merges::MergeBranchBuilder;
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
@@ -775,6 +777,11 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle deploy keys on the repository
+    pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
+        RepoKeysHandler::new(self)
     }
 
     /// Handle secrets on the repository

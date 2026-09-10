@@ -436,3 +436,29 @@ pub struct RepoPermission {
 
 /// A HashMap of languages and the number of bytes of code written in that language.
 pub type Languages = std::collections::HashMap<String, i64>;
+
+/// A deploy key for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DeployKey {
+    pub id: KeyId,
+    pub key: String,
+    pub url: Url,
+    pub title: String,
+    pub verified: bool,
+    pub created_at: DateTime<Utc>,
+    pub read_only: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_by: Option<String>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub last_used: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
