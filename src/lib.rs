@@ -1584,6 +1584,18 @@ impl Octocrab {
         repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
+    /// List all public repositories in the order that they were created.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-public-repositories)
+    pub fn all_repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
+        repos::ListAllRepositoriesBuilder::new(self)
+    }
+
+    /// List all public repositories in the order that they were created (alias for [`all_repositories`][Octocrab::all_repositories]).
+    pub fn repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
+        self.all_repositories()
+    }
+
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's
     /// projects API (classic).
     pub fn projects(&self) -> projects::ProjectHandler<'_> {

@@ -562,6 +562,12 @@ pub mod repos {
         }
     }
 
+    impl From<&str> for Commitish {
+        fn from(s: &str) -> Commitish {
+            Commitish(s.to_string())
+        }
+    }
+
     impl std::fmt::Display for Commitish {
         fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
             f.write_str(&self.0)

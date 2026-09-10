@@ -8,13 +8,16 @@ use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
 mod activity;
+pub mod all_repositories;
 mod autolinks;
 pub mod branches;
 pub mod code_scanning;
+pub mod codeowners;
 mod collaborators;
 mod comments;
 mod commits;
 mod contributors;
+pub mod custom_properties;
 mod dependabot;
 mod deployments;
 mod dispatches;
@@ -44,6 +47,7 @@ pub mod tags;
 mod teams;
 mod topics;
 mod traffic;
+pub mod transfer;
 mod variables;
 
 use crate::error::HttpSnafu;
@@ -58,6 +62,7 @@ use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
 pub use activity::{ListActivitiesBuilder, RepoActivityHandler};
+pub use all_repositories::ListAllRepositoriesBuilder;
 pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
 pub use branches::{
     ListBranchesBuilder, RepoBranchAdminEnforcementHandler, RepoBranchProtectionHandler,
@@ -68,10 +73,12 @@ pub use branches::{
     UpdateBranchProtectionBuilder, UpdatePullRequestReviewsBuilder, UpdateStatusChecksBuilder,
 };
 pub use code_scanning::RepoCodeScanningHandler;
+pub use codeowners::ListCodeownersErrorsBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
 pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
+pub use custom_properties::RepoCustomPropertiesHandler;
 pub use dependabot::RepoDependabotAlertsHandler;
 pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
@@ -122,6 +129,7 @@ pub use tags::{ListTagsBuilder, RepoTagProtectionHandler, RepoTagsHandler};
 pub use teams::ListTeamsBuilder;
 pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
 pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
+pub use transfer::TransferRepoBuilder;
 
 #[derive(Clone)]
 pub(crate) enum RepoRef {
@@ -887,6 +895,25 @@ impl<'octo> RepoHandler<'octo> {
             .await
     }
 
+    /// Stream the repository contents as a .zip
+    pub async fn download_zipball(
+        &self,
+        reference: impl Into<params::repos::Commitish>,
+    ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
+        let route = format!(
+            "/{repo}/zipball/{reference}",
+            repo = self.repo,
+            reference = reference.into(),
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        self.crab
+            .follow_location_to_data(self.crab._get(uri).await?)
+            .await
+    }
+
     /// Check if a user is a repository collaborator
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let route = format!(
@@ -1061,6 +1088,27 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
     pub fn code_scannings(&self) -> RepoCodeScanningHandler<'octo, '_> {
         self.code_scanning()
+    }
+
+    /// List CODEOWNERS syntax errors in the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-codeowners-errors)
+    pub fn codeowners_errors(&self) -> ListCodeownersErrorsBuilder<'octo, '_> {
+        ListCodeownersErrorsBuilder::new(self)
+    }
+
+    /// Handle repository custom property values.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/custom-properties?apiVersion=2022-11-28)
+    pub fn custom_properties(&self) -> RepoCustomPropertiesHandler<'octo, '_> {
+        RepoCustomPropertiesHandler::new(self)
+    }
+
+    /// Transfer a repository to a new owner.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#transfer-a-repository)
+    pub fn transfer(&self, new_owner: impl Into<String>) -> TransferRepoBuilder<'octo, '_> {
+        TransferRepoBuilder::new(self, new_owner.into())
     }
 
     /// Creates a new Git commit object.
