@@ -16,6 +16,7 @@ pub use repos::branches;
 pub use repos::environments;
 pub use repos::pages;
 pub use repos::secret_scanning_alert;
+pub use repos::security;
 pub use repos::stats;
 pub use repos::Activity;
 pub use repos::ActivityType;
@@ -31,6 +32,7 @@ pub use repos::{
     BranchProtectionSummary, DetailedBranch, DismissalRestrictions, ProtectionFlag,
     RequiredPullRequestReviews, RequiredStatusChecks, StatusCheck,
 };
+pub use repos::{AutomatedSecurityFixes, PrivateVulnerabilityReporting};
 pub use repos::{
     BranchPolicyType, CustomDeploymentProtectionRule, CustomDeploymentProtectionRules,
     CustomDeploymentRuleApp, CustomDeploymentRuleApps, DeploymentBranchPolicies,

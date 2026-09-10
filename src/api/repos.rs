@@ -35,6 +35,7 @@ pub mod rulesets;
 mod sbom;
 pub(crate) mod secret_scanning_alerts;
 mod secrets;
+pub mod security;
 pub mod security_advisories;
 mod stargazers;
 pub mod stats;
@@ -108,6 +109,10 @@ pub use rulesets::{
 };
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
+pub use security::{
+    RepoAutomatedSecurityFixesHandler, RepoPrivateVulnerabilityReportingHandler,
+    RepoVulnerabilityAlertsHandler,
+};
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
 pub use stargazers::ListStarGazersBuilder;
 pub use stats::RepoStatsHandler;
@@ -981,6 +986,23 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle repository security advisories
     pub fn security_advisories(&self) -> RepoSecurityAdvisoriesHandler<'octo, '_> {
         RepoSecurityAdvisoriesHandler::new(self)
+    }
+
+    /// Handle vulnerability alerts for the repository
+    pub fn vulnerability_alerts(&self) -> RepoVulnerabilityAlertsHandler<'octo, '_> {
+        RepoVulnerabilityAlertsHandler::new(self)
+    }
+
+    /// Handle automated security fixes (Dependabot security updates) for the repository
+    pub fn automated_security_fixes(&self) -> RepoAutomatedSecurityFixesHandler<'octo, '_> {
+        RepoAutomatedSecurityFixesHandler::new(self)
+    }
+
+    /// Handle private vulnerability reporting for the repository
+    pub fn private_vulnerability_reporting(
+        &self,
+    ) -> RepoPrivateVulnerabilityReportingHandler<'octo, '_> {
+        RepoPrivateVulnerabilityReportingHandler::new(self)
     }
 
     /// Handle code scanning on the repository

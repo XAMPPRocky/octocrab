@@ -14,11 +14,13 @@ pub mod pages;
 pub mod sbom;
 pub mod secret_scanning_alert;
 pub mod secrets;
+pub mod security;
 pub mod stats;
 
 pub use branches::*;
 pub use environments::*;
 pub use pages::*;
+pub use security::*;
 pub use stats::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
