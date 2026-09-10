@@ -31,6 +31,7 @@ pub mod pages;
 mod pulls;
 pub mod release_assets;
 pub mod releases;
+pub mod rulesets;
 mod sbom;
 pub(crate) mod secret_scanning_alerts;
 mod secrets;
@@ -101,6 +102,10 @@ pub use pages::{
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
 pub use releases::ReleasesHandler;
+pub use rulesets::{
+    GetRepoRulesetBuilder, ListRepoRuleSuitesBuilder, ListRepoRulesetsBuilder,
+    ListRulesForBranchBuilder, RepoRuleSuitesHandler, RepoRulesetsHandler,
+};
 pub use secret_scanning_alerts::RepoSecretScanningAlertsHandler;
 pub use secrets::RepoSecretsHandler;
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
@@ -504,6 +509,23 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle branches and branch protection on the repository
     pub fn branches(&self) -> RepoBranchesHandler<'octo, '_> {
         RepoBranchesHandler::new(self)
+    }
+
+    /// Handle rulesets on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28)
+    pub fn rulesets(&self) -> RepoRulesetsHandler<'octo, '_> {
+        RepoRulesetsHandler::new(self)
+    }
+
+    /// Get all active rules that apply to the specified branch.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-rules-for-a-branch)
+    pub fn rules_for_branch(
+        &self,
+        branch: impl Into<String>,
+    ) -> ListRulesForBranchBuilder<'octo, '_> {
+        self.rulesets().rules_for_branch(branch)
     }
 
     /// List branches from a repository.

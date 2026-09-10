@@ -72,12 +72,22 @@ pub mod orgs_copilot;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
+pub mod rulesets;
 pub mod search;
 pub mod security_advisories;
 pub mod teams;
 pub mod timelines;
 pub mod webhook_events;
 pub mod workflows;
+
+pub use rulesets::{
+    BypassActorType, BypassMode, PropertyTargetDefinition, RefNameCondition, RepoRule,
+    RepositoryIdCondition, RepositoryNameCondition, RepositoryPropertyCondition, Rule,
+    RuleEvaluation, RuleEvaluationResult, RuleEvaluationSource, RuleSuite, RuleSuiteId,
+    RuleSuiteResult, RuleSuiteSummary, Ruleset, RulesetBypassActor, RulesetConditions,
+    RulesetEnforcement, RulesetId, RulesetLink, RulesetLinks, RulesetSourceType, RulesetTarget,
+    UpdateRuleset,
+};
 
 mod date_serde;
 
