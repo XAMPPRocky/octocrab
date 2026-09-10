@@ -486,6 +486,34 @@ pub mod repos {
         Week,
     }
 
+    pub use crate::models::repos::ActivityType;
+
+    /// The time period to filter repository activity by.
+    ///
+    /// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-activities)
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum ActivityTimePeriod {
+        Day,
+        Week,
+        Month,
+        Quarter,
+        Year,
+    }
+
+    impl std::fmt::Display for ActivityTimePeriod {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Self::Day => write!(f, "day"),
+                Self::Week => write!(f, "week"),
+                Self::Month => write!(f, "month"),
+                Self::Quarter => write!(f, "quarter"),
+                Self::Year => write!(f, "year"),
+            }
+        }
+    }
+
     /// A Git reference, either a branch, tag, or rev.
     #[derive(Debug, Clone)]
     pub enum Reference {

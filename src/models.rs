@@ -13,6 +13,8 @@ pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use repos::secret_scanning_alert;
+pub use repos::Activity;
+pub use repos::ActivityType;
 pub use repos::Autolink;
 pub use repos::DeployKey;
 pub use repos::RepoTopics;
@@ -118,6 +120,7 @@ macro_rules! id_type {
 }
 
 id_type!(
+    ActivityId,
     ActorId, // A Bot, EnterpriseUserAccount, Mannequin, Organization or User
     AppId,
     ArtifactId,

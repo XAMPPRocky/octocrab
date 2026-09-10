@@ -1,0 +1,70 @@
+[
+  {
+    "id": 43180726230,
+    "node_id": "PSH_kwLOD4Ga3s8AAAAKDcWX1g",
+    "before": "0697c379ce26fedae71883c920fa682db6378bc6",
+    "after": "808fa70f11b1ec8eadb7423afdd97ffdab163724",
+    "ref": "refs/heads/main",
+    "timestamp": "2026-09-10T09:00:05Z",
+    "activity_type": "pr_merge",
+    "actor": {
+      "login": "dmgorsky",
+      "id": 409820,
+      "node_id": "MDQ6VXNlcjQwOTgyMA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/409820?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/dmgorsky",
+      "html_url": "https://github.com/dmgorsky",
+      "followers_url": "https://api.github.com/users/dmgorsky/followers",
+      "following_url": "https://api.github.com/users/dmgorsky/following{/other_user}",
+      "gists_url": "https://api.github.com/users/dmgorsky/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/dmgorsky/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/dmgorsky/subscriptions",
+      "organizations_url": "https://api.github.com/users/dmgorsky/orgs",
+      "repos_url": "https://api.github.com/users/dmgorsky/repos",
+      "events_url": "https://api.github.com/users/dmgorsky/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/dmgorsky/received_events",
+      "type": "User",
+      "site_admin": false
+    }
+  },
+  {
+    "id": 43178147663,
+    "node_id": "PSH_kwLOD4Ga3s8AAAAKDZ4_Tw",
+    "before": "15c6ae2e833f89434267710db415d6054d2c96d9",
+    "after": "0697c379ce26fedae71883c920fa682db6378bc6",
+    "ref": "refs/heads/main",
+    "timestamp": "2026-09-10T08:27:23Z",
+    "activity_type": "push",
+    "actor": {
+      "login": "octocat",
+      "id": 1,
+      "node_id": "MDQ6VXNlcjE=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/octocat",
+      "html_url": "https://github.com/octocat",
+      "followers_url": "https://api.github.com/users/octocat/followers",
+      "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+      "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+      "organizations_url": "https://api.github.com/users/octocat/orgs",
+      "repos_url": "https://api.github.com/users/octocat/repos",
+      "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/octocat/received_events",
+      "type": "User",
+      "site_admin": false
+    }
+  },
+  {
+    "id": 43170000000,
+    "node_id": "PSH_kwLOD4Ga3s8AAAAKDZ4_XX",
+    "before": "0000000000000000000000000000000000000000",
+    "after": "15c6ae2e833f89434267710db415d6054d2c96d9",
+    "ref": "refs/heads/feature-branch",
+    "timestamp": "2026-09-10T07:15:00Z",
+    "activity_type": "branch_creation",
+    "actor": null
+  }
+]

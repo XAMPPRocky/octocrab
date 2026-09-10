@@ -628,3 +628,71 @@ impl std::ops::Deref for RepoTopics {
         &self.names
     }
 }
+
+/// The type of activity that was performed in a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-activities)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum ActivityType {
+    Push,
+    ForcePush,
+    BranchCreation,
+    BranchDeletion,
+    PrMerge,
+    MergeQueueMerge,
+    #[serde(untagged)]
+    Other(String),
+}
+
+impl std::fmt::Display for ActivityType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Push => write!(f, "push"),
+            Self::ForcePush => write!(f, "force_push"),
+            Self::BranchCreation => write!(f, "branch_creation"),
+            Self::BranchDeletion => write!(f, "branch_deletion"),
+            Self::PrMerge => write!(f, "pr_merge"),
+            Self::MergeQueueMerge => write!(f, "merge_queue_merge"),
+            Self::Other(s) => write!(f, "{s}"),
+        }
+    }
+}
+
+impl From<&str> for ActivityType {
+    fn from(s: &str) -> Self {
+        match s {
+            "push" => Self::Push,
+            "force_push" => Self::ForcePush,
+            "branch_creation" => Self::BranchCreation,
+            "branch_deletion" => Self::BranchDeletion,
+            "pr_merge" => Self::PrMerge,
+            "merge_queue_merge" => Self::MergeQueueMerge,
+            other => Self::Other(other.to_string()),
+        }
+    }
+}
+
+impl From<String> for ActivityType {
+    fn from(s: String) -> Self {
+        Self::from(s.as_str())
+    }
+}
+
+/// A repository activity entry.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-activities)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Activity {
+    pub id: ActivityId,
+    pub node_id: String,
+    pub before: String,
+    pub after: String,
+    pub r#ref: String,
+    pub timestamp: DateTime<Utc>,
+    pub activity_type: ActivityType,
+    #[serde(default)]
+    pub actor: Option<Author>,
+}

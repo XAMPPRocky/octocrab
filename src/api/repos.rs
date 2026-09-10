@@ -7,6 +7,7 @@ use http::Uri;
 use http_body_util::combinators::BoxBody;
 use snafu::ResultExt;
 
+mod activity;
 mod autolinks;
 mod branches;
 pub mod code_scanning;
@@ -49,6 +50,7 @@ use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
 use crate::{models, params, Octocrab, Result};
+pub use activity::{ListActivitiesBuilder, RepoActivityHandler};
 pub use autolinks::{CreateAutolinkBuilder, RepoAutolinksHandler};
 pub use branches::ListBranchesBuilder;
 pub use code_scanning::RepoCodeScanningHandler;
@@ -792,6 +794,16 @@ impl<'octo> RepoHandler<'octo> {
         base: impl Into<String>,
     ) -> MergeBranchBuilder<'octo, '_> {
         MergeBranchBuilder::new(self, head, base)
+    }
+
+    /// Handle activity on the repository
+    pub fn activity(&self) -> RepoActivityHandler<'octo, '_> {
+        RepoActivityHandler::new(self)
+    }
+
+    /// Creates a [`ListActivitiesBuilder`] to list activity on the repository.
+    pub fn list_activities(&self) -> ListActivitiesBuilder<'octo, '_> {
+        ListActivitiesBuilder::new(self)
     }
 
     /// Handle autolinks on the repository
