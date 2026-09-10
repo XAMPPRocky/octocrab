@@ -533,4 +533,3 @@ pub struct Autolink {
     )]
     pub updated_at: Option<DateTime<Utc>>,
 }
-

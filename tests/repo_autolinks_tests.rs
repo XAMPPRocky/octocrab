@@ -51,11 +51,7 @@ async fn should_list_autolinks() {
     .await;
     let client = setup_octocrab(&mock_server.uri());
 
-    let result = client
-        .repos(OWNER, REPO)
-        .autolinks()
-        .list()
-        .await;
+    let result = client.repos(OWNER, REPO).autolinks().list().await;
 
     assert!(
         result.is_ok(),
@@ -89,11 +85,7 @@ async fn should_get_autolink() {
     .await;
     let client = setup_octocrab(&mock_server.uri());
 
-    let result = client
-        .repos(OWNER, REPO)
-        .autolinks()
-        .get(AUTOLINK_ID)
-        .await;
+    let result = client.repos(OWNER, REPO).autolinks().get(AUTOLINK_ID).await;
 
     assert!(
         result.is_ok(),
@@ -103,7 +95,10 @@ async fn should_get_autolink() {
     let response = result.unwrap();
     assert_eq!(response.id.0, 1);
     assert_eq!(response.key_prefix, "TICKET-");
-    assert_eq!(response.url_template, "https://example.com/TICKET?query=<num>");
+    assert_eq!(
+        response.url_template,
+        "https://example.com/TICKET?query=<num>"
+    );
     assert!(response.is_alphanumeric);
 }
 
