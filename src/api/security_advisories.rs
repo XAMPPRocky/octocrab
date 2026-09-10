@@ -1,7 +1,7 @@
-use crate::models::security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 pub use crate::api::repos::security_advisories::{
     ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler,
 };
+use crate::models::security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 use crate::{Octocrab, Page, Result};
 
 /// Handler for GitHub's Security Advisories API.

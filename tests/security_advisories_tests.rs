@@ -59,7 +59,11 @@ async fn should_list_global_security_advisories() {
         .send()
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let page = result.unwrap();
     assert_eq!(page.items.len(), 1);
     assert_eq!(page.items[0].ghsa_id, GHSA_ID);
@@ -71,7 +75,8 @@ async fn should_get_global_security_advisory() {
     let mocked_response: SecurityAdvisory =
         serde_json::from_str(include_str!("resources/global_security_advisory.json")).unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
-    let mock_server = setup_mock_server("GET", format!("/advisories/{GHSA_ID}").as_str(), template).await;
+    let mock_server =
+        setup_mock_server("GET", format!("/advisories/{GHSA_ID}").as_str(), template).await;
     let client = setup_octocrab(&mock_server.uri());
 
     let result = client
@@ -79,7 +84,11 @@ async fn should_get_global_security_advisory() {
         .get_global_advisory(GHSA_ID)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let advisory = result.unwrap();
     assert_eq!(advisory.ghsa_id, GHSA_ID);
     assert_eq!(advisory.summary, "Sample Global Security Advisory");
@@ -106,7 +115,11 @@ async fn should_list_org_security_advisories() {
         .send()
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let page = result.unwrap();
     assert_eq!(page.items.len(), 1);
     assert_eq!(page.items[0].ghsa_id, REPO_GHSA_ID);
@@ -133,7 +146,11 @@ async fn should_list_repo_security_advisories() {
         .send()
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let page = result.unwrap();
     assert_eq!(page.items.len(), 1);
     assert_eq!(page.items[0].ghsa_id, REPO_GHSA_ID);
@@ -158,7 +175,11 @@ async fn should_get_repo_security_advisory() {
         .get(REPO_GHSA_ID)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let advisory = result.unwrap();
     assert_eq!(advisory.ghsa_id, REPO_GHSA_ID);
 }
@@ -198,7 +219,11 @@ async fn should_create_repo_security_advisory() {
         .create(&body)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let advisory = result.unwrap();
     assert_eq!(advisory.ghsa_id, REPO_GHSA_ID);
 }
@@ -228,7 +253,11 @@ async fn should_update_repo_security_advisory() {
         .update(REPO_GHSA_ID, &body)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let advisory = result.unwrap();
     assert_eq!(advisory.ghsa_id, REPO_GHSA_ID);
 }
@@ -259,7 +288,11 @@ async fn should_report_security_vulnerability() {
         .report(&body)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let advisory = result.unwrap();
     assert_eq!(advisory.ghsa_id, REPO_GHSA_ID);
 }
@@ -281,7 +314,11 @@ async fn should_request_cve_for_advisory() {
         .request_cve(REPO_GHSA_ID)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
 }
 
 #[tokio::test]
@@ -303,7 +340,11 @@ async fn should_create_temporary_private_fork() {
         .create_fork(REPO_GHSA_ID)
         .await;
 
-    assert!(result.is_ok(), "expected successful result, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:?}",
+        result
+    );
     let fork = result.unwrap();
     assert_eq!(fork.name, "actix-examples");
 }
