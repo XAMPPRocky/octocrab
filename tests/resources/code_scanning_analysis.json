@@ -1,0 +1,21 @@
+{
+  "ref": "refs/heads/main",
+  "commit_sha": "4b6472266afd7b471e86085a6659e8c7f2b119da",
+  "analysis_key": ".github/workflows/codeql.yml:analyze",
+  "environment": "{\"language\":\"javascript\"}",
+  "category": ".github/workflows/codeql.yml:analyze/language:javascript",
+  "error": "",
+  "created_at": "2020-09-01T17:15:32Z",
+  "results_count": 5,
+  "rules_count": 45,
+  "id": 12345,
+  "url": "https://api.github.com/repos/octocat/Hello-World/code-scanning/analyses/12345",
+  "sarif_id": "6c81cd8e-b078-4ac3-a3be-1dad7dbd0b53",
+  "tool": {
+    "name": "CodeQL",
+    "version": "2.4.0",
+    "guid": null
+  },
+  "deletable": true,
+  "warning": ""
+}
