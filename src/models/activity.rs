@@ -111,4 +111,3 @@ pub struct FeedLinks {
     pub repository_discussions: Option<FeedLink>,
     pub repository_discussions_category: Option<FeedLink>,
 }
-

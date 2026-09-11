@@ -104,11 +104,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// Checks whether a repository is starred by the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
-    pub async fn is_starred(
-        &self,
-        owner: impl AsRef<str>,
-        repo: impl AsRef<str>,
-    ) -> Result<bool> {
+    pub async fn is_starred(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<bool> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._get(route).await?;
         match response.status() {
@@ -121,11 +117,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// Stars a repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
-    pub async fn star_repo(
-        &self,
-        owner: impl AsRef<str>,
-        repo: impl AsRef<str>,
-    ) -> Result<()> {
+    pub async fn star_repo(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._put(route, None::<&()>).await?;
         if !response.status().is_success() {
@@ -137,11 +129,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// Unstars a repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
-    pub async fn unstar_repo(
-        &self,
-        owner: impl AsRef<str>,
-        repo: impl AsRef<str>,
-    ) -> Result<()> {
+    pub async fn unstar_repo(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._delete(route, None::<&()>).await?;
         if !response.status().is_success() {

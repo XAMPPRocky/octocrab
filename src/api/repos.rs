@@ -41,16 +41,16 @@ mod secrets;
 pub mod security;
 pub mod security_advisories;
 mod stargazers;
-pub mod subscription;
-pub mod watchers;
 pub mod stats;
 mod status;
+pub mod subscription;
 pub mod tags;
 mod teams;
 pub mod topics;
 pub mod traffic;
 pub mod transfer;
 mod variables;
+pub mod watchers;
 
 use crate::error::HttpSnafu;
 use crate::models::commits::GitCommitObject;

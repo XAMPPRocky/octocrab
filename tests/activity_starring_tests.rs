@@ -48,12 +48,28 @@ async fn test_check_starred_repository() {
         .unwrap());
 
     // Via current()
-    assert!(client.current().is_starred("owner", "starred-repo").await.unwrap());
-    assert!(!client.current().is_starred("owner", "unstarred-repo").await.unwrap());
+    assert!(client
+        .current()
+        .is_starred("owner", "starred-repo")
+        .await
+        .unwrap());
+    assert!(!client
+        .current()
+        .is_starred("owner", "unstarred-repo")
+        .await
+        .unwrap());
 
     // Via repos()
-    assert!(client.repos("owner", "starred-repo").is_starred().await.unwrap());
-    assert!(!client.repos("owner", "unstarred-repo").is_starred().await.unwrap());
+    assert!(client
+        .repos("owner", "starred-repo")
+        .is_starred()
+        .await
+        .unwrap());
+    assert!(!client
+        .repos("owner", "unstarred-repo")
+        .is_starred()
+        .await
+        .unwrap());
 }
 
 #[tokio::test]
@@ -75,8 +91,18 @@ async fn test_star_and_unstar_repository() {
     let client = setup_octocrab(&mock_server.uri());
 
     // Via activity().starring()
-    client.activity().starring().star("owner", "repo").await.unwrap();
-    client.activity().starring().unstar("owner", "repo").await.unwrap();
+    client
+        .activity()
+        .starring()
+        .star("owner", "repo")
+        .await
+        .unwrap();
+    client
+        .activity()
+        .starring()
+        .unstar("owner", "repo")
+        .await
+        .unwrap();
 
     // Via current()
     client.current().star_repo("owner", "repo").await.unwrap();

@@ -64,7 +64,9 @@ impl<'octo> EventsBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let uri = self.crab.parameterized_uri(self.route, Some(&self.params))?;
+        let uri = self
+            .crab
+            .parameterized_uri(self.route, Some(&self.params))?;
 
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {

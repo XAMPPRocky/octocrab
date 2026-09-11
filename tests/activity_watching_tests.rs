@@ -60,7 +60,11 @@ async fn test_list_watchers() {
         .mount(&mock_server)
         .await;
 
-    setup_error_handler(&mock_server, "GET /repos/owner/repo/subscribers not matched").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /repos/owner/repo/subscribers not matched",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -103,7 +107,11 @@ async fn test_get_repository_subscription() {
         .mount(&mock_server)
         .await;
 
-    setup_error_handler(&mock_server, "GET /repos/owner/repo/subscription not matched").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /repos/owner/repo/subscription not matched",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -119,7 +127,12 @@ async fn test_get_repository_subscription() {
     assert!(!sub.ignored);
 
     // Test via repos().subscription()
-    let sub2 = client.repos("owner", "repo").subscription().get().await.unwrap();
+    let sub2 = client
+        .repos("owner", "repo")
+        .subscription()
+        .get()
+        .await
+        .unwrap();
     assert!(sub2.subscribed);
     assert!(!sub2.ignored);
 }
@@ -241,6 +254,11 @@ async fn test_list_user_subscriptions() {
     assert_eq!(user_watched.items.len(), 2);
 
     // User subscriptions via users()
-    let user_watched2 = client.users("octocat").subscriptions().send().await.unwrap();
+    let user_watched2 = client
+        .users("octocat")
+        .subscriptions()
+        .send()
+        .await
+        .unwrap();
     assert_eq!(user_watched2.items.len(), 2);
 }

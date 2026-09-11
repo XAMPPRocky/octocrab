@@ -79,7 +79,9 @@ impl<'octo> WatchingHandler<'octo> {
             owner = owner.as_ref(),
             repo = repo.as_ref()
         );
-        RepoSubscriptionHandler::new(self.crab, route).delete().await
+        RepoSubscriptionHandler::new(self.crab, route)
+            .delete()
+            .await
     }
 
     /// Lists repositories the authenticated user is watching.
@@ -98,7 +100,10 @@ impl<'octo> WatchingHandler<'octo> {
     ) -> ListUserSubscriptionsBuilder<'octo> {
         ListUserSubscriptionsBuilder::new(
             self.crab,
-            format!("/users/{username}/subscriptions", username = username.into()),
+            format!(
+                "/users/{username}/subscriptions",
+                username = username.into()
+            ),
         )
     }
 }

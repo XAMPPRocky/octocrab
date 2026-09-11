@@ -112,33 +112,83 @@ async fn test_user_events_endpoints() {
     let client = setup_octocrab(&mock_server.uri());
 
     // 1. user_events
-    let res = client.activity().events().user_events("octocat").send().await.unwrap();
+    let res = client
+        .activity()
+        .events()
+        .user_events("octocat")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
     let res = client.users("octocat").events().send().await.unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
 
     // 2. public_events
-    let res = client.activity().events().public_user_events("octocat").send().await.unwrap();
+    let res = client
+        .activity()
+        .events()
+        .public_user_events("octocat")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
-    let res = client.users("octocat").public_events().send().await.unwrap();
+    let res = client
+        .users("octocat")
+        .public_events()
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
 
     // 3. received_events
-    let res = client.activity().events().received_events("octocat").send().await.unwrap();
+    let res = client
+        .activity()
+        .events()
+        .received_events("octocat")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
-    let res = client.users("octocat").received_events().send().await.unwrap();
+    let res = client
+        .users("octocat")
+        .received_events()
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
 
     // 4. public_received_events
-    let res = client.activity().events().public_received_events("octocat").send().await.unwrap();
+    let res = client
+        .activity()
+        .events()
+        .public_received_events("octocat")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
-    let res = client.users("octocat").public_received_events().send().await.unwrap();
+    let res = client
+        .users("octocat")
+        .public_received_events()
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
 
     // 5. user_org_events
-    let res = client.activity().events().user_org_events("octocat", "github").send().await.unwrap();
+    let res = client
+        .activity()
+        .events()
+        .user_org_events("octocat", "github")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
-    let res = client.users("octocat").org_events("github").send().await.unwrap();
+    let res = client
+        .users("octocat")
+        .org_events("github")
+        .send()
+        .await
+        .unwrap();
     assert_eq!(res.value.unwrap().items.len(), 1);
 }
 
@@ -149,9 +199,7 @@ async fn test_events_etag_handling() {
     Mock::given(method("GET"))
         .and(path("/users/octocat/events"))
         .and(header("If-None-Match", "\"my-etag\""))
-        .respond_with(
-            ResponseTemplate::new(304).insert_header("etag", "\"my-etag\""),
-        )
+        .respond_with(ResponseTemplate::new(304).insert_header("etag", "\"my-etag\""))
         .mount(&mock_server)
         .await;
 
