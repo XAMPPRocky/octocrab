@@ -1709,6 +1709,16 @@ impl Octocrab {
         teams::TeamHandler::new(self, owner.into())
     }
 
+    /// Creates a [`teams::TeamByIdHandler`] for the specified team ID that allows
+    /// you to access GitHub's teams API by team ID.
+    #[allow(deprecated)]
+    #[deprecated(
+        note = "Team Discussions have been deprecated and sunset by GitHub. Use teams(owner) instead."
+    )]
+    pub fn teams_by_id(&self, team_id: impl Into<models::TeamId>) -> teams::TeamByIdHandler<'_> {
+        teams::TeamByIdHandler::new(self, team_id.into())
+    }
+
     /// Creates a [`users::UserHandler`] for the specified user using the user name
     pub fn users(&self, user: impl Into<String>) -> users::UserHandler<'_> {
         users::UserHandler::new(self, UserRef::ByString(user.into()))

@@ -264,6 +264,152 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
         self.handler.crab._delete(route, None::<&()>).await?;
         Ok(())
     }
+
+    /// Lists reactions for a release.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#list-reactions-for-a-release)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let reactions = octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .list_reactions(1)
+    ///     .per_page(100)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_reactions(
+        &self,
+        release_id: impl Into<models::ReleaseId>,
+    ) -> ListReleaseReactionsBuilder<'octo, 'r, '_> {
+        ListReleaseReactionsBuilder::new(self, release_id.into())
+    }
+
+    /// Creates a reaction for a release.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#create-reaction-for-a-release)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .create_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_reaction(
+        &self,
+        release_id: impl Into<models::ReleaseId>,
+        content: models::reactions::ReactionContent,
+    ) -> Result<models::reactions::Reaction> {
+        let release_id = release_id.into();
+        let route = format!("/{}/releases/{release_id}/reactions", self.handler.repo);
+        self.handler
+            .crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+
+    /// Deletes a reaction for a release.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#delete-a-release-reaction)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.repos("owner", "repo")
+    ///     .releases()
+    ///     .delete_reaction(1, 1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_reaction(
+        &self,
+        release_id: impl Into<models::ReleaseId>,
+        reaction_id: impl Into<models::ReactionId>,
+    ) -> Result<()> {
+        let release_id = release_id.into();
+        let reaction_id = reaction_id.into();
+        let route = format!(
+            "/{}/releases/{release_id}/reactions/{reaction_id}",
+            self.handler.repo
+        );
+        crate::map_github_error(self.handler.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
+    }
+}
+
+/// A builder pattern struct for listing reactions for a release.
+///
+/// Created by [`ReleasesHandler::list_reactions`].
+#[derive(serde::Serialize)]
+pub struct ListReleaseReactionsBuilder<'octo, 'r1, 'r2> {
+    #[serde(skip)]
+    handler: &'r2 ReleasesHandler<'octo, 'r1>,
+    #[serde(skip)]
+    release_id: models::ReleaseId,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<models::reactions::ReactionContent>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r1, 'r2> ListReleaseReactionsBuilder<'octo, 'r1, 'r2> {
+    pub(crate) fn new(
+        handler: &'r2 ReleasesHandler<'octo, 'r1>,
+        release_id: models::ReleaseId,
+    ) -> Self {
+        Self {
+            handler,
+            release_id,
+            content: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Filter reactions by type.
+    pub fn content(mut self, content: models::reactions::ReactionContent) -> Self {
+        self.content = Some(content);
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::reactions::Reaction>> {
+        let route = format!(
+            "/{}/releases/{}/reactions",
+            self.handler.handler.repo, self.release_id
+        );
+        self.handler.handler.crab.get(route, Some(&self)).await
+    }
 }
 
 /// A builder pattern struct for listing releases.
