@@ -1543,6 +1543,14 @@ impl Octocrab {
         issues::IssueHandler::new(self, RepoRef::ById(id.into()))
     }
 
+    /// List issues assigned to the authenticated user across all visible repositories
+    /// including owned repositories, member repositories, and organization repositories.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issues-assigned-to-the-authenticated-user)
+    pub fn all_issues(&self) -> current::ListAllIssuesBuilder<'_, '_> {
+        current::ListAllIssuesBuilder::new(self)
+    }
+
     /// Creates a [`code_scannings::CodeScanningHandler`] for the repo specified at `owner/repo`,
     /// that allows you to access GitHub's Code scanning API.
     pub fn code_scannings(

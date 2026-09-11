@@ -7,6 +7,7 @@ mod custom_properties;
 mod events;
 mod hooks;
 mod invitations;
+mod issues;
 mod list_members;
 mod list_repos;
 mod personal_access_tokens;
@@ -23,6 +24,7 @@ pub use self::invitations::{
     CreateOrgInvitationBuilder, ListFailedOrgInvitationsBuilder, ListOrgInvitationTeamsBuilder,
     ListOrgInvitationsBuilder, OrgInvitationsHandler,
 };
+pub use self::issues::ListOrgIssuesBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
 pub use self::personal_access_tokens::{
@@ -130,6 +132,13 @@ impl<'octo> OrgHandler<'octo> {
     /// See: https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28
     pub fn personal_access_tokens(&self) -> OrgPersonalAccessTokensHandler<'octo, '_> {
         OrgPersonalAccessTokensHandler::new(self)
+    }
+
+    /// List organization issues assigned to the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-organization-issues-assigned-to-the-authenticated-user)
+    pub fn list_issues(&self) -> ListOrgIssuesBuilder<'octo, '_, '_> {
+        ListOrgIssuesBuilder::new(self)
     }
 
     /// Add or update organization membership
