@@ -10,7 +10,7 @@ use crate::{
     models::{
         self, gists::Gist, orgs::MembershipInvitation, teams::FullTeam, Installation, Repository,
     },
-    Octocrab, Page, Result,
+    params, Octocrab, Page, Result,
 };
 use chrono::{DateTime, Utc};
 
@@ -145,6 +145,29 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// List gists that were starred by the authenticated user.
     pub fn list_gists_starred_by_authenticated_user(&self) -> ListStarredGistsBuilder<'octo> {
         ListStarredGistsBuilder::new(self.crab)
+    }
+
+    /// List issues assigned to the authenticated user across repositories owned by or
+    /// member repositories of the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-user-account-issues-assigned-to-the-authenticated-user)
+    pub fn list_issues_for_authenticated_user(&self) -> ListUserIssuesBuilder<'octo, '_> {
+        ListUserIssuesBuilder::new(self.crab)
+    }
+
+    /// List user issues assigned to the authenticated user.
+    ///
+    /// Alias for [`CurrentAuthHandler::list_issues_for_authenticated_user`].
+    pub fn list_issues(&self) -> ListUserIssuesBuilder<'octo, '_> {
+        self.list_issues_for_authenticated_user()
+    }
+
+    /// List issues assigned to the authenticated user across all visible repositories
+    /// including owned repositories, member repositories, and organization repositories.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issues-assigned-to-the-authenticated-user)
+    pub fn list_all_issues(&self) -> ListAllIssuesBuilder<'octo, '_> {
+        ListAllIssuesBuilder::new(self.crab)
     }
 
     /// Lists installations of your GitHub App that the authenticated user has explicit permission (:read, :write, or :admin) to access.
@@ -1152,4 +1175,201 @@ impl<'octo> ListUserOrgsBuilder<'octo> {
     pub async fn send(self) -> Result<Page<crate::models::orgs::Organization>> {
         self.crab.get(&self.route, Some(&self)).await
     }
+}
+
+/// Builder for listing user account issues assigned to the authenticated user.
+///
+/// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-user-account-issues-assigned-to-the-authenticated-user)
+#[derive(serde::Serialize)]
+pub struct ListUserIssuesBuilder<'octo, 'd> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<params::issues::IssueFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<params::State>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "comma_separated")]
+    labels: Option<&'d [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sort: Option<params::issues::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direction: Option<params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'd> ListUserIssuesBuilder<'octo, 'd> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            filter: None,
+            state: None,
+            labels: None,
+            sort: None,
+            direction: None,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Filter issues by type.
+    pub fn filter(mut self, filter: params::issues::IssueFilter) -> Self {
+        self.filter = Some(filter);
+        self
+    }
+
+    /// Filter issues by state (`open`, `closed`, `all`).
+    pub fn state(mut self, state: params::State) -> Self {
+        self.state = Some(state);
+        self
+    }
+
+    /// Filter issues by labels.
+    pub fn labels(mut self, labels: &'d (impl AsRef<[String]> + ?Sized)) -> Self {
+        self.labels = Some(labels.as_ref());
+        self
+    }
+
+    /// What to sort results by (`created`, `updated`, `comments`).
+    pub fn sort(mut self, sort: impl Into<params::issues::Sort>) -> Self {
+        self.sort = Some(sort.into());
+        self
+    }
+
+    /// The direction of the sort (`asc`, `desc`).
+    pub fn direction(mut self, direction: impl Into<params::Direction>) -> Self {
+        self.direction = Some(direction.into());
+        self
+    }
+
+    /// Only show issues updated at or after this time.
+    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+        self.since = Some(since.into());
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<Page<models::issues::Issue>> {
+        self.crab.get("/user/issues", Some(&self)).await
+    }
+}
+
+/// Builder for listing issues assigned to the authenticated user across all visible repositories.
+///
+/// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issues-assigned-to-the-authenticated-user)
+#[derive(serde::Serialize)]
+pub struct ListAllIssuesBuilder<'octo, 'd> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<params::issues::IssueFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<params::State>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "comma_separated")]
+    labels: Option<&'d [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sort: Option<params::issues::Sort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direction: Option<params::Direction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'd> ListAllIssuesBuilder<'octo, 'd> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            filter: None,
+            state: None,
+            labels: None,
+            sort: None,
+            direction: None,
+            since: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Filter issues by type.
+    pub fn filter(mut self, filter: params::issues::IssueFilter) -> Self {
+        self.filter = Some(filter);
+        self
+    }
+
+    /// Filter issues by state (`open`, `closed`, `all`).
+    pub fn state(mut self, state: params::State) -> Self {
+        self.state = Some(state);
+        self
+    }
+
+    /// Filter issues by labels.
+    pub fn labels(mut self, labels: &'d (impl AsRef<[String]> + ?Sized)) -> Self {
+        self.labels = Some(labels.as_ref());
+        self
+    }
+
+    /// What to sort results by (`created`, `updated`, `comments`).
+    pub fn sort(mut self, sort: impl Into<params::issues::Sort>) -> Self {
+        self.sort = Some(sort.into());
+        self
+    }
+
+    /// The direction of the sort (`asc`, `desc`).
+    pub fn direction(mut self, direction: impl Into<params::Direction>) -> Self {
+        self.direction = Some(direction.into());
+        self
+    }
+
+    /// Only show issues updated at or after this time.
+    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+        self.since = Some(since.into());
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<Page<models::issues::Issue>> {
+        self.crab.get("/issues", Some(&self)).await
+    }
+}
+
+fn comma_separated<S: serde::Serializer>(
+    labels: &Option<&[String]>,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error> {
+    serializer.serialize_str(&labels.unwrap().join(","))
 }

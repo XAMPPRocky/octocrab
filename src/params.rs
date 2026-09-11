@@ -284,6 +284,19 @@ pub mod issues {
         Comments,
     }
 
+    /// Indicates which sorts of issues to return for user or organization issues.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum IssueFilter {
+        Assigned,
+        Created,
+        Mentioned,
+        Subscribed,
+        Repos,
+        All,
+    }
+
     /// A generic filter type that allows you to filter either by exact match,
     /// any match, or no matches.
     #[derive(Debug, Clone, Copy)]
@@ -333,6 +346,19 @@ pub mod issues {
                 serde_json::to_string(&Filter::<()>::None).unwrap()
             );
         }
+    }
+}
+
+pub mod milestones {
+    //! Parameter types for the milestones API.
+
+    /// What to sort milestone results by. Can be either `due_on` or `completeness`.
+    #[derive(Debug, Clone, Copy, serde::Serialize)]
+    #[serde(rename_all = "snake_case")]
+    #[non_exhaustive]
+    pub enum Sort {
+        DueOn,
+        Completeness,
     }
 }
 

@@ -1,8 +1,10 @@
 //! The issue API.
 
 mod create;
+mod events;
 mod list;
 mod list_labels;
+mod milestones;
 mod update;
 
 use crate::error::HttpSnafu;
@@ -15,8 +17,13 @@ use snafu::ResultExt;
 
 pub use self::{
     create::CreateIssueBuilder,
+    events::{IssueEventsHandler, ListEventsForIssueBuilder, ListIssueEventsBuilder},
     list::ListIssuesBuilder,
     list_labels::{ListLabelsForIssueBuilder, ListLabelsForRepoBuilder},
+    milestones::{
+        CreateMilestoneBuilder, ListMilestoneLabelsBuilder, ListMilestonesBuilder,
+        MilestonesHandler, UpdateMilestoneBuilder,
+    },
     update::UpdateIssueBuilder,
 };
 
@@ -247,6 +254,47 @@ impl IssueHandler<'_> {
     pub async fn check_assignee(&self, assignee: impl AsRef<str>) -> Result<bool> {
         let route = format!(
             "/{}/assignees/{assignee}",
+            self.repo,
+            assignee = assignee.as_ref()
+        );
+
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._get(uri).await?;
+        let status = response.status();
+
+        if status == 204 {
+            Ok(true)
+        } else if status == 404 {
+            Ok(false)
+        } else {
+            Err(crate::map_github_error(response).await.unwrap_err())
+        }
+    }
+
+    /// Checks if a user can be assigned to an issue.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/assignees?apiVersion=2022-11-28#check-if-a-user-can-be-assigned-to-an-issue)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// assert!(octocrab.issues("owner", "repo").check_assignee_for_issue(1, "ferris").await?);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn check_assignee_for_issue(
+        &self,
+        issue_number: u64,
+        assignee: impl AsRef<str>,
+    ) -> Result<bool> {
+        let route = format!(
+            "/{}/issues/{issue_number}/assignees/{assignee}",
             self.repo,
             assignee = assignee.as_ref()
         );
@@ -1276,5 +1324,70 @@ impl<'octo, 'r> ListSubIssuesBuilder<'octo, 'r> {
         );
 
         self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+impl<'octo> IssueHandler<'octo> {
+    /// Creates a [`MilestonesHandler`] for the repo that allows you to access
+    /// GitHub's repository milestones API.
+    pub fn milestones(&self) -> MilestonesHandler<'octo, '_> {
+        MilestonesHandler::new(self)
+    }
+
+    /// List milestones for the repository.
+    pub fn list_milestones(&self) -> ListMilestonesBuilder<'octo, '_> {
+        self.milestones().list()
+    }
+
+    /// Create a milestone in the repository.
+    pub fn create_milestone(&self, title: impl Into<String>) -> CreateMilestoneBuilder<'octo, '_> {
+        self.milestones().create(title)
+    }
+
+    /// Get a milestone from the repository.
+    pub async fn get_milestone(&self, milestone_number: i64) -> Result<models::Milestone> {
+        self.milestones().get(milestone_number).await
+    }
+
+    /// Update a milestone in the repository.
+    pub fn update_milestone(&self, milestone_number: i64) -> UpdateMilestoneBuilder<'octo, '_> {
+        self.milestones().update(milestone_number)
+    }
+
+    /// Delete a milestone from the repository.
+    pub async fn delete_milestone(&self, milestone_number: i64) -> Result<()> {
+        self.milestones().delete(milestone_number).await
+    }
+
+    /// List labels for issues in a milestone.
+    pub fn list_labels_for_milestone(
+        &self,
+        milestone_number: i64,
+    ) -> ListMilestoneLabelsBuilder<'octo, '_> {
+        self.milestones().list_labels(milestone_number)
+    }
+
+    /// Creates an [`IssueEventsHandler`] for the repo that allows you to access
+    /// GitHub's repository issue events API.
+    pub fn events(&self) -> IssueEventsHandler<'octo, '_> {
+        IssueEventsHandler::new(self)
+    }
+
+    /// List issue events for the repository.
+    pub fn list_issue_events(&self) -> ListIssueEventsBuilder<'octo, '_> {
+        self.events().list()
+    }
+
+    /// Get an issue event from the repository.
+    pub async fn get_issue_event(
+        &self,
+        event_id: impl Into<models::IssueEventId>,
+    ) -> Result<models::IssueEvent> {
+        self.events().get(event_id).await
+    }
+
+    /// List issue events for an issue in the repository.
+    pub fn list_events_for_issue(&self, issue_number: u64) -> ListEventsForIssueBuilder<'octo, '_> {
+        self.events().list_for_issue(issue_number)
     }
 }
