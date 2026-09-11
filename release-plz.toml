@@ -1,2 +1,5 @@
 [workspace]
 pr_labels = ["release"]
+# Disable semver_check because cargo-semver-checks enables all features by default,
+# which causes jwt-rust-crypto and jwt-aws-lc-rs (mutually exclusive) to conflict.
+semver_check = false
