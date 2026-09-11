@@ -10,6 +10,7 @@ use http::{header::HeaderMap, Method, StatusCode};
 
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
+    route: String,
     headers: Headers,
     params: Params,
 }
@@ -28,8 +29,13 @@ struct Params {
 
 impl<'octo> EventsBuilder<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self::with_route(crab, "/events")
+    }
+
+    pub(crate) fn with_route(crab: &'octo Octocrab, route: impl Into<String>) -> Self {
         Self {
             crab,
+            route: route.into(),
             headers: Headers { etag: None },
             params: Params {
                 per_page: None,
@@ -58,8 +64,7 @@ impl<'octo> EventsBuilder<'octo> {
 
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Etagged<Page<events::Event>>> {
-        let route = "/events".to_string();
-        let uri = self.crab.parameterized_uri(route, Some(&self.params))?;
+        let uri = self.crab.parameterized_uri(self.route, Some(&self.params))?;
 
         let mut headers = HeaderMap::new();
         if let Some(etag) = self.headers.etag {

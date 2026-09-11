@@ -41,6 +41,8 @@ mod secrets;
 pub mod security;
 pub mod security_advisories;
 mod stargazers;
+pub mod subscription;
+pub mod watchers;
 pub mod stats;
 mod status;
 pub mod tags;
@@ -127,12 +129,14 @@ pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdv
 pub use stargazers::ListStarGazersBuilder;
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
+pub use subscription::{RepoSubscriptionHandler, SetRepoSubscriptionBuilder};
 #[allow(deprecated)]
 pub use tags::{ListTagsBuilder, RepoTagProtectionHandler, RepoTagsHandler};
 pub use teams::ListTeamsBuilder;
 pub use topics::{ListRepoTopicsBuilder, RepoTopicsHandler};
 pub use traffic::{ClonesBuilder, RepoTrafficHandler, ViewsBuilder};
 pub use transfer::TransferRepoBuilder;
+pub use watchers::ListWatchersBuilder;
 
 #[derive(Clone)]
 pub(crate) enum RepoRef {
@@ -1242,6 +1246,77 @@ impl<'octo> RepoHandler<'octo> {
         let route = format!("/{}/interaction-limits", self.repo);
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Lists the people watching the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-watchers)
+    pub fn list_watchers(&self) -> ListWatchersBuilder<'octo> {
+        ListWatchersBuilder::new(self.crab, format!("/{}/subscribers", self.repo))
+    }
+
+    /// Manage subscription for the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#get-a-repository-subscription)
+    pub fn subscription(&self) -> RepoSubscriptionHandler<'octo> {
+        RepoSubscriptionHandler::new(self.crab, format!("/{}/subscription", self.repo))
+    }
+
+    /// List public events for a network of repositories.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-network-of-repositories)
+    pub fn network_events(&self) -> crate::api::events::EventsBuilder<'octo> {
+        let route = match &self.repo {
+            RepoRef::ByOwnerAndName(owner, name) => format!("/networks/{}/{}/events", owner, name),
+            RepoRef::ById(id) => format!("/networks/{}/events", id),
+        };
+        crate::api::events::EventsBuilder::with_route(self.crab, route)
+    }
+
+    /// Checks whether the repository is starred by the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
+    pub async fn is_starred(&self) -> Result<bool> {
+        let route = match &self.repo {
+            RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),
+            RepoRef::ById(id) => format!("/user/starred/{}", id),
+        };
+        let response = self.crab._get(route).await?;
+        match response.status() {
+            http::StatusCode::NO_CONTENT => Ok(true),
+            http::StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// Stars the repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
+    pub async fn star(&self) -> Result<()> {
+        let route = match &self.repo {
+            RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),
+            RepoRef::ById(id) => format!("/user/starred/{}", id),
+        };
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Unstars the repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
+    pub async fn unstar(&self) -> Result<()> {
+        let route = match &self.repo {
+            RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),
+            RepoRef::ById(id) => format!("/user/starred/{}", id),
+        };
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
     }
 }
 

@@ -44,6 +44,55 @@ impl<'octo> StarringHandler<'octo> {
     ) -> ListReposStarredByUserBuilder<'_> {
         ListReposStarredByUserBuilder::new(self.crab, username)
     }
+
+    /// Checks whether a repository is starred by the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
+    pub async fn check(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> Result<bool> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._get(route).await?;
+        match response.status() {
+            http::StatusCode::NO_CONTENT => Ok(true),
+            http::StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// Stars a repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
+    pub async fn star(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> Result<()> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Unstars a repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
+    pub async fn unstar(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> Result<()> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
 }
 
 /// A builder pattern struct for listing starred by user repositories.
@@ -69,18 +118,25 @@ pub struct ListReposStarredByUserBuilder<'octo> {
     sort: Option<String>,
 
     #[serde(skip)]
-    username: String,
+    route: String,
 }
 
 impl<'octo> ListReposStarredByUserBuilder<'octo> {
     pub fn new(crab: &'octo Octocrab, username: impl Into<String>) -> Self {
+        Self::with_route(
+            crab,
+            format!("/users/{username}/starred", username = username.into()),
+        )
+    }
+
+    pub(crate) fn with_route(crab: &'octo Octocrab, route: impl Into<String>) -> Self {
         Self {
             crab,
             direction: None,
             page: None,
             per_page: None,
             sort: None,
-            username: username.into(),
+            route: route.into(),
         }
     }
 
@@ -119,11 +175,7 @@ impl<'octo> ListReposStarredByUserBuilder<'octo> {
         );
 
         self.crab
-            .get_with_headers(
-                format!("/users/{username}/starred", username = self.username),
-                None::<&()>,
-                Some(headers),
-            )
+            .get_with_headers(&self.route, Some(&self), Some(headers))
             .await
     }
 
