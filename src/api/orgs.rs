@@ -3,17 +3,33 @@
 mod code_scanning;
 mod copilot;
 mod copilot_seat_manager;
+mod custom_properties;
 mod events;
+mod hooks;
+mod invitations;
 mod list_members;
 mod list_repos;
+mod personal_access_tokens;
+mod roles;
 mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
+pub use self::custom_properties::{ListOrgCustomPropertyValuesBuilder, OrgCustomPropertiesHandler};
 pub use self::events::ListOrgEventsBuilder;
+pub use self::hooks::{ListOrgHooksBuilder, OrgHooksHandler, UpdateOrgHookBuilder};
+pub use self::invitations::{
+    CreateOrgInvitationBuilder, ListFailedOrgInvitationsBuilder, ListOrgInvitationTeamsBuilder,
+    ListOrgInvitationsBuilder, OrgInvitationsHandler,
+};
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
+pub use self::personal_access_tokens::{
+    ListOrgPatRepositoriesBuilder, ListOrgPatRequestRepositoriesBuilder, ListOrgPatRequestsBuilder,
+    ListOrgPersonalAccessTokensBuilder, OrgPersonalAccessTokensHandler,
+};
+pub use self::roles::OrgRolesHandler;
 pub use self::rulesets::{
     ListOrgRuleSuitesBuilder, ListOrgRulesetsBuilder, OrgRuleSuitesHandler, OrgRulesetsHandler,
 };
@@ -23,7 +39,9 @@ pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
 use crate::models::interaction_limits;
 use crate::models::interaction_limits::InteractionLimit;
+use crate::models::{Author, Installation};
 use crate::Octocrab;
+use crate::Page;
 use http::{StatusCode, Uri};
 use interaction_limits::{InteractionLimitExpiry, InteractionLimitType};
 use snafu::ResultExt;
@@ -77,6 +95,41 @@ impl<'octo> OrgHandler<'octo> {
     /// See: https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28
     pub fn rulesets(&self) -> OrgRulesetsHandler<'octo, '_> {
         OrgRulesetsHandler::new(self)
+    }
+
+    /// Handle webhooks for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/webhooks?apiVersion=2022-11-28
+    pub fn hooks(&self) -> OrgHooksHandler<'octo, '_> {
+        OrgHooksHandler::new(self)
+    }
+
+    /// Handle custom properties for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/custom-properties?apiVersion=2022-11-28
+    pub fn custom_properties(&self) -> OrgCustomPropertiesHandler<'octo, '_> {
+        OrgCustomPropertiesHandler::new(self)
+    }
+
+    /// Handle organization roles.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28
+    pub fn roles(&self) -> OrgRolesHandler<'octo, '_> {
+        OrgRolesHandler::new(self)
+    }
+
+    /// Handle invitations for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28
+    pub fn invitations(&self) -> OrgInvitationsHandler<'octo, '_> {
+        OrgInvitationsHandler::new(self)
+    }
+
+    /// Handle fine-grained personal access tokens for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28
+    pub fn personal_access_tokens(&self) -> OrgPersonalAccessTokensHandler<'octo, '_> {
+        OrgPersonalAccessTokensHandler::new(self)
     }
 
     /// Add or update organization membership
@@ -381,5 +434,396 @@ impl<'octo> OrgHandler<'octo> {
         let route = format!("/orgs/{}/interaction-limits", self.owner);
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Lists public members of an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-public-organization-members)
+    pub fn list_public_members(&self) -> ListPublicMembersBuilder<'octo, '_> {
+        ListPublicMembersBuilder::new(self)
+    }
+
+    /// Checks if a user is a public member of an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#check-public-organization-membership-for-a-user)
+    pub async fn check_public_membership(&self, username: impl AsRef<str>) -> crate::Result<bool> {
+        let route = format!(
+            "/orgs/{org}/public_members/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let response = self.crab._get(uri).await?;
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// Sets public organization membership for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#set-public-organization-membership-for-the-authenticated-user)
+    pub async fn publicize_membership(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/public_members/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Removes public organization membership for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#remove-public-organization-membership-for-the-authenticated-user)
+    pub async fn conceal_membership(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/public_members/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Lists outside collaborators for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/outside-collaborators?apiVersion=2022-11-28#list-outside-collaborators-for-an-organization)
+    pub fn list_outside_collaborators(&self) -> ListOutsideCollaboratorsBuilder<'octo, '_> {
+        ListOutsideCollaboratorsBuilder::new(self)
+    }
+
+    /// Converts an organization member to outside collaborator.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/outside-collaborators?apiVersion=2022-11-28#convert-an-organization-member-to-outside-collaborator)
+    pub async fn convert_to_outside_collaborator(
+        &self,
+        username: impl AsRef<str>,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/outside_collaborators/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Removes an outside collaborator from an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/outside-collaborators?apiVersion=2022-11-28#remove-outside-collaborator-from-an-organization)
+    pub async fn remove_outside_collaborator(
+        &self,
+        username: impl AsRef<str>,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/outside_collaborators/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Lists users blocked by an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/blocking?apiVersion=2022-11-28#list-users-blocked-by-an-organization)
+    pub fn list_blocked_users(&self) -> ListBlockedUsersBuilder<'octo, '_> {
+        ListBlockedUsersBuilder::new(self)
+    }
+
+    /// Checks if a user is blocked by an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/blocking?apiVersion=2022-11-28#check-if-a-user-is-blocked-by-an-organization)
+    pub async fn check_blocked_user(&self, username: impl AsRef<str>) -> crate::Result<bool> {
+        let route = format!(
+            "/orgs/{org}/blocks/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+        let response = self.crab._get(uri).await?;
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// Blocks a user from an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/blocking?apiVersion=2022-11-28#block-a-user-from-an-organization)
+    pub async fn block_user(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/blocks/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Unblocks a user from an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/blocking?apiVersion=2022-11-28#unblock-a-user-from-an-organization)
+    pub async fn unblock_user(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/blocks/{username}",
+            org = self.owner,
+            username = username.as_ref()
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Lists teams that are security managers for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/security-managers?apiVersion=2022-11-28#list-security-manager-teams)
+    pub async fn list_security_managers(&self) -> crate::Result<Vec<crate::models::teams::Team>> {
+        let route = format!("/orgs/{org}/security-managers", org = self.owner);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Adds a security manager team to an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/security-managers?apiVersion=2022-11-28#add-a-security-manager-team)
+    pub async fn add_security_manager_team(&self, team_slug: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/security-managers/teams/{team_slug}",
+            org = self.owner,
+            team_slug = team_slug.as_ref()
+        );
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Removes a security manager team from an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/security-managers?apiVersion=2022-11-28#remove-a-security-manager-team)
+    pub async fn remove_security_manager_team(
+        &self,
+        team_slug: impl AsRef<str>,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/security-managers/teams/{team_slug}",
+            org = self.owner,
+            team_slug = team_slug.as_ref()
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Enables or disables a security feature for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#enable-or-disable-a-security-feature-for-an-organization)
+    pub async fn set_security_product_enablement(
+        &self,
+        product: crate::models::orgs::security::SecurityProduct,
+        enablement: crate::models::orgs::security::SecurityEnablement,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/{product}/{enablement}",
+            org = self.owner,
+            product = product,
+            enablement = enablement
+        );
+        let response = self.crab._patch(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Lists app installations for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#list-app-installations-for-an-organization)
+    pub fn list_installations(&self) -> ListOrgInstallationsBuilder<'octo, '_> {
+        ListOrgInstallationsBuilder::new(self)
+    }
+}
+
+/// Builder for listing public organization members.
+#[derive(serde::Serialize)]
+pub struct ListPublicMembersBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r OrgHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListPublicMembersBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r OrgHandler<'octo>) -> Self {
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Page<Author>> {
+        let route = format!("/orgs/{org}/public_members", org = self.handler.owner);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing outside collaborators for an organization.
+#[derive(serde::Serialize)]
+pub struct ListOutsideCollaboratorsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r OrgHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListOutsideCollaboratorsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r OrgHandler<'octo>) -> Self {
+        Self {
+            handler,
+            filter: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    pub fn filter(mut self, filter: impl Into<String>) -> Self {
+        self.filter = Some(filter.into());
+        self
+    }
+
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Page<Author>> {
+        let route = format!(
+            "/orgs/{org}/outside_collaborators",
+            org = self.handler.owner
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing users blocked by an organization.
+#[derive(serde::Serialize)]
+pub struct ListBlockedUsersBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r OrgHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListBlockedUsersBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r OrgHandler<'octo>) -> Self {
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Page<Author>> {
+        let route = format!("/orgs/{org}/blocks", org = self.handler.owner);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing app installations for an organization.
+#[derive(serde::Serialize)]
+pub struct ListOrgInstallationsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r OrgHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListOrgInstallationsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r OrgHandler<'octo>) -> Self {
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<Page<Installation>> {
+        let route = format!("/orgs/{org}/installations", org = self.handler.owner);
+        self.handler.crab.get(route, Some(&self)).await
     }
 }

@@ -77,6 +77,13 @@ impl<'octo> UserHandler<'octo> {
         ListUserReposBuilder::new(self)
     }
 
+    /// Lists organizations for the specified user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organizations-for-a-user)
+    pub fn list_orgs(&self) -> crate::api::current::ListUserOrgsBuilder<'octo> {
+        crate::api::current::ListUserOrgsBuilder::new(self.crab, format!("/{}/orgs", self.user))
+    }
+
     /// API for listing blocked users
     /// you must pass authentication information with your requests
     pub fn blocks(&self) -> BlockedUsersBuilder<'_, '_> {

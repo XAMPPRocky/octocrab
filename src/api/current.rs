@@ -187,6 +187,37 @@ impl<'octo> CurrentAuthHandler<'octo> {
         ListOrgMembershipsForAuthenticatedUserBuilder::new(self.crab)
     }
 
+    /// Lists organizations that the authenticated user is a member of.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organizations-for-the-authenticated-user)
+    pub fn list_orgs(&self) -> ListUserOrgsBuilder<'octo> {
+        ListUserOrgsBuilder::new(self.crab, "/user/orgs")
+    }
+
+    /// Gets an organization membership for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#get-an-organization-membership-for-the-authenticated-user)
+    pub async fn get_org_membership(
+        &self,
+        org: impl AsRef<str>,
+    ) -> Result<crate::models::orgs::OrgMembership> {
+        let route = format!("/user/memberships/orgs/{org}", org = org.as_ref());
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Updates an organization membership for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#update-an-organization-membership-for-the-authenticated-user)
+    pub async fn update_org_membership(
+        &self,
+        org: impl AsRef<str>,
+        state: crate::models::orgs::OrgMembershipState,
+    ) -> Result<crate::models::orgs::OrgMembership> {
+        let route = format!("/user/memberships/orgs/{org}", org = org.as_ref());
+        let body = serde_json::json!({ "state": state });
+        self.crab.patch(route, Some(&body)).await
+    }
+
     /// List all of the teams across all of the organizations to which the
     /// authenticated user belongs.
     ///
@@ -1079,5 +1110,46 @@ impl<'octo> ListUserRepoInvitationsBuilder<'octo> {
         self.crab
             .get("/user/repository_invitations", Some(&self))
             .await
+    }
+}
+
+/// A builder pattern struct for listing organizations for a user.
+#[derive(serde::Serialize)]
+pub struct ListUserOrgsBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    #[serde(skip)]
+    route: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListUserOrgsBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, route: impl Into<String>) -> Self {
+        Self {
+            crab,
+            route: route.into(),
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100). Default: 30.
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> Result<Page<crate::models::orgs::Organization>> {
+        self.crab.get(&self.route, Some(&self)).await
     }
 }
