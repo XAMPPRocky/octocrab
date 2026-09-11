@@ -219,7 +219,10 @@ id_type!(
     ClassroomId,
     EnvironmentId,
     BranchPolicyId,
-    ProtectionRuleId
+    ProtectionRuleId,
+    OrgRoleId,
+    PatId,
+    PatRequestId
 );
 
 macro_rules! convert_into {

@@ -1,5 +1,10 @@
 use super::*;
+pub mod custom_properties;
+pub mod invitations;
+pub mod personal_access_tokens;
+pub mod roles;
 pub mod secrets;
+pub mod security;
 pub use super::repos::secret_scanning_alert;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -94,4 +99,22 @@ pub struct Plan {
     pub name: String,
     pub space: i64,
     pub private_repos: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct OrgMembership {
+    pub url: Url,
+    pub state: OrgMembershipState,
+    pub role: String,
+    pub organization_url: Url,
+    pub organization: Organization,
+    pub user: Author,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OrgMembershipState {
+    Active,
+    Pending,
 }

@@ -1607,6 +1607,10 @@ impl Octocrab {
 
     /// Creates an [`orgs::OrgHandler`] for the specified organization,
     /// that allows you to access GitHub's organization API.
+    ///
+    /// Provides access to organization webhooks, custom properties, organization roles,
+    /// invitations, fine-grained personal access tokens, public members, outside collaborators,
+    /// blocked users, security managers, security products enablement, app installations, and more.
     pub fn orgs(&self, owner: impl Into<String>) -> orgs::OrgHandler<'_> {
         orgs::OrgHandler::new(self, owner.into())
     }
