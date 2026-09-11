@@ -75,7 +75,10 @@ pub use branches::{
 pub use code_scanning::RepoCodeScanningHandler;
 pub use codeowners::ListCodeownersErrorsBuilder;
 pub use collaborators::ListCollaboratorsBuilder;
-pub use comments::{CreateRepoCommentBuilder, ListRepoCommentsBuilder, RepoCommentsHandler};
+pub use comments::{
+    CreateRepoCommentBuilder, ListRepoCommentReactionsBuilder, ListRepoCommentsBuilder,
+    RepoCommentsHandler,
+};
 pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
 pub use custom_properties::RepoCustomPropertiesHandler;
@@ -109,7 +112,7 @@ pub use pages::{
 };
 pub use pulls::ListPullsBuilder;
 pub use release_assets::ReleaseAssetsHandler;
-pub use releases::ReleasesHandler;
+pub use releases::{ListReleaseReactionsBuilder, ReleasesHandler};
 pub use rulesets::{
     GetRepoRulesetBuilder, ListRepoRuleSuitesBuilder, ListRepoRulesetsBuilder,
     ListRulesForBranchBuilder, RepoRuleSuitesHandler, RepoRulesetsHandler,

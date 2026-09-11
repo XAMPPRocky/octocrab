@@ -9,6 +9,12 @@ mod members;
 mod memberships;
 mod team_repos;
 
+pub mod discussions;
+
+#[allow(deprecated)]
+pub use self::discussions::{
+    ListTeamDiscussionCommentReactionsBuilder, ListTeamDiscussionReactionsBuilder, TeamByIdHandler,
+};
 pub use self::{
     children::ListChildTeamsBuilder,
     create::CreateTeamBuilder,
@@ -216,5 +222,131 @@ impl<'octo> TeamHandler<'octo> {
     /// ```
     pub fn memberships(&self, team_slug: impl Into<String>) -> TeamMembershipBuilder<'_> {
         TeamMembershipBuilder::new(self.crab, self.owner.clone(), team_slug.into())
+    }
+
+    /// Lists reactions for a team discussion.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[allow(deprecated)]
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub fn list_discussion_reactions(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+    ) -> ListTeamDiscussionReactionsBuilder<'octo, '_> {
+        ListTeamDiscussionReactionsBuilder::new(
+            self.crab,
+            discussions::TeamDiscussionTarget::OrgAndSlug {
+                org: self.owner.clone(),
+                team_slug: team_slug.into(),
+            },
+            discussion_number,
+        )
+    }
+
+    /// Creates a reaction for a team discussion.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub async fn create_discussion_reaction(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+        content: models::reactions::ReactionContent,
+    ) -> Result<models::reactions::Reaction> {
+        let route = format!(
+            "/orgs/{}/teams/{}/discussions/{discussion_number}/reactions",
+            self.owner,
+            team_slug.into()
+        );
+        self.crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+
+    /// Deletes a reaction for a team discussion.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub async fn delete_discussion_reaction(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+        reaction_id: impl Into<models::ReactionId>,
+    ) -> Result<()> {
+        let reaction_id = reaction_id.into();
+        let route = format!(
+            "/orgs/{}/teams/{}/discussions/{discussion_number}/reactions/{reaction_id}",
+            self.owner,
+            team_slug.into()
+        );
+        crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
+    }
+
+    /// Lists reactions for a team discussion comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[allow(deprecated)]
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub fn list_discussion_comment_reactions(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+        comment_number: u64,
+    ) -> ListTeamDiscussionCommentReactionsBuilder<'octo, '_> {
+        ListTeamDiscussionCommentReactionsBuilder::new(
+            self.crab,
+            discussions::TeamDiscussionTarget::OrgAndSlug {
+                org: self.owner.clone(),
+                team_slug: team_slug.into(),
+            },
+            discussion_number,
+            comment_number,
+        )
+    }
+
+    /// Creates a reaction for a team discussion comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub async fn create_discussion_comment_reaction(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+        comment_number: u64,
+        content: models::reactions::ReactionContent,
+    ) -> Result<models::reactions::Reaction> {
+        let route = format!(
+            "/orgs/{}/teams/{}/discussions/{discussion_number}/comments/{comment_number}/reactions",
+            self.owner,
+            team_slug.into()
+        );
+        self.crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+
+    /// Deletes a reaction for a team discussion comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28)
+    #[deprecated(note = "Team Discussions have been deprecated and sunset by GitHub.")]
+    pub async fn delete_discussion_comment_reaction(
+        &self,
+        team_slug: impl Into<String>,
+        discussion_number: u64,
+        comment_number: u64,
+        reaction_id: impl Into<models::ReactionId>,
+    ) -> Result<()> {
+        let reaction_id = reaction_id.into();
+        let route = format!(
+            "/orgs/{}/teams/{}/discussions/{discussion_number}/comments/{comment_number}/reactions/{reaction_id}",
+            self.owner,
+            team_slug.into()
+        );
+        crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
     }
 }

@@ -7,17 +7,20 @@ use snafu::ResultExt;
 
 use crate::error::HttpSnafu;
 use crate::models::pulls::ReviewComment;
-use crate::models::CommentId;
+use crate::models::reactions::{Reaction, ReactionContent};
+use crate::models::{CommentId, ReactionId};
 use crate::pulls::specific_pr::pr_reviews::specific_review::SpecificReviewBuilder;
 use crate::pulls::specific_pr::{SpecificPullRequestBuilder, SpecificPullRequestCommitBuilder};
 use crate::{Octocrab, Page};
 
 pub use self::{
-    create::CreatePullRequestBuilder, list::ListPullRequestsBuilder,
+    comment::{CommentBuilder, ListCommentsBuilder, ListPullCommentReactionsBuilder},
+    create::CreatePullRequestBuilder,
+    list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
 
-mod comment;
+pub mod comment;
 mod create;
 mod list;
 mod merge;
@@ -393,6 +396,94 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```
     pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder<'_, '_> {
         comment::CommentBuilder::new(self, comment_id)
+    }
+
+    /// Lists reactions for a pull request review comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#list-reactions-for-a-pull-request-review-comment)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// let reactions = octocrab.pulls("owner", "repo")
+    ///     .list_comment_reactions(1)
+    ///     .per_page(100)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_comment_reactions(
+        &self,
+        comment_id: impl Into<CommentId>,
+    ) -> comment::ListPullCommentReactionsBuilder<'octo, '_> {
+        comment::ListPullCommentReactionsBuilder::new(self, comment_id.into())
+    }
+
+    /// Creates a reaction for a pull request review comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#create-reaction-for-a-pull-request-review-comment)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.pulls("owner", "repo")
+    ///     .create_comment_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_comment_reaction(
+        &self,
+        comment_id: impl Into<CommentId>,
+        content: ReactionContent,
+    ) -> crate::Result<Reaction> {
+        let comment_id = comment_id.into();
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        self.crab
+            .post(route, Some(&serde_json::json!({ "content": content })))
+            .await
+    }
+
+    /// Deletes a reaction for a pull request review comment.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/reactions/reactions?apiVersion=2022-11-28#delete-a-pull-request-comment-reaction)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// # let octocrab = octocrab::Octocrab::default();
+    /// octocrab.pulls("owner", "repo")
+    ///     .delete_comment_reaction(1, 1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn delete_comment_reaction(
+        &self,
+        comment_id: impl Into<CommentId>,
+        reaction_id: impl Into<ReactionId>,
+    ) -> crate::Result<()> {
+        let comment_id = comment_id.into();
+        let reaction_id = reaction_id.into();
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}",
+            owner = self.owner,
+            repo = self.repo,
+        );
+        crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
+            .await
+            .map(drop)
     }
 
     /// creates a builder for the `/repos/{owner}/{repo}/pulls/{pull_number}/......` endpoint
