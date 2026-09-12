@@ -21,8 +21,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let keys = octocrab.repos("owner", "repo")
     ///     .keys()
     ///     .list()
@@ -44,8 +43,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let key = octocrab.repos("owner", "repo")
     ///     .keys()
     ///     .get(42)
@@ -66,8 +64,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let key = octocrab.repos("owner", "repo")
     ///     .keys()
     ///     .create("my-deploy-key", "ssh-rsa AAA...")
@@ -92,8 +89,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .keys()
     ///     .delete(42)

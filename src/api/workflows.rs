@@ -30,8 +30,7 @@ impl<'octo> WorkflowsHandler<'octo> {
 
     /// List workflow definitions in the repository.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
     /// let issue = octocrab.workflows("owner", "repo")
     ///     .list()
@@ -62,8 +61,7 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// List runs in the specified workflow.
     /// workflow_file_or_id can be either file name or numeric expression.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
     /// let issue = octocrab.workflows("owner", "repo")
     ///     .list_runs("ci.yml")
@@ -89,8 +87,7 @@ impl<'octo> WorkflowsHandler<'octo> {
 
     /// List runs for the specified owner and repository.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
     /// let runs = octocrab.workflows("owner", "repo")
     ///     .list_all_runs()
@@ -113,8 +110,7 @@ impl<'octo> WorkflowsHandler<'octo> {
 
     /// List job results in the specified run.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params::workflows::Filter;
     ///
     /// let issue = octocrab.workflows("owner", "repo")

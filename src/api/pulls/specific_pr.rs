@@ -65,8 +65,7 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
     /// Creates a new `ReviewsBuilder`
     /// ```no_run
     /// # use octocrab::models::CommentId;
-    ///  async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -85,8 +84,7 @@ impl<'octo, 'b> SpecificPullRequestBuilder<'octo, 'b> {
     /// Creates a new `SpecificPullRequestCommentBuilder`
     /// ```no_run
     /// # use octocrab::models::CommentId;
-    ///  async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")

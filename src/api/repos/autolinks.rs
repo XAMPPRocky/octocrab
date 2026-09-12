@@ -23,8 +23,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let autolinks = octocrab.repos("owner", "repo")
     ///     .autolinks()
     ///     .list()
@@ -46,8 +45,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let autolink = octocrab.repos("owner", "repo")
     ///     .autolinks()
     ///     .get(42)
@@ -70,8 +68,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let autolink = octocrab.repos("owner", "repo")
     ///     .autolinks()
     ///     .create("TICKET-", "https://example.com/TICKET?query=<num>")
@@ -98,8 +95,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .autolinks()
     ///     .delete(42)

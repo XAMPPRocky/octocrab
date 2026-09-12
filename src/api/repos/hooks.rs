@@ -23,8 +23,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let hooks = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .list()
@@ -45,8 +44,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let hook = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .get(1)
@@ -67,8 +65,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::hooks::{Hook, Config as HookConfig, ContentType as HookContentType};
     ///
     /// let config = HookConfig {
@@ -101,8 +98,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let hook = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .update(1)
@@ -124,8 +120,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .delete(1)
@@ -150,8 +145,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let config = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .get_config(1)
@@ -172,8 +166,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::hooks::ContentType;
     ///
     /// let config = octocrab.repos("owner", "repo")
@@ -197,8 +190,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .ping(1)
@@ -223,8 +215,7 @@ impl<'octo, 'r> RepoHooksHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .test(1)
@@ -288,8 +279,7 @@ impl<'octo, 'r> RepoHookDeliveriesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let deliveries = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .deliveries(1)
@@ -311,8 +301,7 @@ impl<'octo, 'r> RepoHookDeliveriesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let delivery = octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .deliveries(1)
@@ -337,8 +326,7 @@ impl<'octo, 'r> RepoHookDeliveriesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .hooks()
     ///     .deliveries(1)

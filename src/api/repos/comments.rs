@@ -27,8 +27,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let comments = octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .list()
@@ -50,8 +49,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let comment = octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .get(42)
@@ -72,8 +70,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let comment = octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .update(42, "Updated comment text")
@@ -99,8 +96,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .delete(42)
@@ -125,8 +121,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let comment = octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .create("commit_sha", "Great work!")
@@ -152,8 +147,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let reactions = octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .list_reactions(1)
@@ -178,8 +172,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .create_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
@@ -207,8 +200,7 @@ impl<'octo, 'r> RepoCommentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .comments()
     ///     .delete_reaction(1, 1)

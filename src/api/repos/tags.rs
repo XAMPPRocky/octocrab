@@ -20,8 +20,7 @@ impl<'octo, 'r> RepoTagsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let tags = octocrab.repos("owner", "repo")
     ///     .tags()
     ///     .list()
@@ -53,8 +52,7 @@ impl<'octo, 'r> RepoTagsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// let protections = octocrab.repos("owner", "repo")
     ///     .tags()
@@ -80,8 +78,7 @@ impl<'octo, 'r> RepoTagsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// let protection = octocrab.repos("owner", "repo")
     ///     .tags()
@@ -110,8 +107,7 @@ impl<'octo, 'r> RepoTagsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// octocrab.repos("owner", "repo")
     ///     .tags()
@@ -155,8 +151,7 @@ impl<'octo, 'r> RepoTagProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// let protections = octocrab.repos("owner", "repo")
     ///     .tag_protection()
@@ -182,8 +177,7 @@ impl<'octo, 'r> RepoTagProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// let protection = octocrab.repos("owner", "repo")
     ///     .tag_protection()
@@ -218,8 +212,7 @@ impl<'octo, 'r> RepoTagProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// # #[allow(deprecated)]
     /// octocrab.repos("owner", "repo")
     ///     .tag_protection()

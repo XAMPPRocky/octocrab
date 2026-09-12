@@ -82,8 +82,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     /// Lists all Secret Scanning Alerts available in a repository.
     /// You must authenticate using an access token with the `repo` or `security_events` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let all_secrets = octocrab.repos("owner", "repo")
     ///     .secrets_scanning()
     ///     .direction("asc")
@@ -222,8 +221,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     /// Lists single Secret Scanning Alert for a repository.
     /// You must authenticate using an access token with the `repo` or `security_events` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let all_secrets = octocrab.repos("owner", "repo")
     ///     .secrets_scanning()
     ///     .get_alert(5)
@@ -244,8 +242,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     /// Updates a Secret Scanning alert.
     /// You must authenticate using an access token with the `security_events ` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::repos::secret_scanning_alert::UpdateSecretScanningAlert;
     ///
     /// let result = octocrab.repos("owner", "repo")
@@ -279,8 +276,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     // Get a Secret Scanning alert locations.
     /// You must authenticate using an access token with the `repo` or `security_events ` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::repos::secret_scanning_alert::SecretsScanningAlertLocation;
     ///
     /// let result = octocrab.repos("owner", "repo")

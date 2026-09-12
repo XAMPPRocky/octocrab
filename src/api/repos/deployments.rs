@@ -26,8 +26,7 @@ impl<'octo, 'r> RepoDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let deployments = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .list()
@@ -48,8 +47,7 @@ impl<'octo, 'r> RepoDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let deployment = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .get(42)
@@ -70,8 +68,7 @@ impl<'octo, 'r> RepoDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let deployment = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .create("main")
@@ -92,8 +89,7 @@ impl<'octo, 'r> RepoDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .delete(42)
@@ -145,8 +141,7 @@ impl<'octo, 'r> DeploymentStatusesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let statuses = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .statuses(42)
@@ -167,8 +162,7 @@ impl<'octo, 'r> DeploymentStatusesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let status = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .statuses(42)
@@ -194,8 +188,7 @@ impl<'octo, 'r> DeploymentStatusesHandler<'octo, 'r> {
     ///
     /// ```no_run
     /// # use octocrab::models::repos::DeploymentStatusState;
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let status = octocrab.repos("owner", "repo")
     ///     .deployments()
     ///     .statuses(42)

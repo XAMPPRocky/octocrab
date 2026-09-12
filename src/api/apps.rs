@@ -21,8 +21,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Get an installation for the authenticated app
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::InstallationId;
     ///
     /// let installation = octocrab
@@ -45,8 +44,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// listing installations.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let page = octocrab

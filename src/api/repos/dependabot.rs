@@ -54,8 +54,7 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Lists all Dependabot Alerts available in a repository.
     /// You must authenticate using an access token with the `repo` or `security_events` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let all_secrets = octocrab.repos("owner", "repo")
     ///     .dependabot()
     ///     .direction("asc")
@@ -133,8 +132,7 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Lists single Dependabot Alert for a repository.
     /// You must authenticate using an access token with the `repo` or `security_events` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let all_secrets = octocrab.repos("owner", "repo")
     ///     .dependabot()
     ///     .get_alert(5)
@@ -152,8 +150,7 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Updates a dependabot alert.
     /// You must authenticate using an access token with the `security_events ` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::repos::dependabot::UpdateDependabotAlert;
     ///
     /// let result = octocrab.repos("owner", "repo")

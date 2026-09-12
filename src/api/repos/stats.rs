@@ -34,8 +34,7 @@ impl<'octo, 'r> RepoStatsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// if let Some(code_freq) = octocrab
     ///     .repos("owner", "repo")
     ///     .stats()
@@ -72,8 +71,7 @@ impl<'octo, 'r> RepoStatsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// if let Some(activity) = octocrab
     ///     .repos("owner", "repo")
     ///     .stats()
@@ -110,8 +108,7 @@ impl<'octo, 'r> RepoStatsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// if let Some(contributors) = octocrab
     ///     .repos("owner", "repo")
     ///     .stats()
@@ -145,8 +142,7 @@ impl<'octo, 'r> RepoStatsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let participation = octocrab
     ///     .repos("owner", "repo")
     ///     .stats()
@@ -168,8 +164,7 @@ impl<'octo, 'r> RepoStatsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let punch_card = octocrab
     ///     .repos("owner", "repo")
     ///     .stats()

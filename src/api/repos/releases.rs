@@ -19,8 +19,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// Creates a new [`ListReleasesBuilder`] that can be configured to filter
     /// listing releases.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let page = octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .list()
@@ -39,8 +38,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Creates a new [`CreateReleaseBuilder`] with `tag_name`.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let page = octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .create("v1.0.0")
@@ -65,8 +63,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Creates a new [`UpdateReleaseBuilder`] with `release_id`.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let release = octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .update(1)
@@ -202,8 +199,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// Creates a new [`ListReleaseAssetsBuilder`] that can be configured to filter
     /// listing release assetss.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let page = octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .assets(1)
@@ -272,8 +268,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let reactions = octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .list_reactions(1)
@@ -298,8 +293,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .create_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
@@ -327,8 +321,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
     ///     .releases()
     ///     .delete_reaction(1, 1)

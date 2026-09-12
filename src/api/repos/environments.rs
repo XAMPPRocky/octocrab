@@ -28,8 +28,7 @@ impl<'octo, 'r> RepoEnvironmentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let environments = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -52,8 +51,7 @@ impl<'octo, 'r> RepoEnvironmentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let env = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -78,8 +76,7 @@ impl<'octo, 'r> RepoEnvironmentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let env = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -105,8 +102,7 @@ impl<'octo, 'r> RepoEnvironmentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -292,8 +288,7 @@ impl<'octo, 'r> RepoEnvironmentBranchPoliciesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let policies = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -317,8 +312,7 @@ impl<'octo, 'r> RepoEnvironmentBranchPoliciesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let policy = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -348,8 +342,7 @@ impl<'octo, 'r> RepoEnvironmentBranchPoliciesHandler<'octo, 'r> {
     ///
     /// ```no_run
     /// # use octocrab::models::repos::BranchPolicyType;
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let policy = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -379,8 +372,7 @@ impl<'octo, 'r> RepoEnvironmentBranchPoliciesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let policy = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -411,8 +403,7 @@ impl<'octo, 'r> RepoEnvironmentBranchPoliciesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -603,8 +594,7 @@ impl<'octo, 'r> RepoEnvironmentProtectionRulesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let rules = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -630,8 +620,7 @@ impl<'octo, 'r> RepoEnvironmentProtectionRulesHandler<'octo, 'r> {
     ///
     /// ```no_run
     /// # use octocrab::models::AppId;
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let rule = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -662,8 +651,7 @@ impl<'octo, 'r> RepoEnvironmentProtectionRulesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let apps = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -687,8 +675,7 @@ impl<'octo, 'r> RepoEnvironmentProtectionRulesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let rule = octocrab
     ///     .repos("owner", "repo")
     ///     .environments()
@@ -717,8 +704,7 @@ impl<'octo, 'r> RepoEnvironmentProtectionRulesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .environments()

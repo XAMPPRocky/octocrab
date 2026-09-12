@@ -28,8 +28,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///Retrieves a pull request review by its ID.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#get-a-review-for-a-pull-request
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -55,8 +54,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///Updates the contents of a specified review summary comment.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#update-a-review-for-a-pull-request
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -85,8 +83,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///Deletes a pull request review that has not been submitted. Submitted reviews cannot be deleted.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#delete-a-pending-review-for-a-pull-request
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -113,8 +110,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#submit-a-review-for-a-pull-request
     ///```no_run
     /// # use octocrab::models::pulls::ReviewAction;
-    ///  async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -150,8 +146,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///Dismisses a specified review on a pull request.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#dismiss-a-review-for-a-pull-request
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")
@@ -183,8 +178,7 @@ impl<'octo, 'b> SpecificReviewBuilder<'octo, 'b> {
     ///Lists comments for a specific pull request review.
     ///see https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#list-comments-for-a-pull-request-review
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let _ = octocrab.pulls("owner", "repo")

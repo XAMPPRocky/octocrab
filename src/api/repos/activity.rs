@@ -28,8 +28,7 @@ impl<'octo, 'r> RepoActivityHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let activities = octocrab
     ///     .repos("owner", "repo")
     ///     .activity()
