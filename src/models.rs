@@ -560,14 +560,7 @@ fn empty_string_is_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Er
 where
     D: Deserializer<'de>,
 {
-    // try to deserialize our input string
-    let cast = String::deserialize(deserializer)?;
-    // if this string is empty then return None
-    if cast.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(cast))
-    }
+    Option::<String>::deserialize(deserializer).map(|opt| opt.filter(|s| !s.is_empty()))
 }
 
 /// The full profile for a user

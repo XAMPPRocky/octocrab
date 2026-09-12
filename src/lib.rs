@@ -155,16 +155,14 @@
 //! ```
 //!
 //! You can use the those HTTP methods to easily create your own extensions to
-//! `Octocrab`'s typed API. (Requires `async_trait`).
+//! `Octocrab`'s typed API.
 //! ```
 //! use octocrab::{Octocrab, Page, Result, models};
 //!
-//! #[async_trait::async_trait]
 //! trait OrganisationExt {
 //!   async fn list_every_organisation(&self) -> Result<Page<models::orgs::Organization>>;
 //! }
 //!
-//! #[async_trait::async_trait]
 //! impl OrganisationExt for Octocrab {
 //!   async fn list_every_organisation(&self) -> Result<Page<models::orgs::Organization>> {
 //!     self.get("organizations", None::<&()>).await

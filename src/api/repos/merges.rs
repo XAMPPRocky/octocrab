@@ -40,7 +40,11 @@ impl<'octo, 'r> MergeBranchBuilder<'octo, 'r> {
             return Ok(None);
         }
 
-        match FromResponse::from_response(crate::map_github_error(post_response).await?).await {
+        match <models::repos::MergeCommit as FromResponse>::from_response(
+            crate::map_github_error(post_response).await?,
+        )
+        .await
+        {
             Ok(res) => Ok(Some(res)),
             Err(e) => Err(e),
         }
