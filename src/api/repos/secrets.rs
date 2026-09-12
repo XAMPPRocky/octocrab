@@ -154,4 +154,16 @@ impl<'octo> RepoSecretsHandler<'octo> {
         crate::map_github_error(resp).await?;
         Ok(())
     }
+
+    /// Lists all organization secrets available in a repository without revealing their encrypted values.
+    /// You must authenticate using an access token with the `repo` scope to use this endpoint.
+    /// GitHub Apps must have the `secrets` repository permission to use this endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/secrets?apiVersion=2022-11-28#list-repository-organization-secrets)
+    pub async fn list_org_secrets(
+        &self,
+    ) -> crate::Result<crate::models::repos::secrets::RepositorySecrets> {
+        let route = format!("/{}/actions/organization-secrets", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
+    }
 }

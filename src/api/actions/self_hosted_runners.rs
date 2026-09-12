@@ -157,3 +157,238 @@ impl<'octo, 'r> CreateJitRunnerConfigBuilder<'octo, 'r> {
         self.handler.crab.post(route, Some(&self)).await
     }
 }
+
+impl<'octo> ActionsHandler<'octo> {
+    /// Lists runner applications that are supported by GitHub Actions for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#list-runner-applications-for-an-organization)
+    pub async fn list_org_runner_downloads(
+        &self,
+        org: impl AsRef<str>,
+    ) -> crate::Result<Vec<crate::models::actions::RunnerApplicationDownload>> {
+        let route = format!("/orgs/{org}/actions/runners/downloads", org = org.as_ref());
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Lists runner applications that are supported by GitHub Actions for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#list-runner-applications-for-a-repository)
+    pub async fn list_repo_runner_downloads(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> crate::Result<Vec<crate::models::actions::RunnerApplicationDownload>> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/downloads",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Lists labels for a self-hosted runner for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#list-labels-for-a-self-hosted-runner-for-an-organization)
+    pub async fn list_org_runner_labels(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}/labels",
+            org = org.as_ref(),
+            runner_id = runner_id,
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Adds custom labels to a self-hosted runner for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#add-custom-labels-to-a-self-hosted-runner-for-an-organization)
+    pub async fn add_org_runner_labels(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        labels: &[impl AsRef<str>],
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        #[derive(Serialize)]
+        struct Body<'a> {
+            labels: Vec<&'a str>,
+        }
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}/labels",
+            org = org.as_ref(),
+            runner_id = runner_id,
+        );
+        let body = Body {
+            labels: labels.iter().map(AsRef::as_ref).collect(),
+        };
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Sets custom labels for a self-hosted runner for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#set-custom-labels-for-a-self-hosted-runner-for-an-organization)
+    pub async fn set_org_runner_labels(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        labels: &[impl AsRef<str>],
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        #[derive(Serialize)]
+        struct Body<'a> {
+            labels: Vec<&'a str>,
+        }
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}/labels",
+            org = org.as_ref(),
+            runner_id = runner_id,
+        );
+        let body = Body {
+            labels: labels.iter().map(AsRef::as_ref).collect(),
+        };
+        self.crab.put(route, Some(&body)).await
+    }
+
+    /// Removes all custom labels from a self-hosted runner for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#remove-all-custom-labels-from-a-self-hosted-runner-for-an-organization)
+    pub async fn remove_all_org_runner_labels(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}/labels",
+            org = org.as_ref(),
+            runner_id = runner_id,
+        );
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Removes a custom label from a self-hosted runner for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#remove-a-custom-label-from-a-self-hosted-runner-for-an-organization)
+    pub async fn remove_org_runner_label(
+        &self,
+        org: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        name: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/{runner_id}/labels/{name}",
+            org = org.as_ref(),
+            runner_id = runner_id,
+            name = name.as_ref(),
+        );
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Lists labels for a self-hosted runner for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#list-labels-for-a-self-hosted-runner-for-a-repository)
+    pub async fn list_repo_runner_labels(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}/labels",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            runner_id = runner_id,
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Adds custom labels to a self-hosted runner for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#add-custom-labels-to-a-self-hosted-runner-for-a-repository)
+    pub async fn add_repo_runner_labels(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        labels: &[impl AsRef<str>],
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        #[derive(Serialize)]
+        struct Body<'a> {
+            labels: Vec<&'a str>,
+        }
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}/labels",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            runner_id = runner_id,
+        );
+        let body = Body {
+            labels: labels.iter().map(AsRef::as_ref).collect(),
+        };
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Sets custom labels for a self-hosted runner for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#set-custom-labels-for-a-self-hosted-runner-for-a-repository)
+    pub async fn set_repo_runner_labels(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        labels: &[impl AsRef<str>],
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        #[derive(Serialize)]
+        struct Body<'a> {
+            labels: Vec<&'a str>,
+        }
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}/labels",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            runner_id = runner_id,
+        );
+        let body = Body {
+            labels: labels.iter().map(AsRef::as_ref).collect(),
+        };
+        self.crab.put(route, Some(&body)).await
+    }
+
+    /// Removes all custom labels from a self-hosted runner for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#remove-all-custom-labels-from-a-self-hosted-runner-for-a-repository)
+    pub async fn remove_all_repo_runner_labels(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}/labels",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            runner_id = runner_id,
+        );
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Removes a custom label from a self-hosted runner for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#remove-a-custom-label-from-a-self-hosted-runner-for-a-repository)
+    pub async fn remove_repo_runner_label(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        runner_id: crate::models::RunnerId,
+        name: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::SelfHostedRunnerLabelsList> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/{runner_id}/labels/{name}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            runner_id = runner_id,
+            name = name.as_ref(),
+        );
+        self.crab.delete(route, None::<&()>).await
+    }
+}
