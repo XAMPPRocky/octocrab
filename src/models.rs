@@ -69,6 +69,8 @@ pub mod apps;
 pub mod checks;
 pub mod classroom;
 pub mod code_scannings;
+pub mod codespaces;
+pub use codespaces::Codespace;
 pub mod codes_of_conduct;
 pub mod commits;
 pub mod events;
@@ -230,7 +232,8 @@ id_type!(
     PatId,
     PatRequestId,
     PackageId,
-    PackageVersionId
+    PackageVersionId,
+    CodespaceId
 );
 
 macro_rules! convert_into {

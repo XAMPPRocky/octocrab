@@ -14,6 +14,7 @@
 //! - [`apps`] GitHub Apps
 //! - [`checks`] GitHub Checks
 //! - [`code_scannings`] Code Scanning
+//! - [`codespaces`] GitHub Codespaces
 //! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
 //! - [`events`] GitHub Events
@@ -32,6 +33,7 @@
 //!   - [`repos::autolinks`] Autolinks
 //!   - [`repos::branches`] Branches and branch protection
 //!   - [`repos::codeowners`] CODEOWNERS errors
+//!   - [`repos::codespaces`] Repository codespaces
 //!   - [`repos::comments`] Commit comments
 //!   - [`repos::custom_properties`] Repository custom property values
 //!   - [`repos::deployments`] Deployments and deployment statuses
@@ -321,9 +323,10 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, classroom, code_scannings, commits, current, enterprises,
-        events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, packages,
-        projects, pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
+        actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
+        enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
+        orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
+        users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1501,6 +1504,12 @@ impl Octocrab {
     /// information about the current authenticated user.
     pub fn current(&self) -> current::CurrentAuthHandler<'_> {
         current::CurrentAuthHandler::new(self)
+    }
+
+    /// Creates a [`codespaces::CodespacesHandler`] that allows you to access
+    /// GitHub's Codespaces API for the authenticated user.
+    pub fn codespaces(&self) -> codespaces::CodespacesHandler<'_> {
+        codespaces::CodespacesHandler::new(self)
     }
 
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.

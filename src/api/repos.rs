@@ -13,6 +13,7 @@ pub mod autolinks;
 pub mod branches;
 pub mod code_scanning;
 pub mod codeowners;
+pub mod codespaces;
 mod collaborators;
 pub mod comments;
 mod commits;
@@ -76,6 +77,7 @@ pub use branches::{
 };
 pub use code_scanning::RepoCodeScanningHandler;
 pub use codeowners::ListCodeownersErrorsBuilder;
+pub use codespaces::RepoCodespacesHandler;
 pub use collaborators::ListCollaboratorsBuilder;
 pub use comments::{
     CreateRepoCommentBuilder, ListRepoCommentReactionsBuilder, ListRepoCommentsBuilder,
@@ -1039,6 +1041,13 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle secrets on the repository
     pub fn secrets(&self) -> RepoSecretsHandler<'_> {
         RepoSecretsHandler::new(self)
+    }
+
+    /// Handle codespaces on the repository
+    ///
+    /// See: https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28
+    pub fn codespaces(&self) -> RepoCodespacesHandler<'octo> {
+        RepoCodespacesHandler::new(self.crab, self.repo.clone())
     }
 
     pub fn variables(&self) -> RepoVariablesHandler<'_> {

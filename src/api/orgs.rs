@@ -1,6 +1,7 @@
 //! The Organization API.
 
 mod code_scanning;
+pub mod codespaces;
 mod copilot;
 mod copilot_seat_manager;
 mod custom_properties;
@@ -18,6 +19,7 @@ mod secrets;
 mod variables;
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
+pub use self::codespaces::OrgCodespacesHandler;
 pub use self::custom_properties::{ListOrgCustomPropertyValuesBuilder, OrgCustomPropertiesHandler};
 pub use self::events::ListOrgEventsBuilder;
 pub use self::hooks::{ListOrgHooksBuilder, OrgHooksHandler, UpdateOrgHookBuilder};
@@ -71,6 +73,13 @@ impl<'octo> OrgHandler<'octo> {
             self.crab,
             crate::api::packages::PackagesOwner::Org(self.owner.clone()),
         )
+    }
+
+    /// Handle Codespaces for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28
+    pub fn codespaces(&self) -> OrgCodespacesHandler<'octo> {
+        OrgCodespacesHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle security advisories for the organization.
