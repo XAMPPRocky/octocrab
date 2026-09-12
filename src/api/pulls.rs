@@ -112,6 +112,23 @@ impl<'octo> PullRequestHandler<'octo> {
         Ok(response.status() == 202)
     }
 
+    /// Create a codespace for this pull request.
+    ///
+    /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#create-a-codespace-from-a-pull-request)
+    pub async fn create_codespace(
+        &self,
+        pr: u64,
+        body: &crate::models::codespaces::CreatePullRequestCodespace,
+    ) -> crate::Result<crate::models::codespaces::Codespace> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/codespaces",
+            owner = self.owner,
+            repo = self.repo,
+            pr = pr
+        );
+        self.crab.post(route, Some(body)).await
+    }
+
     /// Get's a given pull request with by its `pr` number.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

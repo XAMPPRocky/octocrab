@@ -60,6 +60,13 @@ impl<'octo> CurrentAuthHandler<'octo> {
         )
     }
 
+    /// Handle codespaces for the authenticated user.
+    ///
+    /// See: https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28
+    pub fn codespaces(&self) -> crate::api::codespaces::CodespacesHandler<'octo> {
+        crate::api::codespaces::CodespacesHandler::new(self.crab)
+    }
+
     /// Fetches information about the currently authenticated app.
     ///
     /// ```no_run
