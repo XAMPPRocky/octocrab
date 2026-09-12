@@ -1,0 +1,51 @@
+{
+  "total_count": 1,
+  "incomplete_results": false,
+  "items": [
+    {
+      "id": 5315327621,
+      "node_id": "I_kwDOD4Ga3s8AAAABPNF2hQ",
+      "url": "https://api.github.com/repos/XAMPPRocky/octocrab/issues/937",
+      "repository_url": "https://api.github.com/repos/XAMPPRocky/octocrab",
+      "labels_url": "https://api.github.com/repos/XAMPPRocky/octocrab/issues/937/labels{/name}",
+      "comments_url": "https://api.github.com/repos/XAMPPRocky/octocrab/issues/937/comments",
+      "events_url": "https://api.github.com/repos/XAMPPRocky/octocrab/issues/937/events",
+      "html_url": "https://github.com/XAMPPRocky/octocrab/issues/937",
+      "number": 937,
+      "state": "open",
+      "title": "new dismiss reason type for code scanning alerts: mitigated",
+      "body": "Github have added a new code scanning dismiss reason",
+      "user": {
+        "login": "alexanderkjall",
+        "id": 647710,
+        "node_id": "MDQ6VXNlcjY0NzcxMA==",
+        "avatar_url": "https://avatars.githubusercontent.com/u/647710?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/alexanderkjall",
+        "html_url": "https://github.com/alexanderkjall",
+        "followers_url": "https://api.github.com/users/alexanderkjall/followers",
+        "following_url": "https://api.github.com/users/alexanderkjall/following{/other_user}",
+        "gists_url": "https://api.github.com/users/alexanderkjall/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/alexanderkjall/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/alexanderkjall/subscriptions",
+        "organizations_url": "https://api.github.com/users/alexanderkjall/orgs",
+        "repos_url": "https://api.github.com/users/alexanderkjall/repos",
+        "events_url": "https://api.github.com/users/alexanderkjall/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/alexanderkjall/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "labels": [],
+      "assignees": [],
+      "milestone": null,
+      "locked": false,
+      "active_lock_reason": null,
+      "comments": 1,
+      "created_at": "2026-09-01T18:23:32Z",
+      "updated_at": "2026-09-12T01:51:52Z",
+      "closed_at": null,
+      "author_association": "NONE",
+      "score": 1.0
+    }
+  ]
+}
