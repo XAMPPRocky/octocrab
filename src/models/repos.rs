@@ -275,7 +275,6 @@ impl Content {
     }
 }
 
-#[async_trait::async_trait]
 impl crate::FromResponse for ContentItems {
     async fn from_response<B>(response: Response<B>) -> crate::Result<Self>
     where

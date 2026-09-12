@@ -12,6 +12,10 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use packages::{
+    ContainerMetadata, DockerMetadata, Package, PackageType, PackageVersion,
+    PackageVersionMetadata, PackageVersionState, PackageVisibility,
+};
 pub use repos::branches;
 pub use repos::codeowners;
 pub use repos::custom_properties;
@@ -78,6 +82,7 @@ pub mod memberships;
 pub mod meta;
 pub mod orgs;
 pub mod orgs_copilot;
+pub mod packages;
 pub mod pulls;
 pub mod reactions;
 pub mod repos;
@@ -223,7 +228,9 @@ id_type!(
     ProtectionRuleId,
     OrgRoleId,
     PatId,
-    PatRequestId
+    PatRequestId,
+    PackageId,
+    PackageVersionId
 );
 
 macro_rules! convert_into {
@@ -553,14 +560,7 @@ fn empty_string_is_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Er
 where
     D: Deserializer<'de>,
 {
-    // try to deserialize our input string
-    let cast = String::deserialize(deserializer)?;
-    // if this string is empty then return None
-    if cast.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(cast))
-    }
+    Option::<String>::deserialize(deserializer).map(|opt| opt.filter(|s| !s.is_empty()))
 }
 
 /// The full profile for a user
@@ -997,7 +997,7 @@ pub struct Repository {
     pub source: Option<Box<Repository>>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct MinimalRepository {
     pub allow_forking: Option<bool>,
@@ -1096,7 +1096,7 @@ pub struct MinimalRepository {
     pub web_commit_signoff_required: Option<bool>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SecurityAndAnalysis {
     /// Enable or disable GitHub Advanced Security for the repository.
@@ -1115,14 +1115,14 @@ pub struct SecurityAndAnalysis {
 /// Enable or disable GitHub Advanced Security for the repository.
 ///
 /// For standalone Code Scanning or Secret Protection products, this parameter cannot be used.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AdvancedSecurity {
     pub status: Option<AdvSecStatus>,
 }
 
 /// The enablement status of Dependabot security updates for the repository.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum AdvSecStatus {
@@ -1130,39 +1130,39 @@ pub enum AdvSecStatus {
     Enabled,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CodeSecurity {
     pub status: Option<AdvSecStatus>,
 }
 
 /// Enable or disable Dependabot security updates for the repository.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct DependabotSecurityUpdates {
     /// The enablement status of Dependabot security updates for the repository.
     pub status: Option<AdvSecStatus>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SecretScanning {
     pub status: Option<AdvSecStatus>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SecretScanningAiDetection {
     pub status: Option<AdvSecStatus>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SecretScanningNonProviderPatterns {
     pub status: Option<AdvSecStatus>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SecretScanningPushProtection {
     pub status: Option<AdvSecStatus>,
