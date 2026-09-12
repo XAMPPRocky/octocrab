@@ -60,6 +60,7 @@ pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
 
 pub mod actions;
 pub mod activity;
+pub use activity::{Feeds, RepositorySubscription};
 pub mod apps;
 pub mod checks;
 pub mod classroom;

@@ -14,6 +14,8 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 
+pub use crate::api::activity::watching::ListUserSubscriptionsBuilder;
+
 /// Handler for the current authenication API. **Note** All of the methods
 /// provided below require at least some authenication such as personal token
 /// in order to be used.
@@ -83,6 +85,57 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user)
     pub fn list_repos_starred_by_authenticated_user(&self) -> ListStarredReposBuilder<'octo> {
         ListStarredReposBuilder::new(self.crab)
+    }
+
+    /// List repositories watched by the current authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-repositories-watched-by-the-authenticated-user)
+    pub fn list_repos_watched_by_authenticated_user(&self) -> ListUserSubscriptionsBuilder<'octo> {
+        ListUserSubscriptionsBuilder::new(self.crab, "/user/subscriptions")
+    }
+
+    /// List repositories watched by the current authenticated user.
+    ///
+    /// Alias for [`CurrentAuthHandler::list_repos_watched_by_authenticated_user`].
+    pub fn list_watched_repos(&self) -> ListUserSubscriptionsBuilder<'octo> {
+        self.list_repos_watched_by_authenticated_user()
+    }
+
+    /// Checks whether a repository is starred by the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
+    pub async fn is_starred(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<bool> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._get(route).await?;
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// Stars a repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
+    pub async fn star_repo(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._put(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Unstars a repository for the authenticated user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
+    pub async fn unstar_repo(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
+        let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
     }
 
     /// Lists repositories that the current authenticated user.

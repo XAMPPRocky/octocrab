@@ -8,6 +8,9 @@ pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 pub use self::hovercard::HovercardBuilder;
 pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
+use crate::api::activity::starring::ListReposStarredByUserBuilder;
+use crate::api::activity::watching::ListUserSubscriptionsBuilder;
+use crate::api::events::EventsBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
 use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
@@ -82,6 +85,58 @@ impl<'octo> UserHandler<'octo> {
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organizations-for-a-user)
     pub fn list_orgs(&self) -> crate::api::current::ListUserOrgsBuilder<'octo> {
         crate::api::current::ListUserOrgsBuilder::new(self.crab, format!("/{}/orgs", self.user))
+    }
+
+    /// Lists repositories watched by this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-repositories-watched-by-a-user)
+    pub fn subscriptions(&self) -> ListUserSubscriptionsBuilder<'octo> {
+        ListUserSubscriptionsBuilder::new(self.crab, format!("/{}/subscriptions", self.user))
+    }
+
+    /// Lists repositories starred by this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-a-user)
+    pub fn starred(&self) -> ListReposStarredByUserBuilder<'octo> {
+        ListReposStarredByUserBuilder::with_route(self.crab, format!("/{}/starred", self.user))
+    }
+
+    /// List events for this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-events-for-the-authenticated-user)
+    pub fn events(&self) -> EventsBuilder<'octo> {
+        EventsBuilder::with_route(self.crab, format!("/{}/events", self.user))
+    }
+
+    /// List public events for this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)
+    pub fn public_events(&self) -> EventsBuilder<'octo> {
+        EventsBuilder::with_route(self.crab, format!("/{}/events/public", self.user))
+    }
+
+    /// List events received by this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-events-received-by-the-authenticated-user)
+    pub fn received_events(&self) -> EventsBuilder<'octo> {
+        EventsBuilder::with_route(self.crab, format!("/{}/received_events", self.user))
+    }
+
+    /// List public events received by this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-received-by-a-user)
+    pub fn public_received_events(&self) -> EventsBuilder<'octo> {
+        EventsBuilder::with_route(self.crab, format!("/{}/received_events/public", self.user))
+    }
+
+    /// List organization events for this user.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-organization-events-for-the-authenticated-user)
+    pub fn org_events(&self, org: impl AsRef<str>) -> EventsBuilder<'octo> {
+        EventsBuilder::with_route(
+            self.crab,
+            format!("/{}/events/orgs/{}", self.user, org.as_ref()),
+        )
     }
 
     /// API for listing blocked users
