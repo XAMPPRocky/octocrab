@@ -4,7 +4,15 @@ use http_body_util::combinators::BoxBody;
 use http_body_util::{BodyExt, Collected};
 use snafu::ResultExt;
 
+pub mod cache;
+pub mod environments;
+pub mod oidc;
+pub mod permissions;
 pub mod self_hosted_runners;
+
+pub use self::cache::{ListActionsCachesBuilder, ListOrgCacheUsageByRepositoryBuilder};
+pub use self::environments::{EnvironmentSecretsHandler, EnvironmentVariablesHandler};
+pub use self::permissions::ListOrgSelectedRepositoriesBuilder;
 
 use self::self_hosted_runners::{CreateJitRunnerConfigBuilder, ListSelfHostedRunnersBuilder};
 use crate::error::HttpSnafu;
@@ -436,6 +444,43 @@ impl<'octo> ActionsHandler<'octo> {
 
         self.follow_location_to_data(self.crab._get(uri).await?)
             .await
+    }
+
+    /// Gets a specific artifact for a workflow run.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#get-an-artifact)
+    pub async fn get_artifact(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        artifact_id: ArtifactId,
+    ) -> crate::Result<WorkflowListArtifact> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/artifacts/{artifact_id}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            artifact_id = artifact_id,
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Deletes an artifact for a workflow run.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#delete-an-artifact)
+    pub async fn delete_artifact(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        artifact_id: ArtifactId,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/artifacts/{artifact_id}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            artifact_id = artifact_id,
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
     }
 
     /// Deletes all logs for a workflow run. You must authenticate using an

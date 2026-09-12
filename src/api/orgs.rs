@@ -15,6 +15,7 @@ mod roles;
 mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
+mod variables;
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
 pub use self::custom_properties::{ListOrgCustomPropertyValuesBuilder, OrgCustomPropertiesHandler};
@@ -37,6 +38,7 @@ pub use self::rulesets::{
 };
 pub use self::secret_scanning_alerts::OrgSecretScanningAlertsHandler;
 pub use self::secrets::OrgSecretsHandler;
+pub use self::variables::OrgVariablesHandler;
 pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
 use crate::models::interaction_limits;
@@ -359,6 +361,13 @@ impl<'octo> OrgHandler<'octo> {
     /// ```
     pub fn secrets(&self) -> secrets::OrgSecretsHandler<'_> {
         secrets::OrgSecretsHandler::new(self)
+    }
+
+    /// Client for GitHub's organization variables API.
+    ///
+    /// See: https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28
+    pub fn variables(&self) -> OrgVariablesHandler<'_> {
+        OrgVariablesHandler::new(self)
     }
 
     /// ### Get interaction restrictions for an organization

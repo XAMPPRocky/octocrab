@@ -180,4 +180,12 @@ impl<'octo> RepoVariablesHandler<'octo> {
         crate::map_github_error(resp).await?;
         Ok(())
     }
+
+    /// Lists organization variables available to this repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#list-repository-organization-variables)
+    pub async fn list_org_variables(&self) -> crate::Result<RepoVariables> {
+        let route = format!("/{}/actions/organization-variables", self.handler.repo);
+        self.handler.crab.get(route, Some(&self)).await
+    }
 }
