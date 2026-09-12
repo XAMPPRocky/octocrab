@@ -324,8 +324,8 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, commits, current, enterprises,
-        events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, projects,
-        pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
+        events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown, orgs, packages,
+        projects, pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1701,6 +1701,16 @@ impl Octocrab {
     /// List all public repositories in the order that they were created (alias for [`all_repositories`][Octocrab::all_repositories]).
     pub fn repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
         self.all_repositories()
+    }
+
+    /// Creates a [`packages::PackagesHandler`] providing GitHub's Packages API.
+    ///
+    /// By default, operations are scoped to the authenticated user (`/user`).
+    /// You can scope to an organization or user using [`.org()`][packages::PackagesHandler::org]
+    /// or [`.user()`][packages::PackagesHandler::user], or via [`Octocrab::orgs`], [`Octocrab::users`],
+    /// or [`Octocrab::current`].
+    pub fn packages(&self) -> packages::PackagesHandler<'_> {
+        packages::PackagesHandler::new(self, packages::PackagesOwner::AuthenticatedUser)
     }
 
     /// Creates a [`projects::ProjectHandler`] that allows you to access GitHub's

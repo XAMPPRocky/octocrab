@@ -50,6 +50,16 @@ impl<'octo> CurrentAuthHandler<'octo> {
         self.crab.patch("/user", Some(&params)).await
     }
 
+    /// Handle packages for the authenticated user.
+    ///
+    /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
+    pub fn packages(&self) -> crate::api::packages::PackagesHandler<'octo> {
+        crate::api::packages::PackagesHandler::new(
+            self.crab,
+            crate::api::packages::PackagesOwner::AuthenticatedUser,
+        )
+    }
+
     /// Fetches information about the currently authenticated app.
     ///
     /// ```no_run

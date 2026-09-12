@@ -17,6 +17,7 @@ pub mod issues;
 pub mod licenses;
 pub mod markdown;
 pub mod orgs;
+pub mod packages;
 pub mod projects;
 pub mod pulls;
 pub mod ratelimit;

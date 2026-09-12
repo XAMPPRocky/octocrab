@@ -46,6 +46,11 @@ pub enum LockReason {
     Spam,
 }
 
+pub mod packages {
+    //! Parameter types for the packages API.
+    pub use crate::models::packages::{PackageType, PackageVersionState, PackageVisibility};
+}
+
 pub mod actions {
     //! Parameter types for the actions API.
 

@@ -58,6 +58,20 @@ impl<'octo> UserHandler<'octo> {
         Self { crab, user }
     }
 
+    /// Handle packages for this user.
+    ///
+    /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
+    pub fn packages(&self) -> crate::api::packages::PackagesHandler<'octo> {
+        let username = match &self.user {
+            UserRef::ByString(name) => name.clone(),
+            UserRef::ById(id) => id.to_string(),
+        };
+        crate::api::packages::PackagesHandler::new(
+            self.crab,
+            crate::api::packages::PackagesOwner::User(username),
+        )
+    }
+
     /// Get this users profile info
     pub async fn profile(&self) -> crate::Result<crate::models::UserProfile> {
         // build the route to get info on this user

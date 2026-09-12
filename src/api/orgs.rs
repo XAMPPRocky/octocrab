@@ -61,6 +61,16 @@ impl<'octo> OrgHandler<'octo> {
         Self { crab, owner }
     }
 
+    /// Handle packages for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
+    pub fn packages(&self) -> crate::api::packages::PackagesHandler<'octo> {
+        crate::api::packages::PackagesHandler::new(
+            self.crab,
+            crate::api::packages::PackagesOwner::Org(self.owner.clone()),
+        )
+    }
+
     /// Handle security advisories for the organization.
     ///
     /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#list-repository-security-advisories-for-an-organization
