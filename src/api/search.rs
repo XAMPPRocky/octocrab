@@ -113,6 +113,79 @@ impl<'octo> SearchHandler<'octo> {
     ) -> QueryHandler<'octo, 'query, models::Code> {
         QueryHandler::new(self.crab, "code", query.as_ref())
     }
+
+    /// Searches for all the issues matching the search query.
+    ///
+    /// Alias for [`SearchHandler::issues_and_pull_requests`].
+    ///
+    /// See <https://docs.github.com/en/rest/search/search#search-issues-and-pull-requests>
+    ///
+    /// ```no_run
+    ///# async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .search()
+    ///     .issues("GitHub Octocrab in:readme user:ferris")
+    ///     .sort("comments")
+    ///     .order("asc")
+    ///     .send()
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn issues<'query>(
+        self,
+        query: &'query (impl AsRef<str> + ?Sized),
+    ) -> QueryHandler<'octo, 'query, models::issues::Issue> {
+        self.issues_and_pull_requests(query)
+    }
+
+    /// Searches for all labels in a repository matching the search query.
+    ///
+    /// See <https://docs.github.com/en/rest/search/search#search-labels>
+    ///
+    /// ```no_run
+    ///# async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .search()
+    ///     .labels(260152030, "bug")
+    ///     .sort("created")
+    ///     .order("desc")
+    ///     .send()
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn labels<'query>(
+        self,
+        repository_id: impl Into<models::RepositoryId>,
+        query: &'query (impl AsRef<str> + ?Sized),
+    ) -> QueryHandler<'octo, 'query, models::search::LabelSearchResultItem> {
+        let mut handler = QueryHandler::new(self.crab, "labels", query.as_ref());
+        handler.repository_id = Some(repository_id.into());
+        handler
+    }
+
+    /// Searches for all topics matching the search query.
+    ///
+    /// See <https://docs.github.com/en/rest/search/search#search-topics>
+    ///
+    /// ```no_run
+    ///# async fn run() -> octocrab::Result<()> {
+    /// let page = octocrab::instance()
+    ///     .search()
+    ///     .topics("rust")
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn topics<'query>(
+        self,
+        query: &'query (impl AsRef<str> + ?Sized),
+    ) -> QueryHandler<'octo, 'query, models::search::TopicSearchResultItem> {
+        QueryHandler::new(self.crab, "topics", query.as_ref())
+    }
 }
 
 /// A handler for handling search queries to GitHub.
@@ -126,7 +199,11 @@ pub struct QueryHandler<'octo, 'query, T> {
     route: &'static str,
     #[serde(rename = "q")]
     query: &'query str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repository_id: Option<models::RepositoryId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<String>,
@@ -142,10 +219,17 @@ impl<'octo, 'query, T> QueryHandler<'octo, 'query, T> {
             page: None,
             per_page: None,
             query,
+            repository_id: None,
             return_type: std::marker::PhantomData,
             route,
             sort: None,
         }
+    }
+
+    /// Sets the `repository_id` parameter for the query (required for searching labels).
+    pub fn repository_id(mut self, repository_id: impl Into<models::RepositoryId>) -> Self {
+        self.repository_id = Some(repository_id.into());
+        self
     }
 
     /// Sets the `sort` parameter for the query. The exact parameters for this

@@ -1,0 +1,16 @@
+{
+  "total_count": 1,
+  "incomplete_results": false,
+  "items": [
+    {
+      "id": 2026358297,
+      "node_id": "MDU6TGFiZWwyMDI2MzU4Mjk3",
+      "url": "https://api.github.com/repos/XAMPPRocky/octocrab/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "score": 1.0
+    }
+  ]
+}
