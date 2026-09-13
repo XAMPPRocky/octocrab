@@ -20,6 +20,7 @@ mod commits;
 mod contributors;
 pub mod custom_properties;
 mod dependabot;
+pub mod dependency_graph;
 pub mod deployments;
 mod dispatches;
 pub mod environments;
@@ -87,6 +88,7 @@ pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
 pub use custom_properties::RepoCustomPropertiesHandler;
 pub use dependabot::RepoDependabotAlertsHandler;
+pub use dependency_graph::{CompareDependenciesBuilder, RepoDependencyGraphHandler};
 pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
@@ -1068,9 +1070,14 @@ impl<'octo> RepoHandler<'octo> {
         self.secrets_scanning()
     }
 
+    /// Handle dependency graph for the repository
+    pub fn dependency_graph(&self) -> RepoDependencyGraphHandler<'octo> {
+        RepoDependencyGraphHandler::new(self.crab, self.repo.clone())
+    }
+
     /// Handle SBOM report generation
-    pub fn sbom(&self) -> RepoSbomHandler<'_> {
-        RepoSbomHandler::new(self)
+    pub fn sbom(&self) -> RepoSbomHandler<'octo> {
+        RepoSbomHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle repository security advisories
