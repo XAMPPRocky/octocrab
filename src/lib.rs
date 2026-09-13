@@ -330,8 +330,8 @@ pub use self::{
     api::{
         actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
         copilot, current, dependency_graph, enterprises, events, gist_comments, gists, gitignore,
-        hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls, ratelimit, repos,
-        search, security_advisories, teams, users, workflows,
+        hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls, ratelimit,
+        repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
