@@ -86,7 +86,18 @@ pub mod issues;
 pub mod memberships;
 pub mod meta;
 pub mod orgs;
+/// Preserved for backwards compatibility. Use [`copilot`] for the standard tag namespace.
 pub mod orgs_copilot;
+pub mod copilot {
+    pub use super::orgs_copilot::*;
+    pub use billing::*;
+    pub use metrics::*;
+}
+pub use copilot::billing::{
+    CopilotBilling, CopilotBillingSeats, CopilotSeat, CopilotSeatBreakdown, SeatsCancelled,
+    SeatsCreated,
+};
+pub use copilot::metrics::CopilotMetrics;
 pub mod packages;
 pub mod pulls;
 pub mod reactions;

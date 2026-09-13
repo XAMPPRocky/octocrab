@@ -2,8 +2,8 @@
 
 mod code_scanning;
 pub mod codespaces;
-mod copilot;
-mod copilot_seat_manager;
+pub mod copilot;
+pub mod copilot_seat_manager;
 mod custom_properties;
 pub mod dependabot;
 mod events;
@@ -435,13 +435,16 @@ impl<'octo> OrgHandler<'octo> {
         self.crab.put(route, Some(&body)).await
     }
 
-    /// Handle copilot-related calls on the organization
+    /// Handle copilot-related calls on the organization.
+    ///
+    /// Note: You can also use the top-level [`Octocrab::copilot().org(...)`][crate::Octocrab::copilot] entry point.
     ///
     /// # Examples
     /// ```no_run
-    /// async fn run() {
-    ///     let copilot_usage = octocrab::instance().orgs("org").copilot().metrics().await.expect("failed to retrieve usage");
-    /// }
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let copilot_usage = octocrab.orgs("org").copilot().metrics().await.expect("failed to retrieve usage");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn copilot(&self) -> copilot::CopilotHandler<'octo, '_> {
         copilot::CopilotHandler::new(self)

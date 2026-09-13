@@ -9,9 +9,6 @@ use super::super::*;
 //
 // For a list of available enums, refer to the "response schema" in the link above.
 //
-// missing:
-// - billing/seats misses the assigning_team field
-//
 // OAuth app tokens and personal access tokens (classic) need either the manage_billing:copilot, read:org, or read:enterprise scopes to use this endpoint.
 // Some of these permissions, as of writing, are only available to GitHub Enterprise customers and further limited to Enterprise Administrators.
 
@@ -54,11 +51,17 @@ pub struct CopilotBillingSeats {
 #[non_exhaustive]
 pub struct CopilotSeat {
     pub created_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
     pub pending_cancellation_date: Option<String>,
     pub last_activity_at: Option<DateTime<Utc>>,
     pub last_activity_editor: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_authenticated_at: Option<DateTime<Utc>>,
     pub plan_type: Option<String>,
     pub assignee: Option<SimpleUser>, // null if user has deleted their account within this billing cycle.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assigning_team: Option<crate::models::teams::Team>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
