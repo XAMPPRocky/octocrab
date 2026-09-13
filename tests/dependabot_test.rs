@@ -3,10 +3,12 @@ mod mock_error;
 use mock_error::setup_error_handler;
 use octocrab::models::dependabot::{
     DependabotAlert, DependabotAlertDismissedReason, DependabotAlertState,
-    DependabotAlertUpdateState, DependabotDefaultRepositoryAccessLevel,
-    DependabotRepositoryAccess, SelectedRepositories,
+    DependabotAlertUpdateState, DependabotDefaultRepositoryAccessLevel, DependabotRepositoryAccess,
+    SelectedRepositories,
 };
-use octocrab::models::orgs::secrets::{CreateOrganizationSecret, CreateOrganizationSecretResponse, Visibility};
+use octocrab::models::orgs::secrets::{
+    CreateOrganizationSecret, CreateOrganizationSecretResponse, Visibility,
+};
 use octocrab::models::repos::secrets::{CreateRepositorySecret, CreateRepositorySecretResponse};
 use octocrab::models::RepositoryId;
 use octocrab::params::Direction;
@@ -319,9 +321,7 @@ async fn should_list_repository_dependabot_alerts() {
         .and(query_param("scope", "runtime"))
         .and(query_param("sort", "created"))
         .and(query_param("direction", "desc"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
-            sample_dependabot_alert(1)
-        ])))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([sample_dependabot_alert(1)])))
         .mount(&mock_server)
         .await;
     setup_error_handler(&mock_server, expected_path).await;
@@ -617,9 +617,9 @@ async fn should_list_org_dependabot_alerts() {
     Mock::given(method("GET"))
         .and(path(expected_path))
         .and(query_param("state", "open"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
-            sample_dependabot_alert(10)
-        ])))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!([sample_dependabot_alert(10)])),
+        )
         .mount(&mock_server)
         .await;
     setup_error_handler(&mock_server, expected_path).await;
@@ -706,9 +706,9 @@ async fn should_list_enterprise_dependabot_alerts() {
     Mock::given(method("GET"))
         .and(path(expected_path))
         .and(query_param("state", "open"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
-            sample_dependabot_alert(99)
-        ])))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!([sample_dependabot_alert(99)])),
+        )
         .mount(&mock_server)
         .await;
     setup_error_handler(&mock_server, expected_path).await;

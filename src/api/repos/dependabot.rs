@@ -420,7 +420,10 @@ impl<'octo, 'r> UpdateRepoDependabotAlertBuilder<'octo, 'r> {
 
     /// Sends the update request.
     pub async fn send(self) -> Result<DependabotAlert> {
-        let route = format!("/{}/dependabot/alerts/{}", self.handler.repo, self.alert_number);
+        let route = format!(
+            "/{}/dependabot/alerts/{}",
+            self.handler.repo, self.alert_number
+        );
         self.handler.crab.patch(route, Some(&self)).await
     }
 }

@@ -1,7 +1,5 @@
 use http::header::ACCEPT;
-use octocrab::models::dependabot::{
-    DependabotAlertDismissedReason, DependabotAlertUpdateState,
-};
+use octocrab::models::dependabot::{DependabotAlertDismissedReason, DependabotAlertUpdateState};
 use octocrab::params::Direction;
 use octocrab::Octocrab;
 

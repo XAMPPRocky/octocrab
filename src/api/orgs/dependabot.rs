@@ -497,10 +497,7 @@ impl<'octo, 'r> ListOrgDependabotRepositoryAccessBuilder<'octo, 'r> {
 
     /// Sends the request and returns the repository access configuration.
     pub async fn send(self) -> Result<DependabotRepositoryAccess> {
-        let route = format!(
-            "/orgs/{}/dependabot/repository-access",
-            self.handler.owner
-        );
+        let route = format!("/orgs/{}/dependabot/repository-access", self.handler.owner);
         self.handler.crab.get(route, Some(&self)).await
     }
 }
@@ -547,10 +544,7 @@ impl<'octo, 'r> UpdateOrgDependabotRepositoryAccessBuilder<'octo, 'r> {
 
     /// Sends the update request.
     pub async fn send(self) -> Result<()> {
-        let route = format!(
-            "/orgs/{}/dependabot/repository-access",
-            self.handler.owner
-        );
+        let route = format!("/orgs/{}/dependabot/repository-access", self.handler.owner);
         let body = UpdateDependabotRepositoryAccess {
             repository_ids_to_add: if self.repository_ids_to_add.is_empty() {
                 None
