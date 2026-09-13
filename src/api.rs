@@ -8,6 +8,7 @@ pub mod codes_of_conduct;
 pub mod codespaces;
 pub mod commits;
 pub mod current;
+pub mod dependency_graph;
 pub mod enterprises;
 pub mod events;
 pub mod gist_comments;
