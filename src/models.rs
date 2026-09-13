@@ -10,6 +10,14 @@ use url::Url;
 
 use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
+pub use billing::{
+    ActionsBillingUsage, BillingAiCreditUsageReport, BillingModelUsageItem,
+    BillingPremiumRequestUsageReport, BillingSummaryUsageItem, BillingTimePeriod,
+    BillingUsageReport, BillingUsageReportItem, BillingUsageSummaryReport, Budget, BudgetAlerting,
+    BudgetScope, BudgetType, CombinedBillingUsage, CreateBudget, CreateBudgetResponse,
+    DeleteBudgetResponse, EffectiveBudget, GetAllBudgets, MinutesUsedBreakdown,
+    PackagesBillingUsage, SharedStorageBillingUsage, UpdateBudget, UpdateBudgetResponse,
+};
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use packages::{
@@ -66,6 +74,7 @@ pub mod actions;
 pub mod activity;
 pub use activity::{Feeds, RepositorySubscription};
 pub mod apps;
+pub mod billing;
 pub mod checks;
 pub mod classroom;
 pub mod code_scannings;
@@ -74,6 +83,9 @@ pub mod marketplace;
 pub use codespaces::Codespace;
 pub mod codes_of_conduct;
 pub mod commits;
+pub mod dependabot;
+pub mod dependency_graph;
+pub use dependency_graph::DependencyDiff;
 pub mod events;
 pub mod gists;
 pub mod gpg_keys;
@@ -84,7 +96,18 @@ pub mod issues;
 pub mod memberships;
 pub mod meta;
 pub mod orgs;
+/// Preserved for backwards compatibility. Use [`copilot`] for the standard tag namespace.
 pub mod orgs_copilot;
+pub mod copilot {
+    pub use super::orgs_copilot::*;
+    pub use billing::*;
+    pub use metrics::*;
+}
+pub use copilot::billing::{
+    CopilotBilling, CopilotBillingSeats, CopilotSeat, CopilotSeatBreakdown, SeatsCancelled,
+    SeatsCreated,
+};
+pub use copilot::metrics::CopilotMetrics;
 pub mod packages;
 pub mod pulls;
 pub mod reactions;

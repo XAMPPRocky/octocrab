@@ -10,6 +10,7 @@ pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::activity::starring::ListReposStarredByUserBuilder;
 use crate::api::activity::watching::ListUserSubscriptionsBuilder;
+pub use crate::api::billing::ScopedBillingHandler as UserBillingHandler;
 use crate::api::events::EventsBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
@@ -56,6 +57,20 @@ pub struct UserHandler<'octo> {
 impl<'octo> UserHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, user: UserRef) -> Self {
         Self { crab, user }
+    }
+
+    /// Handle billing for this user.
+    ///
+    /// See: <https://docs.github.com/en/rest/billing?apiVersion=2022-11-28>
+    pub fn billing(&self) -> crate::api::billing::ScopedBillingHandler<'octo> {
+        let username = match &self.user {
+            UserRef::ByString(name) => name.clone(),
+            UserRef::ById(id) => id.to_string(),
+        };
+        crate::api::billing::ScopedBillingHandler::new(
+            self.crab,
+            crate::api::billing::BillingOwner::User(username),
+        )
     }
 
     /// Handle packages for this user.
