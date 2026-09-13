@@ -12,6 +12,7 @@
 //! - [`actions`] GitHub Actions
 //! - [`activity`] GitHub Activity
 //! - [`apps`] GitHub Apps
+//! - [`billing`] Billing
 //! - [`checks`] GitHub Checks
 //! - [`code_scannings`] Code Scanning
 //! - [`codespaces`] GitHub Codespaces
@@ -323,7 +324,7 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
+        actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits, current,
         enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
         orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
         users, workflows,
@@ -1708,6 +1709,14 @@ impl Octocrab {
     /// List all public repositories in the order that they were created (alias for [`all_repositories`][Octocrab::all_repositories]).
     pub fn repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
         self.all_repositories()
+    }
+
+    /// Creates a [`billing::BillingHandler`] providing GitHub's Billing API.
+    ///
+    /// You can scope to an organization or user using [`.org()`][billing::BillingHandler::org]
+    /// or [`.user()`][billing::BillingHandler::user], or via [`Octocrab::orgs`] or [`Octocrab::users`].
+    pub fn billing(&self) -> billing::BillingHandler<'_> {
+        billing::BillingHandler::new(self)
     }
 
     /// Creates a [`packages::PackagesHandler`] providing GitHub's Packages API.

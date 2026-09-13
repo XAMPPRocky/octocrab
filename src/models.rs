@@ -10,6 +10,14 @@ use url::Url;
 
 use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
+pub use billing::{
+    ActionsBillingUsage, BillingAiCreditUsageReport, BillingModelUsageItem,
+    BillingPremiumRequestUsageReport, BillingSummaryUsageItem, BillingTimePeriod,
+    BillingUsageReport, BillingUsageReportItem, BillingUsageSummaryReport, Budget, BudgetAlerting,
+    BudgetScope, BudgetType, CombinedBillingUsage, CreateBudget, CreateBudgetResponse,
+    DeleteBudgetResponse, EffectiveBudget, GetAllBudgets, MinutesUsedBreakdown,
+    PackagesBillingUsage, SharedStorageBillingUsage, UpdateBudget, UpdateBudgetResponse,
+};
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
 pub use packages::{
@@ -66,6 +74,7 @@ pub mod actions;
 pub mod activity;
 pub use activity::{Feeds, RepositorySubscription};
 pub mod apps;
+pub mod billing;
 pub mod checks;
 pub mod classroom;
 pub mod code_scannings;
