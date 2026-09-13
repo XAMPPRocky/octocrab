@@ -80,6 +80,14 @@ impl<'octo> UserHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Gets a user installation for the authenticated app.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-user-installation-for-the-authenticated-app)
+    pub async fn installation(&self) -> crate::Result<crate::models::Installation> {
+        let route = format!("/{}/installation", self.user);
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// List this users that follow this user
     pub fn followers(&self) -> ListUserFollowerBuilder<'_, '_> {
         ListUserFollowerBuilder::new(self)

@@ -209,6 +209,23 @@ impl<'octo> RepoHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Gets a repository installation for the authenticated app.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-repository-installation-for-the-authenticated-app)
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let installation = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .installation()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn installation(&self) -> Result<models::Installation> {
+        let route = format!("/{}/installation", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
     /// Fetches a repository's metrics.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

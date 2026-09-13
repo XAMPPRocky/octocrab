@@ -24,6 +24,7 @@
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
+//! - [`marketplace`] GitHub Marketplace
 //! - [`orgs`] GitHub Organisations
 //! - [`projects`] GitHub Projects
 //! - [`pulls`] Pull Requests
@@ -325,8 +326,8 @@ pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
         enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
-        orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
-        users, workflows,
+        marketplace, orgs, packages, projects, pulls, ratelimit, repos, search,
+        security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1520,6 +1521,16 @@ impl Octocrab {
     /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
     pub fn apps(&self) -> apps::AppsRequestHandler<'_> {
         apps::AppsRequestHandler::new(self)
+    }
+
+    /// Creates a [`marketplace::MarketplaceHandler`] for accessing GitHub Marketplace API.
+    pub fn marketplace(&self) -> marketplace::MarketplaceHandler<'_> {
+        marketplace::MarketplaceHandler::new(self)
+    }
+
+    /// Creates an [`apps::ApplicationHandler`] for managing OAuth application authorizations.
+    pub fn applications(&self, client_id: impl Into<String>) -> apps::ApplicationHandler<'_> {
+        apps::ApplicationHandler::new(self, client_id.into())
     }
 
     /// Creates a [`gitignore::GitignoreHandler`] for accessing information
