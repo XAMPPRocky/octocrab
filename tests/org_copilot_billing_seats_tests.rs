@@ -50,6 +50,12 @@ async fn should_return_page_with_billing_seats_info() {
     let login = r.seats[0].assignee.clone().unwrap().login;
     assert_eq!(login, "octocat");
     assert_eq!(r.total_seats, 2);
+    assert!(r.seats[0].updated_at.is_some());
+    assert_eq!(
+        r.seats[0].assigning_team.as_ref().unwrap().name,
+        "Justice League"
+    );
+    assert!(r.seats[1].assigning_team.is_none());
 }
 
 #[tokio::test]

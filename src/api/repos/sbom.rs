@@ -1,20 +1,42 @@
 use http::StatusCode;
 
-use crate::models::repos::sbom::{SbomDependencyGraph, SbomFetchResponse};
-
-use super::RepoHandler;
+use crate::api::repos::RepoRef;
 use crate::from_response::FromResponse;
+use crate::models::repos::sbom::{SbomDependencyGraph, SbomFetchResponse};
+use crate::Octocrab;
 
 /// A client to GitHub's SBOM APIs.
 ///
-/// Created with [`Octocrab::repos::sbom`]
+/// Created with [`crate::api::repos::RepoHandler::sbom`]
 pub struct RepoSbomHandler<'octo> {
-    handler: &'octo RepoHandler<'octo>,
+    crab: &'octo Octocrab,
+    repo: RepoRef,
 }
 
 impl<'octo> RepoSbomHandler<'octo> {
-    pub(crate) fn new(repo: &'octo RepoHandler<'octo>) -> Self {
-        Self { handler: repo }
+    pub(crate) fn new(crab: &'octo Octocrab, repo: RepoRef) -> Self {
+        Self { crab, repo }
+    }
+
+    /// Exports the software bill of materials (SBOM) for a repository in SPDX JSON format.
+    ///
+    /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependency-graph/sboms?apiVersion=2022-11-28#export-a-software-bill-of-materials-sbom-for-a-repository)
+    #[deprecated(
+        note = "This operation is closing down and will not be accessible after November 13, 2026. Please migrate to the asynchronous flow using generate_report and fetch_report."
+    )]
+    #[allow(deprecated)]
+    pub async fn export(&self) -> crate::Result<crate::models::dependency_graph::Sbom> {
+        let route = format!("/{}/dependency-graph/sbom", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Shortcut for [`Self::export`].
+    #[deprecated(
+        note = "This operation is closing down and will not be accessible after November 13, 2026. Please migrate to the asynchronous flow using generate_report and fetch_report."
+    )]
+    #[allow(deprecated)]
+    pub async fn get(&self) -> crate::Result<crate::models::dependency_graph::Sbom> {
+        self.export().await
     }
 
     /// Trigger the report generation, and get the URL for accessing that
@@ -35,11 +57,8 @@ impl<'octo> RepoSbomHandler<'octo> {
         &self,
     ) -> crate::Result<crate::models::repos::sbom::SbomGenerateReportResponse> {
         // Fetch the SBOM URL
-        let route = format!(
-            "/{}/dependency-graph/sbom/generate-report",
-            self.handler.repo
-        );
-        self.handler.crab.get(route, None::<&()>).await
+        let route = format!("/{}/dependency-graph/sbom/generate-report", self.repo);
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Fetch the generated report, or report back that it's not ready.
@@ -104,11 +123,10 @@ impl<'octo> RepoSbomHandler<'octo> {
 
             // Make the call
             let response = self
-                .handler
                 .crab
                 ._get(format!(
                     "/{}/dependency-graph/sbom/fetch-report/{}",
-                    self.handler.repo, report_uuid
+                    self.repo, report_uuid
                 ))
                 .await?;
 
