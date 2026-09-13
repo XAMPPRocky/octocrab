@@ -189,7 +189,11 @@ async fn should_get_actions_billing_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_actions_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /orgs/{org}/settings/billing/actions was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /orgs/{org}/settings/billing/actions was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -203,7 +207,10 @@ async fn should_get_actions_billing_for_org() {
     assert_eq!(usage1.minutes_used_breakdown.windows, Some(90));
     assert_eq!(usage1.minutes_used_breakdown.total, Some(310));
     // Verify extra unrecognized runner tier captured in `extra`
-    assert_eq!(usage1.minutes_used_breakdown.extra.get("macos_14_core"), Some(&5));
+    assert_eq!(
+        usage1.minutes_used_breakdown.extra.get("macos_14_core"),
+        Some(&5)
+    );
 
     // Via billing().org("...")
     let usage2 = client.billing().org(ORG).actions().await.unwrap();
@@ -220,7 +227,11 @@ async fn should_get_actions_billing_for_user() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_actions_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /users/{user}/settings/billing/actions was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /users/{user}/settings/billing/actions was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -247,7 +258,11 @@ async fn should_get_packages_billing_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_packages_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /orgs/{org}/settings/billing/packages was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /orgs/{org}/settings/billing/packages was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -270,7 +285,11 @@ async fn should_get_packages_billing_for_user() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_packages_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /users/{user}/settings/billing/packages was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /users/{user}/settings/billing/packages was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -295,7 +314,11 @@ async fn should_get_shared_storage_billing_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_shared_storage_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /orgs/{org}/settings/billing/shared-storage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /orgs/{org}/settings/billing/shared-storage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -318,7 +341,11 @@ async fn should_get_shared_storage_billing_for_user() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_shared_storage_billing()))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /users/{user}/settings/billing/shared-storage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /users/{user}/settings/billing/shared-storage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -346,7 +373,11 @@ async fn should_get_billing_usage_report_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_usage_report(ORG, true)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/usage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/usage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -362,7 +393,10 @@ async fn should_get_billing_usage_report_for_org() {
 
     assert_eq!(report.usage_items.len(), 1);
     assert_eq!(report.usage_items[0].product, "Actions");
-    assert_eq!(report.usage_items[0].organization_name.as_deref(), Some(ORG));
+    assert_eq!(
+        report.usage_items[0].organization_name.as_deref(),
+        Some(ORG)
+    );
 }
 
 #[tokio::test]
@@ -377,7 +411,11 @@ async fn should_get_billing_usage_report_for_user() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_usage_report(USER, false)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /users/{user}/settings/billing/usage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /users/{user}/settings/billing/usage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -411,7 +449,11 @@ async fn should_get_billing_usage_summary_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_usage_summary(ORG, true)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/usage/summary was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/usage/summary was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -444,7 +486,11 @@ async fn should_get_billing_usage_summary_for_user() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_usage_summary(USER, false)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /users/{user}/settings/billing/usage/summary was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /users/{user}/settings/billing/usage/summary was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -475,7 +521,11 @@ async fn should_get_ai_credit_usage_report() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_ai_credit_usage(ORG, true)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/ai_credit/usage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/ai_credit/usage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -508,10 +558,16 @@ async fn should_get_premium_request_usage_report() {
         .and(query_param("user", "mona"))
         .and(query_param("model", "claude-3-5-sonnet"))
         .and(query_param("product", "Copilot"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(sample_premium_request_usage(ORG, true)))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(sample_premium_request_usage(ORG, true)),
+        )
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/premium_request/usage was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/premium_request/usage was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -552,7 +608,11 @@ async fn should_list_budgets_for_org() {
         })))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/budgets was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/budgets was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -588,7 +648,11 @@ async fn should_create_budget_for_org() {
         })))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "POST /organizations/{org}/settings/billing/budgets was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "POST /organizations/{org}/settings/billing/budgets was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -607,7 +671,13 @@ async fn should_create_budget_for_org() {
         expires_at: None,
     };
 
-    let res = client.orgs(ORG).billing().budgets().create(&payload).await.unwrap();
+    let res = client
+        .orgs(ORG)
+        .billing()
+        .budgets()
+        .create(&payload)
+        .await
+        .unwrap();
     assert_eq!(res.message, "Budget created successfully");
     assert_eq!(res.budget.id, "b-2");
 }
@@ -623,11 +693,21 @@ async fn should_get_budget_by_id_for_org() {
         .respond_with(ResponseTemplate::new(200).set_body_json(sample_budget(budget_id)))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "GET /organizations/{org}/settings/billing/budgets/{budget_id} was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "GET /organizations/{org}/settings/billing/budgets/{budget_id} was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
-    let budget = client.orgs(ORG).billing().budgets().get(budget_id).await.unwrap();
+    let budget = client
+        .orgs(ORG)
+        .billing()
+        .budgets()
+        .get(budget_id)
+        .await
+        .unwrap();
     assert_eq!(budget.id, budget_id);
     assert_eq!(budget.budget_amount, 500);
 }
@@ -650,7 +730,11 @@ async fn should_update_budget_for_org() {
         })))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "PATCH /organizations/{org}/settings/billing/budgets/{budget_id} was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "PATCH /organizations/{org}/settings/billing/budgets/{budget_id} was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
@@ -684,11 +768,21 @@ async fn should_delete_budget_for_org() {
         })))
         .mount(&mock_server)
         .await;
-    setup_error_handler(&mock_server, "DELETE /organizations/{org}/settings/billing/budgets/{budget_id} was not received").await;
+    setup_error_handler(
+        &mock_server,
+        "DELETE /organizations/{org}/settings/billing/budgets/{budget_id} was not received",
+    )
+    .await;
 
     let client = setup_octocrab(&mock_server.uri());
 
-    let res = client.orgs(ORG).billing().budgets().delete(budget_id).await.unwrap();
+    let res = client
+        .orgs(ORG)
+        .billing()
+        .budgets()
+        .delete(budget_id)
+        .await
+        .unwrap();
     assert_eq!(res.id, budget_id);
 }
 

@@ -6,11 +6,11 @@ use http::StatusCode;
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 pub use self::hovercard::HovercardBuilder;
-pub use crate::api::billing::ScopedBillingHandler as UserBillingHandler;
 pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::activity::starring::ListReposStarredByUserBuilder;
 use crate::api::activity::watching::ListUserSubscriptionsBuilder;
+pub use crate::api::billing::ScopedBillingHandler as UserBillingHandler;
 use crate::api::events::EventsBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;

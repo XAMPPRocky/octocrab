@@ -327,10 +327,10 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits, current, copilot,
-        dependency_graph, enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
-        orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
-        users, workflows,
+        actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
+        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, gitignore,
+        hooks, issues, licenses, markdown, orgs, packages, projects, pulls, ratelimit, repos,
+        search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,

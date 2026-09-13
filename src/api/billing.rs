@@ -383,7 +383,10 @@ impl<'octo, 'r> GetBillingPremiumRequestUsageBuilder<'octo, 'r> {
     }
 
     pub async fn send(self) -> Result<BillingPremiumRequestUsageReport> {
-        let route = format!("{}/premium_request/usage", self.handler.owner.usage_prefix());
+        let route = format!(
+            "{}/premium_request/usage",
+            self.handler.owner.usage_prefix()
+        );
         self.handler.crab.get(route, Some(&self)).await
     }
 }
