@@ -151,7 +151,7 @@ impl<'octo> TeamHandler<'octo> {
     /// List the child teams of a team in the organization.
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
-    /// octocrab::instance()
+    /// octocrab
     ///     .teams("owner")
     ///     .list_children("parent-team")
     ///     .per_page(5)
@@ -174,7 +174,7 @@ impl<'octo> TeamHandler<'octo> {
     /// List the members of a team in the organization.
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
-    /// octocrab::instance()
+    /// octocrab
     ///     .teams("owner")
     ///     .members("team-name-here")
     ///     .per_page(5)
@@ -191,7 +191,7 @@ impl<'octo> TeamHandler<'octo> {
     /// List the pending invitations for a team in an organization.
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
-    /// octocrab::instance()
+    /// octocrab
     ///     .teams("owner")
     ///     .invitations("team-name-here")
     ///     .per_page(5)
