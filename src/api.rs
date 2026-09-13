@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod activity;
 pub mod apps;
+pub mod billing;
 pub mod checks;
 pub mod classroom;
 pub mod code_scannings;

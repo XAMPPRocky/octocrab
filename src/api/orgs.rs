@@ -43,6 +43,7 @@ pub use self::rulesets::{
 pub use self::secret_scanning_alerts::OrgSecretScanningAlertsHandler;
 pub use self::secrets::OrgSecretsHandler;
 pub use self::variables::OrgVariablesHandler;
+pub use crate::api::billing::ScopedBillingHandler as OrgBillingHandler;
 pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
 use crate::models::interaction_limits;
@@ -65,6 +66,16 @@ pub struct OrgHandler<'octo> {
 impl<'octo> OrgHandler<'octo> {
     pub(crate) fn new(crab: &'octo Octocrab, owner: String) -> Self {
         Self { crab, owner }
+    }
+
+    /// Handle billing for the organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/billing?apiVersion=2022-11-28>
+    pub fn billing(&self) -> crate::api::billing::ScopedBillingHandler<'octo> {
+        crate::api::billing::ScopedBillingHandler::new(
+            self.crab,
+            crate::api::billing::BillingOwner::Org(self.owner.clone()),
+        )
     }
 
     /// Handle packages for the organization.
