@@ -7,6 +7,7 @@ pub mod code_scannings;
 pub mod codes_of_conduct;
 pub mod codespaces;
 pub mod commits;
+pub mod copilot;
 pub mod current;
 pub mod enterprises;
 pub mod events;

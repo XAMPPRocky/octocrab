@@ -15,6 +15,7 @@
 //! - [`checks`] GitHub Checks
 //! - [`code_scannings`] Code Scanning
 //! - [`codespaces`] GitHub Codespaces
+//! - [`copilot`] GitHub Copilot
 //! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
 //! - [`events`] GitHub Events
@@ -323,8 +324,8 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
-        enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
+        actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, copilot,
+        current, enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
         orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
         users, workflows,
     },
@@ -1510,6 +1511,12 @@ impl Octocrab {
     /// GitHub's Codespaces API for the authenticated user.
     pub fn codespaces(&self) -> codespaces::CodespacesHandler<'_> {
         codespaces::CodespacesHandler::new(self)
+    }
+
+    /// Creates a [`copilot::CopilotHandler`] that allows you to access
+    /// GitHub's Copilot API.
+    pub fn copilot(&self) -> copilot::CopilotHandler<'_> {
+        copilot::CopilotHandler::new(self)
     }
 
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
