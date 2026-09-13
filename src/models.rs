@@ -73,6 +73,7 @@ pub mod codespaces;
 pub use codespaces::Codespace;
 pub mod codes_of_conduct;
 pub mod commits;
+pub mod dependabot;
 pub mod dependency_graph;
 pub use dependency_graph::DependencyDiff;
 pub mod events;

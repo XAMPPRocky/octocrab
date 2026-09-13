@@ -1,5 +1,6 @@
 use http::header::ACCEPT;
-use octocrab::models::repos::dependabot::UpdateDependabotAlert;
+use octocrab::models::dependabot::{DependabotAlertDismissedReason, DependabotAlertUpdateState};
+use octocrab::params::Direction;
 use octocrab::Octocrab;
 
 const OWNER: &str = "org";
@@ -38,8 +39,10 @@ async fn main() {
     let a = octocrab
         .repos(OWNER, REPO)
         .dependabot()
-        .direction("asc")
-        .get_alerts()
+        .alerts()
+        .list()
+        .direction(Direction::Ascending)
+        .send()
         .await
         .unwrap();
     println!("{a:?}");
@@ -47,7 +50,8 @@ async fn main() {
     let single_alert = octocrab
         .repos(OWNER, REPO)
         .dependabot()
-        .get_alert(5)
+        .alerts()
+        .get(5)
         .await
         .unwrap();
     println!("{single_alert:?}");
@@ -55,14 +59,12 @@ async fn main() {
     let updated_alert = octocrab
         .repos(OWNER, REPO)
         .dependabot()
-        .update_alert(
-            5,
-            Some(&UpdateDependabotAlert {
-                state: "dismissed",
-                dismissed_reason: Some("no_bandwidth"),
-                dismissed_comment: Some("I don't have time to fix this right now"),
-            }),
-        )
+        .alerts()
+        .update(5)
+        .state(DependabotAlertUpdateState::Dismissed)
+        .dismissed_reason(DependabotAlertDismissedReason::NoBandwidth)
+        .dismissed_comment("I don't have time to fix this right now")
+        .send()
         .await
         .unwrap();
     println!("{updated_alert:?}");

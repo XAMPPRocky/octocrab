@@ -5,6 +5,7 @@ pub mod codespaces;
 pub mod copilot;
 pub mod copilot_seat_manager;
 mod custom_properties;
+pub mod dependabot;
 mod events;
 mod hooks;
 mod invitations;
@@ -21,6 +22,7 @@ mod variables;
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
 pub use self::codespaces::OrgCodespacesHandler;
 pub use self::custom_properties::{ListOrgCustomPropertyValuesBuilder, OrgCustomPropertiesHandler};
+pub use self::dependabot::OrgDependabotHandler;
 pub use self::events::ListOrgEventsBuilder;
 pub use self::hooks::{ListOrgHooksBuilder, OrgHooksHandler, UpdateOrgHookBuilder};
 pub use self::invitations::{
@@ -80,6 +82,13 @@ impl<'octo> OrgHandler<'octo> {
     /// See: https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28
     pub fn codespaces(&self) -> OrgCodespacesHandler<'octo> {
         OrgCodespacesHandler::new(self.crab, self.owner.clone())
+    }
+
+    /// Handle Dependabot for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28
+    pub fn dependabot(&self) -> OrgDependabotHandler<'octo> {
+        OrgDependabotHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle security advisories for the organization.
