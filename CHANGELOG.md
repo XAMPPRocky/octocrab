@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.2](https://github.com/XAMPPRocky/octocrab/compare/v0.54.1...v0.54.2) - 2026-09-13
+
+### Added
+
+- added missing `repos` functionality #542 ([#950](https://github.com/XAMPPRocky/octocrab/pull/950))
+- added `reqwest` feature to use `reqwest` client
+
+### Changed
+
+- changed doctests to not create default octocrab instance ([#962](https://github.com/XAMPPRocky/octocrab/pull/962))
+
+### Other
+
+- added 'codespaces' tag handlers #528 ([#961](https://github.com/XAMPPRocky/octocrab/pull/961))
+- added 'actions' tag handlers #531 ([#960](https://github.com/XAMPPRocky/octocrab/pull/960))
+- added packages tag functionality #544 ([#959](https://github.com/XAMPPRocky/octocrab/pull/959))
+- added search tag functionality #548 ([#958](https://github.com/XAMPPRocky/octocrab/pull/958))
+- activity tag handler #532 ([#957](https://github.com/XAMPPRocky/octocrab/pull/957))
+- issues tag handler for #538  ([#956](https://github.com/XAMPPRocky/octocrab/pull/956))
+- added reactions tag handlers #547 ([#955](https://github.com/XAMPPRocky/octocrab/pull/955))
+- added and reorganized 'orgs' handlers for #539 ([#954](https://github.com/XAMPPRocky/octocrab/pull/954))
+- Bugfix/release plz ([#953](https://github.com/XAMPPRocky/octocrab/pull/953))
+- Disabled semver_check because cargo-semver-checks enables all features ([#952](https://github.com/XAMPPRocky/octocrab/pull/952))
+- 'repos' functionality for #542 ([#951](https://github.com/XAMPPRocky/octocrab/pull/951))
+- added missing code-scanning functionality #526 ([#949](https://github.com/XAMPPRocky/octocrab/pull/949))
+- added missing and fixed existing secret-scanning functions #549 ([#948](https://github.com/XAMPPRocky/octocrab/pull/948))
+- added secutiry advisories for #550 ([#947](https://github.com/XAMPPRocky/octocrab/pull/947))
+- added missing [users] tag functions ([#946](https://github.com/XAMPPRocky/octocrab/pull/946))
+- list any user gpg keys #552 ([#945](https://github.com/XAMPPRocky/octocrab/pull/945))
+- added meta info #543 ([#943](https://github.com/XAMPPRocky/octocrab/pull/943))
+- Feature/org teams #551 ([#942](https://github.com/XAMPPRocky/octocrab/pull/942))
+- /user/teams for #551 ([#941](https://github.com/XAMPPRocky/octocrab/pull/941))
+- solves #535 (gist comments) ([#940](https://github.com/XAMPPRocky/octocrab/pull/940))
+
 ## [0.54.1](https://github.com/XAMPPRocky/octocrab/compare/v0.54.0...v0.54.1) - 2026-07-20
 
 ### Added
