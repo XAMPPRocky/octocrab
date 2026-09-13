@@ -86,7 +86,7 @@ pub use comments::{
 pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
 pub use custom_properties::RepoCustomPropertiesHandler;
-pub use dependabot::RepoDependabotAlertsHandler;
+pub use dependabot::{RepoDependabotAlertsHandler, RepoDependabotHandler};
 pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
@@ -1053,9 +1053,9 @@ impl<'octo> RepoHandler<'octo> {
         RepoVariablesHandler::new(self)
     }
 
-    /// Handle dependabot alerts on the repository
-    pub fn dependabot(&self) -> RepoDependabotAlertsHandler<'_> {
-        RepoDependabotAlertsHandler::new(self)
+    /// Handle dependabot on the repository
+    pub fn dependabot(&self) -> RepoDependabotHandler<'octo> {
+        RepoDependabotHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle secrets scanning alerts on the repository
