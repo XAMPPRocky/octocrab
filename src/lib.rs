@@ -17,6 +17,7 @@
 //! - [`codespaces`] GitHub Codespaces
 //! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
+//! - [`dependency_graph`] Dependency Graph
 //! - [`events`] GitHub Events
 //! - [`gists`] Gists
 //! - [`gitignore`] Gitignore templates
@@ -36,6 +37,7 @@
 //!   - [`repos::codespaces`] Repository codespaces
 //!   - [`repos::comments`] Commit comments
 //!   - [`repos::custom_properties`] Repository custom property values
+//!   - [`repos::dependency_graph`] Repository dependency graph
 //!   - [`repos::deployments`] Deployments and deployment statuses
 //!   - [`repos::environments`] Environments and deployment protection rules
 //!   - [`repos::forks`] Repository forks
@@ -324,9 +326,9 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
-        enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
-        orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
-        users, workflows,
+        dependency_graph, enterprises, events, gist_comments, gists, gitignore, hooks, issues,
+        licenses, markdown, orgs, packages, projects, pulls, ratelimit, repos, search,
+        security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1575,6 +1577,16 @@ impl Octocrab {
         owner: impl Into<String>,
     ) -> code_scannings::CodeScanningHandler<'_> {
         code_scannings::CodeScanningHandler::new(self, owner.into(), None)
+    }
+
+    /// Creates a [`dependency_graph::RepoDependencyGraphHandler`] for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's Dependency Graph API.
+    pub fn dependency_graph(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> dependency_graph::RepoDependencyGraphHandler<'_> {
+        self.repos(owner, repo).dependency_graph()
     }
 
     /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
