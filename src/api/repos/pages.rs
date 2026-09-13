@@ -45,8 +45,7 @@ impl<'octo, 'r> RepoPagesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let site = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -67,8 +66,7 @@ impl<'octo, 'r> RepoPagesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::repos::{PagesBuildType, PagesSource};
     ///
     /// let site = octocrab
@@ -93,8 +91,7 @@ impl<'octo, 'r> RepoPagesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -117,8 +114,7 @@ impl<'octo, 'r> RepoPagesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -143,8 +139,7 @@ impl<'octo, 'r> RepoPagesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let health = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -236,8 +231,7 @@ impl<'octo, 'r> RepoPagesBuildsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let builds = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -260,8 +254,7 @@ impl<'octo, 'r> RepoPagesBuildsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let latest = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -283,8 +276,7 @@ impl<'octo, 'r> RepoPagesBuildsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let build = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -307,8 +299,7 @@ impl<'octo, 'r> RepoPagesBuildsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let build_status = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -343,8 +334,7 @@ impl<'octo, 'r> RepoPagesDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let deployment = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -367,8 +357,7 @@ impl<'octo, 'r> RepoPagesDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let status = octocrab
     ///     .repos("owner", "repo")
     ///     .pages()
@@ -394,8 +383,7 @@ impl<'octo, 'r> RepoPagesDeploymentsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .pages()

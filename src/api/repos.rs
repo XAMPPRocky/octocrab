@@ -773,8 +773,7 @@ impl<'octo> RepoHandler<'octo> {
     ///
     /// # Examples
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::hooks::{Hook, Config as HookConfig, ContentType as HookContentType};
     ///
     /// let config = HookConfig {

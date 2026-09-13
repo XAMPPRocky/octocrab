@@ -22,8 +22,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params::repos::TrafficInterval;
     ///
     /// let clones = octocrab.repos("owner", "repo")
@@ -46,8 +45,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params::repos::TrafficInterval;
     ///
     /// let views = octocrab.repos("owner", "repo")
@@ -70,8 +68,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let paths = octocrab.repos("owner", "repo")
     ///     .traffic()
     ///     .popular_paths()
@@ -96,8 +93,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let referrers = octocrab.repos("owner", "repo")
     ///     .traffic()
     ///     .popular_referrers()

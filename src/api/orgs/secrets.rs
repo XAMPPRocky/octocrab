@@ -23,8 +23,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     /// You must authenticate using an access token with the admin:org scope to use this endpoint.
     /// GitHub Apps must have the secrets organization permission to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let org = octocrab.orgs("owner");
     /// let secrets = org.secrets();
     /// let all_secrets = secrets.get_secrets().await?;
@@ -41,8 +40,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     // You must authenticate using an access token with the admin:org scope to use this endpoint.
     // GitHub Apps must have the secrets organization permission to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let org = octocrab.orgs("owner");
     /// let secrets = org.secrets();
     /// let public_key = secrets.get_public_key().await?;
@@ -57,8 +55,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     /// You must authenticate using an access token with the admin:org scope to use this endpoint.
     /// GitHub Apps must have the secrets organization permission to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let org = octocrab.orgs("owner");
     /// let secrets = org.secrets();
     /// let secret_info = secrets.get_secret("TOKEN").await?;
@@ -81,8 +78,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     /// You must authenticate using an access token with the admin:org scope to use this endpoint.
     /// GitHub Apps must have the secrets organization permission to use this endpoint
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::orgs::secrets::{
     ///     CreateOrganizationSecret, CreateOrganizationSecretResponse,
     ///     Visibility
@@ -137,8 +133,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     /// You must authenticate using an access token with the admin:org scope to use this endpoint.
     /// GitHub Apps must have the secrets organization permission to use this endpoint
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let org = octocrab.orgs("owner");
     /// let secrets = org.secrets();
     ///

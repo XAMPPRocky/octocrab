@@ -65,8 +65,7 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Checks if a given pull request has been merged.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.pulls("owner", "repo").is_merged(101).await?;
     /// # Ok(())
     /// # }
@@ -90,8 +89,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Update the branch of a pull request.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.pulls("owner", "repo").update_branch(101).await?;
     /// # Ok(())
     /// # }
@@ -215,8 +213,7 @@ impl<'octo> PullRequestHandler<'octo> {
     ///   submit a pull request to one repository that requests a merge to a
     ///   base of another repository.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let pr = octocrab
     ///     .pulls("owner", "repo")
     ///     .create("title", "head", "base")
@@ -239,8 +236,7 @@ impl<'octo> PullRequestHandler<'octo> {
     ///
     /// - `pull_number` — pull request number.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let pr = octocrab
     ///     .pulls("owner", "repo")
     ///     .update(1)
@@ -257,8 +253,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
     /// listing pulling requests.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let page = octocrab.pulls("owner", "repo").list()
@@ -376,8 +371,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// filter `Comments` for a particular pull request. If no pull request is
     /// specified, lists comments for the whole repo.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let page = octocrab.pulls("owner", "repo").list_comments(Some(5))
@@ -402,8 +396,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// ```no_run
     ///  use octocrab::models::CommentId;
     /// use octocrab::models::pulls::Comment;
-    ///  async fn run() -> octocrab::Result<Comment> {
-    ///     let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<Comment> {
     ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(21)).delete();
     ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(42)).update("new comment");
     ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get().await;
@@ -422,8 +415,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let reactions = octocrab.pulls("owner", "repo")
     ///     .list_comment_reactions(1)
     ///     .per_page(100)
@@ -447,8 +439,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.pulls("owner", "repo")
     ///     .create_comment_reaction(1, octocrab::models::reactions::ReactionContent::PlusOne)
     ///     .await?;
@@ -478,8 +469,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.pulls("owner", "repo")
     ///     .delete_comment_reaction(1, 1)
     ///     .await?;
@@ -559,8 +549,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Creates a reply to a specific comment of a pull request specified in the first argument
     /// ```no_run
     /// # use octocrab::models::CommentId;
-    ///  async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let page = octocrab.pulls("owner", "repo").reply_to_comment(142, CommentId(24), "This is my reply")
@@ -610,8 +599,7 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
     /// merge a pull request.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let page = octocrab.pulls("owner", "repo").merge(20)

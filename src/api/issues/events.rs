@@ -21,8 +21,7 @@ impl<'octo, 'r> IssueEventsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let events = octocrab.issues("owner", "repo")
     ///     .events()
     ///     .list()
@@ -44,8 +43,7 @@ impl<'octo, 'r> IssueEventsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let event = octocrab.issues("owner", "repo")
     ///     .events()
     ///     .get(1u64)
@@ -69,8 +67,7 @@ impl<'octo, 'r> IssueEventsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let events = octocrab.issues("owner", "repo")
     ///     .events()
     ///     .list_for_issue(1)

@@ -23,8 +23,7 @@ impl<'octo, 'r> RepoTopicsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let topics = octocrab.repos("owner", "repo")
     ///     .topics()
     ///     .get()
@@ -43,8 +42,7 @@ impl<'octo, 'r> RepoTopicsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let topics = octocrab.repos("owner", "repo")
     ///     .topics()
     ///     .list()
@@ -68,8 +66,7 @@ impl<'octo, 'r> RepoTopicsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let topics = octocrab.repos("owner", "repo")
     ///     .topics()
     ///     .replace(["rust", "api"])

@@ -33,8 +33,7 @@ impl<'octo, 'r> RepoBranchesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let branches = octocrab
     ///     .repos("owner", "repo")
     ///     .branches()
@@ -57,8 +56,7 @@ impl<'octo, 'r> RepoBranchesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let branch = octocrab
     ///     .repos("owner", "repo")
     ///     .branches()
@@ -79,8 +77,7 @@ impl<'octo, 'r> RepoBranchesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let branch = octocrab
     ///     .repos("owner", "repo")
     ///     .branches()
@@ -199,8 +196,7 @@ impl<'octo, 'r> RepoBranchProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let protection = octocrab
     ///     .repos("owner", "repo")
     ///     .branches()
@@ -222,8 +218,7 @@ impl<'octo, 'r> RepoBranchProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let protection = octocrab
     ///     .repos("owner", "repo")
     ///     .branches()
@@ -247,8 +242,7 @@ impl<'octo, 'r> RepoBranchProtectionHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .branches()

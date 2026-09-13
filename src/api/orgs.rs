@@ -177,8 +177,7 @@ impl<'octo> OrgHandler<'octo> {
     ///   been made an organization owner. If the authenticated user changes an
     ///   owner's role to member, no email will be sent.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let invitation = octocrab.orgs("owner").add_or_update_membership("ferris", None).await?;
     /// # Ok(())
     /// # }
@@ -202,8 +201,7 @@ impl<'octo> OrgHandler<'octo> {
     /// Check if a user is, publicly or privately, a member of the organization.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// assert!(octocrab.orgs("owner").check_membership("ferris").await?);
     /// # Ok(())
     /// # }
@@ -237,8 +235,7 @@ impl<'octo> OrgHandler<'octo> {
     /// requires all members, billing managers, and outside collaborators to
     /// enable two-factor authentication.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let org = octocrab.orgs("owner").get().await?;
     /// # Ok(())
     /// # }
@@ -313,8 +310,7 @@ impl<'octo> OrgHandler<'octo> {
     ///
     /// # Examples
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::hooks::{Hook, Config as HookConfig, ContentType as HookContentType};
     ///
     /// let config = HookConfig {
@@ -362,8 +358,7 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle secrets on the organizaton
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let octocrab = octocrab::instance();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let secrets = octocrab.orgs("org").secrets();
     /// # Ok(())
     /// # }

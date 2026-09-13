@@ -20,8 +20,7 @@ impl<'octo> CodeScanningHandler<'octo> {
 
     /// Gets an code scanning from the repository.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let code_scanning = octocrab.code_scannings("owner", "repo").get(3).await?;
     /// # Ok(())
     /// # }
@@ -46,8 +45,7 @@ impl<'octo> CodeScanningHandler<'octo> {
     /// ```no_run
     /// # use octocrab::params;
     ///
-    ///  async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models;
     ///
     /// let issue = octocrab.code_scannings("owner", "repo")

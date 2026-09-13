@@ -29,8 +29,7 @@ impl<'octo, 'r> ReleaseAssetsHandler<'octo, 'r> {
     }
     /// Creates a new [`UpdateReleaseAssetBuilder`] with `asset_id`.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let release = octocrab.repos("owner", "repo")
     ///     .release_assets()
     ///     .update(1)

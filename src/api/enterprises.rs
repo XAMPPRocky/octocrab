@@ -48,8 +48,7 @@ impl<'octo> EnterpriseSecretScanningAlertsHandler<'octo> {
     /// Lists secret scanning alerts for eligible repositories in an enterprise.
     /// You must authenticate using an access token with the `repo` or `security_events` scope to use this endpoint.
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let alerts = octocrab.enterprises("my-enterprise")
     ///     .secret_scanning()
     ///     .direction("asc")

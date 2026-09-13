@@ -70,8 +70,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// Fetches information about the currently authenticated app.
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
     /// let app = octocrab
     ///     .current()

@@ -22,8 +22,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let milestones = octocrab.issues("owner", "repo")
@@ -50,8 +49,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let milestone = octocrab.issues("owner", "repo")
     ///     .milestones()
     ///     .create("v1.0")
@@ -72,8 +70,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let milestone = octocrab.issues("owner", "repo")
     ///     .milestones()
     ///     .get(1)
@@ -97,8 +94,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
     ///
     /// let milestone = octocrab.issues("owner", "repo")
@@ -122,8 +118,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.issues("owner", "repo")
     ///     .milestones()
     ///     .delete(1)
@@ -148,8 +143,7 @@ impl<'octo, 'r> MilestonesHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let labels = octocrab.issues("owner", "repo")
     ///     .milestones()
     ///     .list_labels(1)

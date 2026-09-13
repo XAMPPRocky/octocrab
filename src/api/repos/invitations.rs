@@ -32,8 +32,7 @@ impl<'octo, 'r> RepoInvitationsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let invitations = octocrab
     ///     .repos("owner", "repo")
     ///     .invitations()
@@ -55,8 +54,7 @@ impl<'octo, 'r> RepoInvitationsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::models::repos::InvitationPermission;
     ///
     /// let updated = octocrab
@@ -83,8 +81,7 @@ impl<'octo, 'r> RepoInvitationsHandler<'octo, 'r> {
     /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// # let octocrab = octocrab::Octocrab::default();
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab
     ///     .repos("owner", "repo")
     ///     .invitations()
