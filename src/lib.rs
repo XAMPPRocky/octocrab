@@ -22,6 +22,7 @@
 //! - [`dependency_graph`] Dependency Graph
 //! - [`events`] GitHub Events
 //! - [`gists`] Gists
+//! - [`git`] GitHub Git Database API
 //! - [`gitignore`] Gitignore templates
 //! - [`Octocrab::graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
@@ -329,9 +330,9 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 pub use self::{
     api::{
         actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
-        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, gitignore,
-        hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls, ratelimit,
-        repos, search, security_advisories, teams, users, workflows,
+        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, git,
+        gitignore, hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls,
+        ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1711,6 +1712,34 @@ impl Octocrab {
     /// See [`Octocrab::repos`] for details on available repository operations.
     pub fn repos_by_id(&self, id: impl Into<RepositoryId>) -> repos::RepoHandler<'_> {
         repos::RepoHandler::new(self, RepoRef::ById(id.into()))
+    }
+
+    /// Creates a [`git::GitHandler`] for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's Git database API.
+    ///
+    /// Provides access to Git blobs, commits, references, tags, and trees.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let master = octocrab
+    ///     .git("owner", "repo")
+    ///     .get_ref(&octocrab::params::repos::Reference::Branch("master".to_string()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn git(&self, owner: impl Into<String>, repo: impl Into<String>) -> git::GitHandler<'_> {
+        git::GitHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`git::GitHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's Git database API.
+    ///
+    /// See [`Octocrab::git`] for details on available Git database operations.
+    pub fn git_by_id(&self, id: impl Into<RepositoryId>) -> git::GitHandler<'_> {
+        git::GitHandler::new(self, RepoRef::ById(id.into()))
     }
 
     /// List all public repositories in the order that they were created.

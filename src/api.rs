@@ -15,6 +15,7 @@ pub mod enterprises;
 pub mod events;
 pub mod gist_comments;
 pub mod gists;
+pub mod git;
 pub mod gitignore;
 pub mod hooks;
 pub mod issues;

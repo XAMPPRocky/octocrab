@@ -87,6 +87,8 @@ pub mod dependabot;
 pub mod dependency_graph;
 pub use dependency_graph::DependencyDiff;
 pub mod events;
+pub mod git;
+pub use git::{CreateTreeEntry, CreatedBlob, GitBlob, GitTree, GitTreeEntry, TagObject};
 pub mod gists;
 pub mod gpg_keys;
 pub mod hooks;
