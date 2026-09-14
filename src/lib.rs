@@ -22,6 +22,7 @@
 //! - [`dependency_graph`] Dependency Graph
 //! - [`events`] GitHub Events
 //! - [`gists`] Gists
+//! - [`git`] GitHub Git Database API
 //! - [`gitignore`] Gitignore templates
 //! - [`Octocrab::graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
@@ -329,9 +330,9 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 pub use self::{
     api::{
         actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
-        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, git, gitignore,
-        hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls, ratelimit,
-        repos, search, security_advisories, teams, users, workflows,
+        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, git,
+        gitignore, hooks, issues, licenses, markdown, marketplace, orgs, packages, projects, pulls,
+        ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
