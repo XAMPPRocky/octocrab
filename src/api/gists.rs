@@ -433,6 +433,19 @@ impl<'octo> CreateGistBuilder<'octo> {
         self
     }
 
+    /// Add multiple files to the gist from an iterator of `(filename, content)` pairs.
+    pub fn files<I, K, V>(mut self, files: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        for (filename, content) in files {
+            self = self.file(filename, content);
+        }
+        self
+    }
+
     /// Send the `CreateGist` request to Github for execution.
     pub async fn send(self) -> Result<Gist> {
         self.crab.post("/gists", Some(&self.data)).await
@@ -484,6 +497,38 @@ impl<'octo> UpdateGistBuilder<'octo> {
         UpdateGistFileBuilder::new(self, filename)
     }
 
+    /// Update or add multiple files to the gist from an iterator of `(filename, content)` pairs.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let files = vec![
+    ///     ("hello.rs", "println!(\"Hello\");"),
+    ///     ("world.rs", "println!(\"World\");"),
+    /// ];
+    ///
+    /// let gist = octocrab::instance()
+    ///     .gists()
+    ///     .update("aa5a315d61ae9438b18d")
+    ///     .files(files)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn files<I, K, V>(mut self, files: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        for (filename, content) in files {
+            self = self.file(filename).with_content(content).build();
+        }
+        self
+    }
+
     /// Send the `UpdateGist` command to Github for execution.
     pub async fn send(self) -> Result<Gist> {
         self.crab.patch(self.gist_path, Some(&self.data)).await
@@ -523,7 +568,11 @@ impl<'octo> UpdateGistFileBuilder<'octo> {
         }
     }
 
-    fn build(mut self) -> UpdateGistBuilder<'octo> {
+    /// Finish configuring this file and return the [`UpdateGistBuilder`].
+    ///
+    /// This allows continuing to configure the gist, updating more files in a loop,
+    /// or sending the update request.
+    pub fn build(mut self) -> UpdateGistBuilder<'octo> {
         if self.ready {
             self.builder
                 .data
@@ -567,6 +616,18 @@ impl<'octo> UpdateGistFileBuilder<'octo> {
     /// This will finalize the update operation and will continue to operate on the gist itself.
     pub fn file(self, filename: impl Into<String>) -> UpdateGistFileBuilder<'octo> {
         self.build().file(filename)
+    }
+
+    /// Update or add multiple files to the gist from an iterator of `(filename, content)` pairs.
+    ///
+    /// This will finalize the update operation and will continue to operate on the gist itself.
+    pub fn files<I, K, V>(self, files: I) -> UpdateGistBuilder<'octo>
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        self.build().files(files)
     }
 
     /// Send the `UpdateGist` command to Github for execution.
