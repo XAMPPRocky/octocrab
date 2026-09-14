@@ -20,6 +20,7 @@ pub use billing::{
 };
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use migrations::*;
 pub use packages::{
     ContainerMetadata, DockerMetadata, Package, PackageType, PackageVersion,
     PackageVersionMetadata, PackageVersionState, PackageVisibility,
@@ -97,6 +98,7 @@ pub mod interaction_limits;
 pub mod issues;
 pub mod memberships;
 pub mod meta;
+pub mod migrations;
 pub mod orgs;
 /// Preserved for backwards compatibility. Use [`copilot`] for the standard tag namespace.
 pub mod orgs_copilot;
@@ -260,6 +262,8 @@ id_type!(
     PackageId,
     PackageVersionId,
     CodespaceId,
+    MigrationId,
+    ImportAuthorId,
     InstallationRequestId,
     PlanId,
     MarketplaceAccountId

@@ -12,6 +12,7 @@ mod invitations;
 mod issues;
 mod list_members;
 mod list_repos;
+pub mod migrations;
 mod personal_access_tokens;
 mod roles;
 mod rulesets;
@@ -32,6 +33,7 @@ pub use self::invitations::{
 pub use self::issues::ListOrgIssuesBuilder;
 pub use self::list_members::ListOrgMembersBuilder;
 pub use self::list_repos::ListReposBuilder;
+pub use self::migrations::OrgMigrationsHandler;
 pub use self::personal_access_tokens::{
     ListOrgPatRepositoriesBuilder, ListOrgPatRequestRepositoriesBuilder, ListOrgPatRequestsBuilder,
     ListOrgPersonalAccessTokensBuilder, OrgPersonalAccessTokensHandler,
@@ -93,6 +95,13 @@ impl<'octo> OrgHandler<'octo> {
     /// See: https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28
     pub fn codespaces(&self) -> OrgCodespacesHandler<'octo> {
         OrgCodespacesHandler::new(self.crab, self.owner.clone())
+    }
+
+    /// Handle migrations for the organization.
+    ///
+    /// See: https://docs.github.com/en/rest/migrations/orgs?apiVersion=2022-11-28
+    pub fn migrations(&self) -> OrgMigrationsHandler<'octo> {
+        OrgMigrationsHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle Dependabot for the organization.

@@ -22,6 +22,7 @@ pub mod issues;
 pub mod licenses;
 pub mod markdown;
 pub mod marketplace;
+pub mod migrations;
 pub mod orgs;
 pub mod packages;
 pub mod projects;
