@@ -12,6 +12,7 @@ use crate::params::users::emails::EmailVisibilityState;
 pub use apps::App;
 pub use gpg_keys::{GpgKey, SubKeyInfo, VerifiedEmailInfo};
 pub use hovercard::{Hovercard, HovercardContext};
+pub use migrations::*;
 pub use packages::{
     ContainerMetadata, DockerMetadata, Package, PackageType, PackageVersion,
     PackageVersionMetadata, PackageVersionState, PackageVisibility,
@@ -82,6 +83,7 @@ pub mod interaction_limits;
 pub mod issues;
 pub mod memberships;
 pub mod meta;
+pub mod migrations;
 pub mod orgs;
 pub mod orgs_copilot;
 pub mod packages;
@@ -233,7 +235,9 @@ id_type!(
     PatRequestId,
     PackageId,
     PackageVersionId,
-    CodespaceId
+    CodespaceId,
+    MigrationId,
+    ImportAuthorId
 );
 
 macro_rules! convert_into {

@@ -24,6 +24,7 @@
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
+//! - [`migrations`] Migrations
 //! - [`orgs`] GitHub Organisations
 //! - [`projects`] GitHub Projects
 //! - [`pulls`] Pull Requests
@@ -40,6 +41,7 @@
 //!   - [`repos::environments`] Environments and deployment protection rules
 //!   - [`repos::forks`] Repository forks
 //!   - [`repos::hooks`] Repository webhooks
+//!   - [`repos::import`] Repository source imports
 //!   - [`repos::keys`] Deploy keys
 //!   - [`repos::pages`] GitHub Pages
 //!   - [`repos::releases`] Repository releases
@@ -325,8 +327,8 @@ pub use self::{
     api::{
         actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
         enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
-        orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories, teams,
-        users, workflows,
+        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
+        teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1510,6 +1512,12 @@ impl Octocrab {
     /// GitHub's Codespaces API for the authenticated user.
     pub fn codespaces(&self) -> codespaces::CodespacesHandler<'_> {
         codespaces::CodespacesHandler::new(self)
+    }
+
+    /// Creates a [`migrations::MigrationsHandler`] that allows you to access
+    /// GitHub's Migrations API.
+    pub fn migrations(&self) -> migrations::MigrationsHandler<'_> {
+        migrations::MigrationsHandler::new(self)
     }
 
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.

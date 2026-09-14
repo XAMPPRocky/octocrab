@@ -67,6 +67,13 @@ impl<'octo> CurrentAuthHandler<'octo> {
         crate::api::codespaces::CodespacesHandler::new(self.crab)
     }
 
+    /// Handle migrations for the authenticated user.
+    ///
+    /// See: https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28
+    pub fn migrations(&self) -> crate::api::migrations::MigrationsHandler<'octo> {
+        crate::api::migrations::MigrationsHandler::new(self.crab)
+    }
+
     /// Fetches information about the currently authenticated app.
     ///
     /// ```no_run

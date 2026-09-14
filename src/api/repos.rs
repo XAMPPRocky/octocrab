@@ -28,6 +28,7 @@ mod file;
 pub mod forks;
 mod generate;
 pub mod hooks;
+pub mod import;
 mod invitations;
 pub mod keys;
 mod merges;
@@ -105,6 +106,7 @@ pub use hooks::{
     ListHooksBuilder, ListRepoHookDeliveriesBuilder, RepoHookDeliveriesHandler, RepoHooksHandler,
     UpdateHookBuilder, UpdateHookConfigBuilder,
 };
+pub use import::RepoImportHandler;
 pub use invitations::{
     ListRepoInvitationsBuilder, RepoInvitationsHandler, UpdateRepoInvitationBuilder,
 };
@@ -1047,6 +1049,18 @@ impl<'octo> RepoHandler<'octo> {
     /// See: https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28
     pub fn codespaces(&self) -> RepoCodespacesHandler<'octo> {
         RepoCodespacesHandler::new(self.crab, self.repo.clone())
+    }
+
+    /// Handle source imports for the repository.
+    ///
+    /// See: https://docs.github.com/en/rest/migrations/source-imports?apiVersion=2022-11-28
+    pub fn import(&self) -> RepoImportHandler<'octo> {
+        RepoImportHandler::new(self.crab, self.repo.clone())
+    }
+
+    /// Handle source imports for the repository (alias for [`import`][RepoHandler::import]).
+    pub fn imports(&self) -> RepoImportHandler<'octo> {
+        self.import()
     }
 
     pub fn variables(&self) -> RepoVariablesHandler<'_> {
