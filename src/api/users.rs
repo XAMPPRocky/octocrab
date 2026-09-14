@@ -10,6 +10,7 @@ pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
 use crate::api::activity::starring::ListReposStarredByUserBuilder;
 use crate::api::activity::watching::ListUserSubscriptionsBuilder;
+pub use crate::api::billing::ScopedBillingHandler as UserBillingHandler;
 use crate::api::events::EventsBuilder;
 use crate::api::users::user_blocks::BlockedUsersBuilder;
 use crate::api::users::user_emails::UserEmailsOpsBuilder;
@@ -58,6 +59,20 @@ impl<'octo> UserHandler<'octo> {
         Self { crab, user }
     }
 
+    /// Handle billing for this user.
+    ///
+    /// See: <https://docs.github.com/en/rest/billing?apiVersion=2022-11-28>
+    pub fn billing(&self) -> crate::api::billing::ScopedBillingHandler<'octo> {
+        let username = match &self.user {
+            UserRef::ByString(name) => name.clone(),
+            UserRef::ById(id) => id.to_string(),
+        };
+        crate::api::billing::ScopedBillingHandler::new(
+            self.crab,
+            crate::api::billing::BillingOwner::User(username),
+        )
+    }
+
     /// Handle packages for this user.
     ///
     /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
@@ -77,6 +92,14 @@ impl<'octo> UserHandler<'octo> {
         // build the route to get info on this user
         let route = format!("/{}", self.user);
         // get info on the specified user
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets a user installation for the authenticated app.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-user-installation-for-the-authenticated-app)
+    pub async fn installation(&self) -> crate::Result<crate::models::Installation> {
+        let route = format!("/{}/installation", self.user);
         self.crab.get(route, None::<&()>).await
     }
 

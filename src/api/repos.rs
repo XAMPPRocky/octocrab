@@ -20,6 +20,7 @@ mod commits;
 mod contributors;
 pub mod custom_properties;
 mod dependabot;
+pub mod dependency_graph;
 pub mod deployments;
 mod dispatches;
 pub mod environments;
@@ -90,7 +91,8 @@ pub use comments::{
 pub use commits::{ListCommitsBuilder, RepoCompareCommitsBuilder};
 pub use contributors::ListContributorsBuilder;
 pub use custom_properties::RepoCustomPropertiesHandler;
-pub use dependabot::RepoDependabotAlertsHandler;
+pub use dependabot::{RepoDependabotAlertsHandler, RepoDependabotHandler};
+pub use dependency_graph::{CompareDependenciesBuilder, RepoDependencyGraphHandler};
 pub use deployments::{
     CreateDeploymentBuilder, CreateDeploymentStatusBuilder, DeploymentStatusesHandler,
     ListDeploymentStatusesBuilder, ListDeploymentsBuilder, RepoDeploymentsHandler,
@@ -210,6 +212,23 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub async fn get(&self) -> Result<models::Repository> {
         let route = format!("/{}", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets a repository installation for the authenticated app.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-repository-installation-for-the-authenticated-app)
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let installation = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .installation()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn installation(&self) -> Result<models::Installation> {
+        let route = format!("/{}/installation", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
@@ -1159,9 +1178,9 @@ impl<'octo> RepoHandler<'octo> {
         RepoVariablesHandler::new(self)
     }
 
-    /// Handle dependabot alerts on the repository
-    pub fn dependabot(&self) -> RepoDependabotAlertsHandler<'_> {
-        RepoDependabotAlertsHandler::new(self)
+    /// Handle dependabot on the repository
+    pub fn dependabot(&self) -> RepoDependabotHandler<'octo> {
+        RepoDependabotHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle secrets scanning alerts on the repository
@@ -1174,9 +1193,14 @@ impl<'octo> RepoHandler<'octo> {
         self.secrets_scanning()
     }
 
+    /// Handle dependency graph for the repository
+    pub fn dependency_graph(&self) -> RepoDependencyGraphHandler<'octo> {
+        RepoDependencyGraphHandler::new(self.crab, self.repo.clone())
+    }
+
     /// Handle SBOM report generation
-    pub fn sbom(&self) -> RepoSbomHandler<'_> {
-        RepoSbomHandler::new(self)
+    pub fn sbom(&self) -> RepoSbomHandler<'octo> {
+        RepoSbomHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle repository security advisories
