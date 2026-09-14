@@ -79,6 +79,7 @@ pub mod checks;
 pub mod classroom;
 pub mod code_scannings;
 pub mod codespaces;
+pub mod marketplace;
 pub use codespaces::Codespace;
 pub mod codes_of_conduct;
 pub mod commits;
@@ -256,7 +257,10 @@ id_type!(
     PatRequestId,
     PackageId,
     PackageVersionId,
-    CodespaceId
+    CodespaceId,
+    InstallationRequestId,
+    PlanId,
+    MarketplaceAccountId
 );
 
 macro_rules! convert_into {
@@ -1430,6 +1434,8 @@ pub struct InstallationToken {
     pub permissions: InstallationPermissions,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repositories: Option<Vec<Repository>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repository_selection: Option<String>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]

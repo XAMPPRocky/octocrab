@@ -726,6 +726,14 @@ impl<'octo> OrgHandler<'octo> {
     pub fn list_installations(&self) -> ListOrgInstallationsBuilder<'octo, '_> {
         ListOrgInstallationsBuilder::new(self)
     }
+
+    /// Gets an organization installation for the authenticated app.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-an-organization-installation-for-the-authenticated-app)
+    pub async fn installation(&self) -> crate::Result<crate::models::Installation> {
+        let route = format!("/orgs/{}/installation", self.owner);
+        self.crab.get(route, None::<&()>).await
+    }
 }
 
 /// Builder for listing public organization members.
