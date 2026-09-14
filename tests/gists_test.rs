@@ -741,3 +741,254 @@ async fn test_delete_gist_comment_404() {
         result
     );
 }
+
+fn sample_gist_json(gist_id: &str, description: Option<&str>) -> serde_json::Value {
+    serde_json::json!({
+        "url": format!("https://api.github.com/gists/{gist_id}"),
+        "forks_url": format!("https://api.github.com/gists/{gist_id}/forks"),
+        "commits_url": format!("https://api.github.com/gists/{gist_id}/commits"),
+        "id": gist_id,
+        "node_id": "MDQ6R2lzdDEyYzU1YTk0YmQwMzE2NmZmMzNlZDA1OTYyNjNiNGM2",
+        "git_pull_url": format!("https://gist.github.com/{gist_id}.git"),
+        "git_push_url": format!("https://gist.github.com/{gist_id}.git"),
+        "html_url": format!("https://gist.github.com/{gist_id}"),
+        "files": {
+            "hello_world.rs": {
+                "filename": "hello_world.rs",
+                "type": "text/plain",
+                "language": "Rust",
+                "raw_url": format!("https://gist.githubusercontent.com/raw/{gist_id}/hello_world.rs"),
+                "size": 100
+            }
+        },
+        "public": true,
+        "created_at": "2010-04-14T02:15:15Z",
+        "updated_at": "2011-06-20T11:34:56Z",
+        "description": description,
+        "comments": 0,
+        "comments_url": format!("https://api.github.com/gists/{gist_id}/comments")
+    })
+}
+
+async fn setup_update_gist_api(
+    gist_id: &str,
+    expected_body: serde_json::Value,
+    template: ResponseTemplate,
+) -> MockServer {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("PATCH"))
+        .and(path(format!("/gists/{gist_id}")))
+        .and(wiremock::matchers::body_json(expected_body))
+        .respond_with(template)
+        .mount(&mock_server)
+        .await;
+
+    setup_error_handler(
+        &mock_server,
+        &format!("PATCH on /gists/{gist_id} was not received"),
+    )
+    .await;
+    mock_server
+}
+
+async fn setup_create_gist_api(
+    expected_body: serde_json::Value,
+    template: ResponseTemplate,
+) -> MockServer {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("POST"))
+        .and(path("/gists"))
+        .and(wiremock::matchers::body_json(expected_body))
+        .respond_with(template)
+        .mount(&mock_server)
+        .await;
+
+    setup_error_handler(&mock_server, "POST on /gists was not received").await;
+    mock_server
+}
+
+#[tokio::test]
+async fn test_update_gist_files_batch() {
+    let gist_response = sample_gist_json(GIST_ID, Some("updated gist"));
+    let expected_body = serde_json::json!({
+        "files": {
+            "file1.rs": { "content": "fn main() { 1; }" },
+            "file2.rs": { "content": "fn main() { 2; }" }
+        }
+    });
+
+    let template = ResponseTemplate::new(200).set_body_json(&gist_response);
+    let mock_server = setup_update_gist_api(GIST_ID, expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let files = vec![
+        ("file1.rs", "fn main() { 1; }"),
+        ("file2.rs", "fn main() { 2; }"),
+    ];
+
+    let result = client.gists().update(GIST_ID).files(files).send().await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+    let gist = result.unwrap();
+    assert_eq!(gist.id, GIST_ID);
+}
+
+#[tokio::test]
+async fn test_update_gist_files_in_loop_with_build() {
+    let gist_response = sample_gist_json(GIST_ID, None);
+    let expected_body = serde_json::json!({
+        "files": {
+            "a.txt": { "content": "alpha" },
+            "b.txt": { "content": "beta" }
+        }
+    });
+
+    let template = ResponseTemplate::new(200).set_body_json(&gist_response);
+    let mock_server = setup_update_gist_api(GIST_ID, expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let updates = vec![("a.txt", "alpha"), ("b.txt", "beta")];
+    let mut builder = client.gists().update(GIST_ID);
+    for (filename, content) in updates {
+        builder = builder.file(filename).with_content(content).build();
+    }
+
+    let result = builder.send().await;
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn test_update_gist_files_mixed_operations() {
+    let gist_response = sample_gist_json(GIST_ID, Some("new description"));
+    let expected_body = serde_json::json!({
+        "description": "new description",
+        "files": {
+            "old_name.rs": {
+                "filename": "new_name.rs",
+                "content": "renamed and modified"
+            },
+            "delete_me.rs": null
+        }
+    });
+
+    let template = ResponseTemplate::new(200).set_body_json(&gist_response);
+    let mock_server = setup_update_gist_api(GIST_ID, expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let result = client
+        .gists()
+        .update(GIST_ID)
+        .description("new description")
+        .file("old_name.rs")
+        .rename_to("new_name.rs")
+        .with_content("renamed and modified")
+        .build()
+        .file("delete_me.rs")
+        .delete()
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn test_update_gist_files_on_file_builder() {
+    let gist_response = sample_gist_json(GIST_ID, None);
+    let expected_body = serde_json::json!({
+        "files": {
+            "first.rs": { "content": "first content" },
+            "second.rs": { "content": "second content" }
+        }
+    });
+
+    let template = ResponseTemplate::new(200).set_body_json(&gist_response);
+    let mock_server = setup_update_gist_api(GIST_ID, expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    // Call .files(...) directly on an UpdateGistFileBuilder
+    let result = client
+        .gists()
+        .update(GIST_ID)
+        .file("first.rs")
+        .with_content("first content")
+        .files([("second.rs", "second content")])
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn test_create_gist_files_batch() {
+    let gist_response = sample_gist_json(GIST_ID, Some("batch create"));
+    let expected_body = serde_json::json!({
+        "description": "batch create",
+        "public": false,
+        "files": {
+            "f1.rs": { "content": "code 1" },
+            "f2.rs": { "content": "code 2" }
+        }
+    });
+
+    let template = ResponseTemplate::new(201).set_body_json(&gist_response);
+    let mock_server = setup_create_gist_api(expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let files = vec![("f1.rs", "code 1"), ("f2.rs", "code 2")];
+    let result = client
+        .gists()
+        .create()
+        .description("batch create")
+        .public(false)
+        .files(files)
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+}
+
+#[tokio::test]
+async fn test_update_gist_empty_files() {
+    let gist_response = sample_gist_json(GIST_ID, None);
+    let expected_body = serde_json::json!({});
+
+    let template = ResponseTemplate::new(200).set_body_json(&gist_response);
+    let mock_server = setup_update_gist_api(GIST_ID, expected_body, template).await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    let empty_files: Vec<(&str, &str)> = Vec::new();
+    let result = client
+        .gists()
+        .update(GIST_ID)
+        .files(empty_files)
+        .send()
+        .await;
+
+    assert!(
+        result.is_ok(),
+        "expected successful result, got: {:#?}",
+        result
+    );
+}
