@@ -74,6 +74,8 @@ pub use codespaces::Codespace;
 pub mod codes_of_conduct;
 pub mod commits;
 pub mod events;
+pub mod git;
+pub use git::{CreateTreeEntry, CreatedBlob, GitBlob, GitTree, GitTreeEntry, TagObject};
 pub mod gists;
 pub mod gpg_keys;
 pub mod hooks;

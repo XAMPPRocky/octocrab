@@ -53,12 +53,16 @@ pub mod transfer;
 mod variables;
 pub mod watchers;
 
+pub use crate::api::git::{
+    CreateBlobBuilder, CreateGitCommitObjectBuilder, CreateTagBuilder, CreateTreeBuilder,
+    GetTreeBuilder, UpdateRefBuilder,
+};
 use crate::error::HttpSnafu;
 use crate::models::commits::GitCommitObject;
 use crate::models::interaction_limits::{
     InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
 };
-use crate::models::{repos, RepositoryId};
+use crate::models::RepositoryId;
 use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
@@ -236,6 +240,27 @@ impl<'octo> RepoHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
+    /// Creates a [`crate::api::git::GitHandler`] for this repository, allowing access to GitHub's Git database API.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/git?apiVersion=2022-11-28)
+    pub fn git(&self) -> crate::api::git::GitHandler<'octo> {
+        crate::api::git::GitHandler::new(self.crab, self.repo.clone())
+    }
+
+    /// Fetches information about a Git reference.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let master = octocrab::instance()
+    ///     .repos("owner", "repo")
+    ///     .get_ref(&Reference::Branch("master".to_string()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_ref(
         &self,
         reference: &params::repos::Reference,
@@ -249,6 +274,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Fetches information about a git tag with the given `tag_sha`.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params::repos::Reference;
@@ -270,6 +297,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Creates a new reference for the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let master_sha = "";
@@ -300,7 +329,20 @@ impl<'octo> RepoHandler<'octo> {
             .await
     }
 
+    /// Updates a Git reference in the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub fn update_ref(
+        &self,
+        reference: &params::repos::Reference,
+        sha: impl Into<String>,
+    ) -> crate::api::git::UpdateRefBuilder<'octo> {
+        self.git().update_ref(reference, sha)
+    }
+
     /// Deletes an existing reference from the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// # let master_sha = "";
@@ -323,6 +365,70 @@ impl<'octo> RepoHandler<'octo> {
         crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
             .await
             .map(drop)
+    }
+
+    /// Lists Git references that match the supplied sub-string.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub async fn list_matching_refs(
+        &self,
+        reference: impl AsRef<str>,
+    ) -> Result<Vec<models::repos::Ref>> {
+        self.git().list_matching_refs(reference).await
+    }
+
+    /// Creates a new Git tag object in the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub fn create_tag(
+        &self,
+        tag: impl Into<String>,
+        message: impl Into<String>,
+        object: impl Into<String>,
+        object_type: impl Into<String>,
+    ) -> crate::api::git::CreateTagBuilder<'octo> {
+        self.git().create_tag(tag, message, object, object_type)
+    }
+
+    /// Gets a Git commit object from the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub async fn get_commit(&self, commit_sha: impl Into<String>) -> Result<GitCommitObject> {
+        self.git().get_commit(commit_sha).await
+    }
+
+    /// Gets a Git blob from the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub async fn get_blob(&self, file_sha: impl Into<String>) -> Result<models::git::GitBlob> {
+        self.git().get_blob(file_sha).await
+    }
+
+    /// Creates a new Git blob in the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub fn create_blob(
+        &self,
+        content: impl Into<String>,
+    ) -> crate::api::git::CreateBlobBuilder<'octo> {
+        self.git().create_blob(content)
+    }
+
+    /// Gets a Git tree object from the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub fn get_tree(&self, tree_sha: impl Into<String>) -> crate::api::git::GetTreeBuilder<'octo> {
+        self.git().get_tree(tree_sha)
+    }
+
+    /// Creates a new Git tree object in the repository.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
+    pub fn create_tree(
+        &self,
+        tree: Vec<models::git::CreateTreeEntry>,
+    ) -> crate::api::git::CreateTreeBuilder<'octo> {
+        self.git().create_tree(tree)
     }
 
     /// Get repository content.
@@ -1127,6 +1233,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Creates a new Git commit object.
+    ///
+    /// Note: This method is also available via [`RepoHandler::git`].
     /// See <https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit>
     /// ```no_run
     /// # use octocrab::models::commits::GitCommitObject;
@@ -1151,13 +1259,8 @@ impl<'octo> RepoHandler<'octo> {
         &self,
         message: impl Into<String>,
         tree: impl Into<String>,
-    ) -> CreateGitCommitObjectBuilder<'_, '_> {
-        CreateGitCommitObjectBuilder::new(
-            self,
-            self.repo.clone(),
-            message.into().to_owned(),
-            tree.into().to_owned(),
-        )
+    ) -> CreateGitCommitObjectBuilder<'octo> {
+        self.git().create_commit(message, tree)
     }
 
     /// ### Get interaction restrictions for a repository
@@ -1325,73 +1428,5 @@ impl<'octo> RepoHandler<'octo> {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
         Ok(())
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct CreateGitCommitObjectBuilder<'octo, 'req> {
-    #[serde(skip)]
-    handler: &'octo RepoHandler<'req>,
-    // According to [API reference](https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit), repo in body is not required.
-    #[serde(skip)]
-    repo: RepoRef,
-    message: String,
-    tree: String,
-    parents: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    author: Option<repos::CommitAuthor>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    committer: Option<repos::CommitAuthor>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    signature: Option<String>,
-}
-
-impl<'octo, 'req> CreateGitCommitObjectBuilder<'octo, 'req> {
-    pub(crate) fn new(
-        handler: &'octo RepoHandler<'req>,
-        repo: RepoRef,
-        message: String,
-        tree: String,
-    ) -> Self {
-        Self {
-            handler,
-            repo,
-            message,
-            tree,
-            parents: Vec::new(),
-            author: None,
-            committer: None,
-            signature: None,
-        }
-    }
-
-    /// The author of the commit.
-    pub fn author(mut self, author: impl Into<repos::CommitAuthor>) -> Self {
-        self.author = Some(author.into());
-        self
-    }
-
-    /// The committer of the commit.
-    pub fn committer(mut self, committer: impl Into<repos::CommitAuthor>) -> Self {
-        self.committer = Some(committer.into());
-        self
-    }
-
-    /// The signature of the commit.
-    pub fn signature(mut self, signature: impl Into<String>) -> Self {
-        self.signature = Some(signature.into());
-        self
-    }
-
-    /// The parents of the commit.
-    pub fn parents(mut self, parents: Vec<String>) -> Self {
-        self.parents = parents;
-        self
-    }
-
-    /// Sends the request
-    pub async fn send(&self) -> Result<GitCommitObject> {
-        let route = format!("/{}/git/commits", self.repo);
-        self.handler.crab.post(route, Some(&self)).await
     }
 }
