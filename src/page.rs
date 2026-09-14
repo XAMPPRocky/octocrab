@@ -218,6 +218,8 @@ impl<T: serde::de::DeserializeOwned> crate::FromResponse for Page<T> {
                 "devcontainers",
                 "machines",
                 "migrations",
+                "seats",
+                "alerts",
             ]
             .into_iter()
             .find(|v| json.get(v).is_some())

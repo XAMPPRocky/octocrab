@@ -12,18 +12,23 @@
 //! - [`actions`] GitHub Actions
 //! - [`activity`] GitHub Activity
 //! - [`apps`] GitHub Apps
+//! - [`billing`] Billing
 //! - [`checks`] GitHub Checks
 //! - [`code_scannings`] Code Scanning
 //! - [`codespaces`] GitHub Codespaces
+//! - [`copilot`] GitHub Copilot
 //! - [`commits`] GitHub Commits
 //! - [`current`] Information about the current user.
+//! - [`dependency_graph`] Dependency Graph
 //! - [`events`] GitHub Events
 //! - [`gists`] Gists
+//! - [`git`] GitHub Git Database API
 //! - [`gitignore`] Gitignore templates
 //! - [`Octocrab::graphql`] GraphQL.
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
 //! - [`licenses`] License Metadata.
 //! - [`markdown`] Rendering Markdown with GitHub
+//! - [`marketplace`] GitHub Marketplace
 //! - [`migrations`] Migrations
 //! - [`orgs`] GitHub Organisations
 //! - [`projects`] GitHub Projects
@@ -37,6 +42,7 @@
 //!   - [`repos::codespaces`] Repository codespaces
 //!   - [`repos::comments`] Commit comments
 //!   - [`repos::custom_properties`] Repository custom property values
+//!   - [`repos::dependency_graph`] Repository dependency graph
 //!   - [`repos::deployments`] Deployments and deployment statuses
 //!   - [`repos::environments`] Environments and deployment protection rules
 //!   - [`repos::forks`] Repository forks
@@ -325,10 +331,10 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, checks, classroom, code_scannings, codespaces, commits, current,
-        enterprises, events, gist_comments, gists, gitignore, hooks, issues, licenses, markdown,
-        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
-        teams, users, workflows,
+        actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
+        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, git,
+        gitignore, hooks, issues, licenses, markdown, marketplace, migrations, orgs, packages,
+        projects, pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1520,6 +1526,12 @@ impl Octocrab {
         migrations::MigrationsHandler::new(self)
     }
 
+    /// Creates a [`copilot::CopilotHandler`] that allows you to access
+    /// GitHub's Copilot API.
+    pub fn copilot(&self) -> copilot::CopilotHandler<'_> {
+        copilot::CopilotHandler::new(self)
+    }
+
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
     pub fn activity(&self) -> activity::ActivityHandler<'_> {
         activity::ActivityHandler::new(self)
@@ -1528,6 +1540,16 @@ impl Octocrab {
     /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
     pub fn apps(&self) -> apps::AppsRequestHandler<'_> {
         apps::AppsRequestHandler::new(self)
+    }
+
+    /// Creates a [`marketplace::MarketplaceHandler`] for accessing GitHub Marketplace API.
+    pub fn marketplace(&self) -> marketplace::MarketplaceHandler<'_> {
+        marketplace::MarketplaceHandler::new(self)
+    }
+
+    /// Creates an [`apps::ApplicationHandler`] for managing OAuth application authorizations.
+    pub fn applications(&self, client_id: impl Into<String>) -> apps::ApplicationHandler<'_> {
+        apps::ApplicationHandler::new(self, client_id.into())
     }
 
     /// Creates a [`gitignore::GitignoreHandler`] for accessing information
@@ -1583,6 +1605,16 @@ impl Octocrab {
         owner: impl Into<String>,
     ) -> code_scannings::CodeScanningHandler<'_> {
         code_scannings::CodeScanningHandler::new(self, owner.into(), None)
+    }
+
+    /// Creates a [`dependency_graph::RepoDependencyGraphHandler`] for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's Dependency Graph API.
+    pub fn dependency_graph(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> dependency_graph::RepoDependencyGraphHandler<'_> {
+        self.repos(owner, repo).dependency_graph()
     }
 
     /// Creates a [`commits::CommitHandler`] for the repo specified at `owner/repo`,
@@ -1690,6 +1722,34 @@ impl Octocrab {
         repos::RepoHandler::new(self, RepoRef::ById(id.into()))
     }
 
+    /// Creates a [`git::GitHandler`] for the repo specified at `owner/repo`,
+    /// that allows you to access GitHub's Git database API.
+    ///
+    /// Provides access to Git blobs, commits, references, tags, and trees.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let master = octocrab
+    ///     .git("owner", "repo")
+    ///     .get_ref(&octocrab::params::repos::Reference::Branch("master".to_string()))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn git(&self, owner: impl Into<String>, repo: impl Into<String>) -> git::GitHandler<'_> {
+        git::GitHandler::new(self, RepoRef::ByOwnerAndName(owner.into(), repo.into()))
+    }
+
+    /// Creates a [`git::GitHandler`] for the repo specified at repository ID,
+    /// that allows you to access GitHub's Git database API.
+    ///
+    /// See [`Octocrab::git`] for details on available Git database operations.
+    pub fn git_by_id(&self, id: impl Into<RepositoryId>) -> git::GitHandler<'_> {
+        git::GitHandler::new(self, RepoRef::ById(id.into()))
+    }
+
     /// List all public repositories in the order that they were created.
     ///
     /// Pagination is controlled by the `since` parameter specifying the integer ID
@@ -1716,6 +1776,14 @@ impl Octocrab {
     /// List all public repositories in the order that they were created (alias for [`all_repositories`][Octocrab::all_repositories]).
     pub fn repositories(&self) -> repos::ListAllRepositoriesBuilder<'_> {
         self.all_repositories()
+    }
+
+    /// Creates a [`billing::BillingHandler`] providing GitHub's Billing API.
+    ///
+    /// You can scope to an organization or user using [`.org()`][billing::BillingHandler::org]
+    /// or [`.user()`][billing::BillingHandler::user], or via [`Octocrab::orgs`] or [`Octocrab::users`].
+    pub fn billing(&self) -> billing::BillingHandler<'_> {
+        billing::BillingHandler::new(self)
     }
 
     /// Creates a [`packages::PackagesHandler`] providing GitHub's Packages API.

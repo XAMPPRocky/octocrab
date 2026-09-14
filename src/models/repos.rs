@@ -45,6 +45,8 @@ pub struct Ref {
 pub enum Object {
     Commit { sha: String, url: Url },
     Tag { sha: String, url: Url },
+    Tree { sha: String, url: Url },
+    Blob { sha: String, url: Url },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -425,6 +427,12 @@ pub struct GitTag {
     pub sha: String,
     pub url: Url,
     pub message: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tagger: Option<CommitAuthor>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub object: Option<crate::models::git::TagObject>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub verification: Option<Verification>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

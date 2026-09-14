@@ -8,7 +8,8 @@ use crate::models::interaction_limits::{
 use crate::models::{interaction_limits, Followee, Follower, UpdateUserProfile};
 use crate::{
     models::{
-        self, gists::Gist, orgs::MembershipInvitation, teams::FullTeam, Installation, Repository,
+        self, apps::InstallationRepositories, gists::Gist, orgs::MembershipInvitation,
+        teams::FullTeam, Installation, InstallationId, Repository, RepositoryId,
     },
     params, Octocrab, Page, Result,
 };
@@ -264,6 +265,82 @@ impl<'octo> CurrentAuthHandler<'octo> {
         &self,
     ) -> ListAppInstallationsAccessibleToUserBuilder<'octo> {
         ListAppInstallationsAccessibleToUserBuilder::new(self.crab)
+    }
+
+    /// Lists repositories accessible to the user access token for a given installation.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-repositories-accessible-to-the-user-access-token)
+    pub fn installation_repositories(
+        &self,
+        installation_id: impl Into<InstallationId>,
+    ) -> ListUserInstallationRepositoriesBuilder<'octo> {
+        ListUserInstallationRepositoriesBuilder::new(self.crab, installation_id.into())
+    }
+
+    /// Adds a single repository to an app installation.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#add-a-repository-to-an-app-installation)
+    pub async fn add_repository_to_installation(
+        &self,
+        installation_id: impl Into<InstallationId>,
+        repository_id: impl Into<RepositoryId>,
+    ) -> Result<()> {
+        let route = format!(
+            "/user/installations/{}/repositories/{}",
+            installation_id.into(),
+            repository_id.into()
+        );
+        let resp = self.crab._put(route, None::<&()>).await?;
+        crate::map_github_error(resp).await?;
+        Ok(())
+    }
+
+    /// Removes a single repository from an app installation.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#remove-a-repository-from-an-app-installation)
+    pub async fn remove_repository_from_installation(
+        &self,
+        installation_id: impl Into<InstallationId>,
+        repository_id: impl Into<RepositoryId>,
+    ) -> Result<()> {
+        let route = format!(
+            "/user/installations/{}/repositories/{}",
+            installation_id.into(),
+            repository_id.into()
+        );
+        let resp = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(resp).await?;
+        Ok(())
+    }
+
+    /// Lists Marketplace subscriptions for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-subscriptions-for-the-authenticated-user)
+    pub fn marketplace_purchases(
+        &self,
+    ) -> crate::api::marketplace::ListUserMarketplacePurchasesBuilder<'octo> {
+        crate::api::marketplace::ListUserMarketplacePurchasesBuilder::new(self.crab, false)
+    }
+
+    /// Lists Marketplace subscriptions for the authenticated user (stubbed for testing).
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-subscriptions-for-the-authenticated-user-stubbed)
+    pub fn marketplace_purchases_stubbed(
+        &self,
+    ) -> crate::api::marketplace::ListUserMarketplacePurchasesBuilder<'octo> {
+        crate::api::marketplace::ListUserMarketplacePurchasesBuilder::new(self.crab, true)
+    }
+
+    /// Revokes an installation access token.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#revoke-an-installation-access-token)
+    pub async fn revoke_installation_token(&self) -> Result<()> {
+        let resp = self
+            .crab
+            ._delete("/installation/token", None::<&()>)
+            .await?;
+        crate::map_github_error(resp).await?;
+        Ok(())
     }
 
     /// Lists organizations that the current authenticated user is a member of.
@@ -990,6 +1067,53 @@ impl<'octo> ListAppInstallationsAccessibleToUserBuilder<'octo> {
     /// Sends the actual request.
     pub async fn send(self) -> crate::Result<Page<Installation>> {
         self.crab.get("/user/installations", (&self).into()).await
+    }
+}
+
+/// A builder pattern struct for listing repositories accessible to the user access token for an installation.
+///
+/// Created by [`CurrentAuthHandler::installation_repositories`].
+#[derive(serde::Serialize)]
+pub struct ListUserInstallationRepositoriesBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip)]
+    installation_id: InstallationId,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListUserInstallationRepositoriesBuilder<'octo> {
+    fn new(crab: &'octo Octocrab, installation_id: InstallationId) -> Self {
+        Self {
+            crab,
+            installation_id,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the actual request.
+    pub async fn send(self) -> crate::Result<InstallationRepositories> {
+        let route = format!("/user/installations/{}/repositories", self.installation_id);
+        self.crab.get(route, Some(&self)).await
     }
 }
 
