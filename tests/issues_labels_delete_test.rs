@@ -1,6 +1,6 @@
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::{models, Octocrab};
 use wiremock::{
     matchers::{method, path},

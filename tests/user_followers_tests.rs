@@ -4,11 +4,11 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::{Followee, Follower};
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 async fn setup_followers_mock(
     http_method: &str,

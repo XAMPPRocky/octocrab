@@ -1,11 +1,11 @@
-mod mock_error;
+
 
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use models::interaction_limits::InteractionLimitType;
 use octocrab::models::interaction_limits::InteractionLimitExpiry;
 use octocrab::{models, Octocrab};

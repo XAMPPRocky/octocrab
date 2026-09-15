@@ -3,12 +3,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::Hovercard;
 use octocrab::params::users::hovercard::SubjectType;
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 async fn setup_hovercard_mock(
     http_method: &str,

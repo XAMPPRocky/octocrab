@@ -4,12 +4,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::SshSigningKey;
 use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
+
 
 const SSH_SIGNING_KEY_ID: u64 = 42;
 

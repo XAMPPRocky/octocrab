@@ -1,11 +1,11 @@
-mod mock_error;
+
 
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::ClassroomId;
 use octocrab::{models, Octocrab};
 

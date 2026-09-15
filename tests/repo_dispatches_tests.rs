@@ -1,6 +1,6 @@
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::Octocrab;
 use serde::Serialize;
 use serde_json::json;

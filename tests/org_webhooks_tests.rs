@@ -4,12 +4,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::hooks::{Config, ContentType, Hook, UpdateHookConfig};
 use octocrab::models::webhook_events::WebhookEventType;
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "owner";
 const HOOK_ID: u64 = 1;

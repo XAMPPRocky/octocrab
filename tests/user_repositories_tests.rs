@@ -1,7 +1,7 @@
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::models::{Repository, RepositoryId};
 use octocrab::{Error, Octocrab};
 use serde::{Deserialize, Serialize};

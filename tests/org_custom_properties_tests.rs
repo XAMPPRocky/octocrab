@@ -5,13 +5,13 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::orgs::custom_properties::{
     CustomPropertyValue, OrgCustomPropertyDefinition, OrgRepoCustomPropertyValues,
 };
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "owner";
 

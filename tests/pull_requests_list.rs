@@ -3,12 +3,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::pulls::PullRequest;
 use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
-mod mock_error;
+
 
 async fn setup_pull_requests_mock(
     http_method: &str,

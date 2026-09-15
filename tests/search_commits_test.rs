@@ -1,4 +1,4 @@
-mod mock_error;
+
 
 use serde::{Deserialize, Serialize};
 use wiremock::{
@@ -6,7 +6,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::{
     models::{self, SimpleUser},
     Octocrab,

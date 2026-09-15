@@ -3,12 +3,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::{Author, Contributor};
 use octocrab::Octocrab;
 
 /// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
-mod mock_error;
+
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";

@@ -1,6 +1,6 @@
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::models::git::CreateTreeEntry;
 use octocrab::models::RepositoryId;
 use octocrab::params::repos::Reference;

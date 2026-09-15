@@ -4,7 +4,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::{
     BranchPolicyType, CustomDeploymentProtectionRule, CustomDeploymentProtectionRules,
     CustomDeploymentRuleApps, DeploymentBranchPolicies, DeploymentBranchPolicy,
@@ -13,7 +13,7 @@ use octocrab::models::repos::{
 use octocrab::models::{AppId, BranchPolicyId, EnvironmentId, ProtectionRuleId};
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "owner";
 const REPO: &str = "repo";

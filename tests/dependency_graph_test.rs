@@ -1,9 +1,9 @@
-mod mock_error;
+
 
 use std::collections::HashMap;
 
 use chrono::Utc;
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::dependency_graph::{
     ChangeType, DependencyRelationship, DependencyScope, Snapshot, SnapshotDetector, SnapshotJob,
     SnapshotManifest, SnapshotManifestFile, SnapshotResolvedPackage,

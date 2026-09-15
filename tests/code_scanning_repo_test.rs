@@ -3,7 +3,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::code_scannings::{
     AlertInstance, Analysis, CodeScanningAlert, CodeqlDatabase, DefaultSetup, UpdateDefaultSetup,
     UploadSarif,
@@ -11,7 +11,7 @@ use octocrab::models::code_scannings::{
 use octocrab::params;
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "test-owner";
 const REPO: &str = "test-repo";

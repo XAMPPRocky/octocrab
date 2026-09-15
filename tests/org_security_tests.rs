@@ -5,11 +5,11 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::orgs::security::{SecurityEnablement, SecurityProduct};
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "owner";
 const TEAM_SLUG: &str = "justice-league";

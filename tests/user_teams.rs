@@ -3,12 +3,12 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::teams::FullTeam;
 use octocrab::Octocrab;
 
 /// Tests API calls related to teams for the authenticated user.
-mod mock_error;
+
 
 async fn setup_user_teams_mock(
     http_method: &str,

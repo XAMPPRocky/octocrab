@@ -1,10 +1,10 @@
 // Tests for calls to the actions self-hosted runners API:
 // - /repos/{owner}/{repo}/actions/runners
 // - /orgs/{org}/actions/runners
-mod mock_error;
+
 
 use http::StatusCode;
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::{
     models::{
         actions::{SelfHostedRunner, SelfHostedRunnerJitConfig, SelfHostedRunnerToken},

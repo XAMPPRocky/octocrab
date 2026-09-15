@@ -1,4 +1,5 @@
 [package]
+autotests = false
 name = "octocrab"
 version = "0.54.2"
 resolver = "2"
@@ -137,3 +138,8 @@ reqwest = ["dep:reqwest"]
 stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
+
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration_tests.rs"

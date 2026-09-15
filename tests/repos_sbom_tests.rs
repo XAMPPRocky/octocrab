@@ -3,14 +3,14 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::sbom::SbomDependencyGraph;
 use octocrab::models::repos::sbom::SbomGenerateReportResponse;
 use octocrab::{models::repos::sbom::SbomFetchResponse, Octocrab};
 use serde_json::{json, Value};
 use url::Url;
 
-mod mock_error;
+
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";

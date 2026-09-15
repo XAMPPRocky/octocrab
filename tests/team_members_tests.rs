@@ -1,7 +1,7 @@
 // Tests for calls to the /orgs/{org}/teams/{team}/members API.
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::{models::Author, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{

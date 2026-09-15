@@ -4,7 +4,7 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::models::apps::App;
 use octocrab::models::repos::branches::{
     AdminEnforcement, BranchProtection, BranchProtectionRestrictions, DetailedBranch,
@@ -14,7 +14,7 @@ use octocrab::models::teams::Team;
 use octocrab::models::Author;
 use octocrab::Octocrab;
 
-mod mock_error;
+
 
 const OWNER: &str = "owner";
 const REPO: &str = "repo";

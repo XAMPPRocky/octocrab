@@ -1,6 +1,6 @@
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::{
     models::orgs_copilot::billing::{SeatsCancelled, SeatsCreated},
     Octocrab,

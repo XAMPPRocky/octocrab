@@ -1,8 +1,8 @@
 // Tests for calls to the actions "list artifacts for a repository" API:
 // - /repos/{owner}/{repo}/actions/artifacts
-mod mock_error;
 
-use mock_error::setup_error_handler;
+
+use crate::mock_error::setup_error_handler;
 use octocrab::{models::workflows::WorkflowListArtifact, Octocrab, Page};
 use serde::{Deserialize, Serialize};
 use wiremock::{

@@ -1,7 +1,7 @@
-mod mock_error;
+
 
 use http::StatusCode;
-use mock_error::setup_error_handler;
+use crate::mock_error::setup_error_handler;
 use octocrab::{
     models::{reactions::ReactionContent, CommentId, ReactionId, ReleaseId, TeamId},
     Octocrab,
