@@ -487,7 +487,7 @@ pub type Languages = std::collections::HashMap<String, i64>;
 
 /// A deploy key for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct DeployKey {
@@ -521,7 +521,7 @@ pub struct TrafficEntry {
 
 /// Clones breakdown for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-repository-clones)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-repository-clones)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Clones {
@@ -532,7 +532,7 @@ pub struct Clones {
 
 /// Page views breakdown for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-page-views)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-page-views)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Views {
@@ -543,7 +543,7 @@ pub struct Views {
 
 /// Top referral path traffic for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-paths)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-top-referral-paths)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PathTraffic {
@@ -555,7 +555,7 @@ pub struct PathTraffic {
 
 /// Top referral source traffic for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-sources)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-top-referral-sources)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ReferrerTraffic {
@@ -566,7 +566,7 @@ pub struct ReferrerTraffic {
 
 /// An autolink reference for a repository.
 ///
-/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks)
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks?apiVersion=2022-11-28)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Autolink {

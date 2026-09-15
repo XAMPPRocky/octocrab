@@ -54,6 +54,7 @@ impl<'octo, 'b> CreatePullRequestBuilder<'octo, 'b> {
         self
     }
 
+    /// The repository where the head branch is located, formatted as `owner:repo`.
     pub fn head_repo(mut self, head_repo: impl Into<Option<String>>) -> Self {
         self.head_repo = head_repo.into();
         self

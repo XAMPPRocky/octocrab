@@ -25,22 +25,25 @@ impl<'octo, 'a> UpdateCodeScanningBuilder<'octo, 'a> {
         }
     }
 
-    /// The title of the code scanning.
+    /// Sets the state of the code scanning alert.
     pub fn state(mut self, state: impl Into<params::AlertState>) -> Self {
         self.state = Some(state.into());
         self
     }
 
+    /// Sets the reason why the code scanning alert was dismissed.
     pub fn dismissed_reason(mut self, dismissed_reason: impl Into<String>) -> Self {
         self.dismissed_reason = Some(dismissed_reason.into());
         self
     }
 
+    /// Sets an optional comment when dismissing the code scanning alert.
     pub fn dismissed_comment(mut self, dismissed_comment: impl Into<String>) -> Self {
         self.dismissed_comment = Some(dismissed_comment.into());
         self
     }
 
+    /// Sends the request to update the code scanning alert.
     pub async fn send(self) -> Result<models::code_scannings::CodeScanningAlert> {
         let route = format!(
             "/repos/{owner}/{repo}/code-scanning/alerts/{code_scanning}",

@@ -118,7 +118,7 @@ impl<'octo> SearchHandler<'octo> {
     ///
     /// Alias for [`SearchHandler::issues_and_pull_requests`].
     ///
-    /// See <https://docs.github.com/en/rest/search/search#search-issues-and-pull-requests>
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#search-issues-and-pull-requests)
     ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
@@ -141,7 +141,7 @@ impl<'octo> SearchHandler<'octo> {
 
     /// Searches for all labels in a repository matching the search query.
     ///
-    /// See <https://docs.github.com/en/rest/search/search#search-labels>
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#search-labels)
     ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
@@ -167,7 +167,7 @@ impl<'octo> SearchHandler<'octo> {
 
     /// Searches for all topics matching the search query.
     ///
-    /// See <https://docs.github.com/en/rest/search/search#search-topics>
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#search-topics)
     ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {

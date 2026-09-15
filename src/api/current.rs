@@ -53,7 +53,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
 
     /// Handle packages for the authenticated user.
     ///
-    /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28)
     pub fn packages(&self) -> crate::api::packages::PackagesHandler<'octo> {
         crate::api::packages::PackagesHandler::new(
             self.crab,
@@ -63,14 +63,14 @@ impl<'octo> CurrentAuthHandler<'octo> {
 
     /// Handle codespaces for the authenticated user.
     ///
-    /// See: https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28)
     pub fn codespaces(&self) -> crate::api::codespaces::CodespacesHandler<'octo> {
         crate::api::codespaces::CodespacesHandler::new(self.crab)
     }
 
     /// Handle migrations for the authenticated user.
     ///
-    /// See: https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28)
     pub fn migrations(&self) -> crate::api::migrations::MigrationsHandler<'octo> {
         crate::api::migrations::MigrationsHandler::new(self.crab)
     }
@@ -106,7 +106,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-the-authenticated-user)
     pub fn list_repos_starred_by_authenticated_user(&self) -> ListStarredReposBuilder<'octo> {
         ListStarredReposBuilder::new(self.crab)
     }
@@ -175,7 +175,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user)
     pub fn list_repos_for_authenticated_user(&self) -> ListReposForAuthenticatedUserBuilder<'octo> {
         ListReposForAuthenticatedUserBuilder::new(self.crab)
     }
@@ -213,7 +213,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=latest#list-gists-for-the-authenticated-user)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-the-authenticated-user)
     pub fn list_gists_for_authenticated_user(&self) -> ListGistsForAuthenticatedUserBuilder<'octo> {
         // self.crab.get("/gists", None::<&()>).await
         ListGistsForAuthenticatedUserBuilder::new(self.crab)
@@ -356,7 +356,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-memberships-for-the-authenticated-user)
     pub fn list_org_memberships_for_authenticated_user(
         &self,
     ) -> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
@@ -683,7 +683,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// One of `created` (when the repository was starred) or `updated` (when it was last pushed to).
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-the-authenticated-user--parameters)
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
@@ -691,7 +691,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// One of `asc` (ascending) or `desc` (descending).
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-the-authenticated-user--parameters)
     pub fn direction(mut self, direction: impl Into<String>) -> Self {
         self.direction = Some(direction.into());
         self
@@ -699,7 +699,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// Results per page (max 100).
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-the-authenticated-user--parameters)
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
@@ -707,7 +707,7 @@ impl<'octo> ListStarredReposBuilder<'octo> {
 
     /// Page number of the results to fetch.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/activity#list-repositories-starred-by-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-the-authenticated-user--parameters)
     pub fn page(mut self, page: impl Into<u8>) -> Self {
         self.page = Some(page.into());
         self
@@ -775,7 +775,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Can be one of `all`, `public`, or `private`. Note: For GitHub AE, can be one of `all`, `internal`, or `private`.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn visibility(mut self, visibility: impl Into<String>) -> Self {
         self.visibility = Some(visibility.into());
         self
@@ -786,7 +786,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
     /// * `collaborator`: Repositories that the user has been added to as a collaborator.
     /// * `organization_member`: Repositories that the user has access to through being a member of an organization. This includes every repository on every team that the user is on.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn affiliation(mut self, affiliation: impl Into<String>) -> Self {
         self.affiliation = Some(affiliation.into());
         self
@@ -796,7 +796,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
     ///
     /// Note: For GitHub AE, can be one of `all`, `owner`, `internal`, `private`, `member`.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn type_(mut self, type_: impl Into<String>) -> Self {
         self.r#type = Some(type_.into());
         self
@@ -804,7 +804,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Can be one of `created`, `updated`, `pushed`, `full_name`.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
@@ -812,7 +812,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Can be one of `asc` or `desc`.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn direction(mut self, direction: impl Into<String>) -> Self {
         self.direction = Some(direction.into());
         self
@@ -820,7 +820,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Results per page (max 100).
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
@@ -828,7 +828,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Page number of the results to fetch.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn page(mut self, page: impl Into<u8>) -> Self {
         self.page = Some(page.into());
         self
@@ -836,7 +836,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Only show notifications updated after the given time.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
         self.since = Some(since.into());
         self
@@ -844,7 +844,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
 
     /// Only show notifications updated before the given time.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
     pub fn before(mut self, before: impl Into<DateTime<Utc>>) -> Self {
         self.before = Some(before.into());
         self
@@ -885,7 +885,7 @@ impl<'octo> ListGistsForAuthenticatedUserBuilder<'octo> {
     /// Create a new builder using the given client and default options as
     /// described in GitHub's API docs.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=latest#list-gists-for-the-authenticated-user)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#list-gists-for-the-authenticated-user)
     pub fn new(crab: &'octo Octocrab) -> Self {
         Self {
             crab,
@@ -1000,7 +1000,7 @@ impl<'octo> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
 
     /// Results per page (max 100).
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-memberships-for-the-authenticated-user--parameters)
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
@@ -1008,7 +1008,7 @@ impl<'octo> ListOrgMembershipsForAuthenticatedUserBuilder<'octo> {
 
     /// Page number of the results to fetch.
     ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members#list-organization-memberships-for-the-authenticated-user--parameters)
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-memberships-for-the-authenticated-user--parameters)
     pub fn page(mut self, page: impl Into<u8>) -> Self {
         self.page = Some(page.into());
         self

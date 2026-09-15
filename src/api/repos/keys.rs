@@ -16,7 +16,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
 
     /// Creates a [`ListKeysBuilder`] to list deploy keys for a repository.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys#list-deploy-keys)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28#list-deploy-keys)
     ///
     /// # Examples
     ///
@@ -38,7 +38,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
 
     /// Gets a single deploy key by its ID.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys#get-a-deploy-key)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28#get-a-deploy-key)
     ///
     /// # Examples
     ///
@@ -59,7 +59,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
 
     /// Creates a [`CreateKeyBuilder`] to create a new deploy key for a repository.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys#create-a-deploy-key)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28#create-a-deploy-key)
     ///
     /// # Examples
     ///
@@ -84,7 +84,7 @@ impl<'octo, 'r> RepoKeysHandler<'octo, 'r> {
 
     /// Deletes a deploy key by its ID.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys#delete-a-deploy-key)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28#delete-a-deploy-key)
     ///
     /// # Examples
     ///

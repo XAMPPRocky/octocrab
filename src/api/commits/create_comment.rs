@@ -4,6 +4,7 @@ use super::*;
 pub struct CreateCommentBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r super::CommitHandler<'octo>,
+    #[serde(skip)]
     sha: String,
     body: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -49,11 +50,13 @@ impl<'octo, 'r> CreateCommentBuilder<'octo, 'r> {
         self
     }
 
+    /// The line index in the diff to comment on.
     pub fn position(mut self, position: impl Into<Option<u64>>) -> Self {
         self.position = position.into();
         self
     }
 
+    /// The line number in the file to comment on.
     pub fn line(mut self, line: impl Into<Option<u64>>) -> Self {
         self.line = line.into();
         self
@@ -68,20 +71,19 @@ mod tests {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.commits("owner", "repo");
         let list = handler
-            .create_comment("95b3b039e71659a401ef39e86bab691ab6ce5fe5", "boo boo")
-            .path("lib/octocat.rb")
-            .position(10)
-            .line(1);
+            .create_comment("sha", "body")
+            .path("path")
+            .position(1u64)
+            .line(1u64);
 
         assert_eq!(
             serde_json::to_value(list).unwrap(),
             serde_json::json!({
-                "sha": "95b3b039e71659a401ef39e86bab691ab6ce5fe5",
-                "body": "boo boo",
-                "path": "lib/octocat.rb",
-                "position": 10,
+                "body": "body",
+                "path": "path",
+                "position": 1,
                 "line": 1,
             })
-        )
+        );
     }
 }

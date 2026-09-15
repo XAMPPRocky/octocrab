@@ -115,21 +115,25 @@ impl<'octo> ListUserGistsBuilder<'octo> {
         }
     }
 
+    /// Only show gists that were updated after this UTC timestamp.
     pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
         self.since = Some(last_updated);
         self
     }
 
+    /// The maximum number of results in each page retrieved.
     pub fn per_page(mut self, count: u8) -> Self {
         self.per_page = Some(count);
         self
     }
 
+    /// The page number to fetch. This starts at (and defaults to) 1.
     pub fn page(mut self, number: u32) -> Self {
         self.page = Some(number);
         self
     }
 
+    /// Sends the actual request.
     pub async fn send(self) -> crate::Result<crate::Page<Gist>> {
         self.crab
             .get(

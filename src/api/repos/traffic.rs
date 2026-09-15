@@ -17,7 +17,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
 
     /// Creates a [`ClonesBuilder`] to fetch clone counts and breakdown.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-repository-clones)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-repository-clones)
     ///
     /// # Examples
     ///
@@ -40,7 +40,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
 
     /// Creates a [`ViewsBuilder`] to fetch page view counts and breakdown.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-page-views)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-page-views)
     ///
     /// # Examples
     ///
@@ -63,7 +63,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
 
     /// Get the top 10 popular contents/paths over the last 14 days.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-paths)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-top-referral-paths)
     ///
     /// # Examples
     ///
@@ -88,7 +88,7 @@ impl<'octo, 'r> RepoTrafficHandler<'octo, 'r> {
 
     /// Get the top 10 referrers over the last 14 days.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic#get-top-referral-sources)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28#get-top-referral-sources)
     ///
     /// # Examples
     ///

@@ -23,7 +23,7 @@ pub type AppsHandler<'octo> = AppsRequestHandler<'octo>;
 ///
 /// Created with [`Octocrab::apps`].
 ///
-/// [apps-api]: https://docs.github.com/en/rest/apps
+/// [apps-api]: https://docs.github.com/en/rest/apps?apiVersion=2022-11-28
 pub struct AppsRequestHandler<'octo> {
     crab: &'octo Octocrab,
 }

@@ -133,7 +133,7 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can lock an issue or pull request's conversation.
     ///
-    /// See also: <https://docs.github.com/en/rest/issues/issues#lock-an-issue>
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#lock-an-issue)
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -174,7 +174,7 @@ impl<'octo> IssueHandler<'octo> {
 
     /// Users with push access can unlock an issue or pull request's conversation.
     ///
-    /// See also: <https://docs.github.com/en/rest/issues/issues#unlock-an-issue>
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#unlock-an-issue)
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// assert!(octocrab::instance().issues("owner", "repo").unlock(404).await?);

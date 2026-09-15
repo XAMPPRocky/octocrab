@@ -42,6 +42,10 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#list-repository-variables)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # use octocrab::models::repos::RepoVariables;
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<RepoVariables> {
@@ -61,6 +65,10 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Gets a specific variable in a repository.
     /// The authenticated user must have collaborator access to the repository to use this endpoint.
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#get-a-repository-variable)
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # use octocrab::models::repos::RepoVariable;
@@ -87,6 +95,10 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Creates a repository variable that you can reference in a GitHub Actions workflow.
     /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
     /// OAuth tokens and personal access tokens (classic) need the repo scope to use this endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#create-a-repository-variable)
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
@@ -120,6 +132,11 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Updates a repository variable that you can reference in a GitHub Actions workflow.
     /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
     /// OAuth app tokens and personal access tokens (classic) need the repo scope to use this endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#update-a-repository-variable)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.repos("owner", "repo")
@@ -155,6 +172,10 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Authenticated users must have collaborator access to a repository to create, update, or read variables.
     /// OAuth tokens and personal access tokens (classic) need the repo scope to use this endpoint.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#delete-a-repository-variable)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let repo = octocrab.repos("owner", "repo")
@@ -179,6 +200,15 @@ impl<'octo> RepoVariablesHandler<'octo> {
     /// Lists organization variables available to this repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28#list-repository-organization-variables)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let vars = octocrab.repos("owner", "repo").variables().list_org_variables().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_org_variables(&self) -> crate::Result<RepoVariables> {
         let route = format!("/{}/actions/organization-variables", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await

@@ -32,6 +32,7 @@ impl<'octo, 'r> GetCheckRunBuilder<'octo, 'r> {
         }
     }
 
+    /// Sends the request to get the check run.
     pub async fn send(self) -> Result<models::checks::CheckRun> {
         let route = format!(
             "/repos/{owner}/{repo}/check-runs/{check_run_id}",

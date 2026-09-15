@@ -21,19 +21,64 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// List code scanning alerts in the repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-code-scanning-alerts-for-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-code-scanning-alerts-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .list()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoCodeScanningAlertsBuilder<'octo, 'b, '_> {
         ListRepoCodeScanningAlertsBuilder::new(self)
     }
 
     /// Alias for [`Self::list`].
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-code-scanning-alerts-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .list_alerts()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_alerts(&self) -> ListRepoCodeScanningAlertsBuilder<'octo, 'b, '_> {
         self.list()
     }
 
     /// Get a single code scanning alert in the repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#get-a-code-scanning-alert
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get(42)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, alert_number: u64) -> Result<CodeScanningAlert> {
         let route = format!(
             "/{}/code-scanning/alerts/{}",
@@ -44,28 +89,86 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Update a code scanning alert in the repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-alert
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#update-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .update(42)
+    ///     .dismissed_reason("false positive")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn update(&self, alert_number: u64) -> UpdateRepoCodeScanningAlertBuilder<'octo, 'b, '_> {
         UpdateRepoCodeScanningAlertBuilder::new(self, alert_number)
     }
 
     /// List instances of a code scanning alert.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-instances-of-a-code-scanning-alert
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-instances-of-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let instances = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .list_instances(42)
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_instances(&self, alert_number: u64) -> ListAlertInstancesBuilder<'octo, 'b, '_> {
         ListAlertInstancesBuilder::new(self, alert_number)
     }
 
     /// List code scanning analyses for a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-code-scanning-analyses-for-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-code-scanning-analyses-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let analyses = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .list_analyses()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_analyses(&self) -> ListAnalysesBuilder<'octo, 'b, '_> {
         ListAnalysesBuilder::new(self)
     }
 
     /// Get a code scanning analysis for a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#get-a-code-scanning-analysis-for-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-code-scanning-analysis-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let analysis = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_analysis(42)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_analysis(&self, analysis_id: u64) -> Result<Analysis> {
         let route = format!(
             "/{}/code-scanning/analyses/{}",
@@ -76,7 +179,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Delete a code scanning analysis from a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#delete-a-code-scanning-analysis-from-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#delete-a-code-scanning-analysis-from-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let response = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .delete_analysis(42, None::<String>)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_analysis(
         &self,
         analysis_id: u64,
@@ -99,7 +215,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// List CodeQL databases for a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-codeql-databases-for-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-codeql-databases-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let databases = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .list_codeql_databases()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_codeql_databases(&self) -> Result<Vec<CodeqlDatabase>> {
         let route = format!("/{}/code-scanning/codeql/databases", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
@@ -107,7 +236,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Get a CodeQL database for a language in a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#get-a-codeql-database-for-a-repository
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-codeql-database-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let db = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_codeql_database("javascript")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_codeql_database(&self, language: impl AsRef<str>) -> Result<CodeqlDatabase> {
         let route = format!(
             "/{}/code-scanning/codeql/databases/{}",
@@ -119,7 +261,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Delete a CodeQL database for a language in a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#delete-a-codeql-database
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#delete-a-codeql-database)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .delete_codeql_database("javascript")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_codeql_database(&self, language: impl AsRef<str>) -> Result<()> {
         let route = format!(
             "/{}/code-scanning/codeql/databases/{}",
@@ -133,7 +288,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Get a code scanning default setup configuration for a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#get-a-code-scanning-default-setup-configuration
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-code-scanning-default-setup-configuration)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let setup = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_default_setup()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_default_setup(&self) -> Result<DefaultSetup> {
         let route = format!("/{}/code-scanning/default-setup", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
@@ -141,7 +309,23 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Update a code scanning default setup configuration for a repository.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-default-setup-configuration
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#update-a-code-scanning-default-setup-configuration)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::UpdateDefaultSetup;
+    ///
+    /// let body = UpdateDefaultSetup::default();
+    /// let response = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .update_default_setup(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update_default_setup(
         &self,
         body: &UpdateDefaultSetup,
@@ -152,7 +336,23 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Upload an analysis as SARIF data.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#upload-an-analysis-as-sarif-data
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#upload-an-analysis-as-sarif-data)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::UploadSarif;
+    ///
+    /// # let body: UploadSarif = todo!();
+    /// let receipt = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .upload_sarif(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn upload_sarif(&self, body: &UploadSarif) -> Result<SarifReceipt> {
         let route = format!("/{}/code-scanning/sarifs", self.handler.repo);
         self.handler.crab.post(route, Some(body)).await
@@ -160,7 +360,20 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
 
     /// Get information about a SARIF upload.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#get-information-about-a-sarif-upload
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-information-about-a-sarif-upload)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sarif = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_sarif("sarif-id")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_sarif(&self, sarif_id: impl AsRef<str>) -> Result<SarifAnalysis> {
         let route = format!(
             "/{}/code-scanning/sarifs/{}",
@@ -212,51 +425,61 @@ impl<'octo, 'b, 'c> ListRepoCodeScanningAlertsBuilder<'octo, 'b, 'c> {
         }
     }
 
+    /// Filter by the name of the tool used to generate the code scanning analysis.
     pub fn tool_name(mut self, tool_name: impl Into<String>) -> Self {
         self.tool_name = Some(tool_name.into());
         self
     }
 
+    /// Filter by the GUID of the tool used to generate the code scanning analysis.
     pub fn tool_guid(mut self, tool_guid: impl Into<String>) -> Self {
         self.tool_guid = Some(tool_guid.into());
         self
     }
 
+    /// Results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
 
+    /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
         self
     }
 
+    /// Filter by Git reference (e.g. "heads/main").
     pub fn r#ref(mut self, r#ref: impl Into<String>) -> Self {
         self.r#ref = Some(r#ref.into());
         self
     }
 
+    /// The direction to sort the results by.
     pub fn direction(mut self, direction: impl Into<Direction>) -> Self {
         self.direction = Some(direction.into());
         self
     }
 
+    /// The property to sort the results by.
     pub fn sort(mut self, sort: impl Into<params::code_scannings::Sort>) -> Self {
         self.sort = Some(sort.into());
         self
     }
 
+    /// Filter by the state of the code scanning alert.
     pub fn state(mut self, state: impl Into<params::State>) -> Self {
         self.state = Some(state.into());
         self
     }
 
+    /// Filter by the severity of the code scanning alert.
     pub fn severity(mut self, severity: impl Into<params::code_scannings::Severity>) -> Self {
         self.severity = Some(severity.into());
         self
     }
 
+    /// Sends the request to list code scanning alerts.
     pub async fn send(self) -> Result<Page<CodeScanningAlert>> {
         let route = format!("/{}/code-scanning/alerts", self.handler.handler.repo);
         self.handler.handler.crab.get(route, Some(&self)).await
@@ -289,21 +512,25 @@ impl<'octo, 'b, 'c> UpdateRepoCodeScanningAlertBuilder<'octo, 'b, 'c> {
         }
     }
 
+    /// The required state of the code scanning alert.
     pub fn state(mut self, state: impl Into<params::AlertState>) -> Self {
         self.state = Some(state.into());
         self
     }
 
+    /// The reason for dismissing or closing the alert.
     pub fn dismissed_reason(mut self, dismissed_reason: impl Into<String>) -> Self {
         self.dismissed_reason = Some(dismissed_reason.into());
         self
     }
 
+    /// An optional comment when dismissing or closing the alert.
     pub fn dismissed_comment(mut self, dismissed_comment: impl Into<String>) -> Self {
         self.dismissed_comment = Some(dismissed_comment.into());
         self
     }
 
+    /// Sends the request to update a code scanning alert.
     pub async fn send(self) -> Result<CodeScanningAlert> {
         let route = format!(
             "/{}/code-scanning/alerts/{}",
@@ -342,26 +569,31 @@ impl<'octo, 'b, 'c> ListAlertInstancesBuilder<'octo, 'b, 'c> {
         }
     }
 
+    /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
         self
     }
 
+    /// Results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
 
+    /// Filter by Git reference (e.g. "heads/main").
     pub fn r#ref(mut self, r#ref: impl Into<String>) -> Self {
         self.r#ref = Some(r#ref.into());
         self
     }
 
+    /// Filter by pull request number.
     pub fn pr(mut self, pr: impl Into<u64>) -> Self {
         self.pr = Some(pr.into());
         self
     }
 
+    /// Sends the request to list instances of a code scanning alert.
     pub async fn send(self) -> Result<Page<AlertInstance>> {
         let route = format!(
             "/{}/code-scanning/alerts/{}/instances",
@@ -412,51 +644,61 @@ impl<'octo, 'b, 'c> ListAnalysesBuilder<'octo, 'b, 'c> {
         }
     }
 
+    /// Filter by the name of the tool used to generate the code scanning analysis.
     pub fn tool_name(mut self, tool_name: impl Into<String>) -> Self {
         self.tool_name = Some(tool_name.into());
         self
     }
 
+    /// Filter by the GUID of the tool used to generate the code scanning analysis.
     pub fn tool_guid(mut self, tool_guid: impl Into<String>) -> Self {
         self.tool_guid = Some(tool_guid.into());
         self
     }
 
+    /// Page number of the results to fetch.
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
         self
     }
 
+    /// Results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
 
+    /// Filter by Git reference (e.g. "heads/main").
     pub fn r#ref(mut self, r#ref: impl Into<String>) -> Self {
         self.r#ref = Some(r#ref.into());
         self
     }
 
+    /// Filter by pull request number.
     pub fn pr(mut self, pr: impl Into<u64>) -> Self {
         self.pr = Some(pr.into());
         self
     }
 
+    /// Filter by SARIF ID.
     pub fn sarif_id(mut self, sarif_id: impl Into<String>) -> Self {
         self.sarif_id = Some(sarif_id.into());
         self
     }
 
+    /// The direction to sort the results by.
     pub fn direction(mut self, direction: impl Into<Direction>) -> Self {
         self.direction = Some(direction.into());
         self
     }
 
+    /// The property to sort the results by.
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
     }
 
+    /// Sends the request to list code scanning analyses.
     pub async fn send(self) -> Result<Page<Analysis>> {
         let route = format!("/{}/code-scanning/analyses", self.handler.handler.repo);
         self.handler.handler.crab.get(route, Some(&self)).await

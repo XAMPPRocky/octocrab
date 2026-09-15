@@ -25,9 +25,13 @@ impl<'octo> StarringHandler<'octo> {
 
     /// Lists repositories a user has starred.
     ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-a-user)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// octocrab::instance()
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
     ///     .activity()
     ///     .starring()
     ///     .list_repos_starred_by_user("some_user")
@@ -36,8 +40,6 @@ impl<'octo> StarringHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-a-user)
     pub fn list_repos_starred_by_user(
         &self,
         username: impl Into<String>,
@@ -48,6 +50,19 @@ impl<'octo> StarringHandler<'octo> {
     /// Checks whether a repository is starred by the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let is_starred = octocrab
+    ///     .activity()
+    ///     .starring()
+    ///     .check("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn check(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<bool> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._get(route).await?;
@@ -61,6 +76,19 @@ impl<'octo> StarringHandler<'octo> {
     /// Stars a repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .activity()
+    ///     .starring()
+    ///     .star("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn star(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._put(route, None::<&()>).await?;
@@ -73,6 +101,19 @@ impl<'octo> StarringHandler<'octo> {
     /// Unstars a repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .activity()
+    ///     .starring()
+    ///     .unstar("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn unstar(&self, owner: impl AsRef<str>, repo: impl AsRef<str>) -> Result<()> {
         let route = format!("/user/starred/{}/{}", owner.as_ref(), repo.as_ref());
         let response = self.crab._delete(route, None::<&()>).await?;
@@ -152,6 +193,7 @@ impl<'octo> ListReposStarredByUserBuilder<'octo> {
         self
     }
 
+    /// Sends the request.
     pub async fn send(self) -> Result<Page<StarredRepository>> {
         let mut headers = HeaderMap::new();
 

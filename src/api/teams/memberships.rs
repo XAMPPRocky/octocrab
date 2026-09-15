@@ -32,7 +32,7 @@ impl<'octo> TeamMembershipBuilder<'octo> {
     /// Team members will include the members of child teams.
     /// To get a user's membership with a team, the team must be visible to the authenticated user.
     ///
-    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2026-03-10#get-team-membership-for-a-user>
+    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#get-team-membership-for-a-user>
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -60,7 +60,7 @@ impl<'octo> TeamMembershipBuilder<'octo> {
     /// If the user is unaffiliated with the organization, this sends an invitation email
     /// and their membership will be in the `pending` state until accepted.
     ///
-    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2026-03-10#add-or-update-team-membership-for-a-user>
+    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#add-or-update-team-membership-for-a-user>
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -94,7 +94,7 @@ impl<'octo> TeamMembershipBuilder<'octo> {
     /// Removing team membership does not delete the user, it just removes their membership
     /// from the team.
     ///
-    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2026-03-10#remove-team-membership-for-a-user>
+    /// See <https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#remove-team-membership-for-a-user>
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

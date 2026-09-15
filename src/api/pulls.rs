@@ -64,6 +64,11 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Checks if a given pull request has been merged.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#check-if-a-pull-request-has-been-merged)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// octocrab.pulls("owner", "repo").is_merged(101).await?;
@@ -87,6 +92,10 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Update the branch of a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request-branch)
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
@@ -113,6 +122,18 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Create a codespace for this pull request.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#create-a-codespace-from-a-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let codespace = octocrab
+    ///     .pulls("owner", "repo")
+    ///     .create_codespace(101, &octocrab::models::codespaces::CreatePullRequestCodespace::default())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_codespace(
         &self,
         pr: u64,
@@ -127,10 +148,15 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.post(route, Some(body)).await
     }
 
-    /// Get's a given pull request with by its `pr` number.
+    /// Get a given pull request by its `pr` number.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let pr = octocrab::instance().pulls("owner", "repo").get(101).await?;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pr = octocrab.pulls("owner", "repo").get(101).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -145,10 +171,15 @@ impl<'octo> PullRequestHandler<'octo> {
         self.http_get(route, None::<&()>).await
     }
 
-    /// Get's a given pull request's `diff`.
+    /// Get a given pull request's `diff`.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let diff = octocrab::instance().pulls("owner", "repo").get_diff(101).await?;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab.pulls("owner", "repo").get_diff(101).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -173,10 +204,15 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.body_to_string(response).await
     }
 
-    /// Get's a given pull request's patch.
+    /// Get a given pull request's patch.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let diff = octocrab::instance().pulls("owner", "repo").get_patch(101).await?;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let patch = octocrab.pulls("owner", "repo").get_patch(101).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -212,6 +248,11 @@ impl<'octo> PullRequestHandler<'octo> {
     ///   should be an existing branch on the current repository. You cannot
     ///   submit a pull request to one repository that requests a merge to a
     ///   base of another repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#create-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let pr = octocrab
@@ -235,6 +276,11 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Update a new pull request.
     ///
     /// - `pull_number` — pull request number.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let pr = octocrab
@@ -252,6 +298,11 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Creates a new `ListPullRequestsBuilder` that can be configured to filter
     /// listing pulling requests.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -276,11 +327,16 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Lists all of the `Review`s associated with the pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#list-reviews-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let reviews = octocrab::instance()
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let reviews = octocrab
     ///     .pulls("owner", "repo")
-    ///     .list_reviews(21u64.into())
+    ///     .list_reviews(21u64)
     ///     .per_page(100)
     ///     .page(2u32)
     ///     .send()
@@ -293,11 +349,16 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Request a review from users or teams.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#request-reviewers-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let review = octocrab::instance().pulls("owner", "repo")
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let review = octocrab.pulls("owner", "repo")
     ///    .request_reviews(101, ["user1".to_string(), "user2".to_string()], ["team1".to_string(), "team2".to_string()])
-    ///  .await?;
+    ///    .await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -321,11 +382,16 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// Remove a requested reviewer from users or teams.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#remove-requested-reviewers-from-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let review = octocrab::instance().pulls("owner", "repo")
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let review = octocrab.pulls("owner", "repo")
     ///    .remove_requested_reviewers(101, ["user1".to_string(), "user2".to_string()], ["team1".to_string(), "team2".to_string()])
-    ///  .await?;
+    ///    .await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -349,11 +415,17 @@ impl<'octo> PullRequestHandler<'octo> {
     }
 
     /// List all `DiffEntry`s associated with the pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests-files)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let files = octocrab::instance().pulls("owner", "repo").list_files(101).await?;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let files = octocrab.pulls("owner", "repo").list_files(101).await?;
     /// # Ok(())
     /// # }
+    /// ```
     pub async fn list_files(
         &self,
         pr: u64,
@@ -370,6 +442,11 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Creates a new `ListCommentsBuilder` that can be configured to list and
     /// filter `Comments` for a particular pull request. If no pull request is
     /// specified, lists comments for the whole repo.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#list-review-comments-in-a-repository)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -391,10 +468,15 @@ impl<'octo> PullRequestHandler<'octo> {
         comment::ListCommentsBuilder::new(self, pr)
     }
 
-    ///creates a new `CommentBuilder` for GET/PATCH/DELETE requests
-    /// to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint
+    /// Creates a new `CommentBuilder` for GET/PATCH/DELETE requests
+    /// to the `/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}` endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#get-a-review-comment-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
-    ///  use octocrab::models::CommentId;
+    /// use octocrab::models::CommentId;
     /// use octocrab::models::pulls::Comment;
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<Comment> {
     ///     let _ = octocrab.pulls("owner", "repo").comment(CommentId(21)).delete();
@@ -402,7 +484,7 @@ impl<'octo> PullRequestHandler<'octo> {
     ///     let comment = octocrab.pulls("owner", "repo").comment(CommentId(42)).get().await;
     ///
     ///     comment
-    ///  }
+    /// # }
     /// ```
     pub fn comment(&self, comment_id: CommentId) -> comment::CommentBuilder<'_, '_> {
         comment::CommentBuilder::new(self, comment_id)
@@ -493,15 +575,14 @@ impl<'octo> PullRequestHandler<'octo> {
             .map(drop)
     }
 
-    /// creates a builder for the `/repos/{owner}/{repo}/pulls/{pull_number}/......` endpoint
-    /// working with particular pull request, e.g.
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/commits
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals
-    /// * /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
-    ///
+    /// Creates a builder for the `/repos/{owner}/{repo}/pulls/{pull_number}/...` endpoint
+    /// working with a particular pull request, e.g.:
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events`
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}`
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/commits`
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments`
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals`
+    /// * `/repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies`
     #[deprecated(
         since = "0.34.4",
         note = "specific PR builder transitioned to pr_review_actions, pr_commits, reply_to_comment"
@@ -511,10 +592,22 @@ impl<'octo> PullRequestHandler<'octo> {
         SpecificPullRequestBuilder::new(self, pull_nr)
     }
 
-    // /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events
-    // /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}
-    // repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments
-    // repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals
+    /// Returns a builder for review actions on a specific pull request review.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let review = octocrab
+    ///     .pulls("owner", "repo")
+    ///     .pr_review_actions(42, 1)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn pr_review_actions(
         &self,
         pull_nr: u64,
@@ -526,11 +619,15 @@ impl<'octo> PullRequestHandler<'octo> {
     /// Lists a maximum of 250 commits for a pull request.
     ///
     /// To receive a complete commit list for pull requests with more than 250 commits,
-    /// use the [List commits](https://docs.github.com/rest/commits/commits#list-commits) endpoint.
+    /// use the [List commits](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits) endpoint.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-commits-on-a-pull-request)
+    ///
+    /// # Examples
     ///
     /// ```no_run
-    /// # async fn run() -> octocrab::Result<()> {
-    /// let commits = octocrab::instance()
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let commits = octocrab
     ///     .pulls("owner", "repo")
     ///     .pr_commits(21u64)
     ///     .per_page(100)
@@ -540,19 +637,20 @@ impl<'octo> PullRequestHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    // /repos/{owner}/{repo}/pulls/{pull_number}/commits
     pub fn pr_commits(&self, pr_number: u64) -> SpecificPullRequestCommitBuilder<'_, '_> {
         SpecificPullRequestCommitBuilder::new(self, pr_number)
     }
 
-    // /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies
-    /// Creates a reply to a specific comment of a pull request specified in the first argument
+    /// Creates a reply to a specific comment of a pull request specified in the first argument.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#create-a-reply-for-a-review-comment)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # use octocrab::models::CommentId;
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
-    /// use octocrab::params;
-    ///
-    /// let page = octocrab.pulls("owner", "repo").reply_to_comment(142, CommentId(24), "This is my reply")
+    /// let reply = octocrab.pulls("owner", "repo").reply_to_comment(142, CommentId(24), "This is my reply")
     ///     .await?;
     /// # Ok(())
     /// # }
@@ -575,8 +673,21 @@ impl<'octo> PullRequestHandler<'octo> {
             .await
     }
 
-    // /repos/{owner}/{repo}/pulls/{pull_number}/comments
-    /// Creates a comment of a pull request specified in the first argument
+    /// Creates a review comment on a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/comments?apiVersion=2022-11-28#create-a-review-comment-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let comment = octocrab
+    ///     .pulls("owner", "repo")
+    ///     .create_comment(142, "comment", "6dcb09b5b57875f334f61aebed695e2e4193db5e", "file.rs", 1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_comment(
         &self,
         pull_nr: u64,
@@ -598,6 +709,11 @@ impl<'octo> PullRequestHandler<'octo> {
 
     /// Creates a new `MergePullRequestsBuilder` that can be configured used to
     /// merge a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#merge-a-pull-request)
+    ///
+    /// # Examples
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params;
