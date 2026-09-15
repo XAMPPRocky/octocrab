@@ -4,6 +4,7 @@ use super::*;
 pub struct CreateCommentBuilder<'octo, 'r> {
     #[serde(skip)]
     handler: &'r super::CommitHandler<'octo>,
+    #[serde(skip)]
     sha: String,
     body: String,
     #[serde(skip_serializing_if = "Option::is_none")]
