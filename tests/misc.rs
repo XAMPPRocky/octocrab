@@ -1,6 +1,6 @@
-#[path = "mock_error.rs"]
+#[path = "common/mock_error.rs"]
 pub mod mock_error;
-#[path = "cache_test_helpers.rs"]
+#[path = "common/cache_test_helpers.rs"]
 pub mod cache_test_helpers;
 
 #[path = "misc/apps_test.rs"]

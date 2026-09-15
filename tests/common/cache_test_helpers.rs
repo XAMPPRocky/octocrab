@@ -90,7 +90,7 @@ where
 {
     let mocked_path = "/users/some-user";
 
-    let body: UserProfile = serde_json::from_str(include_str!("resources/user_data.json"))
+    let body: UserProfile = serde_json::from_str(include_str!("../resources/user_data.json"))
         .expect("Failed to parse mocked user profile");
     let etag = "test-etag";
 
@@ -128,7 +128,7 @@ where
 {
     let mocked_path = "/users/some-user";
 
-    let first_body: UserProfile = serde_json::from_str(include_str!("resources/user_data.json"))
+    let first_body: UserProfile = serde_json::from_str(include_str!("../resources/user_data.json"))
         .expect("Failed to parse mocked user profile");
     let first_etag = "first-etag";
 
