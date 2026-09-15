@@ -21,6 +21,19 @@ impl<'octo> RepoSubscriptionHandler<'octo> {
     /// Gets information about whether the authenticated user is subscribed to the repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#get-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let subscription = octocrab
+    ///     .repos("owner", "repo")
+    ///     .subscription()
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self) -> Result<RepositorySubscription> {
         self.crab.get(&self.route, None::<&()>).await
     }
@@ -28,6 +41,21 @@ impl<'octo> RepoSubscriptionHandler<'octo> {
     /// Sets a subscription to the repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#set-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let subscription = octocrab
+    ///     .repos("owner", "repo")
+    ///     .subscription()
+    ///     .set()
+    ///     .subscribed(true)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn set(&self) -> SetRepoSubscriptionBuilder<'octo> {
         SetRepoSubscriptionBuilder::new(self.crab, &self.route)
     }
@@ -35,6 +63,19 @@ impl<'octo> RepoSubscriptionHandler<'octo> {
     /// Deletes a repository subscription.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#delete-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .subscription()
+    ///     .delete()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete(&self) -> Result<()> {
         let response = self.crab._delete(&self.route, None::<&()>).await?;
         if !response.status().is_success() {
@@ -79,6 +120,21 @@ impl<'octo> SetRepoSubscriptionBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let subscription = octocrab
+    ///     .repos("owner", "repo")
+    ///     .subscription()
+    ///     .set()
+    ///     .subscribed(true)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<RepositorySubscription> {
         self.crab.put(&self.route, Some(&self)).await
     }

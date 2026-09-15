@@ -36,6 +36,15 @@ impl<'octo> ListInstallationRepositoriesBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repos = octocrab.apps().installation_repositories().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<InstallationRepositories> {
         let route = "/installation/repositories";
         self.crab.get(route, Some(&self)).await

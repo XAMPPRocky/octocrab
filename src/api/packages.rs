@@ -49,16 +49,43 @@ impl<'octo> PackagesHandler<'octo> {
     }
 
     /// Scope package operations to a specific organization.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let org_packages = octocrab.packages().org("org");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn org(&self, org: impl Into<String>) -> Self {
         Self::new(self.crab, PackagesOwner::Org(org.into()))
     }
 
     /// Scope package operations to a specific user.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let user_packages = octocrab.packages().user("user");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn user(&self, user: impl Into<String>) -> Self {
         Self::new(self.crab, PackagesOwner::User(user.into()))
     }
 
     /// Scope package operations to the authenticated user.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let user_packages = octocrab.packages().current();
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn current(&self) -> Self {
         Self::new(self.crab, PackagesOwner::AuthenticatedUser)
     }
@@ -66,6 +93,15 @@ impl<'octo> PackagesHandler<'octo> {
     /// Lists all packages that encountered a conflict during a Docker migration.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-list-of-conflicting-packages-during-docker-migration-for-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let conflicts = octocrab.packages().org("org").docker_conflicts().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn docker_conflicts(&self) -> Result<Vec<Package>> {
         let route = format!("{}/docker/conflicts", self.owner.prefix());
         self.crab.get(route, None::<&()>).await
@@ -74,6 +110,22 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to list packages readable by the user.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#list-packages-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let packages = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .list(PackageType::Container)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self, package_type: PackageType) -> ListPackagesBuilder<'octo, '_> {
         ListPackagesBuilder::new(self, package_type)
     }
@@ -81,6 +133,21 @@ impl<'octo> PackagesHandler<'octo> {
     /// Gets a specific package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-a-package-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let package = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .get(PackageType::Container, "my-package")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(
         &self,
         package_type: PackageType,
@@ -97,6 +164,21 @@ impl<'octo> PackagesHandler<'octo> {
     /// Deletes a specific package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#delete-a-package-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .delete(PackageType::Container, "my-package")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete(
         &self,
         package_type: PackageType,
@@ -115,6 +197,22 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to restore an entire package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#restore-a-package-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .restore(PackageType::Container, "my-package")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn restore(
         &self,
         package_type: PackageType,
@@ -126,6 +224,22 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to list package versions for a package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#list-package-versions-for-a-package-owned-by-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let versions = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .list_versions(PackageType::Container, "my-package")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_versions(
         &self,
         package_type: PackageType,
@@ -137,6 +251,21 @@ impl<'octo> PackagesHandler<'octo> {
     /// Gets a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-a-package-version-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let version = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .get_version(PackageType::Container, "my-package", 1234u64)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_version(
         &self,
         package_type: PackageType,
@@ -155,6 +284,21 @@ impl<'octo> PackagesHandler<'octo> {
     /// Deletes a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#delete-package-version-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .delete_version(PackageType::Container, "my-package", 1234u64)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_version(
         &self,
         package_type: PackageType,
@@ -175,6 +319,21 @@ impl<'octo> PackagesHandler<'octo> {
     /// Restores a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#restore-package-version-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .restore_version(PackageType::Container, "my-package", 1234u64)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn restore_version(
         &self,
         package_type: PackageType,
@@ -243,6 +402,23 @@ impl<'octo, 'r> ListPackagesBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a page of packages.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let page = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .list(PackageType::Container)
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Package>> {
         let route = format!("{}/packages", self.handler.owner.prefix());
         self.handler.crab.get(route, Some(&self)).await
@@ -301,6 +477,23 @@ impl<'octo, 'r> ListPackageVersionsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a page of package versions.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// let page = octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .list_versions(PackageType::Container, "my-package")
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<PackageVersion>> {
         let route = format!(
             "{}/packages/{package_type}/{}/versions",
@@ -341,6 +534,22 @@ impl<'octo, 'r> RestorePackageBuilder<'octo, 'r> {
     }
 
     /// Sends the restore request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::packages::PackageType;
+    ///
+    /// octocrab
+    ///     .packages()
+    ///     .org("org")
+    ///     .restore(PackageType::Container, "my-package")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<()> {
         let mut route = format!(
             "{}/packages/{package_type}/{}/restore",

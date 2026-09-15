@@ -353,6 +353,22 @@ impl<'octo> RepoHandler<'octo> {
     /// Updates a Git reference in the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let r#ref = octocrab
+    ///     .repos("owner", "repo")
+    ///     .update_ref(&Reference::Branch("main".to_string()), "sha")
+    ///     .force(true)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn update_ref(
         &self,
         reference: &params::repos::Reference,
@@ -391,6 +407,18 @@ impl<'octo> RepoHandler<'octo> {
     /// Lists Git references that match the supplied sub-string.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let refs = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_matching_refs("heads/")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_matching_refs(
         &self,
         reference: impl AsRef<str>,
@@ -401,6 +429,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new Git tag object in the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let tag = octocrab
+    ///     .repos("owner", "repo")
+    ///     .create_tag("v0.1.0", "Initial release", "commit_sha", "commit")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_tag(
         &self,
         tag: impl Into<String>,
@@ -414,6 +455,18 @@ impl<'octo> RepoHandler<'octo> {
     /// Gets a Git commit object from the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let commit = octocrab
+    ///     .repos("owner", "repo")
+    ///     .get_commit("sha")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_commit(&self, commit_sha: impl Into<String>) -> Result<GitCommitObject> {
         self.git().get_commit(commit_sha).await
     }
@@ -421,6 +474,18 @@ impl<'octo> RepoHandler<'octo> {
     /// Gets a Git blob from the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let blob = octocrab
+    ///     .repos("owner", "repo")
+    ///     .get_blob("file_sha")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_blob(&self, file_sha: impl Into<String>) -> Result<models::git::GitBlob> {
         self.git().get_blob(file_sha).await
     }
@@ -428,6 +493,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new Git blob in the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let blob = octocrab
+    ///     .repos("owner", "repo")
+    ///     .create_blob("Hello World")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_blob(
         &self,
         content: impl Into<String>,
@@ -438,6 +516,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Gets a Git tree object from the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let tree = octocrab
+    ///     .repos("owner", "repo")
+    ///     .get_tree("tree_sha")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn get_tree(&self, tree_sha: impl Into<String>) -> crate::api::git::GetTreeBuilder<'octo> {
         self.git().get_tree(tree_sha)
     }
@@ -445,6 +536,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Creates a new Git tree object in the repository.
     ///
     /// Note: This method is also available via [`RepoHandler::git`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let tree = octocrab
+    ///     .repos("owner", "repo")
+    ///     .create_tree(vec![])
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_tree(
         &self,
         tree: Vec<models::git::CreateTreeEntry>,
@@ -642,6 +746,15 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle tags on the repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let tags = octocrab.repos("owner", "repo").tags().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn tags(&self) -> RepoTagsHandler<'octo, '_> {
         RepoTagsHandler::new(self)
     }
@@ -656,6 +769,15 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle branches and branch protection on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let branch = octocrab.repos("owner", "repo").branches().get("main").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn branches(&self) -> RepoBranchesHandler<'octo, '_> {
         RepoBranchesHandler::new(self)
     }
@@ -663,6 +785,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle rulesets on the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rulesets = octocrab.repos("owner", "repo").rulesets().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn rulesets(&self) -> RepoRulesetsHandler<'octo, '_> {
         RepoRulesetsHandler::new(self)
     }
@@ -670,6 +801,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Get all active rules that apply to the specified branch.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-rules-for-a-branch)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rules = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rules_for_branch("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn rules_for_branch(
         &self,
         branch: impl Into<String>,
@@ -706,6 +850,18 @@ impl<'octo> RepoHandler<'octo> {
     /// List branches where the given commit is the HEAD commit.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let branches = octocrab
+    ///     .repos("owner", "repo")
+    ///     .branches_where_head("commit_sha")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn branches_where_head(
         &self,
         commit_sha: impl AsRef<str>,
@@ -721,6 +877,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Compare two commits on the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab
+    ///     .repos("owner", "repo")
+    ///     .compare_commits("base", "head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn compare_commits(
         &self,
         base: impl Into<String>,
@@ -732,6 +901,19 @@ impl<'octo> RepoHandler<'octo> {
     /// Compare two commits or revisions using a basehead range (e.g. "base...head" or "base..head").
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab
+    ///     .repos("owner", "repo")
+    ///     .compare_commits_range("base...head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn compare_commits_range(
         &self,
         basehead: impl Into<String>,
@@ -742,6 +924,18 @@ impl<'octo> RepoHandler<'octo> {
     /// Sync a fork branch with the upstream repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#sync-a-fork-branch-with-the-upstream-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let merged = octocrab
+    ///     .repos("owner", "repo")
+    ///     .merge_upstream("main")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn merge_upstream(
         &self,
         branch: impl Into<String>,
@@ -829,16 +1023,54 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Creates a `ReleaseAssetsHandler` for the specified repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let asset = octocrab
+    ///     .repos("owner", "repo")
+    ///     .release_assets()
+    ///     .get(1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn release_assets(&self) -> release_assets::ReleaseAssetsHandler<'_, '_> {
         release_assets::ReleaseAssetsHandler::new(self)
     }
 
     /// Creates a `ReleasesHandler` for the specified repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let releases = octocrab.repos("owner", "repo").releases().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn releases(&self) -> releases::ReleasesHandler<'_, '_> {
         releases::ReleasesHandler::new(self)
     }
 
     /// Create a status for a specified commit in the specified repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::StatusState;
+    ///
+    /// let status = octocrab
+    ///     .repos("owner", "repo")
+    ///     .create_status("commit_sha".to_string(), StatusState::Success)
+    ///     .context("ci/test".to_string())
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_status(
         &self,
         sha: String,
@@ -848,11 +1080,37 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// List statuses for a reference.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let statuses = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_statuses("commit_sha".to_string())
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_statuses(&self, sha: String) -> ListStatusesBuilder<'_, '_> {
         ListStatusesBuilder::new(self, sha)
     }
 
     /// List pull requests for a reference.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pulls = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_pulls("commit_sha".to_string())
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_pulls(&self, sha: String) -> ListPullsBuilder<'_, '_> {
         ListPullsBuilder::new(self, sha)
     }
@@ -889,6 +1147,15 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle webhooks on the repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let hooks = octocrab.repos("owner", "repo").hooks().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn hooks(&self) -> hooks::RepoHooksHandler<'octo, '_> {
         hooks::RepoHooksHandler::new(self)
     }
@@ -971,6 +1238,18 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Retrieve the contents of a file in raw format
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let resp = octocrab
+    ///     .repos("owner", "repo")
+    ///     .raw_file("main", "README.md")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn raw_file(
         self,
         reference: impl Into<params::repos::Commitish>,
@@ -1012,6 +1291,18 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let resp = octocrab
+    ///     .repos("owner", "repo")
+    ///     .download_tarball("main")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_tarball(
         &self,
         reference: impl Into<params::repos::Commitish>,
@@ -1031,6 +1322,18 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .zip
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let resp = octocrab
+    ///     .repos("owner", "repo")
+    ///     .download_zipball("main")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_zipball(
         &self,
         reference: impl Into<params::repos::Commitish>,
@@ -1050,6 +1353,18 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Check if a user is a repository collaborator
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let is_collab = octocrab
+    ///     .repos("owner", "repo")
+    ///     .is_collaborator("username")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn is_collaborator(&self, username: impl AsRef<str>) -> Result<bool> {
         let route = format!(
             "/{repo}/collaborators/{username}",
@@ -1087,41 +1402,122 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle activity on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let activity = octocrab.repos("owner", "repo").activity().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn activity(&self) -> RepoActivityHandler<'octo, '_> {
         RepoActivityHandler::new(self)
     }
 
     /// Creates a [`ListActivitiesBuilder`] to list activity on the repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let activities = octocrab.repos("owner", "repo").list_activities().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_activities(&self) -> ListActivitiesBuilder<'octo, '_> {
         ListActivitiesBuilder::new(self)
     }
 
     /// Handle autolinks on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let autolinks = octocrab.repos("owner", "repo").autolinks().list().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn autolinks(&self) -> RepoAutolinksHandler<'octo, '_> {
         RepoAutolinksHandler::new(self)
     }
 
     /// Handle commit comments on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let comments = octocrab.repos("owner", "repo").comments().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn comments(&self) -> RepoCommentsHandler<'octo, '_> {
         RepoCommentsHandler::new(self)
     }
 
     /// Handle deployments on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let deployments = octocrab.repos("owner", "repo").deployments().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn deployments(&self) -> RepoDeploymentsHandler<'octo, '_> {
         RepoDeploymentsHandler::new(self)
     }
 
     /// Handle environments and deployment protection rules on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let envs = octocrab.repos("owner", "repo").environments().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn environments(&self) -> RepoEnvironmentsHandler<'octo, '_> {
         RepoEnvironmentsHandler::new(self)
     }
 
     /// Handle dispatches on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .dispatches()
+    ///     .create("my-event")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn dispatches(&self) -> RepoDispatchesHandler<'octo, '_> {
         RepoDispatchesHandler::new(self)
     }
 
     /// Creates a [`CreateDispatchBuilder`] to trigger a `repository_dispatch` webhook event.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .create_dispatch("my-event")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_dispatch(
         &self,
         event_type: impl Into<String>,
@@ -1130,41 +1526,113 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle invitations on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let invites = octocrab.repos("owner", "repo").invitations().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn invitations(&self) -> RepoInvitationsHandler<'octo, '_> {
         RepoInvitationsHandler::new(self)
     }
 
     /// Creates a [`ListRepoInvitationsBuilder`] to list open invitations for the repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let invites = octocrab.repos("owner", "repo").list_invitations().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_invitations(&self) -> ListRepoInvitationsBuilder<'octo, '_> {
         ListRepoInvitationsBuilder::new(self)
     }
 
     /// Handle deploy keys on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let keys = octocrab.repos("owner", "repo").keys().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn keys(&self) -> RepoKeysHandler<'octo, '_> {
         RepoKeysHandler::new(self)
     }
 
     /// Handle GitHub Pages on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let page = octocrab.repos("owner", "repo").pages().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn pages(&self) -> RepoPagesHandler<'octo, '_> {
         RepoPagesHandler::new(self)
     }
 
     /// Handle repository statistics
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let stats = octocrab.repos("owner", "repo").stats().contributors().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn stats(&self) -> RepoStatsHandler<'octo, '_> {
         RepoStatsHandler::new(self)
     }
 
     /// Handle traffic metrics on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let views = octocrab.repos("owner", "repo").traffic().views().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn traffic(&self) -> RepoTrafficHandler<'octo, '_> {
         RepoTrafficHandler::new(self)
     }
 
     /// Handle topics on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let topics = octocrab.repos("owner", "repo").topics().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn topics(&self) -> RepoTopicsHandler<'octo, '_> {
         RepoTopicsHandler::new(self)
     }
 
     /// Handle secrets on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab.repos("owner", "repo").secrets().get_secrets().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secrets(&self) -> RepoSecretsHandler<'_> {
         RepoSecretsHandler::new(self)
     }
@@ -1172,6 +1640,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle codespaces on the repository
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let codespaces = octocrab.repos("owner", "repo").codespaces().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn codespaces(&self) -> RepoCodespacesHandler<'octo> {
         RepoCodespacesHandler::new(self.crab, self.repo.clone())
     }
@@ -1179,11 +1656,29 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle source imports for the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/migrations/source-imports?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let import = octocrab.repos("owner", "repo").import().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn import(&self) -> RepoImportHandler<'octo> {
         RepoImportHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle source imports for the repository (alias for [`import`][RepoHandler::import]).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let import = octocrab.repos("owner", "repo").imports().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn imports(&self) -> RepoImportHandler<'octo> {
         self.import()
     }
@@ -1191,51 +1686,141 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle Actions variables for the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let vars = octocrab.repos("owner", "repo").variables().list().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn variables(&self) -> RepoVariablesHandler<'_> {
         RepoVariablesHandler::new(self)
     }
 
     /// Handle dependabot on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab.repos("owner", "repo").dependabot().get_alerts().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn dependabot(&self) -> RepoDependabotHandler<'octo> {
         RepoDependabotHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle secrets scanning alerts on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab.repos("owner", "repo").secrets_scanning().get_alerts().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secrets_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         RepoSecretScanningAlertsHandler::new(self)
     }
 
     /// Handle secret scanning alerts on the repository (alias for [`secrets_scanning`][RepoHandler::secrets_scanning]).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab.repos("owner", "repo").secret_scanning().get_alerts().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secret_scanning(&self) -> RepoSecretScanningAlertsHandler<'_> {
         self.secrets_scanning()
     }
 
     /// Handle dependency graph for the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab.repos("owner", "repo").dependency_graph().compare("base...head").send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn dependency_graph(&self) -> RepoDependencyGraphHandler<'octo> {
         RepoDependencyGraphHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle SBOM report generation
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sbom = octocrab.repos("owner", "repo").sbom().generate_report().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn sbom(&self) -> RepoSbomHandler<'octo> {
         RepoSbomHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle repository security advisories
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let advisories = octocrab.repos("owner", "repo").security_advisories().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn security_advisories(&self) -> RepoSecurityAdvisoriesHandler<'octo, '_> {
         RepoSecurityAdvisoriesHandler::new(self)
     }
 
     /// Handle vulnerability alerts for the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let enabled = octocrab.repos("owner", "repo").vulnerability_alerts().check().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn vulnerability_alerts(&self) -> RepoVulnerabilityAlertsHandler<'octo, '_> {
         RepoVulnerabilityAlertsHandler::new(self)
     }
 
     /// Handle automated security fixes (Dependabot security updates) for the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let fixes = octocrab.repos("owner", "repo").automated_security_fixes().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn automated_security_fixes(&self) -> RepoAutomatedSecurityFixesHandler<'octo, '_> {
         RepoAutomatedSecurityFixesHandler::new(self)
     }
 
     /// Handle private vulnerability reporting for the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let reporting = octocrab.repos("owner", "repo").private_vulnerability_reporting().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn private_vulnerability_reporting(
         &self,
     ) -> RepoPrivateVulnerabilityReportingHandler<'octo, '_> {
@@ -1243,11 +1828,29 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Handle code scanning on the repository
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab.repos("owner", "repo").code_scanning().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn code_scanning(&self) -> RepoCodeScanningHandler<'octo, '_> {
         RepoCodeScanningHandler::new(self)
     }
 
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab.repos("owner", "repo").code_scannings().list().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn code_scannings(&self) -> RepoCodeScanningHandler<'octo, '_> {
         self.code_scanning()
     }
@@ -1255,6 +1858,15 @@ impl<'octo> RepoHandler<'octo> {
     /// List CODEOWNERS syntax errors in the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-codeowners-errors)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let errors = octocrab.repos("owner", "repo").codeowners_errors().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn codeowners_errors(&self) -> ListCodeownersErrorsBuilder<'octo, '_> {
         ListCodeownersErrorsBuilder::new(self)
     }
@@ -1262,6 +1874,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Handle repository custom property values.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/custom-properties?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let props = octocrab.repos("owner", "repo").custom_properties().get_values().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn custom_properties(&self) -> RepoCustomPropertiesHandler<'octo, '_> {
         RepoCustomPropertiesHandler::new(self)
     }
@@ -1269,6 +1890,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Transfer a repository to a new owner.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#transfer-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repo = octocrab.repos("owner", "repo").transfer("new_owner").send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn transfer(&self, new_owner: impl Into<String>) -> TransferRepoBuilder<'octo, '_> {
         TransferRepoBuilder::new(self, new_owner.into())
     }
@@ -1320,6 +1950,14 @@ impl<'octo> RepoHandler<'octo> {
     ///
     /// - "Administration" repository permissions (read)
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let limits = octocrab.repos("owner", "repo").get_interaction_restrictions().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_interaction_restrictions(&self) -> Result<InteractionLimit> {
         if let RepoRef::ById(_) = &self.repo {
             return Err(crate::Error::Other {
@@ -1349,6 +1987,22 @@ impl<'octo> RepoHandler<'octo> {
     ///
     /// - "Administration" repository permissions (write)
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::interaction_limits::{InteractionLimitExpiry, InteractionLimitType};
+    ///
+    /// let limits = octocrab
+    ///     .repos("owner", "repo")
+    ///     .set_interaction_restrictions(
+    ///         InteractionLimitType::ExistingUsers,
+    ///         InteractionLimitExpiry::OneDay,
+    ///     )
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn set_interaction_restrictions(
         &self,
         limit_type: InteractionLimitType,
@@ -1386,6 +2040,14 @@ impl<'octo> RepoHandler<'octo> {
     ///
     /// - "Administration" organization permissions (write)
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.repos("owner", "repo").remove_interaction_restrictions().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn remove_interaction_restrictions(&self) -> crate::Result<()> {
         if let RepoRef::ById(_) = &self.repo {
             return Err(crate::Error::Other {
@@ -1403,6 +2065,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Lists the people watching the repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-watchers)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let watchers = octocrab.repos("owner", "repo").list_watchers().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_watchers(&self) -> ListWatchersBuilder<'octo> {
         ListWatchersBuilder::new(self.crab, format!("/{}/subscribers", self.repo))
     }
@@ -1410,6 +2081,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Manage subscription for the repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#get-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sub = octocrab.repos("owner", "repo").subscription().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn subscription(&self) -> RepoSubscriptionHandler<'octo> {
         RepoSubscriptionHandler::new(self.crab, format!("/{}/subscription", self.repo))
     }
@@ -1417,6 +2097,15 @@ impl<'octo> RepoHandler<'octo> {
     /// List public events for a network of repositories.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-network-of-repositories)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let events = octocrab.repos("owner", "repo").network_events().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn network_events(&self) -> crate::api::events::EventsBuilder<'octo> {
         let route = match &self.repo {
             RepoRef::ByOwnerAndName(owner, name) => format!("/networks/{}/{}/events", owner, name),
@@ -1428,6 +2117,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Checks whether the repository is starred by the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#check-if-a-repository-is-starred-by-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let starred = octocrab.repos("owner", "repo").is_starred().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn is_starred(&self) -> Result<bool> {
         let route = match &self.repo {
             RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),
@@ -1444,6 +2142,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Stars the repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#star-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.repos("owner", "repo").star().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn star(&self) -> Result<()> {
         let route = match &self.repo {
             RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),
@@ -1459,6 +2166,15 @@ impl<'octo> RepoHandler<'octo> {
     /// Unstars the repository for the authenticated user.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#unstar-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.repos("owner", "repo").unstar().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn unstar(&self) -> Result<()> {
         let route = match &self.repo {
             RepoRef::ByOwnerAndName(owner, name) => format!("/user/starred/{}/{}", owner, name),

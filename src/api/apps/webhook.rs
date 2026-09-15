@@ -18,6 +18,15 @@ impl<'octo> AppWebhookHandler<'octo> {
     /// Gets the webhook configuration for the authenticated app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/webhooks?apiVersion=2022-11-28#get-a-webhook-configuration-for-an-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let config = octocrab.apps().webhook().get_config().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_config(&self) -> Result<Config> {
         self.crab.get("/app/hook/config", None::<&()>).await
     }
@@ -25,6 +34,18 @@ impl<'octo> AppWebhookHandler<'octo> {
     /// Updates the webhook configuration for the authenticated app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/webhooks?apiVersion=2022-11-28#update-a-webhook-configuration-for-an-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::apps::UpdateWebhookConfig;
+    ///
+    /// let config = UpdateWebhookConfig::default();
+    /// let updated = octocrab.apps().webhook().update_config(&config).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update_config(&self, config: &UpdateWebhookConfig) -> Result<Config> {
         self.crab.patch("/app/hook/config", Some(config)).await
     }
@@ -32,6 +53,15 @@ impl<'octo> AppWebhookHandler<'octo> {
     /// Lists deliveries for the authenticated app's webhook.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/webhooks?apiVersion=2022-11-28#list-deliveries-for-an-app-webhook)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let deliveries = octocrab.apps().webhook().deliveries().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn deliveries(&self) -> ListAppWebhookDeliveriesBuilder<'octo> {
         ListAppWebhookDeliveriesBuilder::new(self.crab)
     }
@@ -39,6 +69,17 @@ impl<'octo> AppWebhookHandler<'octo> {
     /// Gets a specific delivery for the authenticated app's webhook.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/webhooks?apiVersion=2022-11-28#get-a-delivery-for-an-app-webhook)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::HookDeliveryId;
+    ///
+    /// let delivery = octocrab.apps().webhook().delivery(HookDeliveryId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delivery(&self, delivery_id: impl Into<HookDeliveryId>) -> Result<DeliveryDetail> {
         let route = format!("/app/hook/deliveries/{}", delivery_id.into());
         self.crab.get(route, None::<&()>).await
@@ -47,6 +88,17 @@ impl<'octo> AppWebhookHandler<'octo> {
     /// Redelivers a delivery for the authenticated app's webhook.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/webhooks?apiVersion=2022-11-28#redeliver-a-delivery-for-an-app-webhook)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::HookDeliveryId;
+    ///
+    /// octocrab.apps().webhook().redeliver(HookDeliveryId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn redeliver(&self, delivery_id: impl Into<HookDeliveryId>) -> Result<()> {
         let route = format!("/app/hook/deliveries/{}/attempts", delivery_id.into());
         let resp = self.crab._post(route, None::<&()>).await?;
@@ -90,6 +142,15 @@ impl<'octo> ListAppWebhookDeliveriesBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let deliveries = octocrab.apps().webhook().deliveries().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Vec<Delivery>> {
         self.crab.get("/app/hook/deliveries", Some(&self)).await
     }

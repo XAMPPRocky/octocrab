@@ -18,6 +18,20 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// List all rulesets for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-all-repository-rulesets)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rulesets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoRulesetsBuilder<'octo, 'r> {
         ListRepoRulesetsBuilder::new(self.handler)
     }
@@ -25,6 +39,20 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// Get a repository ruleset.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-a-repository-ruleset)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let ruleset = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .get(1u64)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn get(&self, ruleset_id: impl Into<RulesetId>) -> GetRepoRulesetBuilder<'octo, 'r> {
         GetRepoRulesetBuilder::new(self.handler, ruleset_id.into())
     }
@@ -32,6 +60,26 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// Create a repository ruleset.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#create-a-repository-ruleset)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let new_ruleset = serde_json::json!({
+    ///     "name": "protect-main",
+    ///     "target": "branch",
+    ///     "enforcement": "active",
+    ///     "rules": []
+    /// });
+    ///
+    /// let ruleset = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .create(&new_ruleset)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create(&self, ruleset: &impl serde::Serialize) -> crate::Result<Ruleset> {
         let route = format!("/{}/rulesets", self.handler.repo);
         self.handler.crab.post(route, Some(ruleset)).await
@@ -40,6 +88,24 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// Update a repository ruleset.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#update-a-repository-ruleset)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let update_ruleset = serde_json::json!({
+    ///     "name": "updated-ruleset",
+    ///     "enforcement": "active"
+    /// });
+    ///
+    /// let ruleset = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .update(1u64, &update_ruleset)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update(
         &self,
         ruleset_id: impl Into<RulesetId>,
@@ -56,6 +122,19 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// Delete a repository ruleset.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#delete-a-repository-ruleset)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .delete(1u64)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete(&self, ruleset_id: impl Into<RulesetId>) -> crate::Result<()> {
         let route = format!(
             "/{repo}/rulesets/{id}",
@@ -70,6 +149,21 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     }
 
     /// Access rule suites for this repository.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let suites = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rule_suites()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn rule_suites(&self) -> RepoRuleSuitesHandler<'octo, 'r> {
         RepoRuleSuitesHandler::new(self.handler)
     }
@@ -77,6 +171,20 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
     /// Get all active rules that apply to the specified branch.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-rules-for-a-branch)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rules = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rules_for_branch("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn rules_for_branch(
         &self,
         branch: impl Into<String>,
@@ -136,6 +244,20 @@ impl<'octo, 'r> ListRepoRulesetsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a vector of rulesets.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rulesets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Vec<Ruleset>> {
         let route = format!("/{}/rulesets", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -169,6 +291,20 @@ impl<'octo, 'r> GetRepoRulesetBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the ruleset.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let ruleset = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .get(1u64)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Ruleset> {
         let route = format!(
             "/{repo}/rulesets/{id}",
@@ -192,6 +328,21 @@ impl<'octo, 'r> RepoRuleSuitesHandler<'octo, 'r> {
     /// Lists suites of rule evaluations at the repository level.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rule-suites?apiVersion=2022-11-28#list-repository-rule-suites)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let suites = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rule_suites()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoRuleSuitesBuilder<'octo, 'r> {
         ListRepoRuleSuitesBuilder::new(self.handler)
     }
@@ -199,6 +350,20 @@ impl<'octo, 'r> RepoRuleSuitesHandler<'octo, 'r> {
     /// Gets information about a suite of rule evaluations from within a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rule-suites?apiVersion=2022-11-28#get-a-repository-rule-suite)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let suite = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rule_suites()
+    ///     .get(1u64)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, rule_suite_id: impl Into<RuleSuiteId>) -> crate::Result<RuleSuite> {
         let route = format!(
             "/{repo}/rulesets/rule-suites/{id}",
@@ -287,6 +452,21 @@ impl<'octo, 'r> ListRepoRuleSuitesBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a vector of rule suite summaries.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let suites = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rule_suites()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Vec<RuleSuiteSummary>> {
         let route = format!("/{}/rulesets/rule-suites", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -329,6 +509,20 @@ impl<'octo, 'r> ListRulesForBranchBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the rules for the branch.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let rules = octocrab
+    ///     .repos("owner", "repo")
+    ///     .rulesets()
+    ///     .rules_for_branch("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Vec<RepoRule>> {
         let route = format!(
             "/{repo}/rules/branches/{branch}",

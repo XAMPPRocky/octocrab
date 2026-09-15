@@ -31,6 +31,21 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Lists codespaces in a repository for the authenticated user.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#list-codespaces-in-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let codespaces = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .list()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoCodespacesBuilder<'octo, '_> {
         ListRepoCodespacesBuilder::new(self)
     }
@@ -38,6 +53,22 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Creates a codespace in a repository.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#create-a-codespace-in-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::codespaces::CreateRepoCodespace;
+    ///
+    /// let body = CreateRepoCodespace::default();
+    /// let codespace = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .create(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create(&self, body: &CreateRepoCodespace) -> Result<Codespace> {
         let route = format!("/{}/codespaces", self.repo);
         self.crab.post(route, Some(body)).await
@@ -46,6 +77,22 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Creates a codespace from a pull request.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#create-a-codespace-from-a-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::codespaces::CreatePullRequestCodespace;
+    ///
+    /// let body = CreatePullRequestCodespace::default();
+    /// let codespace = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .create_for_pull_request(1, &body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_for_pull_request(
         &self,
         pull_number: u64,
@@ -58,6 +105,21 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Lists devcontainer configurations in a repository for the authenticated user.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#list-devcontainer-configurations-in-a-repository-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let devcontainers = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .devcontainers()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn devcontainers(&self) -> ListDevcontainersBuilder<'octo, '_> {
         ListDevcontainersBuilder::new(self)
     }
@@ -65,6 +127,21 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Gets default attributes for a codespace created in this repository.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#get-default-attributes-for-a-codespace)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let attributes = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .default_attributes()
+    ///     .ref_("main")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn default_attributes(&self) -> GetDefaultAttributesBuilder<'octo, '_> {
         GetDefaultAttributesBuilder::new(self)
     }
@@ -72,6 +149,19 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Checks if permissions defined by a devcontainer have been accepted by the authenticated user.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/codespaces?apiVersion=2022-11-28#check-if-permissions-defined-by-a-devcontainer-have-been-accepted-by-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let accepted = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .check_permissions("main", ".devcontainer/devcontainer.json")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn check_permissions(
         &self,
         ref_: impl AsRef<str>,
@@ -97,12 +187,37 @@ impl<'octo> RepoCodespacesHandler<'octo> {
     /// Lists available machine types for a repository.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/machines?apiVersion=2022-11-28#list-available-machine-types-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let machines = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .machines()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn machines(&self) -> Result<Page<CodespaceMachine>> {
         let route = format!("/{}/codespaces/machines", self.repo);
         self.crab.get(route, None::<&()>).await
     }
 
     /// Handler for managing repository Codespaces secrets.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets();
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secrets(&self) -> RepoCodespacesSecretsHandler<'octo> {
         RepoCodespacesSecretsHandler::new(self.crab, self.repo.clone())
     }
@@ -141,6 +256,20 @@ impl<'octo, 'r> ListRepoCodespacesBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the resulting page of codespaces.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let codespaces = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Codespace>> {
         let route = format!("/{}/codespaces", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -180,6 +309,20 @@ impl<'octo, 'r> ListDevcontainersBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the resulting page of devcontainers.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let devcontainers = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .devcontainers()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Devcontainer>> {
         let route = format!("/{}/codespaces/devcontainers", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -219,6 +362,20 @@ impl<'octo, 'r> GetDefaultAttributesBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns default attributes.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let attributes = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .default_attributes()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<CodespaceDefaultAttributes> {
         let route = format!("/{}/codespaces/new", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -239,6 +396,22 @@ impl<'octo> RepoCodespacesSecretsHandler<'octo> {
     /// Lists repository Codespaces secrets.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/repository-secrets?apiVersion=2022-11-28#list-repository-secrets)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .list()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoCodespacesSecretsBuilder<'octo, '_> {
         ListRepoCodespacesSecretsBuilder::new(self)
     }
@@ -246,6 +419,20 @@ impl<'octo> RepoCodespacesSecretsHandler<'octo> {
     /// Gets the repository public key for Codespaces secrets encryption.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/repository-secrets?apiVersion=2022-11-28#get-a-repository-public-key)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let public_key = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .get_public_key()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_public_key(&self) -> Result<PublicKey> {
         let route = format!("/{}/codespaces/secrets/public-key", self.repo);
         self.crab.get(route, None::<&()>).await
@@ -254,6 +441,20 @@ impl<'octo> RepoCodespacesSecretsHandler<'octo> {
     /// Gets a repository Codespaces secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/repository-secrets?apiVersion=2022-11-28#get-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secret = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .get("SECRET_NAME")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, secret_name: impl AsRef<str>) -> Result<RepositorySecret> {
         let route = format!("/{}/codespaces/secrets/{}", self.repo, secret_name.as_ref());
         self.crab.get(route, None::<&()>).await
@@ -262,6 +463,26 @@ impl<'octo> RepoCodespacesSecretsHandler<'octo> {
     /// Creates or updates a repository Codespaces secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/repository-secrets?apiVersion=2022-11-28#create-or-update-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::repos::secrets::CreateRepositorySecret;
+    ///
+    /// let secret = CreateRepositorySecret {
+    ///     encrypted_value: "c2VjcmV0",
+    ///     key_id: "key123",
+    /// };
+    /// let response = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .create_or_update("SECRET_NAME", &secret)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_or_update(
         &self,
         secret_name: impl AsRef<str>,
@@ -283,6 +504,20 @@ impl<'octo> RepoCodespacesSecretsHandler<'octo> {
     /// Deletes a repository Codespaces secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces/repository-secrets?apiVersion=2022-11-28#delete-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .delete("SECRET_NAME")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete(&self, secret_name: impl AsRef<str>) -> Result<()> {
         let route = format!("/{}/codespaces/secrets/{}", self.repo, secret_name.as_ref());
         let resp = self.crab._delete(route, None::<&()>).await?;
@@ -324,6 +559,21 @@ impl<'octo, 'r> ListRepoCodespacesSecretsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the resulting page of secrets.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codespaces()
+    ///     .secrets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<RepositorySecret>> {
         let route = format!("/{}/codespaces/secrets", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await

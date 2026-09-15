@@ -47,6 +47,15 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let page = octocrab.apps().installations().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Page<crate::models::Installation>> {
         let route = "/app/installations";
         self.handler.http_get(route, Some(&self)).await
