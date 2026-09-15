@@ -1,7 +1,7 @@
-#[path = "common/mock_error.rs"]
-pub mod mock_error;
 #[path = "common/cache_test_helpers.rs"]
 pub mod cache_test_helpers;
+#[path = "common/mock_error.rs"]
+pub mod mock_error;
 
 #[path = "issues/issues_check_assignee_test.rs"]
 mod issues_check_assignee_test;

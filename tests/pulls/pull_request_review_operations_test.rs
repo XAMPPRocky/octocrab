@@ -22,11 +22,14 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 async fn should_work_with_specific_review() {
     let review_ops_response: Review =
         serde_json::from_str(include_str!("../resources/get_pull_request_review.json")).unwrap();
-    let review_comments_response: Vec<ReviewComment> = serde_json::from_str(include_str!("../resources/get_pull_request_review_comments.json"
+    let review_comments_response: Vec<ReviewComment> = serde_json::from_str(include_str!(
+        "../resources/get_pull_request_review_comments.json"
     ))
     .unwrap();
-    let pr_comment_response: ReviewComment =
-        serde_json::from_str(include_str!("../resources/pull_request_review_comment.json")).unwrap();
+    let pr_comment_response: ReviewComment = serde_json::from_str(include_str!(
+        "../resources/pull_request_review_comment.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&review_ops_response);
     let comments_template = ResponseTemplate::new(200).set_body_json(&review_comments_response);
     let pr_comment_template = ResponseTemplate::new(200).set_body_json(&pr_comment_response);

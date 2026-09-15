@@ -71,7 +71,8 @@ async fn should_return_pull_request_commits() {
 
 #[tokio::test]
 async fn should_return_pull_request_commits_empty_author_object() {
-    let pull_request_commits_response: Vec<RepoCommit> = serde_json::from_str(include_str!("../resources/pull_request_commits_empty_author_object.json"
+    let pull_request_commits_response: Vec<RepoCommit> = serde_json::from_str(include_str!(
+        "../resources/pull_request_commits_empty_author_object.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&pull_request_commits_response);

@@ -205,8 +205,10 @@ async fn should_delete_branch_protection() {
 
 #[tokio::test]
 async fn should_manage_admin_enforcement() {
-    let mocked_response: AdminEnforcement =
-        serde_json::from_str(include_str!("../resources/repo_branch_admin_enforcement.json")).unwrap();
+    let mocked_response: AdminEnforcement = serde_json::from_str(include_str!(
+        "../resources/repo_branch_admin_enforcement.json"
+    ))
+    .unwrap();
 
     let client_server = MockServer::start().await;
     let base_path = format!("/repos/{OWNER}/{REPO}/branches/{BRANCH}/protection/enforce_admins");

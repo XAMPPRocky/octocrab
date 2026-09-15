@@ -19,8 +19,10 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 
 #[tokio::test]
 async fn should_work_with_review_comment() {
-    let review_comment_response: Comment =
-        serde_json::from_str(include_str!("../resources/pull_request_review_comment.json")).unwrap();
+    let review_comment_response: Comment = serde_json::from_str(include_str!(
+        "../resources/pull_request_review_comment.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&review_comment_response);
     let mock_server = MockServer::start().await;
     Mock::given(method("GET"))

@@ -38,8 +38,10 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 
 #[tokio::test]
 async fn should_respond_to_get_ssh_signing_key() {
-    let mocked_response: SshSigningKey =
-        serde_json::from_str(include_str!("../resources/user_ssh_signing_key_created.json")).unwrap();
+    let mocked_response: SshSigningKey = serde_json::from_str(include_str!(
+        "../resources/user_ssh_signing_key_created.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
     let mock_server = setup_ssh_signing_keys_mock(
         "GET",
@@ -89,8 +91,10 @@ async fn should_respond_to_ssh_signing_keys_list() {
 
 #[tokio::test]
 async fn should_respond_to_ssh_signing_keys_add() {
-    let mocked_response: SshSigningKey =
-        serde_json::from_str(include_str!("../resources/user_ssh_signing_key_created.json")).unwrap();
+    let mocked_response: SshSigningKey = serde_json::from_str(include_str!(
+        "../resources/user_ssh_signing_key_created.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(StatusCode::CREATED).set_body_json(&mocked_response);
     let mock_server = setup_ssh_signing_keys_mock("POST", "/user/ssh_signing_keys", template).await;
     let client = setup_octocrab(&mock_server.uri());

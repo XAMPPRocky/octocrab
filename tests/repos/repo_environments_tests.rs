@@ -198,7 +198,8 @@ async fn should_delete_environment() {
 
 #[tokio::test]
 async fn should_list_deployment_branch_policies() {
-    let mocked_response: DeploymentBranchPolicies = serde_json::from_str(include_str!("../resources/repo_environment_branch_policies.json"
+    let mocked_response: DeploymentBranchPolicies = serde_json::from_str(include_str!(
+        "../resources/repo_environment_branch_policies.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -239,7 +240,8 @@ async fn should_list_deployment_branch_policies() {
 
 #[tokio::test]
 async fn should_get_deployment_branch_policy() {
-    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!("../resources/repo_environment_branch_policy.json"
+    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!(
+        "../resources/repo_environment_branch_policy.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -275,7 +277,8 @@ async fn should_get_deployment_branch_policy() {
 
 #[tokio::test]
 async fn should_create_deployment_branch_policy() {
-    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!("../resources/repo_environment_branch_policy.json"
+    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!(
+        "../resources/repo_environment_branch_policy.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -319,7 +322,8 @@ async fn should_create_deployment_branch_policy() {
 
 #[tokio::test]
 async fn should_update_deployment_branch_policy() {
-    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!("../resources/repo_environment_branch_policy.json"
+    let mocked_response: DeploymentBranchPolicy = serde_json::from_str(include_str!(
+        "../resources/repo_environment_branch_policy.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -395,7 +399,8 @@ async fn should_delete_deployment_branch_policy() {
 
 #[tokio::test]
 async fn should_list_deployment_protection_rules() {
-    let mocked_response: CustomDeploymentProtectionRules = serde_json::from_str(include_str!("../resources/repo_environment_protection_rules.json"
+    let mocked_response: CustomDeploymentProtectionRules = serde_json::from_str(include_str!(
+        "../resources/repo_environment_protection_rules.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -437,7 +442,8 @@ async fn should_list_deployment_protection_rules() {
 
 #[tokio::test]
 async fn should_get_deployment_protection_rule() {
-    let mocked_response: CustomDeploymentProtectionRule = serde_json::from_str(include_str!("../resources/repo_environment_protection_rule.json"
+    let mocked_response: CustomDeploymentProtectionRule = serde_json::from_str(include_str!(
+        "../resources/repo_environment_protection_rule.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
@@ -473,7 +479,8 @@ async fn should_get_deployment_protection_rule() {
 
 #[tokio::test]
 async fn should_create_deployment_protection_rule() {
-    let mocked_response: CustomDeploymentProtectionRule = serde_json::from_str(include_str!("../resources/repo_environment_protection_rule.json"
+    let mocked_response: CustomDeploymentProtectionRule = serde_json::from_str(include_str!(
+        "../resources/repo_environment_protection_rule.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::CREATED).set_body_json(&mocked_response);
@@ -543,7 +550,8 @@ async fn should_disable_deployment_protection_rule() {
 
 #[tokio::test]
 async fn should_list_custom_deployment_rule_apps() {
-    let mocked_response: CustomDeploymentRuleApps = serde_json::from_str(include_str!("../resources/repo_environment_protection_rule_apps.json"
+    let mocked_response: CustomDeploymentRuleApps = serde_json::from_str(include_str!(
+        "../resources/repo_environment_protection_rule_apps.json"
     ))
     .unwrap();
     let template = ResponseTemplate::new(StatusCode::OK).set_body_json(&mocked_response);
