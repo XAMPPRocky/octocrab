@@ -124,13 +124,15 @@ default = [
 
 follow-redirect = ["tower-http/follow-redirect"]
 retry = ["tower/retry", "futures-util", "tokio"]
-rustls = ["hyper-rustls", "dep:rustls"]
+# Since `rustls` is an enabled feature by default in Octocrab, any consumer who adds `octocrab = { version = "...", features = ["reqwest"] }` will automatically receive the `rustls` equivalent inside dependencies for `reqwest` (HTTPS will work without them having to touch `reqwest` explicitly in their own crate).
+rustls = ["reqwest?/rustls", "hyper-rustls", "dep:rustls"]
 rustls-ring = ["hyper-rustls/ring", "rustls?/ring"]
 rustls-aws-lc-rs = ["hyper-rustls/aws-lc-rs", "rustls?/aws_lc_rs"]
 jwt-aws-lc-rs = ["jsonwebtoken/aws_lc_rs"]
 jwt-rust-crypto = ["jsonwebtoken/rust_crypto"]
 rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
-opentls = ["hyper-tls"]
+# if a consumer uses `default-features = false` and enables `opentls`, they will get the `native-tls` integration on the `reqwest` client.
+opentls = ["reqwest?/native-tls", "hyper-tls"]
 reqwest = ["dep:reqwest"]
 stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
