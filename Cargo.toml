@@ -140,6 +140,3 @@ timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
 
 
-[[test]]
-name = "integration_tests"
-path = "tests/integration_tests.rs"
