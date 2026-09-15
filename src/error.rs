@@ -1,6 +1,6 @@
 use http::uri::InvalidUri;
 
-use snafu::{Backtrace, Snafu};
+use snafu::{Backtrace, GenerateImplicitData, Snafu};
 
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -108,10 +108,40 @@ pub enum Error {
         source: GraphqlErrors,
         backtrace: Backtrace,
     },
+    #[snafu(display("Webhook Verification Error: {}", source))]
+    WebhookVerification {
+        source: crate::models::webhook_events::verification::WebhookVerificationError,
+        backtrace: Backtrace,
+    },
     Other {
         source: Box<dyn std::error::Error + Send + Sync>,
         backtrace: Backtrace,
     },
+}
+
+impl From<crate::models::webhook_events::verification::WebhookVerificationError> for Error {
+    fn from(source: crate::models::webhook_events::verification::WebhookVerificationError) -> Self {
+        Self::WebhookVerification {
+            source,
+            backtrace: snafu::Backtrace::generate(),
+        }
+    }
+}
+
+impl From<crate::models::webhook_events::verification::WebhookEventError> for Error {
+    fn from(source: crate::models::webhook_events::verification::WebhookEventError) -> Self {
+        match source {
+            crate::models::webhook_events::verification::WebhookEventError::Verification {
+                source,
+            } => source.into(),
+            crate::models::webhook_events::verification::WebhookEventError::Json { source } => {
+                Self::Serde {
+                    source,
+                    backtrace: snafu::Backtrace::generate(),
+                }
+            }
+        }
+    }
 }
 
 /// An error returned from GitHub's API.

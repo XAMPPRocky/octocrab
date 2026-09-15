@@ -230,19 +230,41 @@
 //! This allows you to write a typesafe application using Rust with
 //! pattern-matching/enum-dispatch to respond to events.
 //!
-//! **Note**: Webhook support in `octocrab` is still beta, not all known webhook events are
-//! strongly typed.
+//! ### Verifying Webhook Signatures
+//! GitHub signs webhook deliveries using an HMAC secret token configured in your
+//! repository or GitHub App settings. The signature is sent in the `X-Hub-Signature-256` HTTP header.
+//!
+//! **Note**: Legacy SHA-1 signatures (`X-Hub-Signature`) are deprecated by GitHub in favor
+//! of HMAC-SHA256 (`X-Hub-Signature-256`). `octocrab` strictly enforces SHA-256 signature
+//! verification.
+//!
+//! You can verify the payload signature before parsing using [`verify_signature`](crate::models::webhook_events::verify_signature)
+//! or [`WebhookVerifier`](crate::models::webhook_events::WebhookVerifier), or perform verification and parsing in one step
+//! with [`WebhookEvent::try_from_header_signature_and_body`](crate::models::webhook_events::WebhookEvent::try_from_header_signature_and_body):
 //!
 //! ```no_run
 //! # use http::request::Request;
 //! # use tracing::{warn, info};
 //! # use octocrab::models::webhook_events::*;
-//! # let request_from_github = Request::post("https://my-webhook-url.com").body(vec![0_u8]).unwrap();
+//! # let request_from_github = Request::post("https://my-webhook-url.com")
+//! #     .header("X-GitHub-Event", "ping")
+//! #     .header("X-Hub-Signature-256", "sha256=...")
+//! #     .body(vec![0_u8]).unwrap();
+//! let webhook_secret = "your-configured-webhook-secret";
+//!
 //! // request_from_github is the HTTP request your webhook handler received
 //! let (parts, body) = request_from_github.into_parts();
-//! let header = parts.headers.get("X-GitHub-Event").unwrap().to_str().unwrap();
+//! let event_header = parts.headers.get("X-GitHub-Event").unwrap().to_str().unwrap();
+//! let signature_header = parts.headers.get("X-Hub-Signature-256").unwrap().to_str().unwrap();
 //!
-//! let event = WebhookEvent::try_from_header_and_body(header, &body).unwrap();
+//! // Verify HMAC-SHA256 signature and deserialize the event
+//! let event = WebhookEvent::try_from_header_signature_and_body(
+//!     event_header,
+//!     signature_header,
+//!     webhook_secret,
+//!     &body,
+//! ).unwrap();
+//!
 //! // Now you can match on event type and call any specific handling logic
 //! match event.kind {
 //!     WebhookEventType::Ping => info!("Received a ping"),
@@ -251,6 +273,9 @@
 //!     _ => warn!("Ignored event"),
 //! };
 //! ```
+//!
+//! **Note**: Webhook support in `octocrab` is still beta, not all known webhook events are
+//! strongly typed.
 #![cfg_attr(test, recursion_limit = "512")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 

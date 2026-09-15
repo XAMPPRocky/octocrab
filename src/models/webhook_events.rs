@@ -66,11 +66,15 @@
 //! received.
 
 pub mod payload;
+pub mod verification;
 
 use super::{orgs::Organization, Author, Installation, InstallationId, Repository, RepositoryId};
 use serde::{Deserialize, Serialize};
 
 pub use payload::WebhookEventPayload;
+pub use verification::{
+    verify_signature, WebhookEventError, WebhookVerificationError, WebhookVerifier,
+};
 
 /// A GitHub webhook event.
 ///
@@ -133,6 +137,42 @@ impl WebhookEvent {
             kind,
             specific,
         })
+    }
+
+    /// Verifies the signature in `signature_header` (from `X-Hub-Signature-256`) against `secret`,
+    /// and deserializes the body of a webhook event according to the category in `event_header`
+    /// (from `X-GitHub-Event`).
+    ///
+    /// # Example
+    /// ```
+    /// use octocrab::models::webhook_events::{WebhookEvent, WebhookEventType};
+    ///
+    /// let secret = "secret";
+    /// let body = r#"{"zen":"Design for failure.","hook_id":423885699,"hook":{"type":"App","id":423885699,"name":"web","active":true,"events":["issues"],"config":{"content_type":"json","insecure_ssl":"0","url":"https://smee.io/R"},"updated_at":"2023-07-13T09:30:45Z","created_at":"2023-07-13T09:30:45Z","app_id":360617,"deliveries_url":"https://api.github.com/app/hook/deliveries"}}"#;
+    /// let event_name = "ping";
+    /// let signature = "sha256=f101961424ae12c9b9d55cd4e562f4040c27ff1b9a8b7d2c4ba5cfc15e62d54f";
+    ///
+    /// let event = WebhookEvent::try_from_header_signature_and_body(
+    ///     event_name,
+    ///     signature,
+    ///     secret,
+    ///     body,
+    /// )
+    /// .unwrap();
+    /// assert_eq!(event.kind, WebhookEventType::Ping);
+    /// ```
+    pub fn try_from_header_signature_and_body<B, S>(
+        event_header: &str,
+        signature_header: &str,
+        secret: S,
+        body: &B,
+    ) -> Result<Self, WebhookEventError>
+    where
+        B: AsRef<[u8]> + ?Sized,
+        S: AsRef<[u8]>,
+    {
+        verification::verify_signature(signature_header, secret, body.as_ref())?;
+        Self::try_from_header_and_body(event_header, body).map_err(WebhookEventError::from)
     }
 }
 
@@ -1239,5 +1279,40 @@ mod tests {
             panic!(" event is of the wrong type {:?}", event)
         };
         assert!(push_event.created);
+    }
+
+    #[test]
+    fn deserialize_ping_with_valid_signature() {
+        use hmac::Mac;
+        let json = include_str!("../../tests/resources/ping_webhook_event.json");
+        let secret = "my_secret_token";
+        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+        mac.update(json.as_bytes());
+        let sig_bytes = mac.finalize().into_bytes();
+        let sig_header = format!("sha256={}", hex::encode(sig_bytes));
+
+        let event =
+            WebhookEvent::try_from_header_signature_and_body("ping", &sig_header, secret, json)
+                .unwrap();
+        let WebhookEventPayload::Ping(ping_event) = event.specific else {
+            panic!("event is of the wrong type {:?}", event);
+        };
+        assert_eq!(ping_event.hook.unwrap().id, 423885699);
+    }
+
+    #[test]
+    fn deserialize_ping_with_invalid_signature_fails() {
+        let json = include_str!("../../tests/resources/ping_webhook_event.json");
+        let secret = "my_secret_token";
+        let invalid_sig = "sha256=0000000000000000000000000000000000000000000000000000000000000000";
+
+        let result =
+            WebhookEvent::try_from_header_signature_and_body("ping", invalid_sig, secret, json);
+        assert!(matches!(
+            result,
+            Err(WebhookEventError::Verification {
+                source: WebhookVerificationError::Mismatch
+            })
+        ));
     }
 }
