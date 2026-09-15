@@ -22,57 +22,87 @@ cargo add octocrab
 The semantic API provides strong typing around GitHub's API, a set of
 [`models`] that maps to GitHub's types, and [`auth`] functions that are useful
 for GitHub apps.
-Currently, the following modules are available as of version `0.44`.
+Currently, the following modules are available as of version `0.54`.
 
 - [`actions`] GitHub Actions
 - [`activity`] GitHub Activity
 - [`apps`] GitHub Apps
+- [`billing`] Billing
 - [`checks`] GitHub Checks
-- [`codes_of_conduct`] GitHub Codes of Conduct
+- [`classroom`] GitHub Classroom
 - [`code_scannings`] Code Scanning
+- [`codes_of_conduct`] GitHub Codes of Conduct
+- [`codespaces`] GitHub Codespaces
 - [`commits`] GitHub Commits
+- [`copilot`] GitHub Copilot
 - [`current`] Information about the current user
+- [`dependency_graph`] Dependency Graph
+- [`enterprises`] GitHub Enterprises
 - [`events`] GitHub Events
+- [`gist_comments`] Gist Comments
 - [`gists`] Gists
+- [`git`] GitHub Git Database API
 - [`gitignore`] Gitignore templates
 - [`graphql`] GraphQL
+- [`hooks`] Webhooks
 - [`issues`] Issues and related items, e.g. comments, labels, etc.
 - [`licenses`] License Metadata
 - [`markdown`] Rendering Markdown with GitHub
+- [`marketplace`] GitHub Marketplace
+- [`meta`] GitHub Metadata
+- [`migrations`] Migrations
 - [`orgs`] GitHub Organisations
+- [`packages`] GitHub Packages
 - [`projects`] GitHub Projects
 - [`pulls`] Pull Requests
 - [`ratelimit`] Rate Limiting
 - [`repos`] Repositories
 - [`search`] Using GitHub's search
+- [`security_advisories`] Security Advisories
 - [`teams`] Teams
 - [`users`] Users
+- [`workflows`] GitHub Workflows
 
 [`models`]: https://docs.rs/octocrab/latest/octocrab/models/index.html
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`activity`]: https://docs.rs/octocrab/latest/octocrab/activity/struct.ActivityHandler.html
 [`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/struct.AppsHandler.html
+[`billing`]: https://docs.rs/octocrab/latest/octocrab/billing/struct.BillingHandler.html
 [`checks`]: https://docs.rs/octocrab/latest/octocrab/checks/struct.ChecksHandler.html
+[`classroom`]: https://docs.rs/octocrab/latest/octocrab/classroom/struct.ClassroomHandler.html
+[`code_scannings`]: https://docs.rs/octocrab/latest/octocrab/code_scannings/struct.CodeScanningHandler.html
 [`codes_of_conduct`]: https://docs.rs/octocrab/latest/octocrab/codes_of_conduct/struct.CodesOfConductHandler.html
-[`code_scannings`]: https://docs.rs/octocrab/latest/octocrab/code_scannings/struct.CodeScanningsHandler.html
-[`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitsHandler.html
+[`codespaces`]: https://docs.rs/octocrab/latest/octocrab/codespaces/struct.CodespacesHandler.html
+[`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitHandler.html
+[`copilot`]: https://docs.rs/octocrab/latest/octocrab/copilot/struct.CopilotHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
-[`events`]: https://docs.rs/octocrab/latest/octocrab/events/struct.EventsHandler.html
+[`dependency_graph`]: https://docs.rs/octocrab/latest/octocrab/dependency_graph/struct.RepoDependencyGraphHandler.html
+[`enterprises`]: https://docs.rs/octocrab/latest/octocrab/enterprises/struct.EnterpriseHandler.html
+[`events`]: https://docs.rs/octocrab/latest/octocrab/events/struct.EventsBuilder.html
+[`gist_comments`]: https://docs.rs/octocrab/latest/octocrab/gist_comments/struct.GistCommentsHandler.html
 [`gists`]: https://docs.rs/octocrab/latest/octocrab/gists/struct.GistsHandler.html
+[`git`]: https://docs.rs/octocrab/latest/octocrab/git/struct.GitHandler.html
 [`gitignore`]: https://docs.rs/octocrab/latest/octocrab/gitignore/struct.GitignoreHandler.html
 [`graphql`]: https://docs.rs/octocrab/latest/octocrab/struct.Octocrab.html#graphql-api
+[`hooks`]: https://docs.rs/octocrab/latest/octocrab/hooks/struct.HooksHandler.html
 [`issues`]: https://docs.rs/octocrab/latest/octocrab/issues/struct.IssueHandler.html
 [`licenses`]: https://docs.rs/octocrab/latest/octocrab/licenses/struct.LicenseHandler.html
 [`markdown`]: https://docs.rs/octocrab/latest/octocrab/markdown/struct.MarkdownHandler.html
+[`marketplace`]: https://docs.rs/octocrab/latest/octocrab/marketplace/struct.MarketplaceHandler.html
+[`meta`]: https://docs.rs/octocrab/latest/octocrab/meta/struct.MetaHandler.html
+[`migrations`]: https://docs.rs/octocrab/latest/octocrab/migrations/struct.MigrationsHandler.html
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
+[`packages`]: https://docs.rs/octocrab/latest/octocrab/packages/struct.PackagesHandler.html
 [`projects`]: https://docs.rs/octocrab/latest/octocrab/projects/struct.ProjectHandler.html
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
 [`ratelimit`]: https://docs.rs/octocrab/latest/octocrab/ratelimit/struct.RateLimitHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html
 [`search`]: https://docs.rs/octocrab/latest/octocrab/search/struct.SearchHandler.html
+[`security_advisories`]: https://docs.rs/octocrab/latest/octocrab/security_advisories/struct.SecurityAdvisoriesHandler.html
 [`teams`]: https://docs.rs/octocrab/latest/octocrab/teams/struct.TeamHandler.html
-[`users`]: https://docs.rs/octocrab/latest/octocrab/users/struct.UsersHandler.html
+[`users`]: https://docs.rs/octocrab/latest/octocrab/users/struct.UserHandler.html
+[`workflows`]: https://docs.rs/octocrab/latest/octocrab/workflows/struct.WorkflowsHandler.html
 
 #### Getting a Pull Request
 ```rust

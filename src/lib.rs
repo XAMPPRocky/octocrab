@@ -14,55 +14,39 @@
 //! - [`apps`] GitHub Apps
 //! - [`billing`] Billing
 //! - [`checks`] GitHub Checks
+//! - [`classroom`] GitHub Classroom
 //! - [`code_scannings`] Code Scanning
+//! - [`codes_of_conduct`] GitHub Codes of Conduct
 //! - [`codespaces`] GitHub Codespaces
-//! - [`copilot`] GitHub Copilot
 //! - [`commits`] GitHub Commits
-//! - [`current`] Information about the current user.
+//! - [`copilot`] GitHub Copilot
+//! - [`current`] Information about the current user
 //! - [`dependency_graph`] Dependency Graph
+//! - [`enterprises`] GitHub Enterprises
 //! - [`events`] GitHub Events
+//! - [`gist_comments`] Gist Comments
 //! - [`gists`] Gists
 //! - [`git`] GitHub Git Database API
 //! - [`gitignore`] Gitignore templates
-//! - [`Octocrab::graphql`] GraphQL.
+//! - [`Octocrab::graphql`] GraphQL
+//! - [`hooks`] Webhooks
 //! - [`issues`] Issues and related items, e.g. comments, labels, etc.
-//! - [`licenses`] License Metadata.
+//! - [`licenses`] License Metadata
 //! - [`markdown`] Rendering Markdown with GitHub
 //! - [`marketplace`] GitHub Marketplace
+//! - [`meta`] GitHub Metadata
 //! - [`migrations`] Migrations
 //! - [`orgs`] GitHub Organisations
+//! - [`packages`] GitHub Packages
 //! - [`projects`] GitHub Projects
 //! - [`pulls`] Pull Requests
 //! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
-//!   - [`repos::activity`] Repository activity
-//!   - [`repos::autolinks`] Autolinks
-//!   - [`repos::branches`] Branches and branch protection
-//!   - [`repos::codeowners`] CODEOWNERS errors
-//!   - [`repos::codespaces`] Repository codespaces
-//!   - [`repos::comments`] Commit comments
-//!   - [`repos::custom_properties`] Repository custom property values
-//!   - [`repos::dependency_graph`] Repository dependency graph
-//!   - [`repos::deployments`] Deployments and deployment statuses
-//!   - [`repos::environments`] Environments and deployment protection rules
-//!   - [`repos::forks`] Repository forks
-//!   - [`repos::hooks`] Repository webhooks
-//!   - [`repos::import`] Repository source imports
-//!   - [`repos::keys`] Deploy keys
-//!   - [`repos::pages`] GitHub Pages
-//!   - [`repos::releases`] Repository releases
-//!   - [`repos::rulesets`] Repository rulesets and rule suites
-//!   - [`repos::security`] Vulnerability alerts and automated security fixes
-//!   - [`repos::stats`] Repository statistics
-//!   - [`repos::topics`] Repository topics
-//!   - [`repos::traffic`] Repository traffic
-//!   - [`repos::transfer`] Repository transfer
-//! - [`search`] Using GitHub's search.
+//! - [`search`] Using GitHub's search
+//! - [`security_advisories`] Security Advisories
 //! - [`teams`] Teams
 //! - [`users`] Users
-//! - [`classroom`] GitHub Classroom
 //! - [`workflows`] GitHub Workflows
-//! - [`meta`] GitHub Meta data
 //!
 //! #### Working with Repositories
 //! ```no_run
@@ -339,7 +323,6 @@ use tower_http::{classify::ServerErrorsFailureClass, map_response_body::MapRespo
 #[cfg(feature = "tracing")]
 use {tower_http::trace::TraceLayer, tracing::Span};
 
-use crate::api::codes_of_conduct;
 use crate::error::{
     HttpSnafu, HyperSnafu, InvalidUtf8Snafu, SerdeSnafu, SerdeUrlEncodedSnafu, ServiceSnafu,
     UriParseError, UriParseSnafu, UriSnafu,
@@ -356,10 +339,11 @@ use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
 
 pub use self::{
     api::{
-        actions, activity, apps, billing, checks, classroom, code_scannings, codespaces, commits,
-        copilot, current, dependency_graph, enterprises, events, gist_comments, gists, git,
-        gitignore, hooks, issues, licenses, markdown, marketplace, migrations, orgs, packages,
-        projects, pulls, ratelimit, repos, search, security_advisories, teams, users, workflows,
+        actions, activity, apps, billing, checks, classroom, code_scannings, codes_of_conduct,
+        codespaces, commits, copilot, current, dependency_graph, enterprises, events,
+        gist_comments, gists, git, gitignore, hooks, issues, licenses, markdown, marketplace,
+        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
+        teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
