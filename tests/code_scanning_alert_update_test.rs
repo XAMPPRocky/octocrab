@@ -8,8 +8,6 @@ use octocrab::models::code_scannings::CodeScanningAlert;
 use octocrab::params::AlertState;
 use octocrab::Octocrab;
 
-
-
 async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServer {
     let owner: &str = "org";
     let repo: &str = "some-repo";

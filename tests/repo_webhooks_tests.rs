@@ -9,8 +9,6 @@ use octocrab::models::hooks::{Config, ContentType, DeliveryDetail, Hook};
 use octocrab::models::webhook_events::WebhookEventType;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const HOOK_ID: u64 = 1;

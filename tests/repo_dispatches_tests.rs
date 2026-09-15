@@ -1,5 +1,3 @@
-
-
 use crate::mock_error::setup_error_handler;
 use octocrab::Octocrab;
 use serde::Serialize;

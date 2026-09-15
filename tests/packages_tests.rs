@@ -7,7 +7,6 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-
 use crate::mock_error::setup_error_handler;
 
 const ORG: &str = "test-org";

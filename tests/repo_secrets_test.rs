@@ -1,8 +1,7 @@
 // Tests for calls to the /repos/{owner}/{repo}/actions/secrets API.
 
-
-use chrono::DateTime;
 use crate::mock_error::setup_error_handler;
+use chrono::DateTime;
 use octocrab::{
     models::{
         repos::secrets::{

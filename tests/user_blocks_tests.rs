@@ -10,7 +10,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 
-
 #[expect(dead_code)]
 #[derive(Serialize, Deserialize)]
 struct FakePage<T> {

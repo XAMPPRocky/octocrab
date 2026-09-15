@@ -1,6 +1,5 @@
 // Tests for calls to the /orgs/{org}/installation endpoint.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::models::{Author, Installation, InstallationId};
 use octocrab::Octocrab;

@@ -8,8 +8,6 @@ use octocrab::models::repos::secret_scanning_alert::SecretScanningAlert;
 use octocrab::models::repos::secret_scanning_alert::SecretsScanningAlertLocation;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "org";
 const REPO: &str = "some-repo";
 const ALERT_NUMBER: u32 = 5;

@@ -8,8 +8,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::DeployKey;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const KEY_ID: u64 = 1;

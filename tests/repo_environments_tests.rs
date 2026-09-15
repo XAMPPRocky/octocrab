@@ -13,8 +13,6 @@ use octocrab::models::repos::{
 use octocrab::models::{AppId, BranchPolicyId, EnvironmentId, ProtectionRuleId};
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const ENV_NAME: &str = "staging";

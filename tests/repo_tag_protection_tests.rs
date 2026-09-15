@@ -10,8 +10,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::TagProtection;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const TAG_PROTECTION_ID: u64 = 1;

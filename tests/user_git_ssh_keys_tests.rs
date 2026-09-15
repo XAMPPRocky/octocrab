@@ -10,7 +10,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 
-
 const GIT_SSH_KEY_ID: u64 = 42;
 
 async fn setup_git_ssh_keys_mock(

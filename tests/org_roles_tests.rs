@@ -9,8 +9,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::orgs::roles::{OrgFineGrainedPermission, OrgRole, OrgRolesResponse};
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const ROLE_ID: u64 = 1;
 

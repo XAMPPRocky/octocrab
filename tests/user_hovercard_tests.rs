@@ -8,8 +8,6 @@ use octocrab::models::Hovercard;
 use octocrab::params::users::hovercard::SubjectType;
 use octocrab::Octocrab;
 
-
-
 async fn setup_hovercard_mock(
     http_method: &str,
     mocked_path: &str,

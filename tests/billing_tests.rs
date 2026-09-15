@@ -6,7 +6,6 @@ use serde_json::json;
 use wiremock::matchers::{header, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-
 use crate::mock_error::setup_error_handler;
 
 const ORG: &str = "test-org";

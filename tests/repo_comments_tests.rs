@@ -9,8 +9,6 @@ use octocrab::models::commits::Comment;
 use octocrab::Octocrab;
 use octocrab::Page;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const COMMENT_ID: u64 = 1;

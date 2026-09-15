@@ -1,8 +1,6 @@
 // Tests for `OctocrabBuilder::build_with_reqwest`.
 #![cfg(feature = "reqwest")]
 
-
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{Octocrab, ReqwestClientConfig};
 use serde_json::{json, Value};

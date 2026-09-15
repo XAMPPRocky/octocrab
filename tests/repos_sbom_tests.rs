@@ -10,8 +10,6 @@ use octocrab::{models::repos::sbom::SbomFetchResponse, Octocrab};
 use serde_json::{json, Value};
 use url::Url;
 
-
-
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
 // This is an invalid UUID on purpose

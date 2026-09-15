@@ -11,7 +11,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 
-
 async fn setup_emails_mock(
     http_method: &str,
     mocked_path: &str,

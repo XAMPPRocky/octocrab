@@ -1,5 +1,3 @@
-
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{auth, Octocrab};
 use secrecy::SecretString;

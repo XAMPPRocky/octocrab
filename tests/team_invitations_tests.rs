@@ -1,6 +1,5 @@
 // Tests for calls to the /orgs/{org}/teams/{team}/invitations API.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{models::teams::TeamInvitation, Octocrab, Page};
 use serde::{Deserialize, Serialize};

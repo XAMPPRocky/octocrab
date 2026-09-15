@@ -9,7 +9,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to teams for the authenticated user.
 
-
 async fn setup_user_teams_mock(
     http_method: &str,
     mocked_path: &str,

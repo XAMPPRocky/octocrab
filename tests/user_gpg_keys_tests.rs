@@ -10,7 +10,6 @@ use octocrab::Octocrab;
 
 /// Tests API calls related to check runs of a specific commit.
 
-
 const GPG_KEY_ID: u64 = 42;
 
 async fn setup_gpg_keys_mock(

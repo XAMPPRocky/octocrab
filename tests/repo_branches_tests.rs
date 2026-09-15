@@ -14,8 +14,6 @@ use octocrab::models::teams::Team;
 use octocrab::models::Author;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const BRANCH: &str = "main";

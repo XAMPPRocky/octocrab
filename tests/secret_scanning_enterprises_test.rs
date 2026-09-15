@@ -7,8 +7,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::secret_scanning_alert::{Resolution, SecretScanningAlert, State};
 use octocrab::Octocrab;
 
-
-
 const ENTERPRISE: &str = "test-enterprise";
 
 async fn setup_enterprise_secrets_api(template: ResponseTemplate) -> MockServer {

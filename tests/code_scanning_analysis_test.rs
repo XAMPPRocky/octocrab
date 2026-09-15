@@ -8,8 +8,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::code_scannings::CodeScanningAlert;
 use octocrab::Octocrab;
 
-
-
 async fn setup_issue_check_assignee_api(template: ResponseTemplate) -> MockServer {
     let owner: &str = "org";
     let repo: &str = "some-repo";

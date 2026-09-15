@@ -1,5 +1,3 @@
-
-
 use serde::{Deserialize, Serialize};
 use wiremock::{
     matchers::{method, path},

@@ -1,5 +1,3 @@
-
-
 use wiremock::{
     matchers::{method, path, query_param},
     Mock, MockServer, ResponseTemplate,

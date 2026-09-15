@@ -1,8 +1,7 @@
 // Tests for calls to the /orgs/{ORG}/actions/secrets API.
 
-
-use chrono::DateTime;
 use crate::mock_error::setup_error_handler;
+use chrono::DateTime;
 use octocrab::{
     models::{
         orgs::secrets::{

@@ -9,7 +9,6 @@ use octocrab::Octocrab;
 
 /// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
 
-
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
 

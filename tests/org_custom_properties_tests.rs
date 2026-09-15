@@ -11,8 +11,6 @@ use octocrab::models::orgs::custom_properties::{
 };
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 
 async fn setup_mock(

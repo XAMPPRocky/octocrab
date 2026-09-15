@@ -7,8 +7,6 @@ use wiremock::{
 use crate::mock_error::setup_error_handler;
 use octocrab::{models::commits::CommitComparison, Octocrab};
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const COMMIT_SHA: &str = "c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc";

@@ -10,8 +10,6 @@ use octocrab::models::orgs::invitations::{FailedOrgInvitation, OrgInvitation};
 use octocrab::models::teams::Team;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const INVITATION_ID: u64 = 42;
 

@@ -1,6 +1,5 @@
 /// Tests generating release notes:
 /// /repos/{owner}/{repo}/releases/generate-notes
-
 use crate::mock_error::setup_error_handler;
 use octocrab::models::repos::ReleaseNotes;
 use octocrab::Octocrab;

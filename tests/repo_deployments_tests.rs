@@ -9,8 +9,6 @@ use octocrab::models::repos::{Deployment, DeploymentStatus, DeploymentStatusStat
 use octocrab::Octocrab;
 use octocrab::Page;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const DEPLOYMENT_ID: u64 = 1;

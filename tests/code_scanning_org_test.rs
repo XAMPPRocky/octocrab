@@ -7,8 +7,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::code_scannings::CodeScanningAlert;
 use octocrab::Octocrab;
 
-
-
 const ORG: &str = "test-org";
 
 fn setup_octocrab(uri: &str) -> Octocrab {

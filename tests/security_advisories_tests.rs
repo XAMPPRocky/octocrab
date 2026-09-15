@@ -4,7 +4,6 @@ use wiremock::{
     Mock, MockServer, ResponseTemplate,
 };
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::models::security_advisories::{
     CreatePackage, CreateRepositoryAdvisory, CreateVulnerability, ReportVulnerability,

@@ -2,9 +2,8 @@
 // - /repos/{owner}/{repo}/actions/runners
 // - /orgs/{org}/actions/runners
 
-
-use http::StatusCode;
 use crate::mock_error::setup_error_handler;
+use http::StatusCode;
 use octocrab::{
     models::{
         actions::{SelfHostedRunner, SelfHostedRunnerJitConfig, SelfHostedRunnerToken},

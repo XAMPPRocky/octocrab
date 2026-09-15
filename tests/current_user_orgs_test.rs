@@ -1,6 +1,5 @@
 // Tests for calls to the /user/memberships/orgs API.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{models::orgs::MembershipInvitation, Octocrab, Page};
 use serde::{Deserialize, Serialize};

@@ -9,8 +9,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::orgs::security::{SecurityEnablement, SecurityProduct};
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const TEAM_SLUG: &str = "justice-league";
 

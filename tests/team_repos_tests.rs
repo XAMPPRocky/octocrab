@@ -1,6 +1,5 @@
 // Tests for calls to the /orgs/{org}/teams/{team}/members API.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::models::{Repository, RepositoryId};
 use octocrab::Octocrab;

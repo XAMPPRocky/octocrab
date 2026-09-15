@@ -11,8 +11,6 @@ use octocrab::models::orgs::personal_access_tokens::{
 };
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const PAT_ID: u64 = 123;
 const PAT_REQUEST_ID: u64 = 456;

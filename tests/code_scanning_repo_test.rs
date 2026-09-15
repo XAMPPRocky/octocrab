@@ -11,8 +11,6 @@ use octocrab::models::code_scannings::{
 use octocrab::params;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "test-owner";
 const REPO: &str = "test-repo";
 

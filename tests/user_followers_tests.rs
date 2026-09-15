@@ -8,8 +8,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::{Followee, Follower};
 use octocrab::Octocrab;
 
-
-
 async fn setup_followers_mock(
     http_method: &str,
     mocked_path: &str,

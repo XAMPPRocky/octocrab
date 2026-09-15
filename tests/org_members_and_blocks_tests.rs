@@ -8,8 +8,6 @@ use wiremock::{
 use crate::mock_error::setup_error_handler;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const USERNAME: &str = "octocat";
 

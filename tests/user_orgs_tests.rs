@@ -7,8 +7,6 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::orgs::{OrgMembership, OrgMembershipState};
 use octocrab::Octocrab;
 
-
-
 const USERNAME: &str = "octocat";
 const ORG: &str = "github";
 

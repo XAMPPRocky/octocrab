@@ -10,8 +10,6 @@ use octocrab::{
     Octocrab,
 };
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 

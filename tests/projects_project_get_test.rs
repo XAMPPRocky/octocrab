@@ -1,6 +1,5 @@
 // Tests for calls to the /projects/{project_id} API.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{models::Project, Octocrab};
 use serde::{Deserialize, Serialize};

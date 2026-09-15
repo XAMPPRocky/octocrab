@@ -11,8 +11,6 @@ use octocrab::models::rulesets::{
 };
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 const ORG: &str = "org";

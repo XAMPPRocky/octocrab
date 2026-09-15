@@ -9,7 +9,6 @@ use crate::mock_error::setup_error_handler;
 
 /// Unit test for calls to the `/repos/{owner}/{repo}/pulls/comments/{comment_id}` endpoint
 
-
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";
 const COMMENT_ID: u64 = 42;

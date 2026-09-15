@@ -8,8 +8,6 @@ use octocrab::models::repos::{Clones, PathTraffic, ReferrerTraffic, Views};
 use octocrab::params::repos::TrafficInterval;
 use octocrab::Octocrab;
 
-
-
 const OWNER: &str = "owner";
 const REPO: &str = "repo";
 

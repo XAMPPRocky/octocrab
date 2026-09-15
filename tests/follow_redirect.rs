@@ -1,6 +1,5 @@
 // Tests for calls to the /repos/{owner}/{repo}/stargazers API.
 
-
 use crate::mock_error::setup_error_handler;
 use octocrab::{models::StarGazer, Octocrab, Page};
 use serde::{Deserialize, Serialize};
