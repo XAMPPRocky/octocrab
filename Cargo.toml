@@ -57,6 +57,8 @@ futures = { version = "0.3.15" }
 futures-core = { version = "0.3", optional = true }
 futures-util = { version = "0.3", optional = true }
 getrandom = { version = "0.2.15", features = ["js"] }
+hex = "0.4"
+hmac = "0.12"
 jsonwebtoken = { version = "10", default-features = false, features = ["use_pem"] }
 http = "1.0.0"
 http-body = "1.0.0"
@@ -81,6 +83,7 @@ serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
 serde_path_to_error = "0.1.4"
 serde_urlencoded = "0.7.1"
+sha2 = "0.10"
 snafu = "0.8"
 tokio = { version = "1.17.0", default-features = false, features = [
     "time",
@@ -139,4 +142,6 @@ stream = ["futures-core", "futures-util"]
 timeout = ["hyper-timeout", "tokio", "tower/timeout"]
 default-client = ["hyper-util/client-legacy"]
 
-
+[[test]]
+name = "webhook_verification_tests"
+path = "tests/webhook_verification_tests.rs"
