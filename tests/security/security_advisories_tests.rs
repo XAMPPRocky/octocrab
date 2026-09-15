@@ -322,8 +322,10 @@ async fn should_request_cve_for_advisory() {
 
 #[tokio::test]
 async fn should_create_temporary_private_fork() {
-    let mocked_response: Repository =
-        serde_json::from_str(include_str!("../resources/repo_security_advisory_fork.json")).unwrap();
+    let mocked_response: Repository = serde_json::from_str(include_str!(
+        "../resources/repo_security_advisory_fork.json"
+    ))
+    .unwrap();
     let template = ResponseTemplate::new(StatusCode::ACCEPTED).set_body_json(&mocked_response);
     let mock_server = setup_mock_server(
         "POST",

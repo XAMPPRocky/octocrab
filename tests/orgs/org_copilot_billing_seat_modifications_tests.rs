@@ -34,7 +34,8 @@ fn setup_octocrab(uri: &str) -> Octocrab {
 
 #[tokio::test]
 async fn should_create_seats_team() {
-    let billing: SeatsCreated = serde_json::from_str(include_str!("../resources/org_copilot_billing_seats_created.json"
+    let billing: SeatsCreated = serde_json::from_str(include_str!(
+        "../resources/org_copilot_billing_seats_created.json"
     ))
     .unwrap();
 
@@ -59,7 +60,8 @@ async fn should_create_seats_team() {
 
 #[tokio::test]
 async fn should_create_seats_user() {
-    let billing: SeatsCreated = serde_json::from_str(include_str!("../resources/org_copilot_billing_seats_created.json"
+    let billing: SeatsCreated = serde_json::from_str(include_str!(
+        "../resources/org_copilot_billing_seats_created.json"
     ))
     .unwrap();
 
@@ -84,7 +86,8 @@ async fn should_create_seats_user() {
 
 #[tokio::test]
 async fn should_remove_seats_team() {
-    let billing: SeatsCancelled = serde_json::from_str(include_str!("../resources/org_copilot_billing_seats_cancelled.json"
+    let billing: SeatsCancelled = serde_json::from_str(include_str!(
+        "../resources/org_copilot_billing_seats_cancelled.json"
     ))
     .unwrap();
 
@@ -109,7 +112,8 @@ async fn should_remove_seats_team() {
 
 #[tokio::test]
 async fn should_remove_seats_user() {
-    let billing: SeatsCancelled = serde_json::from_str(include_str!("../resources/org_copilot_billing_seats_cancelled.json"
+    let billing: SeatsCancelled = serde_json::from_str(include_str!(
+        "../resources/org_copilot_billing_seats_cancelled.json"
     ))
     .unwrap();
 

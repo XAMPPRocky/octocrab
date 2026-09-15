@@ -469,8 +469,10 @@ async fn should_create_pages_deployment() {
 #[tokio::test]
 async fn should_get_pages_deployment_status() {
     let mock_server = MockServer::start().await;
-    let mocked_response: PagesDeploymentStatus =
-        serde_json::from_str(include_str!("../resources/repo_pages_deployment_status.json")).unwrap();
+    let mocked_response: PagesDeploymentStatus = serde_json::from_str(include_str!(
+        "../resources/repo_pages_deployment_status.json"
+    ))
+    .unwrap();
 
     let template = ResponseTemplate::new(200).set_body_json(&mocked_response);
 
