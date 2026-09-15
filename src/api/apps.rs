@@ -35,14 +35,14 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Gets the authenticated GitHub App.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#get-the-authenticated-app)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app)
     pub async fn get(&self) -> crate::Result<crate::models::apps::App> {
         self.crab.get("/app", None::<&()>).await
     }
 
     /// Creates a GitHub App from a manifest code conversion.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#create-a-github-app-from-a-manifest)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-a-github-app-from-a-manifest)
     pub async fn create_from_manifest(
         &self,
         code: impl AsRef<str>,
@@ -98,14 +98,14 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Lists pending installation requests for the authenticated app.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#list-installation-requests-for-the-authenticated-app)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#list-installation-requests-for-the-authenticated-app)
     pub fn installation_requests(&self) -> InstallationRequestsBuilder<'octo> {
         InstallationRequestsBuilder::new(self.crab)
     }
 
     /// Deletes an installation for the authenticated app.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#delete-an-installation-for-the-authenticated-app)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#delete-an-installation-for-the-authenticated-app)
     pub async fn delete_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -118,7 +118,7 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Creates an installation access token for an app.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app)
     pub async fn create_installation_access_token(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -133,7 +133,7 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Suspends an app installation.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#suspend-an-app-installation)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#suspend-an-app-installation)
     pub async fn suspend_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -146,7 +146,7 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Unsuspends an app installation.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#unsuspend-an-app-installation)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#unsuspend-an-app-installation)
     pub async fn unsuspend_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -159,7 +159,7 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Gets a user installation for the authenticated app.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/apps?apiVersion=2022-11-28#get-a-user-installation-for-the-authenticated-app)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-user-installation-for-the-authenticated-app)
     pub async fn get_user_installation(
         &self,
         username: impl AsRef<str>,
@@ -170,14 +170,14 @@ impl<'octo> AppsRequestHandler<'octo> {
 
     /// Lists repositories accessible to the app installation.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/installations?apiVersion=2022-11-28#list-repositories-accessible-to-the-app-installation)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-repositories-accessible-to-the-app-installation)
     pub fn installation_repositories(&self) -> ListInstallationRepositoriesBuilder<'octo> {
         ListInstallationRepositoriesBuilder::new(self.crab)
     }
 
     /// Revokes an installation access token.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps?apiVersion=2022-11-28/installations?apiVersion=2022-11-28#revoke-an-installation-access-token)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#revoke-an-installation-access-token)
     pub async fn revoke_installation_token(&self) -> crate::Result<()> {
         let resp = self
             .crab

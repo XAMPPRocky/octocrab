@@ -88,7 +88,7 @@ pub mod apps {
 
     use crate::models::RepositoryId;
 
-    /// <https://docs.github.com/en/rest/reference/apps#create-an-installation-access-token-for-an-app>
+    /// [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app)
     #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize, Default)]
     #[serde(rename_all = "snake_case")]
     #[non_exhaustive]

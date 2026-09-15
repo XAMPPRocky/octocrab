@@ -1,6 +1,6 @@
 use super::super::*;
 
-// implements https://docs.github.com/en/rest/copilot/copilot-user-management
+// implements https://docs.github.com/en/rest/copilot/copilot-user-management?apiVersion=2022-11-28
 // as of API Version 2022-11-28
 //
 // We have chosen to not map out the enums as the copilot API is still fresh,

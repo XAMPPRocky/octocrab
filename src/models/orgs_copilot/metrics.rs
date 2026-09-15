@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 
 use super::super::*;
 
-// implements https://docs.github.com/en/rest/copilot/copilot-metrics
+// implements https://docs.github.com/en/rest/copilot/copilot-metrics?apiVersion=2022-11-28
 // as of API Version 2022-11-28
 // missing:
 // - copilot_dotcom_chat
