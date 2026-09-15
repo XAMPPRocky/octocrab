@@ -55,7 +55,11 @@ fn test_webhook_verifier_positive() {
 
 #[test]
 fn test_webhook_event_try_from_header_signature_and_body() {
-    let json = include_str!("resources/ping_webhook_event.json");
+    let json_content = include_str!("resources/ping_webhook_event.json");
+    // Normalize CRLF to LF so that the hardcoded HMAC matches on Windows where git may checkout with CRLF
+    let json_string = json_content.replace("\r\n", "\n");
+    let json = json_string.as_str();
+
     let secret = "secret";
     // Known signature for secret "secret" and ping_webhook_event.json
     let signature = "sha256=644edc258faa19127a9f816e1c61b092b59d715fbefb0c8cc26b8a2cab781de1";
