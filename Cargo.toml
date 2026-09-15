@@ -1,5 +1,4 @@
 [package]
-autotests = false
 name = "octocrab"
 version = "0.54.2"
 resolver = "2"
