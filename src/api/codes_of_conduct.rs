@@ -26,6 +26,15 @@ impl<'octo> CodesOfConductHandler<'octo> {
     /// The fine-grained token does not require any permissions.
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let codes = octocrab.codes_of_conduct().list_all_codes_of_conduct().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_all_codes_of_conduct(&self) -> crate::Result<Vec<CodeOfConduct>> {
         let route = String::from("/codes_of_conduct");
         self.crab.get(route, Some(&self)).await
@@ -46,6 +55,18 @@ impl<'octo> CodesOfConductHandler<'octo> {
     /// The fine-grained token does not require any permissions.
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let code = octocrab
+    ///     .codes_of_conduct()
+    ///     .get_code_of_conduct("contributor_covenant".to_string())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_code_of_conduct(&self, key: String) -> crate::Result<CodeOfConduct> {
         let route = format!("/codes_of_conduct/{}", key);
         self.crab.get(route, Some(&self)).await

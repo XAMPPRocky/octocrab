@@ -16,6 +16,19 @@ impl<'octo, 'r> RepoCustomPropertiesHandler<'octo, 'r> {
     /// Get all custom property values for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/custom-properties?apiVersion=2022-11-28#get-all-custom-property-values-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let values = octocrab
+    ///     .repos("owner", "repo")
+    ///     .custom_properties()
+    ///     .get_values()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_values(&self) -> crate::Result<Vec<CustomPropertyValue>> {
         let route = format!("/{}/properties/values", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
@@ -24,6 +37,25 @@ impl<'octo, 'r> RepoCustomPropertiesHandler<'octo, 'r> {
     /// Create or update custom property values for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/custom-properties?apiVersion=2022-11-28#create-or-update-custom-property-values-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::repos::CustomPropertyValue;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let property = CustomPropertyValue::new(
+    ///     "environment",
+    ///     Some(serde_json::json!("production")),
+    /// );
+    ///
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .custom_properties()
+    ///     .create_or_update_values(vec![property])
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_or_update_values(
         &self,
         properties: impl IntoIterator<Item = CustomPropertyValue>,

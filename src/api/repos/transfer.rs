@@ -38,6 +38,19 @@ impl<'octo, 'r> TransferRepoBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repo = octocrab
+    ///     .repos("owner", "repo")
+    ///     .transfer("new_owner")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<Repository> {
         let route = format!("/{}/transfer", self.handler.repo);
         self.handler.crab.post(route, Some(&self)).await

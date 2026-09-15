@@ -449,6 +449,18 @@ impl<'octo> ActionsHandler<'octo> {
     /// Gets a specific artifact for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#get-an-artifact)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let artifact = octocrab
+    ///     .actions()
+    ///     .get_artifact("owner", "repo", 1234u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_artifact(
         &self,
         owner: impl AsRef<str>,
@@ -467,6 +479,18 @@ impl<'octo> ActionsHandler<'octo> {
     /// Deletes an artifact for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#delete-an-artifact)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .actions()
+    ///     .delete_artifact("owner", "repo", 1234u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_artifact(
         &self,
         owner: impl AsRef<str>,
@@ -542,6 +566,19 @@ impl<'octo> ActionsHandler<'octo> {
     /// repository can use this endpoint. If the repository is private you
     /// must use an access token with the `repo` scope. GitHub Apps must have
     /// the `actions:read` permission to use this endpoint.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let artifacts = octocrab
+    ///     .actions()
+    ///     .list_workflow_run_artifacts("owner", "repo", 1234u64.into())
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_workflow_run_artifacts(
         &self,
         owner: impl Into<String>,

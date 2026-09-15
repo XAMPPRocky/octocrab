@@ -36,6 +36,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Gets the authenticated GitHub App.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let app = octocrab.apps().get().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self) -> crate::Result<crate::models::apps::App> {
         self.crab.get("/app", None::<&()>).await
     }
@@ -43,6 +52,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Creates a GitHub App from a manifest code conversion.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-a-github-app-from-a-manifest)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let app = octocrab.apps().create_from_manifest("code").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_from_manifest(
         &self,
         code: impl AsRef<str>,
@@ -99,6 +117,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Lists pending installation requests for the authenticated app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#list-installation-requests-for-the-authenticated-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let requests = octocrab.apps().installation_requests().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn installation_requests(&self) -> InstallationRequestsBuilder<'octo> {
         InstallationRequestsBuilder::new(self.crab)
     }
@@ -106,6 +133,17 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Deletes an installation for the authenticated app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#delete-an-installation-for-the-authenticated-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::InstallationId;
+    ///
+    /// octocrab.apps().delete_installation(InstallationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -119,6 +157,24 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Creates an installation access token for an app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::apps::CreateInstallationAccessToken;
+    /// use octocrab::models::InstallationId;
+    ///
+    /// let token = octocrab
+    ///     .apps()
+    ///     .create_installation_access_token(
+    ///         InstallationId(1),
+    ///         &CreateInstallationAccessToken::default(),
+    ///     )
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_installation_access_token(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -134,6 +190,17 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Suspends an app installation.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#suspend-an-app-installation)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::InstallationId;
+    ///
+    /// octocrab.apps().suspend_installation(InstallationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn suspend_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -147,6 +214,17 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Unsuspends an app installation.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#unsuspend-an-app-installation)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::InstallationId;
+    ///
+    /// octocrab.apps().unsuspend_installation(InstallationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn unsuspend_installation(
         &self,
         installation_id: impl Into<InstallationId>,
@@ -160,6 +238,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Gets a user installation for the authenticated app.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-a-user-installation-for-the-authenticated-app)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let installation = octocrab.apps().get_user_installation("username").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_user_installation(
         &self,
         username: impl AsRef<str>,
@@ -171,6 +258,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Lists repositories accessible to the app installation.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-repositories-accessible-to-the-app-installation)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repos = octocrab.apps().installation_repositories().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn installation_repositories(&self) -> ListInstallationRepositoriesBuilder<'octo> {
         ListInstallationRepositoriesBuilder::new(self.crab)
     }
@@ -178,6 +274,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     /// Revokes an installation access token.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#revoke-an-installation-access-token)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.apps().revoke_installation_token().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn revoke_installation_token(&self) -> crate::Result<()> {
         let resp = self
             .crab
@@ -188,16 +293,46 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Access webhook operations for the authenticated GitHub App.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let config = octocrab.apps().webhook().get_config().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn webhook(&self) -> AppWebhookHandler<'octo> {
         AppWebhookHandler::new(self.crab)
     }
 
     /// Gets the webhook configuration for the authenticated app.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let config = octocrab.apps().webhook_config().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn webhook_config(&self) -> crate::Result<crate::models::hooks::Config> {
         self.webhook().get_config().await
     }
 
     /// Updates the webhook configuration for the authenticated app.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::apps::UpdateWebhookConfig;
+    ///
+    /// let config = UpdateWebhookConfig::default();
+    /// let updated = octocrab.apps().update_webhook_config(&config).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update_webhook_config(
         &self,
         config: &crate::models::apps::UpdateWebhookConfig,
@@ -206,11 +341,31 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Lists deliveries for the authenticated app's webhook.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let deliveries = octocrab.apps().webhook_deliveries().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn webhook_deliveries(&self) -> ListAppWebhookDeliveriesBuilder<'octo> {
         self.webhook().deliveries()
     }
 
     /// Gets a specific delivery for the authenticated app's webhook.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::HookDeliveryId;
+    ///
+    /// let delivery = octocrab.apps().get_webhook_delivery(HookDeliveryId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_webhook_delivery(
         &self,
         delivery_id: impl Into<crate::models::HookDeliveryId>,
@@ -219,6 +374,17 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Redelivers a delivery for the authenticated app's webhook.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::HookDeliveryId;
+    ///
+    /// octocrab.apps().redeliver_webhook_delivery(HookDeliveryId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn redeliver_webhook_delivery(
         &self,
         delivery_id: impl Into<crate::models::HookDeliveryId>,
@@ -227,11 +393,29 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Access OAuth authorization operations for a specific application client ID.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let app = octocrab.apps().application("client_id");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn application(&self, client_id: impl Into<String>) -> ApplicationHandler<'octo> {
         ApplicationHandler::new(self.crab, client_id.into())
     }
 
     /// Access GitHub Marketplace operations.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let plans = octocrab.apps().marketplace().list_plans().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn marketplace(&self) -> crate::api::marketplace::MarketplaceHandler<'octo> {
         crate::api::marketplace::MarketplaceHandler::new(self.crab)
     }
@@ -254,6 +438,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Get a repository installation for the authenticated app.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let installation = octocrab.apps().get_repository_installation("owner", "repo").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_repository_installation(
         &self,
         owner: impl AsRef<str>,
@@ -269,6 +462,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Get an organization installation for the authenticated app.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let installation = octocrab.apps().get_org_installation("org").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_org_installation(
         &self,
         owner: impl AsRef<str>,
@@ -279,6 +481,15 @@ impl<'octo> AppsRequestHandler<'octo> {
     }
 
     /// Get a GitHub App by its slug.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let app = octocrab.apps().get_app("my-app").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_app(
         &self,
         app_slug: impl AsRef<str>,

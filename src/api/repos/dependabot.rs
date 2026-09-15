@@ -27,11 +27,41 @@ impl<'octo> RepoDependabotHandler<'octo> {
     }
 
     /// Handler for managing repository Dependabot secrets.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secrets(&self) -> RepoDependabotSecretsHandler<'octo> {
         RepoDependabotSecretsHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handler for managing repository Dependabot alerts.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn alerts(&self) -> RepoDependabotAlertsHandler<'octo> {
         RepoDependabotAlertsHandler::new(self.crab, self.repo.clone())
     }
@@ -39,6 +69,19 @@ impl<'octo> RepoDependabotHandler<'octo> {
     /// Lists all Dependabot Alerts available in a repository.
     ///
     /// For advanced filtering and pagination, use [`RepoDependabotHandler::alerts`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .get_alerts()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_alerts(
         &self,
     ) -> Result<Page<crate::models::repos::dependabot::DependabotAlert>> {
@@ -49,6 +92,19 @@ impl<'octo> RepoDependabotHandler<'octo> {
     /// Lists single Dependabot Alert for a repository.
     ///
     /// For advanced alert operations, use [`RepoDependabotHandler::alerts`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .get_alert(1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_alert(
         &self,
         alert_number: u32,
@@ -60,6 +116,26 @@ impl<'octo> RepoDependabotHandler<'octo> {
     /// Updates a dependabot alert.
     ///
     /// For advanced alert operations, use [`RepoDependabotHandler::alerts`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::repos::dependabot::UpdateDependabotAlert;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let update = UpdateDependabotAlert {
+    ///     state: "dismissed",
+    ///     dismissed_reason: Some("tolerable_risk"),
+    ///     dismissed_comment: None,
+    /// };
+    ///
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .update_alert(1, Some(&update))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update_alert(
         &self,
         alert_number: u32,
@@ -84,6 +160,21 @@ impl<'octo> RepoDependabotSecretsHandler<'octo> {
     /// Lists repository Dependabot secrets.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28#list-repository-secrets)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoDependabotSecretsBuilder<'octo, '_> {
         ListRepoDependabotSecretsBuilder::new(self)
     }
@@ -91,6 +182,20 @@ impl<'octo> RepoDependabotSecretsHandler<'octo> {
     /// Gets the repository public key for Dependabot secrets encryption.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28#get-a-repository-public-key)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let key = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .get_public_key()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_public_key(&self) -> Result<PublicKey> {
         let route = format!("/{}/dependabot/secrets/public-key", self.repo);
         self.crab.get(route, None::<&()>).await
@@ -99,6 +204,20 @@ impl<'octo> RepoDependabotSecretsHandler<'octo> {
     /// Gets a repository Dependabot secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28#get-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secret = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .get("SECRET_NAME")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, secret_name: impl AsRef<str>) -> Result<RepositorySecret> {
         let route = format!("/{}/dependabot/secrets/{}", self.repo, secret_name.as_ref());
         self.crab.get(route, None::<&()>).await
@@ -107,6 +226,26 @@ impl<'octo> RepoDependabotSecretsHandler<'octo> {
     /// Creates or updates a repository Dependabot secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28#create-or-update-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::repos::secrets::CreateRepositorySecret;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secret = CreateRepositorySecret {
+    ///     encrypted_value: "c2VjcmV0",
+    ///     key_id: "0123456789",
+    /// };
+    ///
+    /// let resp = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .create_or_update("SECRET_NAME", &secret)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_or_update(
         &self,
         secret_name: impl AsRef<str>,
@@ -128,6 +267,20 @@ impl<'octo> RepoDependabotSecretsHandler<'octo> {
     /// Deletes a repository Dependabot secret.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28#delete-a-repository-secret)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .delete("SECRET_NAME")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete(&self, secret_name: impl AsRef<str>) -> Result<()> {
         let route = format!("/{}/dependabot/secrets/{}", self.repo, secret_name.as_ref());
         let resp = self.crab._delete(route, None::<&()>).await?;
@@ -169,6 +322,21 @@ impl<'octo, 'r> ListRepoDependabotSecretsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the resulting page of secrets.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let secrets = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .secrets()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<RepositorySecret>> {
         let route = format!("/{}/dependabot/secrets", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -189,6 +357,21 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Lists repository Dependabot alerts.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/alerts?apiVersion=2022-11-28#list-dependabot-alerts-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoDependabotAlertsBuilder<'octo, '_> {
         ListRepoDependabotAlertsBuilder::new(self)
     }
@@ -196,6 +379,20 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Gets a repository Dependabot alert.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/alerts?apiVersion=2022-11-28#get-a-dependabot-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .get(1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, alert_number: u64) -> Result<DependabotAlert> {
         let route = format!("/{}/dependabot/alerts/{}", self.repo, alert_number);
         self.crab.get(route, None::<&()>).await
@@ -204,6 +401,23 @@ impl<'octo> RepoDependabotAlertsHandler<'octo> {
     /// Updates a repository Dependabot alert.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/alerts?apiVersion=2022-11-28#update-a-dependabot-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::dependabot::DependabotAlertUpdateState;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .update(1)
+    ///     .state(DependabotAlertUpdateState::Dismissed)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn update(&self, alert_number: u64) -> UpdateRepoDependabotAlertBuilder<'octo, '_> {
         UpdateRepoDependabotAlertBuilder::new(self, alert_number)
     }
@@ -359,6 +573,21 @@ impl<'octo, 'r> ListRepoDependabotAlertsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the resulting page of alerts.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<DependabotAlert>> {
         let route = format!("/{}/dependabot/alerts", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await
@@ -419,6 +648,23 @@ impl<'octo, 'r> UpdateRepoDependabotAlertBuilder<'octo, 'r> {
     }
 
     /// Sends the update request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::dependabot::DependabotAlertUpdateState;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alert = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .update(1)
+    ///     .state(DependabotAlertUpdateState::Dismissed)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<DependabotAlert> {
         let route = format!(
             "/{}/dependabot/alerts/{}",
