@@ -9,7 +9,7 @@ use octocrab::models::UserEmailInfo;
 use octocrab::params::users::emails::EmailVisibilityState;
 use octocrab::Octocrab;
 
-/// Tests API calls related to check runs of a specific commit.
+// Tests API calls related to check runs of a specific commit.
 
 async fn setup_emails_mock(
     http_method: &str,

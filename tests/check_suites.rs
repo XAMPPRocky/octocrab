@@ -9,7 +9,7 @@ use octocrab::models::{AppId, CheckRunId, CheckSuiteId};
 use octocrab::params::repos::Commitish;
 use octocrab::Octocrab;
 
-/// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
+// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";

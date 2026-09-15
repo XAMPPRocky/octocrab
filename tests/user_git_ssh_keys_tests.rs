@@ -8,7 +8,7 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::GitSshKey;
 use octocrab::Octocrab;
 
-/// Tests API calls related to check runs of a specific commit.
+// Tests API calls related to check runs of a specific commit.
 
 const GIT_SSH_KEY_ID: u64 = 42;
 

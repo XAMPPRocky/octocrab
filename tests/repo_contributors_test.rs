@@ -7,7 +7,7 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::{Author, Contributor};
 use octocrab::Octocrab;
 
-/// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
+// Unit test for calls to the `/repos/OWNER/REPO/contributors` endpoint
 
 const OWNER: &str = "XAMPPRocky";
 const REPO: &str = "octocrab";

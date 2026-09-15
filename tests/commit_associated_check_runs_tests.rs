@@ -1,4 +1,4 @@
-/// Tests API calls related to check runs of a specific commit.
+// Tests API calls related to check runs of a specific commit.
 use crate::mock_error::setup_error_handler;
 use octocrab::models::checks::ListCheckRuns;
 use octocrab::models::CheckRunId;

@@ -7,7 +7,7 @@ use crate::mock_error::setup_error_handler;
 use octocrab::models::pulls::PullRequest;
 use octocrab::Octocrab;
 
-/// Tests API calls related to check runs of a specific commit.
+// Tests API calls related to check runs of a specific commit.
 
 async fn setup_pull_requests_mock(
     http_method: &str,
