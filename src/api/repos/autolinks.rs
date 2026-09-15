@@ -18,7 +18,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     ///
     /// Information about autolinks is only available to repository administrators.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks#get-all-autolinks-of-a-repository)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks?apiVersion=2022-11-28#get-all-autolinks-of-a-repository)
     ///
     /// # Examples
     ///
@@ -40,7 +40,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     ///
     /// Information about autolinks is only available to repository administrators.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks#get-an-autolink-reference-of-a-repository)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks?apiVersion=2022-11-28#get-an-autolink-reference-of-a-repository)
     ///
     /// # Examples
     ///
@@ -63,7 +63,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     ///
     /// Users with admin access to the repository can create an autolink.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks#create-an-autolink-reference-for-a-repository)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks?apiVersion=2022-11-28#create-an-autolink-reference-for-a-repository)
     ///
     /// # Examples
     ///
@@ -90,7 +90,7 @@ impl<'octo, 'r> RepoAutolinksHandler<'octo, 'r> {
     ///
     /// Information about autolinks is only available to repository administrators.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks#delete-an-autolink-reference-from-a-repository)
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/autolinks?apiVersion=2022-11-28#delete-an-autolink-reference-from-a-repository)
     ///
     /// # Examples
     ///

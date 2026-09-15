@@ -24,19 +24,60 @@ impl<'octo> EnterpriseHandler<'octo> {
 
     /// Handle secret scanning alerts for the enterprise.
     ///
-    /// See: https://docs.github.com/en/rest/secret-scanning?apiVersion=2022-11-28#list-secret-scanning-alerts-for-an-enterprise
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/secret-scanning?apiVersion=2022-11-28#list-secret-scanning-alerts-for-an-enterprise)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .secret_scanning()
+    ///     .get_alerts()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secret_scanning(&self) -> EnterpriseSecretScanningAlertsHandler<'_> {
         EnterpriseSecretScanningAlertsHandler::new(self)
     }
 
     /// Handle secret scanning alerts for the enterprise (alias for [`secret_scanning`][EnterpriseHandler::secret_scanning]).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .secrets_scanning()
+    ///     .get_alerts()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn secrets_scanning(&self) -> EnterpriseSecretScanningAlertsHandler<'_> {
         self.secret_scanning()
     }
 
     /// Handle Dependabot for the enterprise.
     ///
-    /// See: https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn dependabot(&self) -> EnterpriseDependabotHandler<'octo> {
         EnterpriseDependabotHandler::new(self.crab, self.enterprise.clone())
     }
@@ -181,11 +222,41 @@ impl<'octo> EnterpriseDependabotHandler<'octo> {
     }
 
     /// Handler for managing enterprise Dependabot alerts.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn alerts(&self) -> EnterpriseDependabotAlertsHandler<'octo> {
         EnterpriseDependabotAlertsHandler::new(self.crab, self.enterprise.clone())
     }
 
     /// Handler for managing enterprise Dependabot repository access.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let access = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .repository_access()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn repository_access(&self) -> EnterpriseDependabotRepositoryAccessHandler<'octo> {
         EnterpriseDependabotRepositoryAccessHandler::new(self.crab, self.enterprise.clone())
     }
@@ -208,6 +279,21 @@ impl<'octo> EnterpriseDependabotAlertsHandler<'octo> {
     /// Lists enterprise Dependabot alerts.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/alerts?apiVersion=2022-11-28#list-dependabot-alerts-for-an-enterprise)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let alerts = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .alerts()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListEnterpriseDependabotAlertsBuilder<'octo, '_> {
         ListEnterpriseDependabotAlertsBuilder::new(self)
     }
@@ -377,6 +463,21 @@ impl<'octo> EnterpriseDependabotRepositoryAccessHandler<'octo> {
     /// Lists repositories that Dependabot can access for the enterprise.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/repository-access?apiVersion=2022-11-28#list-repositories-dependabot-can-access)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let access = octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .repository_access()
+    ///     .list()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListEnterpriseDependabotRepositoryAccessBuilder<'octo, '_> {
         ListEnterpriseDependabotRepositoryAccessBuilder::new(self)
     }
@@ -384,6 +485,22 @@ impl<'octo> EnterpriseDependabotRepositoryAccessHandler<'octo> {
     /// Updates the repositories that Dependabot can access for the enterprise.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/repository-access?apiVersion=2022-11-28#update-the-dependabot-repository-access-list)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .repository_access()
+    ///     .update()
+    ///     .add_repository(12345u64)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn update(&self) -> UpdateEnterpriseDependabotRepositoryAccessBuilder<'octo, '_> {
         UpdateEnterpriseDependabotRepositoryAccessBuilder::new(self)
     }
@@ -391,6 +508,22 @@ impl<'octo> EnterpriseDependabotRepositoryAccessHandler<'octo> {
     /// Sets the default repository access level for Dependabot in the enterprise.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot/repository-access?apiVersion=2022-11-28#set-the-default-repository-access-level)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::dependabot::DependabotDefaultRepositoryAccessLevel;
+    ///
+    /// octocrab
+    ///     .enterprises("my-enterprise")
+    ///     .dependabot()
+    ///     .repository_access()
+    ///     .set_default_level(DependabotDefaultRepositoryAccessLevel::Internal)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn set_default_level(
         &self,
         default_level: DependabotDefaultRepositoryAccessLevel,

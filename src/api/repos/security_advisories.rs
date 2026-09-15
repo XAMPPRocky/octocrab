@@ -19,14 +19,42 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// List security advisories in a repository.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#list-repository-security-advisories
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#list-repository-security-advisories)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let advisories = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .list()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListRepoSecurityAdvisoriesBuilder<'octo, 'b, '_> {
         ListRepoSecurityAdvisoriesBuilder::new(self)
     }
 
     /// Get a repository security advisory by its GHSA ID.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#get-a-repository-security-advisory
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#get-a-repository-security-advisory)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let advisory = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .get("GHSA-xxxx-xxxx-xxxx")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, ghsa_id: impl AsRef<str>) -> Result<RepositoryAdvisory> {
         let route = format!(
             "/{}/security-advisories/{}",
@@ -38,7 +66,23 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// Create a new repository security advisory.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#create-a-repository-security-advisory
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#create-a-repository-security-advisory)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::security_advisories::CreateRepositoryAdvisory;
+    ///
+    /// # let body: CreateRepositoryAdvisory = todo!();
+    /// let advisory = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .create(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create(&self, body: &CreateRepositoryAdvisory) -> Result<RepositoryAdvisory> {
         let route = format!("/{}/security-advisories", self.handler.repo);
         self.handler.crab.post(route, Some(body)).await
@@ -46,7 +90,23 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// Update a repository security advisory.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#update-a-repository-security-advisory
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#update-a-repository-security-advisory)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::security_advisories::UpdateRepositoryAdvisory;
+    ///
+    /// # let body: UpdateRepositoryAdvisory = todo!();
+    /// let advisory = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .update("GHSA-xxxx-xxxx-xxxx", &body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update(
         &self,
         ghsa_id: impl AsRef<str>,
@@ -62,7 +122,23 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// Privately report a security vulnerability.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#privately-report-a-security-vulnerability
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#privately-report-a-security-vulnerability)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::security_advisories::ReportVulnerability;
+    ///
+    /// # let body: ReportVulnerability = todo!();
+    /// let advisory = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .report(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn report(&self, body: &ReportVulnerability) -> Result<RepositoryAdvisory> {
         let route = format!("/{}/security-advisories/reports", self.handler.repo);
         self.handler.crab.post(route, Some(body)).await
@@ -70,7 +146,20 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// Request a CVE identification number for a repository security advisory.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#request-a-cve-for-a-repository-security-advisory
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#request-a-cve-for-a-repository-security-advisory)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .request_cve("GHSA-xxxx-xxxx-xxxx")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn request_cve(&self, ghsa_id: impl AsRef<str>) -> Result<()> {
         let route = format!(
             "/{}/security-advisories/{}/cve",
@@ -87,7 +176,20 @@ impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
 
     /// Create a temporary private fork to collaborate on fixing a security vulnerability.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#create-a-temporary-private-fork
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#create-a-temporary-private-fork)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let fork = octocrab
+    ///     .repos("owner", "repo")
+    ///     .security_advisories()
+    ///     .create_fork("GHSA-xxxx-xxxx-xxxx")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_fork(&self, ghsa_id: impl AsRef<str>) -> Result<Repository> {
         let route = format!(
             "/{}/security-advisories/{}/forks",
@@ -134,36 +236,43 @@ impl<'octo, 'b, 'c> ListRepoSecurityAdvisoriesBuilder<'octo, 'b, 'c> {
         }
     }
 
+    /// The direction to sort the results by.
     pub fn direction(mut self, direction: impl Into<String>) -> Self {
         self.direction = Some(direction.into());
         self
     }
 
+    /// The property to sort the results by.
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
     }
 
+    /// A cursor, as given in the Link header, used for pagination.
     pub fn before(mut self, before: impl Into<String>) -> Self {
         self.before = Some(before.into());
         self
     }
 
+    /// A cursor, as given in the Link header, used for pagination.
     pub fn after(mut self, after: impl Into<String>) -> Self {
         self.after = Some(after.into());
         self
     }
 
+    /// The number of results per page (max 100).
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
 
+    /// Filter by the state of the repository advisories (e.g. "triage", "draft", "published", "closed").
     pub fn state(mut self, state: impl Into<String>) -> Self {
         self.state = Some(state.into());
         self
     }
 
+    /// Sends the request to list security advisories in a repository.
     pub async fn send(&self) -> Result<Page<RepositoryAdvisory>> {
         let route = format!("/{}/security-advisories", self.handler.handler.repo);
         self.handler.handler.crab.get(route, Some(&self)).await

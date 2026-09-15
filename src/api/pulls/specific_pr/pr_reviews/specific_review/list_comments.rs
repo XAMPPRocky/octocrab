@@ -40,6 +40,8 @@ impl<'octo, 'b> ListReviewCommentsBuilder<'octo, 'b> {
     }
 
     /// Sends the actual request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/reviews?apiVersion=2022-11-28#list-comments-for-a-pull-request-review)
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::pulls::ReviewComment>> {
         let route = format!(
             "/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments",

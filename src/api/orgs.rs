@@ -82,7 +82,7 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle packages for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28)
     pub fn packages(&self) -> crate::api::packages::PackagesHandler<'octo> {
         crate::api::packages::PackagesHandler::new(
             self.crab,
@@ -92,35 +92,35 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle Codespaces for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28)
     pub fn codespaces(&self) -> OrgCodespacesHandler<'octo> {
         OrgCodespacesHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle migrations for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/migrations/orgs?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/migrations/orgs?apiVersion=2022-11-28)
     pub fn migrations(&self) -> OrgMigrationsHandler<'octo> {
         OrgMigrationsHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle Dependabot for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28)
     pub fn dependabot(&self) -> OrgDependabotHandler<'octo> {
         OrgDependabotHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle security advisories for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/security-advisories/repository-advisories#list-repository-security-advisories-for-an-organization
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28#list-repository-security-advisories-for-an-organization)
     pub fn security_advisories(&self) -> OrgSecurityAdvisoriesHandler<'octo> {
         OrgSecurityAdvisoriesHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle secret scanning alerts for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/secret-scanning?apiVersion=2022-11-28#list-secret-scanning-alerts-for-an-organization
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/secret-scanning?apiVersion=2022-11-28#list-secret-scanning-alerts-for-an-organization)
     pub fn secret_scanning(&self) -> OrgSecretScanningAlertsHandler<'_> {
         OrgSecretScanningAlertsHandler::new(self)
     }
@@ -132,7 +132,7 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle code scanning alerts for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/code-scanning/code-scanning#list-code-scanning-alerts-for-an-organization
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-code-scanning-alerts-for-an-organization)
     pub fn code_scanning(&self) -> OrgCodeScanningHandler<'octo, '_> {
         OrgCodeScanningHandler::new(self)
     }
@@ -144,42 +144,42 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Handle rulesets for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28)
     pub fn rulesets(&self) -> OrgRulesetsHandler<'octo, '_> {
         OrgRulesetsHandler::new(self)
     }
 
     /// Handle webhooks for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/webhooks?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/webhooks?apiVersion=2022-11-28)
     pub fn hooks(&self) -> OrgHooksHandler<'octo, '_> {
         OrgHooksHandler::new(self)
     }
 
     /// Handle custom properties for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/custom-properties?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/custom-properties?apiVersion=2022-11-28)
     pub fn custom_properties(&self) -> OrgCustomPropertiesHandler<'octo, '_> {
         OrgCustomPropertiesHandler::new(self)
     }
 
     /// Handle organization roles.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28)
     pub fn roles(&self) -> OrgRolesHandler<'octo, '_> {
         OrgRolesHandler::new(self)
     }
 
     /// Handle invitations for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28)
     pub fn invitations(&self) -> OrgInvitationsHandler<'octo, '_> {
         OrgInvitationsHandler::new(self)
     }
 
     /// Handle fine-grained personal access tokens for the organization.
     ///
-    /// See: https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28)
     pub fn personal_access_tokens(&self) -> OrgPersonalAccessTokensHandler<'octo, '_> {
         OrgPersonalAccessTokensHandler::new(self)
     }
@@ -398,7 +398,7 @@ impl<'octo> OrgHandler<'octo> {
 
     /// Client for GitHub's organization variables API.
     ///
-    /// See: https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28)
     pub fn variables(&self) -> OrgVariablesHandler<'_> {
         OrgVariablesHandler::new(self)
     }

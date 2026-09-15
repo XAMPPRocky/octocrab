@@ -1171,14 +1171,14 @@ impl<'octo> RepoHandler<'octo> {
 
     /// Handle codespaces on the repository
     ///
-    /// See: https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28)
     pub fn codespaces(&self) -> RepoCodespacesHandler<'octo> {
         RepoCodespacesHandler::new(self.crab, self.repo.clone())
     }
 
     /// Handle source imports for the repository.
     ///
-    /// See: https://docs.github.com/en/rest/migrations/source-imports?apiVersion=2022-11-28
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/migrations/source-imports?apiVersion=2022-11-28)
     pub fn import(&self) -> RepoImportHandler<'octo> {
         RepoImportHandler::new(self.crab, self.repo.clone())
     }
@@ -1188,6 +1188,9 @@ impl<'octo> RepoHandler<'octo> {
         self.import()
     }
 
+    /// Handle Actions variables for the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28)
     pub fn variables(&self) -> RepoVariablesHandler<'_> {
         RepoVariablesHandler::new(self)
     }

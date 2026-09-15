@@ -29,6 +29,9 @@ impl<'octo> WorkflowsHandler<'octo> {
     }
 
     /// List workflow definitions in the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
@@ -47,6 +50,18 @@ impl<'octo> WorkflowsHandler<'octo> {
         ListWorkflowsBuilder::new(self)
     }
 
+    /// Gets a specific workflow run in a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let run = octocrab.workflows("owner", "repo").get(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, run_id: RunId) -> Result<models::workflows::Run> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/runs/{run_id}",
@@ -60,6 +75,9 @@ impl<'octo> WorkflowsHandler<'octo> {
 
     /// List runs in the specified workflow.
     /// workflow_file_or_id can be either file name or numeric expression.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-workflow)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
@@ -86,6 +104,9 @@ impl<'octo> WorkflowsHandler<'octo> {
     }
 
     /// List runs for the specified owner and repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     ///
@@ -109,6 +130,9 @@ impl<'octo> WorkflowsHandler<'octo> {
     }
 
     /// List job results in the specified run.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-jobs?apiVersion=2022-11-28#list-jobs-for-a-workflow-run)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// use octocrab::params::workflows::Filter;
@@ -132,6 +156,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Gets a specific workflow in a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#get-a-workflow)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let workflow = octocrab.workflows("owner", "repo").get_workflow("ci.yml").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_workflow(
         &self,
         workflow_id: impl Into<String>,
@@ -148,6 +181,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Enables a workflow and sets the state of the workflow to active.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#enable-a-workflow)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").enable_workflow("ci.yml").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn enable_workflow(&self, workflow_id: impl Into<String>) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable",
@@ -163,6 +205,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Disables a workflow and sets the state of the workflow to disabled_manually.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#disable-a-workflow)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").disable_workflow("ci.yml").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn disable_workflow(&self, workflow_id: impl Into<String>) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/disable",
@@ -178,6 +229,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Gets workflow usage (billable minutes).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#get-workflow-usage)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let timing = octocrab.workflows("owner", "repo").get_timing("ci.yml").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_timing(
         &self,
         workflow_id: impl Into<String>,
@@ -194,6 +254,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Cancels a workflow run and also terminates all of its running jobs.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#force-cancel-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").force_cancel_run(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn force_cancel_run(&self, run_id: RunId) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/runs/{run_id}/force-cancel",
@@ -209,6 +278,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Re-runs all of the jobs in a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#re-run-a-workflow)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").rerun_run(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn rerun_run(&self, run_id: RunId) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/runs/{run_id}/rerun",
@@ -224,6 +302,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Re-runs all of the failed jobs and their dependent jobs in a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#re-run-failed-jobs-from-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").rerun_failed_jobs(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn rerun_failed_jobs(&self, run_id: RunId) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/runs/{run_id}/rerun-failed-jobs",
@@ -239,6 +326,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Gets the number of billable minutes and execution time for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-workflow-run-usage)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let timing = octocrab.workflows("owner", "repo").get_run_timing(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_run_timing(
         &self,
         run_id: RunId,
@@ -255,6 +351,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Get the review history for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-the-review-history-for-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let approvals = octocrab.workflows("owner", "repo").get_run_approvals(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_run_approvals(
         &self,
         run_id: RunId,
@@ -271,6 +376,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Approves a workflow run for a fork pull request.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#approve-a-workflow-run-for-a-fork-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").approve_run(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn approve_run(&self, run_id: RunId) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/runs/{run_id}/approve",
@@ -286,6 +400,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Get pending deployments for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-pending-deployments-for-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pending = octocrab.workflows("owner", "repo").get_run_pending_deployments(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_run_pending_deployments(
         &self,
         run_id: RunId,
@@ -302,6 +425,25 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Review custom deployment protection rules for a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#review-custom-deployment-protection-rules-for-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::workflows::ReviewDeploymentState;
+    ///
+    /// octocrab
+    ///     .workflows("owner", "repo")
+    ///     .review_custom_deployment_protection_rule(
+    ///         1234u64.into(),
+    ///         "production",
+    ///         ReviewDeploymentState::Approved,
+    ///         "Approved deployment",
+    ///     )
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn review_custom_deployment_protection_rule(
         &self,
         run_id: RunId,
@@ -328,6 +470,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Gets a specific workflow run attempt.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-a-workflow-run-attempt)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let attempt = octocrab.workflows("owner", "repo").get_attempt(1234u64.into(), 1).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_attempt(
         &self,
         run_id: RunId,
@@ -346,6 +497,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Lists jobs for a workflow run attempt.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-jobs-for-a-workflow-run-attempt)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let jobs = octocrab.workflows("owner", "repo").list_attempt_jobs(1234u64.into(), 1).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_attempt_jobs(&self, run_id: RunId, attempt_number: u32) -> ListJobsBuilder<'_, '_> {
         let mut builder = ListJobsBuilder::new(self, run_id);
         builder.attempt_number = Some(attempt_number);
@@ -355,6 +515,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Downloads and returns the raw data representing a zip of the logs from a workflow run attempt.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#download-workflow-run-attempt-logs)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let logs = octocrab.workflows("owner", "repo").download_attempt_logs(1234u64.into(), 1).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_attempt_logs(
         &self,
         run_id: RunId,
@@ -374,6 +543,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Gets a specific job in a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-jobs?apiVersion=2022-11-28#get-a-job-for-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let job = octocrab.workflows("owner", "repo").get_job(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_job(&self, job_id: JobId) -> Result<models::workflows::Job> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/jobs/{job_id}",
@@ -387,6 +565,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Downloads and returns the raw text log for a workflow run job.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-jobs?apiVersion=2022-11-28#download-job-logs-for-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let logs = octocrab.workflows("owner", "repo").download_job_logs(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_job_logs(&self, job_id: JobId) -> Result<bytes::Bytes> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/jobs/{job_id}/logs",
@@ -401,6 +588,15 @@ impl<'octo> WorkflowsHandler<'octo> {
     /// Re-runs a job and its dependent jobs in a workflow run.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-jobs?apiVersion=2022-11-28#re-run-a-job-from-a-workflow-run)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab.workflows("owner", "repo").rerun_job(1234u64.into()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn rerun_job(&self, job_id: JobId) -> Result<()> {
         let route = format!(
             "/repos/{owner}/{repo}/actions/jobs/{job_id}/rerun",

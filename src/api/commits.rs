@@ -25,6 +25,22 @@ impl<'octo> CommitHandler<'octo> {
     //     create::CreateIssueBuilder::new(self, title.into())
     // }
 
+    /// Compares two commits.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let comparison = octocrab
+    ///     .commits("owner", "repo")
+    ///     .compare("base", "head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn compare(
         &self,
         base: impl Into<String>,
@@ -33,6 +49,22 @@ impl<'octo> CommitHandler<'octo> {
         compare_commit::CompareCommitsBuilder::new(self, base.into(), head.into())
     }
 
+    /// Compares two commits with a range string such as `"base...head"`.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let comparison = octocrab
+    ///     .commits("owner", "repo")
+    ///     .compare_range("base...head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn compare_range(
         &self,
         basehead: impl Into<String>,
@@ -43,6 +75,18 @@ impl<'octo> CommitHandler<'octo> {
     /// List branches where the given commit is the HEAD commit.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-branches-for-head-commit)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let branches = octocrab
+    ///     .commits("owner", "repo")
+    ///     .branches_where_head("6dcb09b5b57875f334f61aebed695e2e4193db5e")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn branches_where_head(
         &self,
         commit_sha: impl AsRef<str>,
@@ -56,6 +100,24 @@ impl<'octo> CommitHandler<'octo> {
         self.crab.get(route, None::<&()>).await
     }
 
+    /// Lists check runs for a commit reference.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-runs-for-a-git-reference)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::params::repos::Reference;
+    ///
+    /// let check_runs = octocrab
+    ///     .commits("owner", "repo")
+    ///     .associated_check_runs(Reference::Branch("main".to_string()))
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn associated_check_runs(
         &self,
         reference: impl Into<Reference>,
@@ -63,6 +125,24 @@ impl<'octo> CommitHandler<'octo> {
         associated_check_runs::AssociatedCheckRunsBuilder::new(self, reference)
     }
 
+    /// Lists pull requests associated with a commit SHA or reference.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-pull-requests-associated-with-a-commit)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::commits::PullRequestTarget;
+    ///
+    /// let prs = octocrab
+    ///     .commits("owner", "repo")
+    ///     .associated_pull_requests(PullRequestTarget::Sha("6dcb09b5b57875f334f61aebed695e2e4193db5e".to_string()))
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn associated_pull_requests(
         &self,
         target: PullRequestTarget,
@@ -70,6 +150,22 @@ impl<'octo> CommitHandler<'octo> {
         associated_pull_requests::AssociatedPullRequestsBuilder::new(self, target)
     }
 
+    /// Creates a comment for a commit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/comments?apiVersion=2022-11-28#create-a-commit-comment)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let comment = octocrab
+    ///     .commits("owner", "repo")
+    ///     .create_comment("6dcb09b5b57875f334f61aebed695e2e4193db5e", "Great commit!")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn create_comment(
         &self,
         sha: impl Into<String>,
@@ -78,6 +174,21 @@ impl<'octo> CommitHandler<'octo> {
         create_comment::CreateCommentBuilder::new(self, sha.into(), body.into())
     }
 
+    /// Gets a commit from the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#get-a-commit)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let commit = octocrab
+    ///     .commits("owner", "repo")
+    ///     .get("6dcb09b5b57875f334f61aebed695e2e4193db5e")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, reference: impl Into<String>) -> Result<models::repos::RepoCommit> {
         let route = format!(
             "/repos/{owner}/{repo}/commits/{reference}",
