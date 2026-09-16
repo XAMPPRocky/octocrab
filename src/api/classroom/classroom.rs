@@ -46,6 +46,15 @@ impl<'octo> ClassroomHandler<'octo> {
     /// The fine-grained token does not require any permissions.
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let classrooms = octocrab.classrooms().list_classrooms().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_classrooms(&self) -> crate::Result<Vec<crate::models::classroom::Classroom>> {
         let route = String::from("/classrooms");
         self.crab.get(route, Some(&self)).await
@@ -65,6 +74,16 @@ impl<'octo> ClassroomHandler<'octo> {
     /// The fine-grained token does not require any permissions.
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::ClassroomId;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let classroom = octocrab.classrooms().get_classroom(ClassroomId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_classroom(
         &self,
         classroom_id: ClassroomId,
@@ -87,6 +106,16 @@ impl<'octo> ClassroomHandler<'octo> {
     /// The fine-grained token does not require any permissions.
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::ClassroomId;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let assignments = octocrab.classrooms().list_assignments(ClassroomId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_assignments(
         &self,
         classroom_id: ClassroomId,

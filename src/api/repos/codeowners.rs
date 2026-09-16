@@ -27,6 +27,19 @@ impl<'octo, 'r> ListCodeownersErrorsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let errors = octocrab
+    ///     .repos("owner", "repo")
+    ///     .codeowners_errors()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<CodeownersErrors> {
         let route = format!("/{}/codeowners/errors", self.handler.repo);
         self.handler.crab.get(route, Some(&self)).await

@@ -19,6 +19,19 @@ impl<'octo, 'r> RepoVulnerabilityAlertsHandler<'octo, 'r> {
     /// Returns `Ok(true)` if enabled (HTTP 204 No Content), `Ok(false)` if disabled (HTTP 404 Not Found).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#check-if-vulnerability-alerts-are-enabled-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let enabled = octocrab
+    ///     .repos("owner", "repo")
+    ///     .vulnerability_alerts()
+    ///     .check()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn check(&self) -> crate::Result<bool> {
         let route = format!("/{}/vulnerability-alerts", self.handler.repo);
         let response = self.handler.crab._get(route).await?;
@@ -32,6 +45,19 @@ impl<'octo, 'r> RepoVulnerabilityAlertsHandler<'octo, 'r> {
     /// Enable vulnerability alerts for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#enable-vulnerability-alerts)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .vulnerability_alerts()
+    ///     .enable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn enable(&self) -> crate::Result<()> {
         let route = format!("/{}/vulnerability-alerts", self.handler.repo);
         let response = self.handler.crab._put(route, None::<&()>).await?;
@@ -44,6 +70,19 @@ impl<'octo, 'r> RepoVulnerabilityAlertsHandler<'octo, 'r> {
     /// Disable vulnerability alerts for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#disable-vulnerability-alerts)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .vulnerability_alerts()
+    ///     .disable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn disable(&self) -> crate::Result<()> {
         let route = format!("/{}/vulnerability-alerts", self.handler.repo);
         let response = self.handler.crab._delete(route, None::<&()>).await?;
@@ -69,6 +108,19 @@ impl<'octo, 'r> RepoAutomatedSecurityFixesHandler<'octo, 'r> {
     /// Check if automated security fixes are enabled for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#check-if-automated-security-fixes-are-enabled-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let fixes = octocrab
+    ///     .repos("owner", "repo")
+    ///     .automated_security_fixes()
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self) -> crate::Result<AutomatedSecurityFixes> {
         let route = format!("/{}/automated-security-fixes", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
@@ -77,6 +129,19 @@ impl<'octo, 'r> RepoAutomatedSecurityFixesHandler<'octo, 'r> {
     /// Enable automated security fixes for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#enable-automated-security-fixes)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .automated_security_fixes()
+    ///     .enable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn enable(&self) -> crate::Result<()> {
         let route = format!("/{}/automated-security-fixes", self.handler.repo);
         let response = self.handler.crab._put(route, None::<&()>).await?;
@@ -89,6 +154,19 @@ impl<'octo, 'r> RepoAutomatedSecurityFixesHandler<'octo, 'r> {
     /// Disable automated security fixes for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#disable-automated-security-fixes)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .automated_security_fixes()
+    ///     .disable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn disable(&self) -> crate::Result<()> {
         let route = format!("/{}/automated-security-fixes", self.handler.repo);
         let response = self.handler.crab._delete(route, None::<&()>).await?;
@@ -114,12 +192,38 @@ impl<'octo, 'r> RepoPrivateVulnerabilityReportingHandler<'octo, 'r> {
     /// Check if private vulnerability reporting is enabled for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#check-if-private-vulnerability-reporting-is-enabled-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let reporting = octocrab
+    ///     .repos("owner", "repo")
+    ///     .private_vulnerability_reporting()
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self) -> crate::Result<PrivateVulnerabilityReporting> {
         let route = format!("/{}/private-vulnerability-reporting", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Helper to check if private vulnerability reporting is enabled.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let is_enabled = octocrab
+    ///     .repos("owner", "repo")
+    ///     .private_vulnerability_reporting()
+    ///     .is_enabled()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn is_enabled(&self) -> crate::Result<bool> {
         self.get().await.map(|r| r.enabled)
     }
@@ -127,6 +231,19 @@ impl<'octo, 'r> RepoPrivateVulnerabilityReportingHandler<'octo, 'r> {
     /// Enable private vulnerability reporting for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#enable-private-vulnerability-reporting)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .private_vulnerability_reporting()
+    ///     .enable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn enable(&self) -> crate::Result<()> {
         let route = format!("/{}/private-vulnerability-reporting", self.handler.repo);
         let response = self.handler.crab._put(route, None::<&()>).await?;
@@ -139,6 +256,19 @@ impl<'octo, 'r> RepoPrivateVulnerabilityReportingHandler<'octo, 'r> {
     /// Disable private vulnerability reporting for a repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#disable-private-vulnerability-reporting)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .private_vulnerability_reporting()
+    ///     .disable()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn disable(&self) -> crate::Result<()> {
         let route = format!("/{}/private-vulnerability-reporting", self.handler.repo);
         let response = self.handler.crab._delete(route, None::<&()>).await?;

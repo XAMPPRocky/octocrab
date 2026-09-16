@@ -40,6 +40,19 @@ impl<'octo> ListWatchersBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let watchers = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_watchers()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Author>> {
         self.crab.get(&self.route, Some(&self)).await
     }

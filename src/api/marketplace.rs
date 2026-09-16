@@ -21,6 +21,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists all plans for your Marketplace listing.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-plans)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let plans = octocrab.marketplace().list_plans().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_plans(&self) -> ListMarketplacePlansBuilder<'octo> {
         ListMarketplacePlansBuilder::new(self.crab, false)
     }
@@ -28,6 +37,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists all plans for your Marketplace listing (stubbed for testing).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-plans-stubbed)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let plans = octocrab.marketplace().list_plans_stubbed().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_plans_stubbed(&self) -> ListMarketplacePlansBuilder<'octo> {
         ListMarketplacePlansBuilder::new(self.crab, true)
     }
@@ -35,6 +53,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Gets a subscription plan for an account.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#get-a-subscription-plan-for-an-account)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let account = octocrab.marketplace().get_plan_for_account(1234u64).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_plan_for_account(
         &self,
         account_id: impl Into<MarketplaceAccountId>,
@@ -46,6 +73,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Gets a subscription plan for an account (stubbed for testing).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#get-a-subscription-plan-for-an-account-stubbed)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let account = octocrab.marketplace().get_plan_for_account_stubbed(1234u64).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_plan_for_account_stubbed(
         &self,
         account_id: impl Into<MarketplaceAccountId>,
@@ -60,6 +96,20 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists accounts for a plan.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-accounts-for-a-plan)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let accounts = octocrab
+    ///     .marketplace()
+    ///     .list_accounts_for_plan(1234u64)
+    ///     .direction("asc")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_accounts_for_plan(
         &self,
         plan_id: impl Into<PlanId>,
@@ -70,6 +120,20 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists accounts for a plan (stubbed for testing).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-accounts-for-a-plan-stubbed)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let accounts = octocrab
+    ///     .marketplace()
+    ///     .list_accounts_for_plan_stubbed(1234u64)
+    ///     .direction("asc")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_accounts_for_plan_stubbed(
         &self,
         plan_id: impl Into<PlanId>,
@@ -80,6 +144,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists subscriptions for the authenticated user.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-subscriptions-for-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let purchases = octocrab.marketplace().list_purchases_for_user().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_purchases_for_user(&self) -> ListUserMarketplacePurchasesBuilder<'octo> {
         ListUserMarketplacePurchasesBuilder::new(self.crab, false)
     }
@@ -87,6 +160,15 @@ impl<'octo> MarketplaceHandler<'octo> {
     /// Lists subscriptions for the authenticated user (stubbed for testing).
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/marketplace?apiVersion=2022-11-28#list-subscriptions-for-the-authenticated-user-stubbed)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let purchases = octocrab.marketplace().list_purchases_for_user_stubbed().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_purchases_for_user_stubbed(&self) -> ListUserMarketplacePurchasesBuilder<'octo> {
         ListUserMarketplacePurchasesBuilder::new(self.crab, true)
     }
@@ -130,6 +212,15 @@ impl<'octo> ListMarketplacePlansBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let plans = octocrab.marketplace().list_plans().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<MarketplacePlan>> {
         let route = if self.stubbed {
             "/marketplace_listing/stubbed/plans"
@@ -174,7 +265,7 @@ impl<'octo> ListMarketplaceAccountsForPlanBuilder<'octo> {
         }
     }
 
-    /// Key for sorting the results. Can be `created` or `updated`.
+    /// Key for sorting the results. Can be `created` or `updated`.\
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
@@ -199,6 +290,15 @@ impl<'octo> ListMarketplaceAccountsForPlanBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let accounts = octocrab.marketplace().list_accounts_for_plan(1234u64).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<MarketplaceAccount>> {
         let route = if self.stubbed {
             format!(
@@ -250,6 +350,15 @@ impl<'octo> ListUserMarketplacePurchasesBuilder<'octo> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let purchases = octocrab.marketplace().list_purchases_for_user().send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<UserMarketplacePurchase>> {
         let route = if self.stubbed {
             "/user/marketplace_purchases/stubbed"

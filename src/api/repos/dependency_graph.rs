@@ -25,6 +25,20 @@ impl<'octo> RepoDependencyGraphHandler<'octo> {
     /// Gets the diff of the dependency changes between two commits of a repository.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependency-graph/dependency-review?apiVersion=2022-11-28#get-a-diff-of-the-dependencies-between-commits)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependency_graph()
+    ///     .compare("base...head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn compare(&self, basehead: impl Into<String>) -> CompareDependenciesBuilder<'octo, '_> {
         CompareDependenciesBuilder::new(self, basehead.into())
     }
@@ -32,6 +46,21 @@ impl<'octo> RepoDependencyGraphHandler<'octo> {
     /// Create a snapshot of dependencies for a repository.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependency-graph/dependency-submission?apiVersion=2022-11-28#create-a-snapshot-of-dependencies-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::dependency_graph::Snapshot;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// # let snapshot: Snapshot = todo!();
+    /// let response = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependency_graph()
+    ///     .create_snapshot(&snapshot)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_snapshot(&self, snapshot: &Snapshot) -> Result<CreateSnapshotResponse> {
         let route = format!("/{}/dependency-graph/snapshots", self.repo);
         self.crab.post(route, Some(snapshot)).await
@@ -40,6 +69,20 @@ impl<'octo> RepoDependencyGraphHandler<'octo> {
     /// Exports the software bill of materials (SBOM) for a repository in SPDX JSON format.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependency-graph/sboms?apiVersion=2022-11-28#export-a-software-bill-of-materials-sbom-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// #[allow(deprecated)]
+    /// let sbom = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependency_graph()
+    ///     .export_sbom()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     #[deprecated(
         note = "This operation is closing down and will not be accessible after November 13, 2026. Please migrate to the asynchronous flow using generate_report and fetch_report."
     )]
@@ -52,6 +95,18 @@ impl<'octo> RepoDependencyGraphHandler<'octo> {
     /// Access SBOM report generation and fetching APIs.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependency-graph/sboms?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sbom = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependency_graph()
+    ///     .sbom();
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn sbom(&self) -> RepoSbomHandler<'octo> {
         RepoSbomHandler::new(self.crab, self.repo.clone())
     }
@@ -84,6 +139,20 @@ impl<'octo, 'r> CompareDependenciesBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let diff = octocrab
+    ///     .repos("owner", "repo")
+    ///     .dependency_graph()
+    ///     .compare("base...head")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Vec<DependencyDiff>> {
         let route = format!(
             "/{}/dependency-graph/compare/{}",

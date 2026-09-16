@@ -27,6 +27,20 @@ impl<'octo> WatchingHandler<'octo> {
     /// Lists the people watching the specified repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-watchers)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let watchers = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .list_watchers("owner", "repo")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_watchers(
         &self,
         owner: impl Into<String>,
@@ -41,6 +55,19 @@ impl<'octo> WatchingHandler<'octo> {
     /// Gets information about whether the authenticated user is subscribed to the repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#get-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sub = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .get_repository_subscription("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_repository_subscription(
         &self,
         owner: impl AsRef<str>,
@@ -57,6 +84,21 @@ impl<'octo> WatchingHandler<'octo> {
     /// Sets a subscription to a repository.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#set-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let sub = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .set_repository_subscription("owner", "repo")
+    ///     .subscribed(true)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn set_repository_subscription(
         &self,
         owner: impl Into<String>,
@@ -69,6 +111,19 @@ impl<'octo> WatchingHandler<'octo> {
     /// Deletes a repository subscription.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#delete-a-repository-subscription)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .delete_repository_subscription("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_repository_subscription(
         &self,
         owner: impl AsRef<str>,
@@ -87,6 +142,20 @@ impl<'octo> WatchingHandler<'octo> {
     /// Lists repositories the authenticated user is watching.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-repositories-watched-by-the-authenticated-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repos = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .list_watched_repos_for_authenticated_user()
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_watched_repos_for_authenticated_user(&self) -> ListUserSubscriptionsBuilder<'octo> {
         ListUserSubscriptionsBuilder::new(self.crab, "/user/subscriptions")
     }
@@ -94,6 +163,20 @@ impl<'octo> WatchingHandler<'octo> {
     /// Lists repositories a user is watching.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/watching?apiVersion=2022-11-28#list-repositories-watched-by-a-user)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repos = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .list_watched_repos_for_user("username")
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_watched_repos_for_user(
         &self,
         username: impl Into<String>,
@@ -144,6 +227,21 @@ impl<'octo> ListUserSubscriptionsBuilder<'octo> {
     }
 
     /// Sends the request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repos = octocrab
+    ///     .activity()
+    ///     .watching()
+    ///     .list_watched_repos_for_authenticated_user()
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Repository>> {
         self.crab.get(&self.route, Some(&self)).await
     }

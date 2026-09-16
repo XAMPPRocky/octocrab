@@ -26,6 +26,15 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Access organization migrations API for a specific organization.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/orgs?apiVersion=2022-11-28)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let org_migrations = octocrab.migrations().org("org");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn org(
         &self,
         org: impl Into<String>,
@@ -36,6 +45,15 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Lists user migrations.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#list-user-migrations)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let migrations = octocrab.migrations().list().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list(&self) -> ListUserMigrationsBuilder<'octo, '_> {
         ListUserMigrationsBuilder::new(self)
     }
@@ -43,6 +61,20 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Starts a user migration.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#start-a-user-migration)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::migrations::StartMigration;
+    ///
+    /// let migration = octocrab
+    ///     .migrations()
+    ///     .start(&StartMigration::new(["owner/repo"]))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn start(&self, body: &StartMigration) -> Result<Migration> {
         self.crab.post("/user/migrations", Some(body)).await
     }
@@ -50,6 +82,17 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Gets status for a user migration.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#get-a-user-migration-status)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let migration = octocrab.migrations().get(MigrationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get(&self, migration_id: impl Into<MigrationId>) -> Result<Migration> {
         self.get_status(migration_id).send().await
     }
@@ -57,6 +100,22 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Returns a builder to get a user migration status with optional parameters.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#get-a-user-migration-status)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let migration = octocrab
+    ///     .migrations()
+    ///     .get_status(MigrationId(1))
+    ///     .exclude(["repositories"])
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn get_status(
         &self,
         migration_id: impl Into<MigrationId>,
@@ -67,6 +126,17 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Downloads a user migration archive.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#download-a-user-migration-archive)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let bytes = octocrab.migrations().download_archive(MigrationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_archive(
         &self,
         migration_id: impl Into<MigrationId>,
@@ -88,6 +158,17 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Deletes a user migration archive.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#delete-a-user-migration-archive)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// octocrab.migrations().delete_archive(MigrationId(1)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn delete_archive(&self, migration_id: impl Into<MigrationId>) -> Result<()> {
         let route = format!("/user/migrations/{}/archive", migration_id.into());
         let resp = self.crab._delete(route, None::<&()>).await?;
@@ -98,6 +179,17 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Unlocks a repository that was locked for user migration.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#unlock-a-user-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// octocrab.migrations().unlock_repo(MigrationId(1), "repo").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn unlock_repo(
         &self,
         migration_id: impl Into<MigrationId>,
@@ -116,6 +208,22 @@ impl<'octo> MigrationsHandler<'octo> {
     /// Lists repositories in a user migration.
     ///
     /// See: [GitHub REST API Documentation](https://docs.github.com/en/rest/migrations/users?apiVersion=2022-11-28#list-repositories-for-a-user-migration)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let repos = octocrab
+    ///     .migrations()
+    ///     .list_repos(MigrationId(1))
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_repos(
         &self,
         migration_id: impl Into<MigrationId>,
@@ -124,6 +232,22 @@ impl<'octo> MigrationsHandler<'octo> {
     }
 
     /// Alias for [`list_repos`][MigrationsHandler::list_repos].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let repos = octocrab
+    ///     .migrations()
+    ///     .list_repositories(MigrationId(1))
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_repositories(
         &self,
         migration_id: impl Into<MigrationId>,
@@ -165,6 +289,15 @@ impl<'octo, 'r> ListUserMigrationsBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a page of migrations.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let migrations = octocrab.migrations().list().per_page(50).send().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Migration>> {
         self.handler.crab.get("/user/migrations", Some(&self)).await
     }
@@ -213,6 +346,21 @@ impl<'octo, 'r> GetUserMigrationStatusBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns the migration status.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let migration = octocrab
+    ///     .migrations()
+    ///     .get_status(MigrationId(1))
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Migration> {
         let route = format!("/user/migrations/{}", self.migration_id);
         self.handler.crab.get(route, Some(&self)).await
@@ -255,6 +403,22 @@ impl<'octo, 'r> ListUserMigrationReposBuilder<'octo, 'r> {
     }
 
     /// Sends the request and returns a page of repositories.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::MigrationId;
+    ///
+    /// let repos = octocrab
+    ///     .migrations()
+    ///     .list_repos(MigrationId(1))
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> Result<Page<Repository>> {
         let route = format!("/user/migrations/{}/repositories", self.migration_id);
         self.handler.crab.get(route, Some(&self)).await

@@ -13,6 +13,17 @@ pub struct ListPullsBuilder<'octo, 'r> {
 }
 
 impl<'octo, 'r> ListPullsBuilder<'octo, 'r> {
+    /// Creates a new [`ListPullsBuilder`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let repo = octocrab.repos("owner", "repo");
+    /// let builder = octocrab::repos::ListPullsBuilder::new(&repo, "sha".to_string());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(handler: &'r RepoHandler<'octo>, sha: String) -> Self {
         Self {
             handler,
@@ -23,18 +34,59 @@ impl<'octo, 'r> ListPullsBuilder<'octo, 'r> {
     }
 
     /// Results per page (max 100).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pulls = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_pulls("sha".to_string())
+    ///     .per_page(50)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
         self.per_page = Some(per_page.into());
         self
     }
 
     /// Page number of the results to fetch.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pulls = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_pulls("sha".to_string())
+    ///     .page(2u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn page(mut self, page: impl Into<u32>) -> Self {
         self.page = Some(page.into());
         self
     }
 
     /// Sends the actual request.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pulls = octocrab
+    ///     .repos("owner", "repo")
+    ///     .list_pulls("sha".to_string())
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::pulls::PullRequest>> {
         let route = format!("/{}/commits/{sha}/pulls", self.handler.repo, sha = self.sha,);
         self.handler.crab.get(route, Some(&self)).await

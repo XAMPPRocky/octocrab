@@ -78,6 +78,18 @@ impl<'octo> AssignmentsHandler<'octo> {
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::AssignmentId;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let accepted = octocrab
+    ///     .assignments()
+    ///     .list_accepted(AssignmentId(42))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_accepted(
         &self,
         assignment_id: AssignmentId,
@@ -101,6 +113,18 @@ impl<'octo> AssignmentsHandler<'octo> {
     ///
     /// This endpoint can be used without authentication if only public resources are requested.
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use octocrab::models::AssignmentId;
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let grades = octocrab
+    ///     .assignments()
+    ///     .get_grades(AssignmentId(42))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn get_grades(
         &self,
         assignment_id: AssignmentId,
