@@ -260,3 +260,18 @@ match event.kind {
     _ => warn!("Ignored event"),
 };
 ```
+
+## Feature Flags
+
+Octocrab provides configurable feature flags to adapt to different runtime environments and cryptographic requirements:
+
+### Cryptographic & JWT Backends
+Octocrab supports authenticating as a GitHub App via JWT. A JWT crypto provider must be selected:
+
+- **`jwt-aws-lc-rs`** *(default)*: Uses AWS-LC (`aws-lc-rs`) for JWT cryptography. Recommended for most environments and prevents `RUSTSEC-2023-0071` (Marvin Attack timing advisory in `rsa 0.9.x`).
+- **`jwt-rust-crypto`**: Uses pure Rust cryptography (`RustCrypto`). Useful for targets without C compiler toolchains or for `wasm32-unknown-unknown`. *Note: Pulls in `rsa 0.9.x` which triggers `RUSTSEC-2023-0071`.*
+
+### TLS Providers
+- **`rustls-ring`** *(default)*: Uses `rustls` with the `ring` cryptography provider.
+- **`rustls-aws-lc-rs`**: Uses `rustls` with AWS-LC.
+- **`opentls`**: Uses native system TLS via OpenSSL / Security-Framework / SChannel.
