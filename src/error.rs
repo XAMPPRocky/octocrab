@@ -98,6 +98,8 @@ pub enum Error {
         source: serde_path_to_error::Error<serde_json::Error>,
         backtrace: Backtrace,
     },
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     #[snafu(display("JWT Error in {}", source))]
     JWT {
         source: jsonwebtoken::errors::Error,

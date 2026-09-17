@@ -266,10 +266,15 @@ match event.kind {
 Octocrab provides configurable feature flags to adapt to different runtime environments and cryptographic requirements:
 
 ### Cryptographic & JWT Backends
-Octocrab supports authenticating as a GitHub App via JWT. A JWT crypto provider must be selected:
+Octocrab supports authenticating as a GitHub App via JWT (using the `jwt` feature, included in `default`):
 
-- **`jwt-aws-lc-rs`** *(default)*: Uses AWS-LC (`aws-lc-rs`) for JWT cryptography. Recommended for most environments and prevents `RUSTSEC-2023-0071` (Marvin Attack timing advisory in `rsa 0.9.x`).
-- **`jwt-rust-crypto`**: Uses pure Rust cryptography (`RustCrypto`). Useful for targets without C compiler toolchains or for `wasm32-unknown-unknown`. *Note: Pulls in `rsa 0.9.x` which triggers `RUSTSEC-2023-0071`.*
+- **`jwt-aws-lc-rs`** *(default)*: Enables JWT support and uses AWS-LC (`aws-lc-rs`) for JWT cryptography. Recommended for most environments and prevents `RUSTSEC-2023-0071` (Marvin Attack timing advisory in `rsa 0.9.x`).
+- **`jwt-rust-crypto`**: Enables JWT support and uses pure Rust cryptography (`RustCrypto`). Useful for targets without C compiler toolchains or for `wasm32-unknown-unknown`. *Note: Pulls in `rsa 0.9.x` which triggers `RUSTSEC-2023-0071`.*
+- **Minimal builds without JWT**: If your application only uses personal access tokens, OAuth, or unauthenticated requests, you can disable default features and omit JWT support entirely to eliminate all JWT/crypto dependencies and minimize build times:
+  ```toml
+  [dependencies]
+  octocrab = { version = "...", default-features = false, features = ["default-client", "rustls", "rustls-ring"] }
+  ```
 
 ### TLS Providers
 - **`rustls-ring`** *(default)*: Uses `rustls` with the `ring` cryptography provider.

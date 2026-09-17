@@ -25,6 +25,7 @@ request-headers = ["X-GitHub-Api-Version: 2022-11-28"]
 features = [
     "default-client",
     "follow-redirect",
+    "jwt",
     # "jwt-rust-crypto",  # Excluded: conflicts with jwt-aws-lc-rs
     "jwt-aws-lc-rs",
     "opentls",
@@ -58,7 +59,7 @@ futures-util = { version = "0.3", optional = true }
 getrandom = { version = "0.2.15", features = ["js"] }
 hex = "0.4"
 hmac = "0.12"
-jsonwebtoken = { version = "10", default-features = false, features = ["use_pem"] }
+jsonwebtoken = { version = "10", default-features = false, features = ["use_pem"], optional = true }
 http = "1.0.0"
 http-body = "1.0.0"
 http-body-util = "0.1.0"
@@ -112,6 +113,14 @@ graphql_client = "0.14.0"
 [build-dependencies]
 cargo_metadata = "0.23.0"
 
+[[example]]
+name = "github_app_authentication"
+required-features = ["jwt"]
+
+[[example]]
+name = "github_app_authentication_manual"
+required-features = ["jwt"]
+
 # NOTE: When adding new features, also add them to [package.metadata.docs.rs].features
 [features]
 default = [
@@ -131,8 +140,9 @@ retry = ["tower/retry", "futures-util", "tokio"]
 rustls = ["reqwest?/rustls", "hyper-rustls", "dep:rustls"]
 rustls-ring = ["hyper-rustls/ring", "rustls?/ring"]
 rustls-aws-lc-rs = ["hyper-rustls/aws-lc-rs", "rustls?/aws_lc_rs"]
-jwt-aws-lc-rs = ["jsonwebtoken/aws_lc_rs"]
-jwt-rust-crypto = ["jsonwebtoken/rust_crypto"]
+jwt = ["dep:jsonwebtoken"]
+jwt-aws-lc-rs = ["jwt", "jsonwebtoken/aws_lc_rs"]
+jwt-rust-crypto = ["jwt", "jsonwebtoken/rust_crypto"]
 rustls-webpki-tokio = ["hyper-rustls/webpki-tokio"]
 # if a consumer uses `default-features = false` and enables `opentls`, they will get the `native-tls` integration on the `reqwest` client.
 opentls = ["reqwest?/native-tls", "hyper-tls"]
