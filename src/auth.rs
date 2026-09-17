@@ -1,18 +1,26 @@
 //! Authentication related types and functions.
 
+#[cfg(feature = "jwt")]
+use crate::models::AppId;
+use crate::Octocrab;
 use crate::Result;
-use crate::{models::AppId, Octocrab};
+#[cfg(feature = "jwt")]
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "jwt")]
 use std::fmt;
 #[cfg(feature = "tokio")]
 use web_time::Duration;
+#[cfg(feature = "jwt")]
 use web_time::SystemTime;
 
+#[cfg(feature = "jwt")]
 use snafu::*;
 
 /// The data necessary to authenticate as a Github App
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
 #[derive(Clone)]
 pub struct AppAuth {
     /// Github's app ID
@@ -21,6 +29,7 @@ pub struct AppAuth {
     pub key: EncodingKey,
 }
 
+#[cfg(feature = "jwt")]
 impl fmt::Debug for AppAuth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("AppAuth")
@@ -45,6 +54,8 @@ pub enum Auth {
     /// Authenticate using a Github personal access token
     PersonalToken(SecretString),
     /// Authenticate as a Github App
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     App(AppAuth),
     /// Authenticate as a Github OAuth App
     OAuth(OAuth),
@@ -55,6 +66,8 @@ pub enum Auth {
 /// Create a JSON Web Token that can be used to authenticate an a GitHub application.
 ///
 /// See: <https://docs.github.com/en/developers/apps/getting-started-with-apps/setting-up-your-development-environment-to-create-a-github-app#authenticating-as-a-github-app>
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
 pub fn create_jwt(
     github_app_id: AppId,
     key: &EncodingKey,
@@ -82,6 +95,7 @@ pub fn create_jwt(
     jsonwebtoken::encode(&header, &claims, key)
 }
 
+#[cfg(feature = "jwt")]
 impl AppAuth {
     /// Currently we don't cache these, but we could if we want to avoid
     /// an RSA signature operation per App-authorized API call.

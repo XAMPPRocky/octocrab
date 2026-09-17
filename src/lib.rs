@@ -334,8 +334,12 @@ use crate::service::middleware::extra_headers::ExtraHeadersLayer;
 #[cfg(feature = "retry")]
 use crate::service::middleware::retry::RetryConfig;
 
-use auth::{AppAuth, Auth};
-use models::{AppId, InstallationId, InstallationToken, RepositoryId, UserId};
+#[cfg(feature = "jwt")]
+use auth::AppAuth;
+use auth::Auth;
+#[cfg(feature = "jwt")]
+use models::{AppId, InstallationId, InstallationToken};
+use models::{RepositoryId, UserId};
 
 pub use self::{
     api::{
@@ -355,8 +359,13 @@ compile_error!(
     "feature \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" cannot be enabled at the same time"
 );
 
-#[cfg(not(any(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs")))]
-compile_error!("at least one of the features \"jwt-rust-crypto\" and feature \"jwt-aws-lc-rs\" must be enabled");
+#[cfg(all(
+    feature = "jwt",
+    not(any(feature = "jwt-rust-crypto", feature = "jwt-aws-lc-rs"))
+))]
+compile_error!(
+    "feature \"jwt\" requires either \"jwt-aws-lc-rs\" or \"jwt-rust-crypto\" to be enabled"
+);
 
 /// A convenience type with a default error type of [`Error`].
 pub type Result<T, E = error::Error> = std::result::Result<T, E>;
@@ -735,6 +744,8 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Authenticate as a Github App.
     /// `key`: RSA private key in DER or PEM formats.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
         self.config.auth = Auth::App(AppAuth { app_id, key });
         self
@@ -1135,6 +1146,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
                 Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
                 AuthState::None,
             ),
+            #[cfg(feature = "jwt")]
             Auth::App(app_auth) => (None, AuthState::App(app_auth)),
             Auth::OAuth(device) => (
                 Some(
@@ -1242,10 +1254,12 @@ struct CachedTokenInner {
 }
 
 impl CachedTokenInner {
+    #[allow(dead_code)]
     fn new(secret: SecretString, expiration: Option<DateTime<Utc>>) -> Self {
         Self { secret, expiration }
     }
 
+    #[allow(dead_code)]
     fn expose_secret(&self) -> &str {
         self.secret.expose_secret()
     }
@@ -1255,11 +1269,13 @@ impl CachedTokenInner {
 pub struct CachedToken(RwLock<Option<CachedTokenInner>>);
 
 impl CachedToken {
+    #[allow(dead_code)]
     fn clear(&self) {
         *self.0.write().unwrap() = None;
     }
 
     /// Returns a valid token if it exists and is not expired or if there is no expiration date.
+    #[allow(dead_code)]
     fn valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
         let inner = self.0.read().unwrap();
 
@@ -1276,10 +1292,12 @@ impl CachedToken {
         None
     }
 
+    #[allow(dead_code)]
     fn valid_token(&self) -> Option<SecretString> {
         self.valid_token_with_buffer(chrono::Duration::seconds(30))
     }
 
+    #[allow(dead_code)]
     fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<DateTime<Utc>>) {
         *self.0.write().unwrap() = Some(CachedTokenInner::new(token.into(), expiration));
     }
@@ -1327,8 +1345,12 @@ pub enum AuthState {
         password: String,
     },
     /// Github App authentication with the given app data
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     App(AppAuth),
     /// Authentication via a Github App repo-specific installation
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     Installation {
         /// The app authentication data (app ID and private key)
         app: AppAuth,
@@ -1429,6 +1451,8 @@ impl Octocrab {
     /// then obtain an installation ID, and then pass that here to
     /// obtain a new `Octocrab` with which you can make API calls
     /// with the permissions of that installation.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub fn installation(&self, id: InstallationId) -> Result<Octocrab> {
         let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
             app_auth.clone()
@@ -1453,6 +1477,8 @@ impl Octocrab {
     /// has access to.
     ///
     /// See also <https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#http-based-git-access-by-an-installation>
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub async fn installation_and_token(
         &self,
         id: InstallationId,
@@ -1466,6 +1492,8 @@ impl Octocrab {
     /// at least 30 seconds. A cached token will be used if its expiration is
     /// far enough in the future. Otherwise, a new token will be acquired and
     /// cached.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub async fn installation_token(&self) -> Result<SecretString> {
         self.installation_token_with_buffer(chrono::Duration::seconds(30))
             .await
@@ -1475,6 +1503,8 @@ impl Octocrab {
     /// at least the duration specified by [`buffer`]. A cached token will be
     /// used if its expiration is far enough in the future. Otherwise, a new
     /// token will be acquired and cached.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub async fn installation_token_with_buffer(
         &self,
         buffer: chrono::Duration,
@@ -2240,6 +2270,7 @@ impl Octocrab {
     }
 
     /// Requests a fresh installation auth token and caches it. Returns the token.
+    #[cfg(feature = "jwt")]
     async fn request_installation_auth_token(&self) -> Result<SecretString> {
         let (app, installation, token) = if let AuthState::Installation {
             ref app,
@@ -2331,6 +2362,7 @@ impl Octocrab {
         // Saved request that we can retry later if necessary
         let auth_header: Option<HeaderValue> = match self.auth_state {
             AuthState::None => None,
+            #[cfg(feature = "jwt")]
             AuthState::App(ref app) => Some(
                 HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
                     .map_err(http::Error::from)
@@ -2351,6 +2383,7 @@ impl Octocrab {
                 }
                 Some(HeaderValue::from_bytes(&buf).expect("base64 is always valid HeaderValue"))
             }
+            #[cfg(feature = "jwt")]
             AuthState::Installation { ref token, .. } => {
                 let token = if let Some(token) = token.valid_token() {
                     token
@@ -2399,8 +2432,8 @@ impl Octocrab {
 
         let response = self.send(request).await?;
 
-        let status = response.status();
-        if StatusCode::UNAUTHORIZED == status {
+        #[cfg(feature = "jwt")]
+        if StatusCode::UNAUTHORIZED == response.status() {
             if let AuthState::Installation { ref token, .. } = self.auth_state {
                 token.clear();
             }
