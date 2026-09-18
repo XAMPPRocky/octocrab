@@ -29,6 +29,8 @@ mod environment_actions_test;
 mod events_test;
 #[path = "misc/follow_redirect.rs"]
 mod follow_redirect;
+#[path = "misc/gateway_timeout_error_test.rs"]
+mod gateway_timeout_error_test;
 #[path = "misc/generate_release_notes_test.rs"]
 mod generate_release_notes_test;
 #[path = "misc/gists_test.rs"]
