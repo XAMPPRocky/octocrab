@@ -398,6 +398,8 @@ impl<'octo> UserHandler<'octo> {
                     documentation_url: None,
                     errors: None,
                     message: "".to_string(),
+                    rate_limit_reset: None,
+                    headers: None,
                 }),
                 backtrace: Backtrace::capture(),
             }),

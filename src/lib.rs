@@ -435,12 +435,20 @@ pub async fn map_github_error(
         } = serde_json::from_slice(body.collect().await?.to_bytes().as_ref())
             .context(error::SerdeSnafu)?;
 
+        let rate_limit_reset = parts
+            .headers
+            .get("x-ratelimit-reset")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.parse::<u64>().ok());
+
         Err(error::Error::GitHub {
             source: Box::new(GitHubError {
                 status_code: parts.status,
                 documentation_url,
                 errors,
                 message,
+                rate_limit_reset,
+                headers: Some(parts.headers),
             }),
             backtrace: Backtrace::capture(),
         })

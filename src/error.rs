@@ -2,6 +2,7 @@ use http::uri::InvalidUri;
 
 use snafu::{Backtrace, GenerateImplicitData, Snafu};
 
+use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
@@ -154,6 +155,19 @@ pub struct GitHubError {
     pub errors: Option<Vec<serde_json::Value>>,
     pub message: String,
     pub status_code: http::StatusCode,
+    /// The timestamp in UTC seconds at which the current rate limit resets, if provided by the `x-ratelimit-reset` header.
+    pub rate_limit_reset: Option<u64>,
+    /// The HTTP response headers returned with the error, if available.
+    pub headers: Option<http::HeaderMap>,
+}
+
+impl GitHubError {
+    /// Returns the rate limit reset time as a [`chrono::DateTime<chrono::Utc>`], if available.
+    pub fn rate_limit_reset_at(&self) -> Option<chrono::DateTime<chrono::Utc>> {
+        self.rate_limit_reset
+            .and_then(|ts| i64::try_from(ts).ok())
+            .and_then(|ts| chrono::DateTime::from_timestamp(ts, 0))
+    }
 }
 
 impl fmt::Display for GitHubError {
