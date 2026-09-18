@@ -416,7 +416,7 @@ pub fn format_media_type(media_type: impl AsRef<str>) -> String {
 struct GitHubErrorBody {
     pub documentation_url: Option<String>,
     pub errors: Option<Vec<serde_json::Value>>,
-    pub message: String,
+    pub message: Option<String>,
 }
 
 /// Maps a GitHub error response into and `Err()` variant if the status is
@@ -428,12 +428,39 @@ pub async fn map_github_error(
         Ok(response)
     } else {
         let (parts, body) = response.into_parts();
-        let GitHubErrorBody {
-            documentation_url,
-            errors,
-            message,
-        } = serde_json::from_slice(body.collect().await?.to_bytes().as_ref())
-            .context(error::SerdeSnafu)?;
+        let bytes = body.collect().await?.to_bytes();
+
+        let (documentation_url, errors, message) =
+            match serde_json::from_slice::<GitHubErrorBody>(&bytes) {
+                Ok(body) => {
+                    let message = body.message.unwrap_or_else(|| {
+                        let body_str = String::from_utf8_lossy(&bytes).trim().to_string();
+                        if body_str.is_empty() {
+                            parts
+                                .status
+                                .canonical_reason()
+                                .unwrap_or("Unknown HTTP Error")
+                                .to_string()
+                        } else {
+                            body_str
+                        }
+                    });
+                    (body.documentation_url, body.errors, message)
+                }
+                Err(_) => {
+                    let body_str = String::from_utf8_lossy(&bytes).trim().to_string();
+                    let message = if body_str.is_empty() {
+                        parts
+                            .status
+                            .canonical_reason()
+                            .unwrap_or("Unknown HTTP Error")
+                            .to_string()
+                    } else {
+                        body_str
+                    };
+                    (None, None, message)
+                }
+            };
 
         let rate_limit_reset = parts
             .headers
