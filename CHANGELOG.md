@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.3](https://github.com/XAMPPRocky/octocrab/compare/v0.54.2...v0.54.3) - 2026-09-18
+
+### Fixed
+
+- fixed Cargo.toml tests discovery ([#977](https://github.com/XAMPPRocky/octocrab/pull/977))
+- fixed modules discrepancies in lib.rs and README.md ([#976](https://github.com/XAMPPRocky/octocrab/pull/976))
+
+### Other
+
+- updated `map_github_error` to handle non-JSON error payload #772 ([#983](https://github.com/XAMPPRocky/octocrab/pull/983))
+- exposed `rate_limit_reset` and all `headers` in `GitHubError` #773 ([#982](https://github.com/XAMPPRocky/octocrab/pull/982))
+- Switched default feature from `jwt-rust-crypto` to `jwt-aws-lc-rs` ([#981](https://github.com/XAMPPRocky/octocrab/pull/981))
+- added code examples for docs.rs ([#979](https://github.com/XAMPPRocky/octocrab/pull/979))
+- updated comments for docs.rs ([#978](https://github.com/XAMPPRocky/octocrab/pull/978))
+- tuned webhook_events to support verifying signatures ([#975](https://github.com/XAMPPRocky/octocrab/pull/975))
+- Bugfix/tests bloat ([#974](https://github.com/XAMPPRocky/octocrab/pull/974))
+- consolidated tests from crates into integration tests module ([#973](https://github.com/XAMPPRocky/octocrab/pull/973))
+- forwarded Octocrab's TLS features to `reqwest` ([#971](https://github.com/XAMPPRocky/octocrab/pull/971))
+
 ## [0.54.2](https://github.com/XAMPPRocky/octocrab/compare/v0.54.1...v0.54.2) - 2026-09-14
 
 ### Added
