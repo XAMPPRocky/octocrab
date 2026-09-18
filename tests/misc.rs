@@ -49,6 +49,8 @@ mod migrations_test;
 mod notifications_threads_test;
 #[path = "misc/packages_tests.rs"]
 mod packages_tests;
+#[path = "misc/rate_limit_error_test.rs"]
+mod rate_limit_error_test;
 #[path = "misc/reactions_tests.rs"]
 mod reactions_tests;
 #[path = "misc/reqwest_client_test.rs"]
