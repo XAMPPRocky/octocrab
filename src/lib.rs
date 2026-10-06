@@ -341,6 +341,12 @@ use auth::Auth;
 use models::{AppId, InstallationId, InstallationToken};
 use models::{RepositoryId, UserId};
 
+pub use secrecy;
+
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+pub use jsonwebtoken::{self, EncodingKey};
+
 pub use self::{
     api::{
         actions, activity, apps, billing, checks, classroom, code_scannings, codes_of_conduct,
@@ -784,6 +790,19 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
         self.config.auth = Auth::App(AppAuth { app_id, key });
         self
+    }
+
+    /// Authenticate as a Github App using an RSA private key in PEM format.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::JWT`] if the key cannot be decoded from PEM format.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+    pub fn app_from_rsa_pem(self, app_id: AppId, pem_bytes: impl AsRef<[u8]>) -> Result<Self> {
+        let key = jsonwebtoken::EncodingKey::from_rsa_pem(pem_bytes.as_ref())
+            .context(crate::error::JWTSnafu)?;
+        Ok(self.app(app_id, key))
     }
 
     /// Authenticate as a Basic Auth

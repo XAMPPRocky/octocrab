@@ -7,7 +7,7 @@ use url::Url;
 async fn main() -> octocrab::Result<()> {
     let app_id = read_env_var("GITHUB_APP_ID");
     let app_private_key = read_env_var("GITHUB_APP_PRIVATE_KEY");
-    let key = jsonwebtoken::EncodingKey::from_rsa_pem(app_private_key.as_bytes()).unwrap();
+    let key = octocrab::EncodingKey::from_rsa_pem(app_private_key.as_bytes()).unwrap();
 
     let token = octocrab::auth::create_jwt(app_id.parse::<u64>().unwrap().into(), &key).unwrap();
 
