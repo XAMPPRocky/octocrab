@@ -603,3 +603,112 @@ async fn test_oauth_applications() {
         .unwrap();
     assert_eq!(auth4.token, "ghp_tok123");
 }
+
+#[tokio::test]
+async fn app_from_rsa_pem_valid() {
+    let test_rsa_pem = concat!(
+        "-----BEGIN PRIVATE KEY-----\n",
+        "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCkZOShS5VXH8Nx\n",
+        "R5xRIFrJIdFpbDFBKs1MGcMdUi+nAxjRiAcCshFPir5QmV98z96QxBq5uuiqSfJI\n",
+        "v2WcRf/iVIxQMjV/M/sEaWyQ1aNQf+ZL/ReliB6gqIjueSTqR/ggNHbY5jyfwRk7\n",
+        "/zIWWRaSqQcHpeAcCd+wlfXW4Z/6SFec0u82ttdbg1y7IfJEsPGNmfBUjqpFSQXW\n",
+        "yOadlRIx9DMnZaqYEMZ4Vi6PHspNrp9a3miH+MbiaxGNqws9jNxu58eXVgQ/9Fq8\n",
+        "E0yiUDpDZgzgRdMWN3IH/Ht7lTuUbh53N8NgVR+ZUChmoEcz4pPUMnEjRm2N/CKD\n",
+        "VBpb3VWzAgMBAAECggEAByuZZ0mfLWomwamgcU9qdkxh0GnWKiP+SVv0TTKY/n1d\n",
+        "l0IKID15ENGZ5HUUG6MLb6AGFGTJIihQh4jFm0/YTdxnNFZETBSN1c7tW9HdqjSx\n",
+        "7E2ROviZcWN4eYJSMF/MPEddia9dJJCtE5dZbW0cVXBG7Lf48vAhUBfyXZmAu09b\n",
+        "e967OEO0UokgyWHQ7Ka1w2D2Vwj0EB8pRqZMN2R2FVE6r8Ko6fvTzD2TOADxAdht\n",
+        "8B/zvZZk8JYn3pNvNA/KeS4WyMOBqJBQb39GL0Mbi/uyX5UF5TzIQutmTvd8ohP3\n",
+        "Ws+QjXb9MqwTcsHIfqFVGpTV1Boc4TcaQDhZIcVvOQKBgQDiH3LcadHsuxXz3geD\n",
+        "J3TYK90yswEeU1zadliTN6gIzZGhA3naBHiYQNbkp+oAIAEfpV4eQ1Q3M8m0DmbG\n",
+        "WPvSY+JLUBT9IHzdujdkWwCdNxT00eB2U6T26f+4rl5RuB1CT3yFobcIkIhKtz4z\n",
+        "PtAHhpX2QPXgOyyarijHHKTKeQKBgQC6HXwYzRSCLmFhS5AstdQhbxsdXkTcrKE4\n",
+        "EOe3xmh+azVMmZGR6xILA76QjpMjN7a+ICyFatO1+DzuM4TFLysepNSuCmsgdh20\n",
+        "/2Cdfq0VczJMjoRlYQc4HC6I0zuyJmpvRfbamhMJlhPvKev5UlyuQM9bUhZuTqXY\n",
+        "OfURDaUWiwKBgE4PTTeJ0E5Ix2tIWo+ML2nwuoul/9zYKlXARRONQxTG4l8TNB1v\n",
+        "LbJhr81/qeghJEIodDU+SPRFjHv7/L68OTKICLa3DofTj0d74WNjhvK+8R0S1soC\n",
+        "VhBm90Bp8WWEiZU6m2IGUYlDW8lvOKm4JVhzvZElG7wssVk0hh82ZC0BAoGAfnG7\n",
+        "tunVziAOntiEiiu6hECE7m32YOqT2ZB6rTuKEKFro7AN21IWfw87L+D9jAa1C/S1\n",
+        "6qrKTS3qz3aG9KR4KiiYKeoAIBy/UBHUpQvEMfeCq8qDnpDOI8vZvbGtM/qvgwvI\n",
+        "i3n0ByZEQs97d3cCaoyzk/pwLN8YA5BUtBJOH8MCgYBnfVOyZOkTGJSukKPzYZUD\n",
+        "EgSIczAqKDXoTNa4m/RfNg2ZuKMWq/z4XvCmrdfC21HX7QhZn8aqlijd+/7mZvpP\n",
+        "VoCO4reouK8ICyW7u+f+CMSZqpvt66/map4/+1LJZLcFal6lrJnAAi79C/yq2fBH\n",
+        "Lq+WIG1Gaa/J5Sl3aRMDag==\n",
+        "-----END PRIVATE KEY-----\n"
+    );
+    let builder = Octocrab::builder().app_from_rsa_pem(1234.into(), test_rsa_pem);
+    assert!(builder.is_ok());
+}
+
+#[tokio::test]
+async fn app_from_rsa_pem_invalid() {
+    let invalid_pem = "not-a-valid-pem";
+    let builder = Octocrab::builder().app_from_rsa_pem(1234.into(), invalid_pem);
+    match builder {
+        Err(octocrab::Error::JWT { .. }) => {}
+        Err(other) => panic!("Expected Error::JWT, got {:?}", other),
+        Ok(_) => panic!("Expected Err, got Ok"),
+    }
+}
+
+#[tokio::test]
+async fn test_app_auth_reexports_and_builder_constructors() {
+    use octocrab::secrecy::ExposeSecret;
+
+    let test_rsa_pem = concat!(
+        "-----BEGIN PRIVATE KEY-----\n",
+        "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCkZOShS5VXH8Nx\n",
+        "R5xRIFrJIdFpbDFBKs1MGcMdUi+nAxjRiAcCshFPir5QmV98z96QxBq5uuiqSfJI\n",
+        "v2WcRf/iVIxQMjV/M/sEaWyQ1aNQf+ZL/ReliB6gqIjueSTqR/ggNHbY5jyfwRk7\n",
+        "/zIWWRaSqQcHpeAcCd+wlfXW4Z/6SFec0u82ttdbg1y7IfJEsPGNmfBUjqpFSQXW\n",
+        "yOadlRIx9DMnZaqYEMZ4Vi6PHspNrp9a3miH+MbiaxGNqws9jNxu58eXVgQ/9Fq8\n",
+        "E0yiUDpDZgzgRdMWN3IH/Ht7lTuUbh53N8NgVR+ZUChmoEcz4pPUMnEjRm2N/CKD\n",
+        "VBpb3VWzAgMBAAECggEAByuZZ0mfLWomwamgcU9qdkxh0GnWKiP+SVv0TTKY/n1d\n",
+        "l0IKID15ENGZ5HUUG6MLb6AGFGTJIihQh4jFm0/YTdxnNFZETBSN1c7tW9HdqjSx\n",
+        "7E2ROviZcWN4eYJSMF/MPEddia9dJJCtE5dZbW0cVXBG7Lf48vAhUBfyXZmAu09b\n",
+        "e967OEO0UokgyWHQ7Ka1w2D2Vwj0EB8pRqZMN2R2FVE6r8Ko6fvTzD2TOADxAdht\n",
+        "8B/zvZZk8JYn3pNvNA/KeS4WyMOBqJBQb39GL0Mbi/uyX5UF5TzIQutmTvd8ohP3\n",
+        "Ws+QjXb9MqwTcsHIfqFVGpTV1Boc4TcaQDhZIcVvOQKBgQDiH3LcadHsuxXz3geD\n",
+        "J3TYK90yswEeU1zadliTN6gIzZGhA3naBHiYQNbkp+oAIAEfpV4eQ1Q3M8m0DmbG\n",
+        "WPvSY+JLUBT9IHzdujdkWwCdNxT00eB2U6T26f+4rl5RuB1CT3yFobcIkIhKtz4z\n",
+        "PtAHhpX2QPXgOyyarijHHKTKeQKBgQC6HXwYzRSCLmFhS5AstdQhbxsdXkTcrKE4\n",
+        "EOe3xmh+azVMmZGR6xILA76QjpMjN7a+ICyFatO1+DzuM4TFLysepNSuCmsgdh20\n",
+        "/2Cdfq0VczJMjoRlYQc4HC6I0zuyJmpvRfbamhMJlhPvKev5UlyuQM9bUhZuTqXY\n",
+        "OfURDaUWiwKBgE4PTTeJ0E5Ix2tIWo+ML2nwuoul/9zYKlXARRONQxTG4l8TNB1v\n",
+        "LbJhr81/qeghJEIodDU+SPRFjHv7/L68OTKICLa3DofTj0d74WNjhvK+8R0S1soC\n",
+        "VhBm90Bp8WWEiZU6m2IGUYlDW8lvOKm4JVhzvZElG7wssVk0hh82ZC0BAoGAfnG7\n",
+        "tunVziAOntiEiiu6hECE7m32YOqT2ZB6rTuKEKFro7AN21IWfw87L+D9jAa1C/S1\n",
+        "6qrKTS3qz3aG9KR4KiiYKeoAIBy/UBHUpQvEMfeCq8qDnpDOI8vZvbGtM/qvgwvI\n",
+        "i3n0ByZEQs97d3cCaoyzk/pwLN8YA5BUtBJOH8MCgYBnfVOyZOkTGJSukKPzYZUD\n",
+        "EgSIczAqKDXoTNa4m/RfNg2ZuKMWq/z4XvCmrdfC21HX7QhZn8aqlijd+/7mZvpP\n",
+        "VoCO4reouK8ICyW7u+f+CMSZqpvt66/map4/+1LJZLcFal6lrJnAAi79C/yq2fBH\n",
+        "Lq+WIG1Gaa/J5Sl3aRMDag==\n",
+        "-----END PRIVATE KEY-----\n"
+    );
+
+    // 1. Verify octocrab::EncodingKey re-export
+    let key = octocrab::EncodingKey::from_rsa_pem(test_rsa_pem.as_bytes()).unwrap();
+
+    // 2. Verify octocrab::jsonwebtoken re-export
+    let _jwt = octocrab::jsonwebtoken::encode(
+        &octocrab::jsonwebtoken::Header::new(octocrab::jsonwebtoken::Algorithm::RS256),
+        &serde_json::json!({ "iss": 1234, "iat": 100, "exp": 200 }),
+        &key,
+    )
+    .unwrap();
+
+    // 3. Verify OctocrabBuilder::app with octocrab::EncodingKey
+    let client1 = Octocrab::builder().app(1234.into(), key).build();
+    assert!(client1.is_ok());
+
+    // 4. Verify OctocrabBuilder::app_from_rsa_pem
+    let client2 = Octocrab::builder()
+        .app_from_rsa_pem(1234.into(), test_rsa_pem)
+        .unwrap()
+        .build();
+    assert!(client2.is_ok());
+
+    // 5. Verify secrecy re-export
+    let secret = octocrab::secrecy::SecretString::from("test_secret".to_string());
+    assert_eq!(secret.expose_secret(), "test_secret");
+}

@@ -5,7 +5,10 @@ use crate::models::AppId;
 use crate::Octocrab;
 use crate::Result;
 #[cfg(feature = "jwt")]
-use jsonwebtoken::{Algorithm, EncodingKey, Header};
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+pub use jsonwebtoken::EncodingKey;
+#[cfg(feature = "jwt")]
+use jsonwebtoken::{Algorithm, Header};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "jwt")]
