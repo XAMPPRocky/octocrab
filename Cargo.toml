@@ -1,3 +1,9 @@
+[workspace]
+members = [
+    ".",
+    "playground",
+]
+
 [package]
 name = "octocrab"
 version = "0.54.3"

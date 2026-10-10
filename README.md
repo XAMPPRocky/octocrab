@@ -280,3 +280,6 @@ Octocrab supports authenticating as a GitHub App via JWT (using the `jwt` featur
 - **`rustls-ring`** *(default)*: Uses `rustls` with the `ring` cryptography provider.
 - **`rustls-aws-lc-rs`**: Uses `rustls` with AWS-LC.
 - **`opentls`**: Uses native system TLS via OpenSSL / Security-Framework / SChannel.
+
+## Playground
+- Take a look at [playground](./playground/README.md) for a simple example of using Octocrab with [Dioxus](https://dioxuslabs.com/).
