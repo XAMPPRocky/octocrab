@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.4](https://github.com/XAMPPRocky/octocrab/compare/v0.54.3...v0.54.4) - 2026-10-13
+
+### Other
+
+- pull requests stacks #934 according to 2022 API ([#944](https://github.com/XAMPPRocky/octocrab/pull/944))
+
 ## [0.54.3](https://github.com/XAMPPRocky/octocrab/compare/v0.54.2...v0.54.3) - 2026-10-06
 
 ### Fixed
