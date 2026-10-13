@@ -56,6 +56,10 @@ pub struct MergeAsyncBuilder<'octo, 'b> {
     /// Merge action strategy.
     #[serde(skip_serializing_if = "Option::is_none")]
     merge_action: Option<AsyncMergeAction>,
+    /// Whether to bypass repository rules that the authenticated actor is
+    /// permitted to bypass.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bypass_rules: Option<bool>,
 }
 
 impl<'octo, 'b> MergeAsyncBuilder<'octo, 'b> {
@@ -68,6 +72,7 @@ impl<'octo, 'b> MergeAsyncBuilder<'octo, 'b> {
             sha: None,
             merge_method: None,
             merge_action: None,
+            bypass_rules: None,
         }
     }
 
@@ -98,6 +103,13 @@ impl<'octo, 'b> MergeAsyncBuilder<'octo, 'b> {
     /// Merge action strategy (default, direct_merge, or merge_queue).
     pub fn merge_action(mut self, action: AsyncMergeAction) -> Self {
         self.merge_action = Some(action);
+        self
+    }
+
+    /// Whether to bypass repository rules that the authenticated actor is
+    /// permitted to bypass.
+    pub fn bypass_rules(mut self, bypass: bool) -> Self {
+        self.bypass_rules = Some(bypass);
         self
     }
 

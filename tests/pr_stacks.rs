@@ -8,7 +8,8 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 use octocrab::models::pr_stacks::PrStack;
 use octocrab::Octocrab;
 
-mod mock_error;
+#[path = "common/mock_error.rs"]
+pub mod mock_error;
 
 use crate::mock_error::setup_error_handler;
 

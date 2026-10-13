@@ -43,6 +43,10 @@ pub struct StackBase {
     /// Base branch ref name (e.g. `"main"`).
     #[serde(rename = "ref")]
     pub ref_field: String,
+    /// Commit SHA at the base of the branch, if available.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha: Option<String>,
 }
 
 /// A pull request stack, as returned by the GitHub Stacked Pull Requests API.
@@ -86,13 +90,14 @@ pub struct PrStack {
 /// Stack membership summary embedded in a [`crate::models::pulls::PullRequest`]
 /// response when the PR belongs to a stack.
 ///
-/// Only available when the `stack-prs` Cargo feature is enabled.
-///
 /// See <https://docs.github.com/en/pull-requests/reference/stacked-pull-requests-rest-and-graphql-apis>
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct PullRequestStackSummary {
+    /// Unique database ID for this stack, if present.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<u64>,
     /// Stack number within the repository.
     pub number: u64,
     /// Zero-based position of this PR in the stack (0 = bottom).
@@ -106,7 +111,6 @@ pub struct PullRequestStackSummary {
 // ── Async merge models ──────────────────────────────────────────────────────
 
 /// Merge method for an asynchronous merge request.
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
@@ -118,7 +122,6 @@ pub enum AsyncMergeMethod {
 }
 
 /// Merge action strategy for an asynchronous merge request.
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
@@ -129,7 +132,6 @@ pub enum AsyncMergeAction {
 }
 
 /// Status of an asynchronous merge operation.
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
@@ -142,7 +144,6 @@ pub enum AsyncMergeStatus {
 
 /// Details payload of an async merge result. GitHub returns one of three
 /// shapes depending on the current status.
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 #[non_exhaustive]
@@ -154,10 +155,14 @@ pub enum AsyncMergeDetails {
         merge_method: AsyncMergeMethod,
         merge_action: AsyncMergeAction,
         expected_head_sha: String,
+        /// Whether repository rules are bypassed.
+        #[serde(default)]
+        bypass_rules: bool,
     },
     /// Merge succeeded: includes the resulting merge commit SHA.
     Merged { message: String, sha: String },
-    /// Merge failed or was rejected.
+    /// Merge failed, rejected, or was enqueued (contains status message).
+    // ponytail: GitHub returns {"message": "..."} for both `enqueued` and `failed` results; callers should inspect `AsyncMergeResult::status` to differentiate.
     Failed { message: String },
 }
 
@@ -166,7 +171,6 @@ pub enum AsyncMergeDetails {
 /// Returned by both:
 /// - `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` (submit)
 /// - `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` (poll)
-#[cfg(feature = "stack-prs")]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AsyncMergeResult {

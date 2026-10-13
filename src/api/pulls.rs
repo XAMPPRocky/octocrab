@@ -19,14 +19,12 @@ pub use self::{
     list::ListPullRequestsBuilder,
     update::UpdatePullRequestBuilder,
 };
-#[cfg(feature = "stack-prs")]
 pub use merge_async::MergeAsyncBuilder;
 
 pub mod comment;
 mod create;
 mod list;
 mod merge;
-#[cfg(feature = "stack-prs")]
 mod merge_async;
 mod specific_pr;
 mod update;
@@ -885,8 +883,6 @@ where {
     /// Use [`PullRequestHandler::get_merge_async_result`] to poll for the
     /// result using the UUID returned in [`AsyncMergeDetails::Pending`].
     ///
-    /// Requires the `stack-prs` Cargo feature.
-    ///
     /// # API
     /// `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async`
     ///
@@ -903,7 +899,6 @@ where {
     ///     .await?;
     /// # Ok(()) }
     /// ```
-    #[cfg(feature = "stack-prs")]
     pub fn merge_async(&self, pr_number: u64) -> MergeAsyncBuilder<'_, '_> {
         MergeAsyncBuilder::new(self, pr_number)
     }
@@ -914,8 +909,6 @@ where {
     /// [`AsyncMergeResult`] to poll for the final outcome.
     ///
     /// Results are retained for 24 hours. After that, the endpoint returns 404.
-    ///
-    /// Requires the `stack-prs` Cargo feature.
     ///
     /// # API
     /// `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}`
@@ -929,7 +922,6 @@ where {
     ///     .await?;
     /// # Ok(()) }
     /// ```
-    #[cfg(feature = "stack-prs")]
     pub async fn get_merge_async_result(
         &self,
         pr_number: u64,
