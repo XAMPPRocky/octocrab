@@ -1315,4 +1315,72 @@ mod tests {
             })
         ));
     }
+
+    #[test]
+    fn deserialize_pull_request_stacked() {
+        let mut json: serde_json::Value = serde_json::from_str(include_str!(
+            "../../tests/resources/pull_request_opened_webhook_event.json"
+        ))
+        .unwrap();
+
+        json["action"] = serde_json::json!("stacked");
+        json["pull_request"]["stack"] = serde_json::json!({
+            "id": 1,
+            "number": 1,
+            "position": 1,
+            "size": 2,
+            "base": {
+                "ref": "main",
+                "sha": "abc123def456"
+            }
+        });
+        json["stack"] = serde_json::json!({
+            "id": 1,
+            "number": 1,
+            "node_id": "ST_kwDOABCD1234",
+            "url": "https://api.github.com/repos/octocat/Hello-World/stacks/1",
+            "base": { "ref": "main" },
+            "open": true,
+            "created_at": "2024-01-15T10:00:00Z",
+            "pull_requests": [
+                {
+                    "number": 101,
+                    "state": "open",
+                    "draft": false,
+                    "merged_at": null,
+                    "head": { "ref": "feature/part-1", "sha": "abc123def456" }
+                },
+                {
+                    "number": 102,
+                    "state": "open",
+                    "draft": false,
+                    "merged_at": null,
+                    "head": { "ref": "feature/part-2", "sha": "def456abc789" }
+                }
+            ]
+        });
+
+        let event =
+            WebhookEvent::try_from_header_and_body("pull_request", &json.to_string()).unwrap();
+        let WebhookEventPayload::PullRequest(pr_event) = event.specific else {
+            panic!("event is of the wrong type {:?}", event);
+        };
+        assert_eq!(pr_event.action, PullRequestWebhookEventAction::Stacked);
+        assert_eq!(pr_event.number, 2);
+
+        let stack = pr_event.stack.expect("top-level stack should be present");
+        assert_eq!(stack.number, 1);
+        assert_eq!(stack.pull_requests.len(), 2);
+
+        let pr_stack = pr_event
+            .pull_request
+            .stack
+            .expect("pr nested stack summary should be present");
+        assert_eq!(pr_stack.id, Some(1));
+        assert_eq!(pr_stack.number, 1);
+        assert_eq!(pr_stack.position, 1);
+        assert_eq!(pr_stack.size, 2);
+        assert_eq!(pr_stack.base.ref_field, "main");
+        assert_eq!(pr_stack.base.sha, Some("abc123def456".to_string()));
+    }
 }

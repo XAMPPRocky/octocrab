@@ -128,6 +128,9 @@ pub struct PullRequest {
     pub auto_merge: Option<Box<AutoMerge>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub draft: Option<bool>,
+    /// Stack membership summary. Present when this PR belongs to a stack.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stack: Option<Box<crate::models::pr_stacks::PullRequestStackSummary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -549,5 +552,59 @@ mod test {
                 ReviewState::Dismissed,
             ]
         );
+    }
+
+    #[test]
+    fn deserializes_pull_request_with_stack() {
+        use super::PullRequest;
+
+        let json = serde_json::json!({
+            "url": "https://api.github.com/repos/octocat/Hello-World/pulls/1347",
+            "id": 1,
+            "node_id": "MDExOlB1bGxSZXF1ZXN0MQ==",
+            "html_url": "https://github.com/octocat/Hello-World/pull/1347",
+            "diff_url": "https://github.com/octocat/Hello-World/pull/1347.diff",
+            "patch_url": "https://github.com/octocat/Hello-World/pull/1347.patch",
+            "issue_url": "https://api.github.com/repos/octocat/Hello-World/issues/1347",
+            "commits_url": "https://api.github.com/repos/octocat/Hello-World/pulls/1347/commits",
+            "review_comments_url": "https://api.github.com/repos/octocat/Hello-World/pulls/1347/comments",
+            "review_comment_url": "https://api.github.com/repos/octocat/Hello-World/pulls/comments{/number}",
+            "comments_url": "https://api.github.com/repos/octocat/Hello-World/issues/1347/comments",
+            "statuses_url": "https://api.github.com/repos/octocat/Hello-World/statuses/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+            "number": 1347,
+            "state": "open",
+            "locked": false,
+            "title": "Amazing new feature",
+            "body": "Please pull these awesome changes in!",
+            "head": {
+                "label": "octocat:new-topic",
+                "ref": "new-topic",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            },
+            "base": {
+                "label": "octocat:master",
+                "ref": "master",
+                "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+            },
+            "stack": {
+                "id": 42,
+                "number": 7,
+                "position": 2,
+                "size": 5,
+                "base": {
+                    "ref": "main",
+                    "sha": "abc123def456"
+                }
+            }
+        });
+
+        let pr: PullRequest = serde_json::from_value(json).unwrap();
+        let stack = pr.stack.expect("stack summary should be present");
+        assert_eq!(stack.id, Some(42));
+        assert_eq!(stack.number, 7);
+        assert_eq!(stack.position, 2);
+        assert_eq!(stack.size, 5);
+        assert_eq!(stack.base.ref_field, "main");
+        assert_eq!(stack.base.sha, Some("abc123def456".to_string()));
     }
 }
