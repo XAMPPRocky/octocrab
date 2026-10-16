@@ -458,3 +458,25 @@ pub struct RepoRule {
     #[serde(flatten)]
     pub additional_properties: HashMap<String, serde_json::Value>,
 }
+
+/// The actor who updated a ruleset version.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RulesetVersionActor {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<u64>,
+    #[serde(rename = "type", default, skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+}
+
+/// A historical version of a repository ruleset.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RulesetVersion {
+    pub version_id: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub actor: Option<RulesetVersionActor>,
+    pub updated_at: DateTime<Utc>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<serde_json::Value>,
+}

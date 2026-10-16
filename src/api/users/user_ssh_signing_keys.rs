@@ -149,4 +149,26 @@ impl<'octo, 'b> UserSshSigningKeysOpsBuilder<'octo, 'b> {
 
         Ok(())
     }
+
+    ///## List SSH signing keys for a user
+    ///
+    ///Lists extended details for SSH signing keys for a user. This is accessible by anyone.
+    ///
+    ///See: [GitHub API Documentation][docs] for `GET /users/{username}/ssh_signing_keys`
+    ///
+    ///[docs]: https://docs.github.com/en/rest/users/ssh-signing-keys?apiVersion=2022-11-28#list-ssh-signing-keys-for-a-user
+    pub async fn list_user_ssh_signing_keys(&self) -> crate::Result<Page<SshSigningKey>> {
+        let route = format!("/{}/ssh_signing_keys", self.handler.user);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+
+    /// Sends the request to list SSH signing keys for a user.
+    pub async fn send(&self) -> crate::Result<Page<SshSigningKey>> {
+        self.list_user_ssh_signing_keys().await
+    }
 }
+
+/// A builder pattern struct for listing a user's SSH signing keys.
+///
+/// Created by [`UserHandler::list_user_ssh_signing_keys`].
+pub type ListUserSshSigningKeysBuilder<'octo, 'b> = UserSshSigningKeysOpsBuilder<'octo, 'b>;

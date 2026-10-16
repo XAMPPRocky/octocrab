@@ -31,6 +31,13 @@ impl<'octo> CurrentAuthHandler<'octo> {
         Self { crab }
     }
 
+    /// Create a repository for the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#create-a-repository-for-the-authenticated-user)
+    pub fn create_repo(&self, name: impl Into<String>) -> CreateUserRepoBuilder<'octo> {
+        CreateUserRepoBuilder::new(self.crab, name.into())
+    }
+
     /// Fetches information about the current user.
     pub async fn user(&self) -> Result<models::Author> {
         self.crab.get("/user", None::<&()>).await
@@ -1572,4 +1579,89 @@ fn comma_separated<S: serde::Serializer>(
     serializer: S,
 ) -> std::result::Result<S::Ok, S::Error> {
     serializer.serialize_str(&labels.unwrap().join(","))
+}
+
+/// Builder for creating a repository for the authenticated user.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct CreateUserRepoBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    private: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_issues: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_projects: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_wiki: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_template: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    auto_init: Option<bool>,
+}
+
+impl<'octo> CreateUserRepoBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, name: String) -> Self {
+        Self {
+            crab,
+            name,
+            description: None,
+            homepage: None,
+            private: None,
+            has_issues: None,
+            has_projects: None,
+            has_wiki: None,
+            is_template: None,
+            auto_init: None,
+        }
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
+        self
+    }
+
+    pub fn homepage(mut self, homepage: impl Into<String>) -> Self {
+        self.homepage = Some(homepage.into());
+        self
+    }
+
+    pub fn private(mut self, private: bool) -> Self {
+        self.private = Some(private);
+        self
+    }
+
+    pub fn has_issues(mut self, has_issues: bool) -> Self {
+        self.has_issues = Some(has_issues);
+        self
+    }
+
+    pub fn has_projects(mut self, has_projects: bool) -> Self {
+        self.has_projects = Some(has_projects);
+        self
+    }
+
+    pub fn has_wiki(mut self, has_wiki: bool) -> Self {
+        self.has_wiki = Some(has_wiki);
+        self
+    }
+
+    pub fn is_template(mut self, is_template: bool) -> Self {
+        self.is_template = Some(is_template);
+        self
+    }
+
+    pub fn auto_init(mut self, auto_init: bool) -> Self {
+        self.auto_init = Some(auto_init);
+        self
+    }
+
+    pub async fn send(self) -> Result<models::Repository> {
+        self.crab.post("/user/repos", Some(&self)).await
+    }
 }

@@ -149,4 +149,26 @@ impl<'octo, 'b> UserGitSshKeysOpsBuilder<'octo, 'b> {
         let route = format!("/user/keys/{git_ssh_key_id}");
         self.handler.crab.get(route, None::<&()>).await
     }
+
+    ///## List public keys for a user
+    ///
+    ///Lists the verified public SSH keys for a user. This is accessible by anyone.
+    ///
+    ///See: [GitHub API Documentation][docs] for `GET /users/{username}/keys`
+    ///
+    ///[docs]: https://docs.github.com/en/rest/users/keys?apiVersion=2022-11-28#list-public-keys-for-a-user
+    pub async fn list_user_git_ssh_keys(&self) -> crate::Result<Page<GitSshKey>> {
+        let route = format!("/{}/keys", self.handler.user);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+
+    /// Sends the request to list public SSH keys for a user.
+    pub async fn send(&self) -> crate::Result<Page<GitSshKey>> {
+        self.list_user_git_ssh_keys().await
+    }
 }
+
+/// A builder pattern struct for listing a user's public SSH keys.
+///
+/// Created by [`UserHandler::list_user_git_ssh_keys`].
+pub type ListUserGitSshKeysBuilder<'octo, 'b> = UserGitSshKeysOpsBuilder<'octo, 'b>;

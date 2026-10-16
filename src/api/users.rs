@@ -6,8 +6,11 @@ use http::StatusCode;
 
 pub use self::follow::{ListUserFollowerBuilder, ListUserFollowingBuilder};
 pub use self::hovercard::HovercardBuilder;
+pub use self::user_git_ssh_keys::ListUserGitSshKeysBuilder;
 pub use self::user_gpg_keys::{ListUserGpgKeysBuilder, UserGpgKeysOpsBuilder};
 use self::user_repos::ListUserReposBuilder;
+pub use self::user_social_accounts::ListUserSocialAccountsBuilder;
+pub use self::user_ssh_signing_keys::ListUserSshSigningKeysBuilder;
 use crate::api::activity::starring::ListReposStarredByUserBuilder;
 use crate::api::activity::watching::ListUserSubscriptionsBuilder;
 pub use crate::api::billing::ScopedBillingHandler as UserBillingHandler;
@@ -17,9 +20,13 @@ use crate::api::users::user_emails::UserEmailsOpsBuilder;
 use crate::api::users::user_git_ssh_keys::UserGitSshKeysOpsBuilder;
 use crate::api::users::user_social_accounts::UserSocialAccountsOpsBuilder;
 use crate::api::users::user_ssh_signing_keys::UserSshSigningKeysOpsBuilder;
+pub mod attestations;
 use crate::models::UserId;
 use crate::params::users::emails::EmailVisibilityState;
 use crate::{error, GitHubError, Octocrab};
+pub use attestations::{
+    BulkListUserAttestationsBuilder, ListUserAttestationsBuilder, UserAttestationsHandler,
+};
 
 mod follow;
 mod hovercard;
@@ -547,5 +554,77 @@ impl<'octo> UserHandler<'octo> {
     /// [docs]: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-contextual-information-for-a-user
     pub fn hovercard(&self) -> HovercardBuilder<'_, '_> {
         HovercardBuilder::new(self)
+    }
+
+    /// Attestations operations for this user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/attestations?apiVersion=2022-11-28)
+    pub fn attestations(&self) -> UserAttestationsHandler<'octo, '_> {
+        UserAttestationsHandler::new(self)
+    }
+
+    /// Check if a user follows another user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#check-if-a-user-follows-another-user)
+    pub async fn is_following(&self, target_user: impl AsRef<str>) -> crate::Result<bool> {
+        let route = format!("/{}/following/{}", self.user, target_user.as_ref());
+        let response = self.crab._get(route).await?;
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(true),
+            StatusCode::NOT_FOUND => Ok(false),
+            _ => Err(crate::map_github_error(response).await.unwrap_err()),
+        }
+    }
+
+    /// List public SSH keys for this user.
+    pub fn list_user_git_ssh_keys(&self) -> ListUserGitSshKeysBuilder<'_, '_> {
+        UserGitSshKeysOpsBuilder::new(self)
+    }
+
+    /// List social accounts for this user.
+    pub fn list_user_social_accounts(&self) -> ListUserSocialAccountsBuilder<'_, '_> {
+        UserSocialAccountsOpsBuilder::new(self)
+    }
+
+    /// List SSH signing keys for this user.
+    pub fn list_user_ssh_signing_keys(&self) -> ListUserSshSigningKeysBuilder<'_, '_> {
+        UserSshSigningKeysOpsBuilder::new(self)
+    }
+}
+
+/// A builder pattern struct for listing all users.
+///
+/// Created by [`Octocrab::all_users`].
+#[derive(serde::Serialize)]
+pub struct ListUsersBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    since: Option<UserId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+}
+
+impl<'octo> ListUsersBuilder<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab) -> Self {
+        Self {
+            crab,
+            since: None,
+            per_page: None,
+        }
+    }
+
+    pub fn since(mut self, since: impl Into<UserId>) -> Self {
+        self.since = Some(since.into());
+        self
+    }
+
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<crate::Page<crate::models::Author>> {
+        self.crab.get("/users", Some(&self)).await
     }
 }
