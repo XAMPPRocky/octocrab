@@ -391,4 +391,38 @@ impl<'octo> ActionsHandler<'octo> {
         );
         self.crab.delete(route, None::<&()>).await
     }
+
+    /// Get runner version end-of-life schedule for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#get-runner-version-end-of-life-schedule-for-an-organization)
+    pub async fn get_org_runner_deprecation(
+        &self,
+        org: impl AsRef<str>,
+        version: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::RunnerVersionDeprecation> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/deprecations/{version}",
+            org = org.as_ref(),
+            version = version.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Get runner version end-of-life schedule for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#get-runner-version-end-of-life-schedule-for-a-repository)
+    pub async fn get_repo_runner_deprecation(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+        version: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::RunnerVersionDeprecation> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/deprecations/{version}",
+            owner = owner.as_ref(),
+            repo = repo.as_ref(),
+            version = version.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
+    }
 }

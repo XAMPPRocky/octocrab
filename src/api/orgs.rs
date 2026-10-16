@@ -66,6 +66,7 @@ pub use self::rulesets::{
 pub use self::secret_scanning_alerts::OrgSecretScanningAlertsHandler;
 pub use self::secrets::OrgSecretsHandler;
 pub use self::variables::OrgVariablesHandler;
+pub use crate::api::actions::OrgActionsHandler;
 pub use crate::api::billing::ScopedBillingHandler as OrgBillingHandler;
 pub use crate::api::security_advisories::OrgSecurityAdvisoriesHandler;
 use crate::error::HttpSnafu;
@@ -116,6 +117,13 @@ impl<'octo> OrgHandler<'octo> {
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/codespaces/organizations?apiVersion=2022-11-28)
     pub fn codespaces(&self) -> OrgCodespacesHandler<'octo> {
         OrgCodespacesHandler::new(self.crab, self.owner.clone())
+    }
+
+    /// Handle GitHub Actions for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions?apiVersion=2022-11-28)
+    pub fn actions(&self) -> OrgActionsHandler<'octo> {
+        OrgActionsHandler::new(self.crab, self.owner.clone())
     }
 
     /// Handle migrations for the organization.

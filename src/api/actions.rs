@@ -5,10 +5,24 @@ use http_body_util::{BodyExt, Collected};
 use snafu::ResultExt;
 
 pub mod cache;
+pub mod concurrency_groups;
 pub mod environments;
+pub mod hosted_runners;
 pub mod oidc;
 pub mod permissions;
+pub mod policies;
+pub mod runner_groups;
 pub mod self_hosted_runners;
+
+pub use self::cache::{
+    EnterpriseActionsCacheHandler, OrgActionsCacheHandler, RepoActionsCacheHandler,
+};
+pub use self::concurrency_groups::RepoActionsConcurrencyGroupsHandler;
+pub use self::hosted_runners::OrgHostedRunnersHandler;
+pub use self::oidc::{EnterpriseActionsOidcHandler, OrgActionsOidcHandler};
+pub use self::permissions::{OrgActionsPermissionsHandler, RepoActionsPermissionsHandler};
+pub use self::policies::{OrgActionsPoliciesHandler, RepoActionsPoliciesHandler};
+pub use self::runner_groups::OrgRunnerGroupsHandler;
 
 pub use self::cache::{ListActionsCachesBuilder, ListOrgCacheUsageByRepositoryBuilder};
 pub use self::environments::{EnvironmentSecretsHandler, EnvironmentVariablesHandler};
@@ -1022,6 +1036,122 @@ impl<'octo> ActionsHandler<'octo> {
 
         let response = self.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Return an organization-scoped Actions handler.
+    pub fn org(&self, org: impl Into<String>) -> OrgActionsHandler<'octo> {
+        OrgActionsHandler::new(self.crab, org.into())
+    }
+
+    /// Return a repository-scoped Actions handler.
+    pub fn repo(
+        &self,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> RepoActionsHandler<'octo> {
+        RepoActionsHandler::new(self.crab, owner.into(), repo.into())
+    }
+}
+
+/// Handler for GitHub Actions for an organization.
+pub struct OrgActionsHandler<'octo> {
+    crab: &'octo Octocrab,
+    org: String,
+}
+
+impl<'octo> OrgActionsHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, org: String) -> Self {
+        Self { crab, org }
+    }
+
+    /// Handle hosted runners in the organization.
+    pub fn hosted_runners(&self) -> OrgHostedRunnersHandler<'octo> {
+        OrgHostedRunnersHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Handle runner groups in the organization.
+    pub fn runner_groups(&self) -> OrgRunnerGroupsHandler<'octo> {
+        OrgRunnerGroupsHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Handle cache settings for the organization.
+    pub fn cache(&self) -> OrgActionsCacheHandler<'octo> {
+        OrgActionsCacheHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Handle actions permissions and settings for the organization.
+    pub fn permissions(&self) -> OrgActionsPermissionsHandler<'octo> {
+        OrgActionsPermissionsHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Handle actions policies for the organization.
+    pub fn policies(&self) -> OrgActionsPoliciesHandler<'octo> {
+        OrgActionsPoliciesHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Handle OIDC configuration for the organization.
+    pub fn oidc(&self) -> OrgActionsOidcHandler<'octo> {
+        OrgActionsOidcHandler::new(self.crab, self.org.clone())
+    }
+
+    /// Get runner version end-of-life schedule for an organization.
+    pub async fn get_runner_deprecation(
+        &self,
+        version: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::RunnerVersionDeprecation> {
+        let route = format!(
+            "/orgs/{org}/actions/runners/deprecations/{version}",
+            org = self.org,
+            version = version.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+}
+
+/// Handler for GitHub Actions for a repository.
+pub struct RepoActionsHandler<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+}
+
+impl<'octo> RepoActionsHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+        Self { crab, owner, repo }
+    }
+
+    /// Handle cache settings for the repository.
+    pub fn cache(&self) -> RepoActionsCacheHandler<'octo> {
+        RepoActionsCacheHandler::new(self.crab, self.owner.clone(), self.repo.clone())
+    }
+
+    /// Handle actions permissions and settings for the repository.
+    pub fn permissions(&self) -> RepoActionsPermissionsHandler<'octo> {
+        RepoActionsPermissionsHandler::new(self.crab, self.owner.clone(), self.repo.clone())
+    }
+
+    /// Handle actions policies for the repository.
+    pub fn policies(&self) -> RepoActionsPoliciesHandler<'octo> {
+        RepoActionsPoliciesHandler::new(self.crab, self.owner.clone(), self.repo.clone())
+    }
+
+    /// Handle concurrency groups for the repository.
+    pub fn concurrency_groups(&self) -> RepoActionsConcurrencyGroupsHandler<'octo> {
+        RepoActionsConcurrencyGroupsHandler::new(self.crab, self.owner.clone(), self.repo.clone())
+    }
+
+    /// Get runner version end-of-life schedule for a repository.
+    pub async fn get_runner_deprecation(
+        &self,
+        version: impl AsRef<str>,
+    ) -> crate::Result<crate::models::actions::RunnerVersionDeprecation> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runners/deprecations/{version}",
+            owner = self.owner,
+            repo = self.repo,
+            version = version.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
     }
 }
 

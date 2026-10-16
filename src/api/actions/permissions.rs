@@ -3,12 +3,13 @@ use crate::{
     models::{
         actions::{
             AccessPermissions, ActionsSelectedRepositories, AllowedActions,
-            DefaultWorkflowPermissions, EnabledRepositories, OrgActionsPermissions,
-            RepoActionsPermissions, SelectedActions,
+            ArtifactAndLogRetention, DefaultWorkflowPermissions, EnabledRepositories,
+            ForkPrContributorApproval, ForkPrWorkflowsPrivateRepos, OrgActionsPermissions,
+            OrgSelfHostedRunnersPermissions, RepoActionsPermissions, SelectedActions,
         },
         RepositoryId,
     },
-    Result,
+    Octocrab, Result,
 };
 use serde::Serialize;
 
@@ -393,5 +394,288 @@ impl<'octo> ActionsHandler<'octo> {
         )
         .await
         .map(drop)
+    }
+}
+
+/// Handler for Actions permissions for an organization.
+pub struct OrgActionsPermissionsHandler<'octo> {
+    crab: &'octo Octocrab,
+    org: String,
+}
+
+impl<'octo> OrgActionsPermissionsHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, org: String) -> Self {
+        Self { crab, org }
+    }
+
+    /// Get artifact and log retention settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-artifact-and-log-retention-settings-for-an-organization)
+    pub async fn get_artifact_and_log_retention(&self) -> Result<ArtifactAndLogRetention> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/artifact-and-log-retention",
+            self.org
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set artifact and log retention settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-artifact-and-log-retention-settings-for-an-organization)
+    pub async fn set_artifact_and_log_retention(&self, days: u32) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/artifact-and-log-retention",
+            self.org
+        );
+        let body = serde_json::json!({ "days": days });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get fork PR contributor approval permissions for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-fork-pr-contributor-approval-permissions-for-an-organization)
+    pub async fn get_fork_pr_contributor_approval(&self) -> Result<ForkPrContributorApproval> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/fork-pr-contributor-approval",
+            self.org
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set fork PR contributor approval permissions for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-fork-pr-contributor-approval-permissions-for-an-organization)
+    pub async fn set_fork_pr_contributor_approval(
+        &self,
+        approval_policy: impl Into<String>,
+    ) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/fork-pr-contributor-approval",
+            self.org
+        );
+        let body = serde_json::json!({ "approval_policy": approval_policy.into() });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get private repo fork PR workflow settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-private-repo-fork-pr-workflow-settings-for-an-organization)
+    pub async fn get_fork_pr_workflows_private_repos(&self) -> Result<ForkPrWorkflowsPrivateRepos> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/fork-pr-workflows-private-repos",
+            self.org
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set private repo fork PR workflow settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-private-repo-fork-pr-workflow-settings-for-an-organization)
+    pub async fn set_fork_pr_workflows_private_repos(&self, body: &impl Serialize) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/fork-pr-workflows-private-repos",
+            self.org
+        );
+        let res = self.crab._put(route, Some(body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get self-hosted runners settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-self-hosted-runners-settings-for-an-organization)
+    pub async fn get_self_hosted_runners(&self) -> Result<OrgSelfHostedRunnersPermissions> {
+        let route = format!("/orgs/{}/actions/permissions/self-hosted-runners", self.org);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set self-hosted runners settings for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-self-hosted-runners-settings-for-an-organization)
+    pub async fn set_self_hosted_runners(
+        &self,
+        enabled_repositories: impl Into<String>,
+    ) -> Result<()> {
+        let route = format!("/orgs/{}/actions/permissions/self-hosted-runners", self.org);
+        let body = serde_json::json!({ "enabled_repositories": enabled_repositories.into() });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// List repositories allowed to use self-hosted runners in an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#list-repositories-allowed-to-use-self-hosted-runners-in-an-organization)
+    pub async fn list_self_hosted_runners_repositories(
+        &self,
+    ) -> Result<ActionsSelectedRepositories> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/self-hosted-runners/repositories",
+            self.org
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set repositories allowed to use self-hosted runners in an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-repositories-allowed-to-use-self-hosted-runners-in-an-organization)
+    pub async fn set_self_hosted_runners_repositories(
+        &self,
+        selected_repository_ids: &[RepositoryId],
+    ) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/self-hosted-runners/repositories",
+            self.org
+        );
+        let body = serde_json::json!({ "selected_repository_ids": selected_repository_ids });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Add a repository to the list of repositories allowed to use self-hosted runners in an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#add-a-repository-to-the-list-of-repositories-allowed-to-use-self-hosted-runners-in-an-organization)
+    pub async fn add_self_hosted_runners_repository(
+        &self,
+        repository_id: RepositoryId,
+    ) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/self-hosted-runners/repositories/{}",
+            self.org, repository_id
+        );
+        let res = self.crab._put(route, None::<&()>).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Remove a repository from the list of repositories allowed to use self-hosted runners in an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#remove-a-repository-from-the-list-of-repositories-allowed-to-use-self-hosted-runners-in-an-organization)
+    pub async fn remove_self_hosted_runners_repository(
+        &self,
+        repository_id: RepositoryId,
+    ) -> Result<()> {
+        let route = format!(
+            "/orgs/{}/actions/permissions/self-hosted-runners/repositories/{}",
+            self.org, repository_id
+        );
+        let res = self.crab._delete(route, None::<&()>).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+}
+
+/// Handler for Actions permissions for a repository.
+pub struct RepoActionsPermissionsHandler<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+}
+
+impl<'octo> RepoActionsPermissionsHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+        Self { crab, owner, repo }
+    }
+
+    /// Get artifact and log retention settings for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-artifact-and-log-retention-settings-for-a-repository)
+    pub async fn get_artifact_and_log_retention(&self) -> Result<ArtifactAndLogRetention> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/artifact-and-log-retention",
+            self.owner, self.repo
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set artifact and log retention settings for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-artifact-and-log-retention-settings-for-a-repository)
+    pub async fn set_artifact_and_log_retention(&self, days: u32) -> Result<()> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/artifact-and-log-retention",
+            self.owner, self.repo
+        );
+        let body = serde_json::json!({ "days": days });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get fork PR contributor approval permissions for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-fork-pr-contributor-approval-permissions-for-a-repository)
+    pub async fn get_fork_pr_contributor_approval(&self) -> Result<ForkPrContributorApproval> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/fork-pr-contributor-approval",
+            self.owner, self.repo
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set fork PR contributor approval permissions for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-fork-pr-contributor-approval-permissions-for-a-repository)
+    pub async fn set_fork_pr_contributor_approval(
+        &self,
+        approval_policy: impl Into<String>,
+    ) -> Result<()> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/fork-pr-contributor-approval",
+            self.owner, self.repo
+        );
+        let body = serde_json::json!({ "approval_policy": approval_policy.into() });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get private repo fork PR workflow settings for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#get-private-repo-fork-pr-workflow-settings-for-a-repository)
+    pub async fn get_fork_pr_workflows_private_repos(&self) -> Result<ForkPrWorkflowsPrivateRepos> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/fork-pr-workflows-private-repos",
+            self.owner, self.repo
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Set private repo fork PR workflow settings for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-private-repo-fork-pr-workflow-settings-for-a-repository)
+    pub async fn set_fork_pr_workflows_private_repos(&self, body: &impl Serialize) -> Result<()> {
+        let route = format!(
+            "/repos/{}/{}/actions/permissions/fork-pr-workflows-private-repos",
+            self.owner, self.repo
+        );
+        let res = self.crab._put(route, Some(body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
     }
 }
