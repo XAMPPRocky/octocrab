@@ -93,6 +93,13 @@ impl<'octo> EnterpriseHandler<'octo> {
     pub fn dependabot(&self) -> EnterpriseDependabotHandler<'octo> {
         EnterpriseDependabotHandler::new(self.crab, self.enterprise.clone())
     }
+
+    /// Handle Copilot for the enterprise.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot?apiVersion=2022-11-28)
+    pub fn copilot(&self) -> EnterpriseCopilotHandler<'octo, '_> {
+        EnterpriseCopilotHandler::new(self)
+    }
 }
 
 /// A client to GitHub's enterprise Secret Scanning API.
@@ -654,5 +661,138 @@ impl<'octo, 'r> UpdateEnterpriseDependabotRepositoryAccessBuilder<'octo, 'r> {
         let resp = self.handler.crab._patch(route, Some(&body)).await?;
         crate::map_github_error(resp).await?;
         Ok(())
+    }
+}
+
+/// Handler for enterprise Copilot API.
+pub struct EnterpriseCopilotHandler<'octo, 'b> {
+    handler: &'b EnterpriseHandler<'octo>,
+}
+
+impl<'octo, 'b> EnterpriseCopilotHandler<'octo, 'b> {
+    pub(crate) fn new(handler: &'b EnterpriseHandler<'octo>) -> Self {
+        Self { handler }
+    }
+
+    /// Set the coding agent policy for an enterprise.
+    pub async fn set_coding_agent_policy(&self, body: &impl serde::Serialize) -> crate::Result<()> {
+        let route = format!(
+            "/enterprises/{}/copilot/policies/coding_agent",
+            self.handler.enterprise
+        );
+        let res = self.handler.crab._put(route, Some(body)).await?;
+        crate::map_github_error(res).await.map(drop)
+    }
+
+    /// Add organizations to the enterprise coding agent policy.
+    pub async fn add_organizations_to_coding_agent_policy(
+        &self,
+        body: &impl serde::Serialize,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/enterprises/{}/copilot/policies/coding_agent/organizations",
+            self.handler.enterprise
+        );
+        let res = self.handler.crab._post(route, Some(body)).await?;
+        crate::map_github_error(res).await.map(drop)
+    }
+
+    /// Remove organizations from the enterprise coding agent policy.
+    pub async fn remove_organizations_from_coding_agent_policy(
+        &self,
+        body: &impl serde::Serialize,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/enterprises/{}/copilot/policies/coding_agent/organizations",
+            self.handler.enterprise
+        );
+        let res = self.handler.crab._delete(route, Some(body)).await?;
+        crate::map_github_error(res).await.map(drop)
+    }
+
+    /// Get Copilot enterprise usage metrics for a specific day.
+    pub async fn metrics_reports_enterprise_1_day(
+        &self,
+        day: Option<impl AsRef<str>>,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let mut route = format!(
+            "/enterprises/{}/copilot/metrics/reports/enterprise-1-day",
+            self.handler.enterprise
+        );
+        if let Some(d) = day {
+            route.push_str("?day=");
+            route.push_str(d.as_ref());
+        }
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get Copilot enterprise usage metrics (28-day latest).
+    pub async fn metrics_reports_enterprise_28_day_latest(
+        &self,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let route = format!(
+            "/enterprises/{}/copilot/metrics/reports/enterprise-28-day/latest",
+            self.handler.enterprise
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get Copilot enterprise repository report for a specific day.
+    pub async fn metrics_reports_repos_1_day(
+        &self,
+        day: Option<impl AsRef<str>>,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let mut route = format!(
+            "/enterprises/{}/copilot/metrics/reports/repos-1-day",
+            self.handler.enterprise
+        );
+        if let Some(d) = day {
+            route.push_str("?day=");
+            route.push_str(d.as_ref());
+        }
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get Copilot enterprise user-teams report for a specific day.
+    pub async fn metrics_reports_user_teams_1_day(
+        &self,
+        day: Option<impl AsRef<str>>,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let mut route = format!(
+            "/enterprises/{}/copilot/metrics/reports/user-teams-1-day",
+            self.handler.enterprise
+        );
+        if let Some(d) = day {
+            route.push_str("?day=");
+            route.push_str(d.as_ref());
+        }
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get Copilot users usage metrics for a specific day.
+    pub async fn metrics_reports_users_1_day(
+        &self,
+        day: Option<impl AsRef<str>>,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let mut route = format!(
+            "/enterprises/{}/copilot/metrics/reports/users-1-day",
+            self.handler.enterprise
+        );
+        if let Some(d) = day {
+            route.push_str("?day=");
+            route.push_str(d.as_ref());
+        }
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get Copilot users usage metrics (28-day latest).
+    pub async fn metrics_reports_users_28_day_latest(
+        &self,
+    ) -> crate::Result<crate::models::CopilotMetricsReport> {
+        let route = format!(
+            "/enterprises/{}/copilot/metrics/reports/users-28-day/latest",
+            self.handler.enterprise
+        );
+        self.handler.crab.get(route, None::<&()>).await
     }
 }

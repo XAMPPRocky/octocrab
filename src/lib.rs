@@ -1630,6 +1630,12 @@ impl Octocrab {
         copilot::CopilotHandler::new(self)
     }
 
+    /// Creates a [`api::copilot_spaces::CopilotSpacesHandler`] that allows you to access
+    /// GitHub's Copilot Spaces API.
+    pub fn copilot_spaces(&self) -> api::copilot_spaces::CopilotSpacesHandler<'_> {
+        api::copilot_spaces::CopilotSpacesHandler::new(self)
+    }
+
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
     pub fn activity(&self) -> activity::ActivityHandler<'_> {
         activity::ActivityHandler::new(self)

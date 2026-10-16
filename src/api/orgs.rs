@@ -203,6 +203,13 @@ impl<'octo> OrgHandler<'octo> {
         crate::api::agents::OrgAgentsHandler::new(self.crab, &self.owner)
     }
 
+    /// Handle Copilot Spaces for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot-spaces?apiVersion=2022-11-28)
+    pub fn copilot_spaces(&self) -> crate::api::copilot_spaces::OrgCopilotSpacesHandler<'octo> {
+        crate::api::copilot_spaces::OrgCopilotSpacesHandler::new(self.crab, &self.owner)
+    }
+
     /// Handle organization roles.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28)

@@ -1659,3 +1659,9 @@ pub use agents::{
     AgentPublicKey, AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask,
     AgentTasksResponse, AgentVariable, AgentVariablesResponse,
 };
+pub mod copilot_spaces;
+pub use copilot_spaces::{
+    CopilotCloudAgentConfiguration, CopilotCodingAgentPermissions, CopilotMetricsReport,
+    CopilotSpace, CopilotSpaceCollaborator, CopilotSpaceCollaboratorsResponse,
+    CopilotSpaceResource, CopilotSpaceResourcesResponse, CopilotSpacesResponse,
+};
