@@ -29,3 +29,24 @@ pub enum InteractionLimitExpiry {
     OneMonth,
     SixMonths,
 }
+
+/// Pull request creation cap configuration for an organization or repository.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PullRequestCreationCap {
+    pub enabled: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_open_pull_requests: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_drafts: Option<bool>,
+}
+
+impl PullRequestCreationCap {
+    pub fn new(enabled: bool) -> Self {
+        Self {
+            enabled,
+            max_open_pull_requests: None,
+            include_drafts: None,
+        }
+    }
+}

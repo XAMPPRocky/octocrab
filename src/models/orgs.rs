@@ -1,4 +1,6 @@
+pub mod orgs_extensions;
 use super::*;
+pub use orgs_extensions::*;
 pub mod custom_properties;
 pub mod invitations;
 pub mod personal_access_tokens;

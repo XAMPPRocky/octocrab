@@ -148,6 +148,37 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
         Ok(())
     }
 
+    /// Get repository ruleset history.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-repository-ruleset-history)
+    pub async fn history(
+        &self,
+        ruleset_id: impl Into<RulesetId>,
+    ) -> crate::Result<Vec<crate::models::rulesets::RulesetVersion>> {
+        let route = format!(
+            "/{repo}/rulesets/{id}/history",
+            repo = self.handler.repo,
+            id = ruleset_id.into(),
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get a repository ruleset version.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-a-repository-ruleset-version)
+    pub async fn version(
+        &self,
+        ruleset_id: impl Into<RulesetId>,
+        version_id: u64,
+    ) -> crate::Result<crate::models::rulesets::RulesetVersion> {
+        let route = format!(
+            "/{repo}/rulesets/{id}/history/{version_id}",
+            repo = self.handler.repo,
+            id = ruleset_id.into(),
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
     /// Access rule suites for this repository.
     ///
     /// # Examples

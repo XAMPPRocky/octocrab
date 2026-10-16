@@ -1,5 +1,5 @@
 use super::OrgHandler;
-use crate::models::code_scannings::CodeScanningAlert;
+use crate::models::code_scannings::{AiScanSetting, CodeScanningAlert, UpdateAiScan};
 use crate::params::{self, Direction};
 use crate::{Page, Result};
 
@@ -57,6 +57,49 @@ impl<'octo, 'b> OrgCodeScanningHandler<'octo, 'b> {
     /// ```
     pub fn list_alerts(&self) -> ListOrgCodeScanningAlertsBuilder<'octo, 'b, '_> {
         self.list()
+    }
+
+    /// Get the AI Scan setting for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-ai-scan-setting-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let ai_scan = octocrab.orgs("owner").code_scanning().get_ai_scan().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_ai_scan(&self) -> Result<AiScanSetting> {
+        let route = format!("/orgs/{}/code-scanning/ai-scan", self.handler.owner);
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Update the AI Scan setting for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#update-the-ai-scan-setting-for-an-organization)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::UpdateAiScan;
+    ///
+    /// let body = UpdateAiScan {
+    ///     pr_scan: Some("enabled".to_string()),
+    /// };
+    /// let ai_scan = octocrab
+    ///     .orgs("owner")
+    ///     .code_scanning()
+    ///     .update_ai_scan(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_ai_scan(&self, body: &UpdateAiScan) -> Result<AiScanSetting> {
+        let route = format!("/orgs/{}/code-scanning/ai-scan", self.handler.owner);
+        self.handler.crab.patch(route, Some(body)).await
     }
 }
 

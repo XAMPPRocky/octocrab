@@ -53,6 +53,30 @@ impl<'octo, 'r> OrgPersonalAccessTokensHandler<'octo, 'r> {
         Ok(())
     }
 
+    /// Updates the access to organization resources via fine-grained personal access tokens in batch.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28#update-the-access-to-organization-resources-via-fine-grained-personal-access-tokens)
+    pub async fn update_access_for_tokens(
+        &self,
+        pat_ids: impl IntoIterator<Item = impl Into<PatId>>,
+        action: PatAction,
+    ) -> Result<()> {
+        let route = format!(
+            "/orgs/{org}/personal-access-tokens",
+            org = self.handler.owner
+        );
+        let ids: Vec<PatId> = pat_ids.into_iter().map(Into::into).collect();
+        let body = serde_json::json!({
+            "action": action,
+            "pat_ids": ids,
+        });
+        let response = self.handler.crab._post(route, Some(&body)).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
     /// Lists repositories a fine-grained personal access token has access to.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/personal-access-tokens?apiVersion=2022-11-28#list-repositories-a-fine-grained-personal-access-token-has-access-to)

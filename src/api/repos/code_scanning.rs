@@ -1,8 +1,9 @@
 use super::RepoHandler;
 use crate::models::code_scannings::{
-    AlertInstance, Analysis, CodeScanningAlert, CodeqlDatabase, DefaultSetup,
-    DeleteAnalysisResponse, SarifAnalysis, SarifReceipt, UpdateDefaultSetup,
-    UpdateDefaultSetupResponse, UploadSarif,
+    AiScanSetting, AlertInstance, Analysis, Autofix, AutofixCommitResponse, CodeScanningAlert,
+    CodeqlDatabase, CommitAutofix, CreateVariantAnalysis, DefaultSetup, DeleteAnalysisResponse,
+    SarifAnalysis, SarifReceipt, UpdateAiScan, UpdateDefaultSetup, UpdateDefaultSetupResponse,
+    UploadSarif, VariantAnalysis, VariantAnalysisRepoTask,
 };
 use crate::params::{self, Direction};
 use crate::{Page, Result};
@@ -63,6 +64,53 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
         self.list()
     }
 
+    /// Get AI Scan enablement for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-ai-scan-enablement-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let ai_scan = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_ai_scan()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_ai_scan(&self) -> Result<AiScanSetting> {
+        let route = format!("/{}/code-scanning/ai-scan", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Update AI Scan enablement for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#update-ai-scan-enablement-for-a-repository)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::UpdateAiScan;
+    ///
+    /// let body = UpdateAiScan {
+    ///     pr_scan: Some("enabled".to_string()),
+    /// };
+    /// let ai_scan = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .update_ai_scan(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn update_ai_scan(&self, body: &UpdateAiScan) -> Result<AiScanSetting> {
+        let route = format!("/{}/code-scanning/ai-scan", self.handler.repo);
+        self.handler.crab.patch(route, Some(body)).await
+    }
+
     /// Get a single code scanning alert in the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-code-scanning-alert)
@@ -107,6 +155,88 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
     /// ```
     pub fn update(&self, alert_number: u64) -> UpdateRepoCodeScanningAlertBuilder<'octo, 'b, '_> {
         UpdateRepoCodeScanningAlertBuilder::new(self, alert_number)
+    }
+
+    /// Get the status of an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-status-of-an-autofix-for-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let autofix = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_autofix(42)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_autofix(&self, alert_number: u64) -> Result<Autofix> {
+        let route = format!(
+            "/{}/code-scanning/alerts/{}/autofix",
+            self.handler.repo, alert_number
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Create an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#create-an-autofix-for-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let autofix = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .create_autofix(42)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_autofix(&self, alert_number: u64) -> Result<Autofix> {
+        let route = format!(
+            "/{}/code-scanning/alerts/{}/autofix",
+            self.handler.repo, alert_number
+        );
+        self.handler.crab.post(route, None::<&()>).await
+    }
+
+    /// Commit an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#commit-an-autofix-for-a-code-scanning-alert)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::CommitAutofix;
+    ///
+    /// let body = CommitAutofix {
+    ///     target_ref: Some("refs/heads/main".to_string()),
+    ///     message: Some("Fix alert".to_string()),
+    /// };
+    /// let resp = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .commit_autofix(42, &body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn commit_autofix(
+        &self,
+        alert_number: u64,
+        body: &CommitAutofix,
+    ) -> Result<AutofixCommitResponse> {
+        let route = format!(
+            "/{}/code-scanning/alerts/{}/autofix/commits",
+            self.handler.repo, alert_number
+        );
+        self.handler.crab.post(route, Some(body)).await
     }
 
     /// List instances of a code scanning alert.
@@ -284,6 +414,100 @@ impl<'octo, 'b> RepoCodeScanningHandler<'octo, 'b> {
         crate::map_github_error(self.handler.crab._delete(route, None::<&()>).await?)
             .await
             .map(drop)
+    }
+
+    /// Create a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#create-a-codeql-variant-analysis)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::models::code_scannings::CreateVariantAnalysis;
+    ///
+    /// let body = CreateVariantAnalysis {
+    ///     language: "python".to_string(),
+    ///     query_pack: "aGVsbG8=".to_string(),
+    ///     repositories: Some(vec!["octocat/Hello-World".to_string()]),
+    ///     ..Default::default()
+    /// };
+    /// let va = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .create_variant_analysis(&body)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn create_variant_analysis(
+        &self,
+        body: &CreateVariantAnalysis,
+    ) -> Result<VariantAnalysis> {
+        let route = format!(
+            "/{}/code-scanning/codeql/variant-analyses",
+            self.handler.repo
+        );
+        self.handler.crab.post(route, Some(body)).await
+    }
+
+    /// Get the summary of a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-summary-of-a-codeql-variant-analysis)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let va = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_variant_analysis(1)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_variant_analysis(
+        &self,
+        codeql_variant_analysis_id: u64,
+    ) -> Result<VariantAnalysis> {
+        let route = format!(
+            "/{}/code-scanning/codeql/variant-analyses/{}",
+            self.handler.repo, codeql_variant_analysis_id
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get the analysis status of a repository in a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-analysis-status-of-a-repository-in-a-codeql-variant-analysis)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let status = octocrab
+    ///     .repos("owner", "repo")
+    ///     .code_scanning()
+    ///     .get_variant_analysis_repo_status(1, "octocat", "Hello-World")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_variant_analysis_repo_status(
+        &self,
+        codeql_variant_analysis_id: u64,
+        repo_owner: impl AsRef<str>,
+        repo_name: impl AsRef<str>,
+    ) -> Result<VariantAnalysisRepoTask> {
+        let route = format!(
+            "/{}/code-scanning/codeql/variant-analyses/{}/repos/{}/{}",
+            self.handler.repo,
+            codeql_variant_analysis_id,
+            repo_owner.as_ref(),
+            repo_name.as_ref()
+        );
+        self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Get a code scanning default setup configuration for a repository.

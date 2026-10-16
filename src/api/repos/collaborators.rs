@@ -76,3 +76,50 @@ impl<'octo, 'r> GetCollaboratorPermissionBuilder<'octo, 'r> {
         self.handler.crab.get(route, Some(&self)).await
     }
 }
+
+/// A builder pattern struct for adding a collaborator to a repository.
+///
+/// Created by [`RepoHandler::add_collaborator`].
+#[derive(serde::Serialize)]
+pub struct AddCollaboratorBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r RepoHandler<'octo>,
+    /// The handle for the GitHub user account.
+    #[serde(skip)]
+    username: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    permission: Option<Permission>,
+}
+
+impl<'octo, 'r> AddCollaboratorBuilder<'octo, 'r> {
+    pub fn new(handler: &'r RepoHandler<'octo>, username: impl Into<String>) -> Self {
+        Self {
+            handler,
+            username: username.into(),
+            permission: None,
+        }
+    }
+
+    /// The permission to grant the collaborator. Only valid on organization-owned repositories.
+    /// Can be one of: pull, triage, push, maintain, admin
+    pub fn permission(mut self, permission: Permission) -> Self {
+        self.permission = Some(permission);
+        self
+    }
+
+    /// Sends the actual request.
+    ///
+    /// Returns `Ok(Some(invitation))` when a new invitation is created (`201 Created`),
+    /// or `Ok(None)` when an existing collaborator or organization member is added (`204 No Content`).
+    pub async fn send(self) -> crate::Result<Option<crate::models::repos::RepositoryInvitation>> {
+        let route = format!("/{}/collaborators/{}", self.handler.repo, self.username);
+        let response = self.handler.crab._put(route, Some(&self)).await?;
+        let response = crate::map_github_error(response).await?;
+        if response.status() == http::StatusCode::NO_CONTENT {
+            return Ok(None);
+        }
+        <crate::models::repos::RepositoryInvitation as crate::FromResponse>::from_response(response)
+            .await
+            .map(Some)
+    }
+}

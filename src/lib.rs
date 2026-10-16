@@ -11,17 +11,23 @@
 //!
 //! - [`actions`] GitHub Actions
 //! - [`activity`] GitHub Activity
+//! - [`agents`] GitHub Agents
 //! - [`apps`] GitHub Apps
 //! - [`billing`] Billing
+//! - [`campaigns`] Campaigns
 //! - [`checks`] GitHub Checks
 //! - [`classroom`] GitHub Classroom
+//! - [`code_quality`] Code Quality
 //! - [`code_scannings`] Code Scanning
 //! - [`codes_of_conduct`] GitHub Codes of Conduct
 //! - [`codespaces`] GitHub Codespaces
 //! - [`commits`] GitHub Commits
 //! - [`copilot`] GitHub Copilot
+//! - [`copilot_spaces`] Copilot Spaces
+//! - [`credentials`] Credentials Revocation
 //! - [`current`] Information about the current user
 //! - [`dependency_graph`] Dependency Graph
+//! - [`emojis`] Emojis
 //! - [`enterprises`] GitHub Enterprises
 //! - [`events`] GitHub Events
 //! - [`gist_comments`] Gist Comments
@@ -39,6 +45,7 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`packages`] GitHub Packages
 //! - [`projects`] GitHub Projects
+//! - [`projects_v2`] GitHub Projects V2
 //! - [`pulls`] Pull Requests
 //! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
@@ -349,11 +356,12 @@ pub use jsonwebtoken::{self, EncodingKey};
 
 pub use self::{
     api::{
-        actions, activity, apps, billing, checks, classroom, code_scannings, codes_of_conduct,
-        codespaces, commits, copilot, current, dependency_graph, enterprises, events,
-        gist_comments, gists, git, gitignore, hooks, issues, licenses, markdown, marketplace,
-        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
-        teams, users, workflows,
+        actions, activity, agents, apps, billing, campaigns, checks, classroom, code_quality,
+        code_scannings, codes_of_conduct, codespaces, commits, copilot, copilot_spaces,
+        credentials, current, dependency_graph, emojis, enterprises, events, gist_comments, gists,
+        git, gitignore, hooks, issues, licenses, markdown, marketplace, migrations, orgs, packages,
+        projects, projects_v2, pulls, ratelimit, repos, search, security_advisories, teams, users,
+        workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1601,6 +1609,11 @@ impl Octocrab {
         actions::ActionsHandler::new(self)
     }
 
+    /// Creates a new [`api::agents::AgentsHandler`] for accessing GitHub Agents API.
+    pub fn agents(&self) -> api::agents::AgentsHandler<'_> {
+        api::agents::AgentsHandler::new(self)
+    }
+
     /// Creates a [`current::CurrentAuthHandler`] that allows you to access
     /// information about the current authenticated user.
     pub fn current(&self) -> current::CurrentAuthHandler<'_> {
@@ -1625,6 +1638,12 @@ impl Octocrab {
         copilot::CopilotHandler::new(self)
     }
 
+    /// Creates a [`api::copilot_spaces::CopilotSpacesHandler`] that allows you to access
+    /// GitHub's Copilot Spaces API.
+    pub fn copilot_spaces(&self) -> api::copilot_spaces::CopilotSpacesHandler<'_> {
+        api::copilot_spaces::CopilotSpacesHandler::new(self)
+    }
+
     /// Creates a [`activity::ActivityHandler`] for the current authenticated user.
     pub fn activity(&self) -> activity::ActivityHandler<'_> {
         activity::ActivityHandler::new(self)
@@ -1633,6 +1652,16 @@ impl Octocrab {
     /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
     pub fn apps(&self) -> apps::AppsRequestHandler<'_> {
         apps::AppsRequestHandler::new(self)
+    }
+
+    /// Creates a new [`credentials::CredentialsHandler`].
+    pub fn credentials(&self) -> credentials::CredentialsHandler<'_> {
+        credentials::CredentialsHandler::new(self)
+    }
+
+    /// Creates a new [`emojis::EmojisHandler`].
+    pub fn emojis(&self) -> emojis::EmojisHandler<'_> {
+        emojis::EmojisHandler::new(self)
     }
 
     /// Creates a [`marketplace::MarketplaceHandler`] for accessing GitHub Marketplace API.
@@ -1871,6 +1900,18 @@ impl Octocrab {
         self.all_repositories()
     }
 
+    /// List all public users in the order that they signed up.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#list-users)
+    pub fn all_users(&self) -> users::ListUsersBuilder<'_> {
+        users::ListUsersBuilder::new(self)
+    }
+
+    /// List all public users in the order that they signed up (alias for [`all_users`][Octocrab::all_users]).
+    pub fn list_users(&self) -> users::ListUsersBuilder<'_> {
+        self.all_users()
+    }
+
     /// Creates a [`billing::BillingHandler`] providing GitHub's Billing API.
     ///
     /// You can scope to an organization or user using [`.org()`][billing::BillingHandler::org]
@@ -1893,6 +1934,12 @@ impl Octocrab {
     /// projects API (classic).
     pub fn projects(&self) -> projects::ProjectHandler<'_> {
         projects::ProjectHandler::new(self)
+    }
+
+    /// Creates a [`projects_v2::ProjectsV2Handler`] that allows you to access GitHub's
+    /// projects (v2) API.
+    pub fn projects_v2(&self) -> api::projects_v2::ProjectsV2Handler<'_> {
+        api::projects_v2::ProjectsV2Handler::new(self)
     }
 
     /// Creates a [`search::SearchHandler`] that allows you to construct general queries
@@ -1981,6 +2028,20 @@ impl Octocrab {
     /// Creates a [`codes_of_conduct::CodesOfConductHandler`] providing the GitHub Codes of Codes of Conduct API
     pub fn codes_of_conduct(&self) -> codes_of_conduct::CodesOfConductHandler<'_> {
         codes_of_conduct::CodesOfConductHandler::new(self)
+    }
+
+    /// Creates a [`campaigns::CampaignsHandler`] providing GitHub's Campaigns API.
+    pub fn campaigns(&self, org: impl Into<String>) -> campaigns::CampaignsHandler<'_> {
+        campaigns::CampaignsHandler::new(self, org.into())
+    }
+
+    /// Creates a [`code_quality::CodeQualityHandler`] providing GitHub's Code Quality API.
+    pub fn code_quality(
+        &self,
+        owner: impl Into<String>,
+        repo: Option<String>,
+    ) -> code_quality::CodeQualityHandler<'_> {
+        code_quality::CodeQualityHandler::new(self, owner.into(), repo)
     }
 
     /// Creates a [`security_advisories::SecurityAdvisoriesHandler`] providing GitHub's Security Advisories API.

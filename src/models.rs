@@ -40,8 +40,11 @@ pub use repos::CodeownersError;
 pub use repos::CodeownersErrors;
 pub use repos::CustomPropertyValue;
 pub use repos::DeployKey;
+pub use repos::ImmutableReleasesStatus;
 pub use repos::InvitationPermission;
+pub use repos::IssueType;
 pub use repos::MergedUpstream;
+pub use repos::RepoHashAlgorithm;
 pub use repos::RepoTopics;
 pub use repos::RepositoryInvitation;
 #[allow(deprecated)]
@@ -131,7 +134,7 @@ pub use rulesets::{
     RuleEvaluation, RuleEvaluationResult, RuleEvaluationSource, RuleSuite, RuleSuiteId,
     RuleSuiteResult, RuleSuiteSummary, Ruleset, RulesetBypassActor, RulesetConditions,
     RulesetEnforcement, RulesetId, RulesetLink, RulesetLinks, RulesetSourceType, RulesetTarget,
-    UpdateRuleset,
+    RulesetVersion, RulesetVersionActor, UpdateRuleset,
 };
 
 mod date_serde;
@@ -1491,10 +1494,15 @@ pub struct UserEmailInfo {
 pub struct GitSshKey {
     pub key: String,
     pub id: u64,
+    #[serde(default)]
     pub url: String,
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub created_at: DateTime<Utc>,
+    #[serde(default)]
     pub verified: bool,
+    #[serde(default)]
     pub read_only: bool,
 }
 
@@ -1510,6 +1518,44 @@ pub struct SshSigningKey {
     pub id: u64,
     pub title: String,
     pub created_at: DateTime<Utc>,
+}
+
+/// An attestation entry returned when listing attestations.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AttestationItem {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle: Option<serde_json::Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub repository_id: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub initiator: Option<String>,
+}
+
+/// Response returned when listing attestations for a subject digest.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AttestationsResponse {
+    #[serde(default)]
+    pub attestations: Vec<AttestationItem>,
+}
+
+/// Response returned when bulk-listing attestations for multiple subject digests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct BulkAttestationsResponse {
+    pub attestations_subject_digests: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_info: Option<serde_json::Value>,
+}
+
+/// Response returned when creating a repository attestation.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CreateAttestationResponse {
+    pub id: u64,
 }
 
 mod maybe_empty {
@@ -1590,3 +1636,32 @@ mod maybe_empty {
         }
     }
 }
+
+pub mod campaigns;
+pub mod code_quality;
+pub mod code_security;
+pub use code_security::{
+    CodeSecurityConfiguration, CodeSecurityConfigurationRepositories,
+    CodeSecurityDefaultConfiguration, RepoCodeSecurityConfiguration,
+};
+pub mod private_registries;
+pub use private_registries::{
+    OrgPrivateRegistriesResponse, OrgPrivateRegistry, OrgPrivateRegistryPublicKey,
+};
+pub mod projects_v2;
+pub use projects_v2::{
+    ProjectV2, ProjectV2Field, ProjectV2FieldOption, ProjectV2Item, ProjectV2ItemResponse,
+    ProjectV2ValueResponse, ProjectV2View, ProjectV2ViewResponse,
+};
+pub mod agents;
+pub use agents::{
+    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableTrigger,
+    AgentPublicKey, AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask,
+    AgentTasksResponse, AgentVariable, AgentVariablesResponse,
+};
+pub mod copilot_spaces;
+pub use copilot_spaces::{
+    CopilotCloudAgentConfiguration, CopilotCodingAgentPermissions, CopilotMetricsReport,
+    CopilotSpace, CopilotSpaceCollaborator, CopilotSpaceCollaboratorsResponse,
+    CopilotSpaceResource, CopilotSpaceResourcesResponse, CopilotSpacesResponse,
+};

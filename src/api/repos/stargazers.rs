@@ -1,4 +1,5 @@
 use super::*;
+pub use crate::api::activity::starring::ListStarHistoryBuilder;
 
 #[derive(serde::Serialize)]
 pub struct ListStarGazersBuilder<'octo, 'r> {

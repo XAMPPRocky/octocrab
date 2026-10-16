@@ -18,6 +18,31 @@ impl<'octo> CodeScanningHandler<'octo> {
         Self { crab, owner, repo }
     }
 
+    /// Get the AI Scan setting for the repository or organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-ai-scan-enablement-for-a-repository)
+    pub async fn get_ai_scan(&self) -> Result<models::code_scannings::AiScanSetting> {
+        let route = match &self.repo {
+            Some(repo) => format!("/repos/{}/{}/code-scanning/ai-scan", self.owner, repo),
+            None => format!("/orgs/{}/code-scanning/ai-scan", self.owner),
+        };
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Update the AI Scan setting for the repository or organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#update-ai-scan-enablement-for-a-repository)
+    pub async fn update_ai_scan(
+        &self,
+        body: &models::code_scannings::UpdateAiScan,
+    ) -> Result<models::code_scannings::AiScanSetting> {
+        let route = match &self.repo {
+            Some(repo) => format!("/repos/{}/{}/code-scanning/ai-scan", self.owner, repo),
+            None => format!("/orgs/{}/code-scanning/ai-scan", self.owner),
+        };
+        self.crab.patch(route, Some(body)).await
+    }
+
     /// Gets a code scanning alert from the repository.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-a-code-scanning-alert)
@@ -82,6 +107,49 @@ impl<'octo> CodeScanningHandler<'octo> {
     /// ```
     pub fn update(&self, number: u64) -> update::UpdateCodeScanningBuilder<'_, '_> {
         update::UpdateCodeScanningBuilder::new(self, number)
+    }
+
+    /// Get the status of an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-status-of-an-autofix-for-a-code-scanning-alert)
+    pub async fn get_autofix(&self, alert_number: u64) -> Result<models::code_scannings::Autofix> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/alerts/{}/autofix",
+            self.owner, repo, alert_number
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Create an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#create-an-autofix-for-a-code-scanning-alert)
+    pub async fn create_autofix(
+        &self,
+        alert_number: u64,
+    ) -> Result<models::code_scannings::Autofix> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/alerts/{}/autofix",
+            self.owner, repo, alert_number
+        );
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Commit an autofix for a code scanning alert.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#commit-an-autofix-for-a-code-scanning-alert)
+    pub async fn commit_autofix(
+        &self,
+        alert_number: u64,
+        body: &models::code_scannings::CommitAutofix,
+    ) -> Result<models::code_scannings::AutofixCommitResponse> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/alerts/{}/autofix/commits",
+            self.owner, repo, alert_number
+        );
+        self.crab.post(route, Some(body)).await
     }
 
     /// Get a code scanning analysis for a repository.
@@ -226,6 +294,57 @@ impl<'octo> CodeScanningHandler<'octo> {
         crate::map_github_error(self.crab._delete(route, None::<&()>).await?)
             .await
             .map(drop)
+    }
+
+    /// Create a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#create-a-codeql-variant-analysis)
+    pub async fn create_variant_analysis(
+        &self,
+        body: &models::code_scannings::CreateVariantAnalysis,
+    ) -> Result<models::code_scannings::VariantAnalysis> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/codeql/variant-analyses",
+            self.owner, repo
+        );
+        self.crab.post(route, Some(body)).await
+    }
+
+    /// Get the summary of a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-summary-of-a-codeql-variant-analysis)
+    pub async fn get_variant_analysis(
+        &self,
+        codeql_variant_analysis_id: u64,
+    ) -> Result<models::code_scannings::VariantAnalysis> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/codeql/variant-analyses/{}",
+            self.owner, repo, codeql_variant_analysis_id
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Get the analysis status of a repository in a CodeQL variant analysis.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#get-the-analysis-status-of-a-repository-in-a-codeql-variant-analysis)
+    pub async fn get_variant_analysis_repo_status(
+        &self,
+        codeql_variant_analysis_id: u64,
+        repo_owner: impl AsRef<str>,
+        repo_name: impl AsRef<str>,
+    ) -> Result<models::code_scannings::VariantAnalysisRepoTask> {
+        let repo = self.repo.as_ref().expect("Repository must be specified");
+        let route = format!(
+            "/repos/{}/{}/code-scanning/codeql/variant-analyses/{}/repos/{}/{}",
+            self.owner,
+            repo,
+            codeql_variant_analysis_id,
+            repo_owner.as_ref(),
+            repo_name.as_ref()
+        );
+        self.crab.get(route, None::<&()>).await
     }
 
     /// Get a code scanning default setup configuration for a repository.

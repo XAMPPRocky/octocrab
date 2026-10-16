@@ -839,3 +839,52 @@ pub struct TagProtection {
     pub enabled: Option<bool>,
     pub pattern: String,
 }
+
+/// An issue type for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-issue-types-for-a-repository)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueType {
+    pub id: u64,
+    pub node_id: String,
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub created_at: Option<DateTime<Utc>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        default,
+        deserialize_with = "super::date_serde::deserialize_opt"
+    )]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_enabled: Option<bool>,
+}
+
+/// The object hash algorithm used by a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-the-object-hash-algorithm-of-a-repository)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepoHashAlgorithm {
+    pub hash_algorithm: String,
+}
+
+/// Immutable releases configuration status for a repository.
+///
+/// [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#check-if-immutable-releases-are-enabled-for-a-repository)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ImmutableReleasesStatus {
+    pub enabled: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enforced_by_owner: Option<bool>,
+}

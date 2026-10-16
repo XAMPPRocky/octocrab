@@ -26,17 +26,23 @@ Currently, the following modules are available as of version `0.54`.
 
 - [`actions`] GitHub Actions
 - [`activity`] GitHub Activity
+- [`agents`] GitHub Agents
 - [`apps`] GitHub Apps
 - [`billing`] Billing
+- [`campaigns`] Campaigns
 - [`checks`] GitHub Checks
 - [`classroom`] GitHub Classroom
+- [`code_quality`] Code Quality
 - [`code_scannings`] Code Scanning
 - [`codes_of_conduct`] GitHub Codes of Conduct
 - [`codespaces`] GitHub Codespaces
 - [`commits`] GitHub Commits
 - [`copilot`] GitHub Copilot
+- [`copilot_spaces`] Copilot Spaces
+- [`credentials`] Credentials
 - [`current`] Information about the current user
 - [`dependency_graph`] Dependency Graph
+- [`emojis`] Emojis
 - [`enterprises`] GitHub Enterprises
 - [`events`] GitHub Events
 - [`gist_comments`] Gist Comments
@@ -54,12 +60,13 @@ Currently, the following modules are available as of version `0.54`.
 - [`orgs`] GitHub Organisations
 - [`packages`] GitHub Packages
 - [`projects`] GitHub Projects
+- [`projects_v2`] GitHub Projects V2
 - [`pulls`] Pull Requests
 - [`ratelimit`] Rate Limiting
 - [`repos`] Repositories
 - [`search`] Using GitHub's search
 - [`security_advisories`] Security Advisories
-- [`teams`] Teams
+- [`teams`] Teams *(Note: Deprecated/legacy `/teams/{team_id}/...` endpoints are intentionally omitted in favor of the organization-scoped `/orgs/{org}/teams/{team_slug}/...` endpoints)*
 - [`users`] Users
 - [`workflows`] GitHub Workflows
 
@@ -67,17 +74,23 @@ Currently, the following modules are available as of version `0.54`.
 [`auth`]: https://docs.rs/octocrab/latest/octocrab/auth/index.html
 [`actions`]: https://docs.rs/octocrab/latest/octocrab/actions/struct.ActionsHandler.html
 [`activity`]: https://docs.rs/octocrab/latest/octocrab/activity/struct.ActivityHandler.html
+[`agents`]: https://docs.rs/octocrab/latest/octocrab/agents/struct.AgentsHandler.html
 [`apps`]: https://docs.rs/octocrab/latest/octocrab/apps/struct.AppsHandler.html
 [`billing`]: https://docs.rs/octocrab/latest/octocrab/billing/struct.BillingHandler.html
+[`campaigns`]: https://docs.rs/octocrab/latest/octocrab/campaigns/struct.CampaignsHandler.html
 [`checks`]: https://docs.rs/octocrab/latest/octocrab/checks/struct.ChecksHandler.html
 [`classroom`]: https://docs.rs/octocrab/latest/octocrab/classroom/struct.ClassroomHandler.html
+[`code_quality`]: https://docs.rs/octocrab/latest/octocrab/code_quality/struct.CodeQualityHandler.html
 [`code_scannings`]: https://docs.rs/octocrab/latest/octocrab/code_scannings/struct.CodeScanningHandler.html
 [`codes_of_conduct`]: https://docs.rs/octocrab/latest/octocrab/codes_of_conduct/struct.CodesOfConductHandler.html
 [`codespaces`]: https://docs.rs/octocrab/latest/octocrab/codespaces/struct.CodespacesHandler.html
 [`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitHandler.html
 [`copilot`]: https://docs.rs/octocrab/latest/octocrab/copilot/struct.CopilotHandler.html
+[`copilot_spaces`]: https://docs.rs/octocrab/latest/octocrab/copilot_spaces/struct.CopilotSpacesHandler.html
+[`credentials`]: https://docs.rs/octocrab/latest/octocrab/credentials/struct.CredentialsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`dependency_graph`]: https://docs.rs/octocrab/latest/octocrab/dependency_graph/struct.RepoDependencyGraphHandler.html
+[`emojis`]: https://docs.rs/octocrab/latest/octocrab/emojis/struct.EmojisHandler.html
 [`enterprises`]: https://docs.rs/octocrab/latest/octocrab/enterprises/struct.EnterpriseHandler.html
 [`events`]: https://docs.rs/octocrab/latest/octocrab/events/struct.EventsBuilder.html
 [`gist_comments`]: https://docs.rs/octocrab/latest/octocrab/gist_comments/struct.GistCommentsHandler.html
@@ -95,6 +108,7 @@ Currently, the following modules are available as of version `0.54`.
 [`orgs`]: https://docs.rs/octocrab/latest/octocrab/orgs/struct.OrgHandler.html
 [`packages`]: https://docs.rs/octocrab/latest/octocrab/packages/struct.PackagesHandler.html
 [`projects`]: https://docs.rs/octocrab/latest/octocrab/projects/struct.ProjectHandler.html
+[`projects_v2`]: https://docs.rs/octocrab/latest/octocrab/projects_v2/struct.ProjectsV2Handler.html
 [`pulls`]: https://docs.rs/octocrab/latest/octocrab/pulls/struct.PullRequestHandler.html
 [`ratelimit`]: https://docs.rs/octocrab/latest/octocrab/ratelimit/struct.RateLimitHandler.html
 [`repos`]: https://docs.rs/octocrab/latest/octocrab/repos/struct.RepoHandler.html

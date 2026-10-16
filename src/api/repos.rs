@@ -9,6 +9,8 @@ use snafu::ResultExt;
 
 pub mod activity;
 pub mod all_repositories;
+pub mod attestations;
+pub use attestations::{ListRepoAttestationsBuilder, RepoAttestationsHandler};
 pub mod autolinks;
 pub mod branches;
 pub mod code_scanning;
@@ -56,6 +58,7 @@ pub mod transfer;
 mod variables;
 pub mod watchers;
 
+pub use crate::api::actions::RepoActionsHandler;
 pub use crate::api::git::{
     CreateBlobBuilder, CreateGitCommitObjectBuilder, CreateTagBuilder, CreateTreeBuilder,
     GetTreeBuilder, UpdateRefBuilder,
@@ -66,7 +69,7 @@ use crate::models::interaction_limits::{
     InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
 };
 use crate::models::RepositoryId;
-use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
+pub use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
@@ -85,7 +88,7 @@ pub use branches::{
 pub use code_scanning::RepoCodeScanningHandler;
 pub use codeowners::ListCodeownersErrorsBuilder;
 pub use codespaces::RepoCodespacesHandler;
-pub use collaborators::ListCollaboratorsBuilder;
+pub use collaborators::{AddCollaboratorBuilder, ListCollaboratorsBuilder};
 pub use comments::{
     CreateRepoCommentBuilder, ListRepoCommentReactionsBuilder, ListRepoCommentsBuilder,
     RepoCommentsHandler,
@@ -138,7 +141,7 @@ pub use security::{
     RepoVulnerabilityAlertsHandler,
 };
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
-pub use stargazers::ListStarGazersBuilder;
+pub use stargazers::{ListStarGazersBuilder, ListStarHistoryBuilder};
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use subscription::{RepoSubscriptionHandler, SetRepoSubscriptionBuilder};
@@ -169,8 +172,8 @@ impl std::fmt::Display for RepoRef {
 ///
 /// Created with [`Octocrab::repos`].
 pub struct RepoHandler<'octo> {
-    crab: &'octo Octocrab,
-    repo: RepoRef,
+    pub(crate) crab: &'octo Octocrab,
+    pub(crate) repo: RepoRef,
 }
 
 impl<'octo> RepoHandler<'octo> {
@@ -983,6 +986,57 @@ impl<'octo> RepoHandler<'octo> {
         GetCollaboratorPermissionBuilder::new(self, username)
     }
 
+    /// Adds a user as a collaborator to the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#add-a-repository-collaborator)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::params::teams::Permission;
+    ///
+    /// let invitation = octocrab
+    ///     .repos("owner", "repo")
+    ///     .add_collaborator("username")
+    ///     .permission(Permission::Push)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn add_collaborator(
+        &self,
+        username: impl Into<String>,
+    ) -> AddCollaboratorBuilder<'octo, '_> {
+        AddCollaboratorBuilder::new(self, username)
+    }
+
+    /// Removes a collaborator from the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#remove-a-repository-collaborator)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .remove_collaborator("username")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_collaborator(&self, username: impl AsRef<str>) -> Result<()> {
+        let route = format!(
+            "/{repo}/collaborators/{username}",
+            repo = self.repo,
+            username = username.as_ref(),
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
     /// List contributors from a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -1003,6 +1057,50 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
         ListStarGazersBuilder::new(self)
+    }
+
+    /// Gets the stargazer count for the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-stargazer-count)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let count = octocrab.repos("owner", "repo").stargazer_count().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn stargazer_count(&self) -> Result<models::activity::StargazerCount> {
+        let route = format!("/{}/stargazers/count", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets the weekly star history for the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-repository-star-history)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let history = octocrab
+    ///     .repos("owner", "repo")
+    ///     .star_history()
+    ///     .per_page(30)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn star_history(&self) -> ListStarHistoryBuilder<'octo> {
+        ListStarHistoryBuilder::with_route(self.crab, format!("/{}/stargazers/history", self.repo))
+    }
+
+    /// Gets the weekly star history for the repository (alias for [`Self::star_history`]).
+    pub fn stargazers_history(&self) -> ListStarHistoryBuilder<'octo> {
+        self.star_history()
     }
 
     /// Lists languages for the specified repository.
@@ -1862,6 +1960,31 @@ impl<'octo> RepoHandler<'octo> {
         RepoCodeScanningHandler::new(self)
     }
 
+    /// Handle Agents on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/agents?apiVersion=2022-11-28)
+    pub fn agents(&self) -> crate::api::agents::RepoAgentsHandler<'octo, '_> {
+        crate::api::agents::RepoAgentsHandler::new(self)
+    }
+
+    /// Handle Copilot on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot?apiVersion=2022-11-28)
+    pub fn copilot(&self) -> RepoCopilotHandler<'octo, '_> {
+        RepoCopilotHandler::new(self)
+    }
+
+    /// Handle GitHub Actions on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions?apiVersion=2022-11-28)
+    pub fn actions(&self) -> RepoActionsHandler<'octo> {
+        let (owner, repo) = match &self.repo {
+            RepoRef::ByOwnerAndName(o, r) => (o.clone(), r.clone()),
+            RepoRef::ById(id) => (String::new(), id.to_string()),
+        };
+        RepoActionsHandler::new(self.crab, owner, repo)
+    }
+
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
     ///
     /// # Examples
@@ -2206,5 +2329,263 @@ impl<'octo> RepoHandler<'octo> {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
         Ok(())
+    }
+
+    /// Attestations operations for this repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/attestations?apiVersion=2022-11-28)
+    pub fn attestations(&self) -> RepoAttestationsHandler<'octo, '_> {
+        RepoAttestationsHandler::new(self)
+    }
+
+    /// List issue types for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-issue-types-for-a-repository)
+    pub async fn issue_types(&self) -> Result<Vec<models::repos::IssueType>> {
+        let route = format!("/{}/issue-types", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Update a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#update-a-repository)
+    pub fn update(&self) -> UpdateRepoBuilder<'octo, '_> {
+        UpdateRepoBuilder::new(self)
+    }
+
+    /// Get the object hash algorithm of a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-the-object-hash-algorithm-of-a-repository)
+    pub async fn hash_algorithm(&self) -> Result<models::repos::RepoHashAlgorithm> {
+        let route = format!("/{}/hash-algorithm", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Check if immutable releases are enabled for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#check-if-immutable-releases-are-enabled-for-a-repository)
+    pub async fn immutable_releases(&self) -> Result<models::repos::ImmutableReleasesStatus> {
+        let route = format!("/{}/immutable-releases", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Enable immutable releases for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#enable-immutable-releases)
+    pub async fn enable_immutable_releases(&self) -> Result<()> {
+        let route = format!("/{}/immutable-releases", self.repo);
+        let response = self.crab._put(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Disable immutable releases for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#disable-immutable-releases)
+    pub async fn disable_immutable_releases(&self) -> Result<()> {
+        let route = format!("/{}/immutable-releases", self.repo);
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Get pull request creation cap for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/repo-restrictions?apiVersion=2022-11-28#get-pull-request-creation-cap-for-a-repository)
+    pub async fn pull_request_creation_cap(
+        &self,
+    ) -> Result<models::interaction_limits::PullRequestCreationCap> {
+        let route = format!("/{}/interaction-limits/pulls/creation-cap", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Update pull request creation cap for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/repo-restrictions?apiVersion=2022-11-28#update-pull-request-creation-cap-for-a-repository)
+    pub async fn update_pull_request_creation_cap(
+        &self,
+        cap: &models::interaction_limits::PullRequestCreationCap,
+    ) -> Result<models::interaction_limits::PullRequestCreationCap> {
+        let route = format!("/{}/interaction-limits/pulls/creation-cap", self.repo);
+        self.crab.patch(route, Some(cap)).await
+    }
+
+    /// Get pull request creation cap bypass list for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/repo-restrictions?apiVersion=2022-11-28#get-pull-request-creation-cap-bypass-list-for-a-repository)
+    pub async fn pull_request_creation_cap_bypass_list(&self) -> Result<Vec<models::Author>> {
+        let route = format!("/{}/interaction-limits/pulls/bypass-list", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Add users to the pull request creation cap bypass list for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/repo-restrictions?apiVersion=2022-11-28#add-users-to-the-pull-request-creation-cap-bypass-list-for-a-repository)
+    pub async fn add_users_to_pull_request_creation_cap_bypass_list(
+        &self,
+        users: &[impl AsRef<str>],
+    ) -> Result<()> {
+        let route = format!("/{}/interaction-limits/pulls/bypass-list", self.repo);
+        let user_list: Vec<&str> = users.iter().map(|u| u.as_ref()).collect();
+        let body = serde_json::json!({ "users": user_list });
+        let response = self.crab._put(route, Some(&body)).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Remove users from the pull request creation cap bypass list for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/repo-restrictions?apiVersion=2022-11-28#remove-users-from-the-pull-request-creation-cap-bypass-list-for-a-repository)
+    pub async fn remove_users_from_pull_request_creation_cap_bypass_list(
+        &self,
+        users: &[impl AsRef<str>],
+    ) -> Result<()> {
+        let route = format!("/{}/interaction-limits/pulls/bypass-list", self.repo);
+        let user_list: Vec<&str> = users.iter().map(|u| u.as_ref()).collect();
+        let body = serde_json::json!({ "users": user_list });
+        let response = self.crab._delete(route, Some(&body)).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Get the code security configuration associated with a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-security/configurations?apiVersion=2022-11-28#get-the-code-security-configuration-associated-with-a-repository)
+    pub async fn code_security_configuration(
+        &self,
+    ) -> Result<models::code_security::RepoCodeSecurityConfiguration> {
+        let route = format!("/{}/code-security-configuration", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+}
+
+/// Builder for updating a repository.
+#[derive(serde::Serialize)]
+pub struct UpdateRepoBuilder<'octo, 'b> {
+    #[serde(skip)]
+    handler: &'b RepoHandler<'octo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    private: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    visibility: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_issues: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_projects: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_wiki: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_template: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default_branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    archived: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_forking: Option<bool>,
+}
+
+impl<'octo, 'b> UpdateRepoBuilder<'octo, 'b> {
+    pub(crate) fn new(handler: &'b RepoHandler<'octo>) -> Self {
+        Self {
+            handler,
+            name: None,
+            description: None,
+            homepage: None,
+            private: None,
+            visibility: None,
+            has_issues: None,
+            has_projects: None,
+            has_wiki: None,
+            is_template: None,
+            default_branch: None,
+            archived: None,
+            allow_forking: None,
+        }
+    }
+
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
+        self
+    }
+
+    pub fn homepage(mut self, homepage: impl Into<String>) -> Self {
+        self.homepage = Some(homepage.into());
+        self
+    }
+
+    pub fn private(mut self, private: bool) -> Self {
+        self.private = Some(private);
+        self
+    }
+
+    pub fn visibility(mut self, visibility: impl Into<String>) -> Self {
+        self.visibility = Some(visibility.into());
+        self
+    }
+
+    pub fn has_issues(mut self, has_issues: bool) -> Self {
+        self.has_issues = Some(has_issues);
+        self
+    }
+
+    pub fn has_projects(mut self, has_projects: bool) -> Self {
+        self.has_projects = Some(has_projects);
+        self
+    }
+
+    pub fn has_wiki(mut self, has_wiki: bool) -> Self {
+        self.has_wiki = Some(has_wiki);
+        self
+    }
+
+    pub fn is_template(mut self, is_template: bool) -> Self {
+        self.is_template = Some(is_template);
+        self
+    }
+
+    pub fn default_branch(mut self, default_branch: impl Into<String>) -> Self {
+        self.default_branch = Some(default_branch.into());
+        self
+    }
+
+    pub fn archived(mut self, archived: bool) -> Self {
+        self.archived = Some(archived);
+        self
+    }
+
+    pub fn allow_forking(mut self, allow_forking: bool) -> Self {
+        self.allow_forking = Some(allow_forking);
+        self
+    }
+
+    pub async fn send(self) -> Result<models::Repository> {
+        let route = format!("/{}", self.handler.repo);
+        self.handler.crab.patch(route, Some(&self)).await
+    }
+}
+
+/// Handler for repository Copilot API.
+pub struct RepoCopilotHandler<'octo, 'b> {
+    handler: &'b RepoHandler<'octo>,
+}
+
+impl<'octo, 'b> RepoCopilotHandler<'octo, 'b> {
+    pub(crate) fn new(handler: &'b RepoHandler<'octo>) -> Self {
+        Self { handler }
+    }
+
+    /// Get Copilot cloud agent configuration for a repository.
+    pub async fn get_cloud_agent_configuration(
+        &self,
+    ) -> Result<crate::models::CopilotCloudAgentConfiguration> {
+        let route = format!("/{}/copilot/cloud-agent/configuration", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
     }
 }
