@@ -69,6 +69,17 @@ impl<'octo> UserHandler<'octo> {
     /// Handle billing for this user.
     ///
     /// See: <https://docs.github.com/en/rest/billing?apiVersion=2022-11-28>
+    /// Handle Projects (v2) for this user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/projects/projects?apiVersion=2022-11-28)
+    pub fn projects_v2(&self) -> crate::api::projects_v2::UserProjectsV2Handler<'octo> {
+        let username = match &self.user {
+            UserRef::ByString(name) => name.clone(),
+            UserRef::ById(id) => id.to_string(),
+        };
+        crate::api::projects_v2::UserProjectsV2Handler::new(self.crab, username)
+    }
+
     pub fn billing(&self) -> crate::api::billing::ScopedBillingHandler<'octo> {
         let username = match &self.user {
             UserRef::ByString(name) => name.clone(),

@@ -30,6 +30,7 @@ pub mod migrations;
 pub mod orgs;
 pub mod packages;
 pub mod projects;
+pub mod projects_v2;
 pub mod pulls;
 pub mod ratelimit;
 pub mod repos;

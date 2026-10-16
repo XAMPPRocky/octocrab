@@ -1917,6 +1917,12 @@ impl Octocrab {
         projects::ProjectHandler::new(self)
     }
 
+    /// Creates a [`projects_v2::ProjectsV2Handler`] that allows you to access GitHub's
+    /// projects (v2) API.
+    pub fn projects_v2(&self) -> api::projects_v2::ProjectsV2Handler<'_> {
+        api::projects_v2::ProjectsV2Handler::new(self)
+    }
+
     /// Creates a [`search::SearchHandler`] that allows you to construct general queries
     /// to GitHub's API.
     pub fn search(&self) -> search::SearchHandler<'_> {
