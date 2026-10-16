@@ -350,10 +350,10 @@ pub use jsonwebtoken::{self, EncodingKey};
 pub use self::{
     api::{
         actions, activity, apps, billing, checks, classroom, code_scannings, codes_of_conduct,
-        codespaces, commits, copilot, current, dependency_graph, enterprises, events,
-        gist_comments, gists, git, gitignore, hooks, issues, licenses, markdown, marketplace,
-        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
-        teams, users, workflows,
+        codespaces, commits, copilot, credentials, current, dependency_graph, emojis, enterprises,
+        events, gist_comments, gists, git, gitignore, hooks, issues, licenses, markdown,
+        marketplace, migrations, orgs, packages, projects, pulls, ratelimit, repos, search,
+        security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1633,6 +1633,16 @@ impl Octocrab {
     /// Creates a new [`apps::AppsRequestHandler`] for the currently authenticated app.
     pub fn apps(&self) -> apps::AppsRequestHandler<'_> {
         apps::AppsRequestHandler::new(self)
+    }
+
+    /// Creates a new [`credentials::CredentialsHandler`].
+    pub fn credentials(&self) -> credentials::CredentialsHandler<'_> {
+        credentials::CredentialsHandler::new(self)
+    }
+
+    /// Creates a new [`emojis::EmojisHandler`].
+    pub fn emojis(&self) -> emojis::EmojisHandler<'_> {
+        emojis::EmojisHandler::new(self)
     }
 
     /// Creates a [`marketplace::MarketplaceHandler`] for accessing GitHub Marketplace API.

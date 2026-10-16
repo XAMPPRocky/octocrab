@@ -66,7 +66,7 @@ use crate::models::interaction_limits::{
     InteractionLimit, InteractionLimitExpiry, InteractionLimitType,
 };
 use crate::models::RepositoryId;
-use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
+pub use crate::repos::collaborators::GetCollaboratorPermissionBuilder;
 use crate::repos::file::GetReadmeBuilder;
 use crate::repos::sbom::RepoSbomHandler;
 use crate::repos::variables::RepoVariablesHandler;
@@ -85,7 +85,7 @@ pub use branches::{
 pub use code_scanning::RepoCodeScanningHandler;
 pub use codeowners::ListCodeownersErrorsBuilder;
 pub use codespaces::RepoCodespacesHandler;
-pub use collaborators::ListCollaboratorsBuilder;
+pub use collaborators::{AddCollaboratorBuilder, ListCollaboratorsBuilder};
 pub use comments::{
     CreateRepoCommentBuilder, ListRepoCommentReactionsBuilder, ListRepoCommentsBuilder,
     RepoCommentsHandler,
@@ -138,7 +138,7 @@ pub use security::{
     RepoVulnerabilityAlertsHandler,
 };
 pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
-pub use stargazers::ListStarGazersBuilder;
+pub use stargazers::{ListStarGazersBuilder, ListStarHistoryBuilder};
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
 pub use subscription::{RepoSubscriptionHandler, SetRepoSubscriptionBuilder};
@@ -983,6 +983,57 @@ impl<'octo> RepoHandler<'octo> {
         GetCollaboratorPermissionBuilder::new(self, username)
     }
 
+    /// Adds a user as a collaborator to the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#add-a-repository-collaborator)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// use octocrab::params::teams::Permission;
+    ///
+    /// let invitation = octocrab
+    ///     .repos("owner", "repo")
+    ///     .add_collaborator("username")
+    ///     .permission(Permission::Push)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn add_collaborator(
+        &self,
+        username: impl Into<String>,
+    ) -> AddCollaboratorBuilder<'octo, '_> {
+        AddCollaboratorBuilder::new(self, username)
+    }
+
+    /// Removes a collaborator from the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#remove-a-repository-collaborator)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// octocrab
+    ///     .repos("owner", "repo")
+    ///     .remove_collaborator("username")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_collaborator(&self, username: impl AsRef<str>) -> Result<()> {
+        let route = format!(
+            "/{repo}/collaborators/{username}",
+            repo = self.repo,
+            username = username.as_ref(),
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
     /// List contributors from a repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -1003,6 +1054,50 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
         ListStarGazersBuilder::new(self)
+    }
+
+    /// Gets the stargazer count for the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-stargazer-count)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let count = octocrab.repos("owner", "repo").stargazer_count().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn stargazer_count(&self) -> Result<models::activity::StargazerCount> {
+        let route = format!("/{}/stargazers/count", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets the weekly star history for the repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-repository-star-history)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let history = octocrab
+    ///     .repos("owner", "repo")
+    ///     .star_history()
+    ///     .per_page(30)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn star_history(&self) -> ListStarHistoryBuilder<'octo> {
+        ListStarHistoryBuilder::with_route(self.crab, format!("/{}/stargazers/history", self.repo))
+    }
+
+    /// Gets the weekly star history for the repository (alias for [`Self::star_history`]).
+    pub fn stargazers_history(&self) -> ListStarHistoryBuilder<'octo> {
+        self.star_history()
     }
 
     /// Lists languages for the specified repository.

@@ -67,6 +67,31 @@ impl<'octo> NotificationsHandler<'octo> {
         crate::map_github_error(response).await.map(drop)
     }
 
+    /// Marks a single thread as done.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/notifications?apiVersion=2022-11-28#mark-a-thread-as-done)
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .activity()
+    ///     .notifications()
+    ///     .mark_as_done(123u64.into())
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn mark_as_done(&self, id: NotificationId) -> crate::Result<()> {
+        let route = format!("/notifications/threads/{id}");
+        let uri = Uri::builder()
+            .path_and_query(route)
+            .build()
+            .context(HttpSnafu)?;
+
+        let response = self.crab._delete(uri, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
     /// Marks all notifications in a repository as read.
     ///
     /// ```no_run

@@ -416,6 +416,78 @@ impl<'octo> PullRequestHandler<'octo> {
         self.crab.delete(route, Some(&map)).await
     }
 
+    /// Get all requested reviewers for a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#get-all-requested-reviewers-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let reviewers = octocrab.pulls("owner", "repo").get_requested_reviewers(101).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_requested_reviewers(
+        &self,
+        pr: u64,
+    ) -> crate::Result<crate::models::teams::RequestedReviewers> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// List all requested reviewers for a pull request (alias for [`Self::get_requested_reviewers`]).
+    pub async fn list_requested_reviewers(
+        &self,
+        pr: u64,
+    ) -> crate::Result<crate::models::teams::RequestedReviewers> {
+        self.get_requested_reviewers(pr).await
+    }
+
+    /// Rerequest reviews for a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/review-requests?apiVersion=2022-11-28#rerequest-reviewers-for-a-pull-request)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let pr = octocrab.pulls("owner", "repo")
+    ///     .rerequest_reviewers(101, ["user1".to_string()], ["team1".to_string()])
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn rerequest_reviewers(
+        &self,
+        pr: u64,
+        reviewers: impl Into<Vec<String>>,
+        team_reviewers: impl Into<Vec<String>>,
+    ) -> crate::Result<crate::models::pulls::PullRequest> {
+        let route = format!(
+            "/repos/{owner}/{repo}/pulls/{pr}/requested_reviewers/rerequest",
+            owner = self.owner,
+            repo = self.repo,
+        );
+
+        let mut map = serde_json::Map::new();
+        let reviewers_vec: Vec<String> = reviewers.into();
+        if !reviewers_vec.is_empty() {
+            map.insert("reviewers".to_string(), reviewers_vec.into());
+        }
+        let team_reviewers_vec: Vec<String> = team_reviewers.into();
+        if !team_reviewers_vec.is_empty() {
+            map.insert("team_reviewers".to_string(), team_reviewers_vec.into());
+        }
+
+        self.crab.post(route, Some(&map)).await
+    }
+
     /// List all `DiffEntry`s associated with the pull request.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests-files)

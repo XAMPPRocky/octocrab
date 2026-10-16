@@ -4,7 +4,7 @@ use http::header::HeaderMap;
 use http::header::ACCEPT;
 use serde::Serialize;
 
-use crate::models::activity::StarredRepository;
+use crate::models::activity::{StarHistoryEntry, StargazerCount, StarredRepository};
 use crate::Octocrab;
 use crate::Page;
 use crate::Result;
@@ -45,6 +45,87 @@ impl<'octo> StarringHandler<'octo> {
         username: impl Into<String>,
     ) -> ListReposStarredByUserBuilder<'_> {
         ListReposStarredByUserBuilder::new(self.crab, username)
+    }
+
+    /// Gets the number of stargazers for a repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-stargazer-count)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let count = octocrab
+    ///     .activity()
+    ///     .starring()
+    ///     .count("owner", "repo")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn count(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> Result<StargazerCount> {
+        let route = format!(
+            "/repos/{}/{}/stargazers/count",
+            owner.as_ref(),
+            repo.as_ref()
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Gets the number of stargazers for a repository (alias for [`Self::count`]).
+    pub async fn stargazer_count(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> Result<StargazerCount> {
+        self.count(owner, repo).await
+    }
+
+    /// Gets the weekly star history for a repository.
+    ///
+    /// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-repository-star-history)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
+    /// let history = octocrab
+    ///     .activity()
+    ///     .starring()
+    ///     .history("owner", "repo")
+    ///     .per_page(30)
+    ///     .page(1u32)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn history(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> ListStarHistoryBuilder<'octo> {
+        ListStarHistoryBuilder::with_route(
+            self.crab,
+            format!(
+                "/repos/{}/{}/stargazers/history",
+                owner.as_ref(),
+                repo.as_ref()
+            ),
+        )
+    }
+
+    /// Gets the weekly star history for a repository (alias for [`Self::history`]).
+    pub fn star_history(
+        &self,
+        owner: impl AsRef<str>,
+        repo: impl AsRef<str>,
+    ) -> ListStarHistoryBuilder<'octo> {
+        self.history(owner, repo)
     }
 
     /// Checks whether a repository is starred by the authenticated user.
@@ -215,5 +296,51 @@ impl<'octo> ListReposStarredByUserBuilder<'octo> {
     pub fn sort(mut self, sort: impl Into<String>) -> Self {
         self.sort = Some(sort.into());
         self
+    }
+}
+
+/// A builder pattern struct for getting repository star history.
+///
+/// Created by [`StarringHandler::history`] or [`crate::repos::RepoHandler::star_history`].
+#[derive(Serialize)]
+pub struct ListStarHistoryBuilder<'octo> {
+    #[serde(skip)]
+    crab: &'octo Octocrab,
+
+    #[serde(skip)]
+    route: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo> ListStarHistoryBuilder<'octo> {
+    pub(crate) fn with_route(crab: &'octo Octocrab, route: impl Into<String>) -> Self {
+        Self {
+            crab,
+            route: route.into(),
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// The number of results per page (max `30`).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// The page number of the results to fetch (max `100`).
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the request.
+    pub async fn send(self) -> Result<Page<StarHistoryEntry>> {
+        self.crab.get(&self.route, Some(&self)).await
     }
 }

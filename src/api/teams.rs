@@ -1,4 +1,7 @@
 //! The Teams API
+//!
+//! **Note**: Deprecated/legacy `/teams/{team_id}/...` endpoints are intentionally omitted in favor
+//! of the organization-scoped `/orgs/{org}/teams/{team_slug}/...` endpoints.
 
 mod children;
 mod create;

@@ -35,8 +35,10 @@ Currently, the following modules are available as of version `0.54`.
 - [`codespaces`] GitHub Codespaces
 - [`commits`] GitHub Commits
 - [`copilot`] GitHub Copilot
+- [`credentials`] Credentials
 - [`current`] Information about the current user
 - [`dependency_graph`] Dependency Graph
+- [`emojis`] Emojis
 - [`enterprises`] GitHub Enterprises
 - [`events`] GitHub Events
 - [`gist_comments`] Gist Comments
@@ -59,7 +61,7 @@ Currently, the following modules are available as of version `0.54`.
 - [`repos`] Repositories
 - [`search`] Using GitHub's search
 - [`security_advisories`] Security Advisories
-- [`teams`] Teams
+- [`teams`] Teams *(Note: Deprecated/legacy `/teams/{team_id}/...` endpoints are intentionally omitted in favor of the organization-scoped `/orgs/{org}/teams/{team_slug}/...` endpoints)*
 - [`users`] Users
 - [`workflows`] GitHub Workflows
 
@@ -76,8 +78,10 @@ Currently, the following modules are available as of version `0.54`.
 [`codespaces`]: https://docs.rs/octocrab/latest/octocrab/codespaces/struct.CodespacesHandler.html
 [`commits`]: https://docs.rs/octocrab/latest/octocrab/commits/struct.CommitHandler.html
 [`copilot`]: https://docs.rs/octocrab/latest/octocrab/copilot/struct.CopilotHandler.html
+[`credentials`]: https://docs.rs/octocrab/latest/octocrab/credentials/struct.CredentialsHandler.html
 [`current`]: https://docs.rs/octocrab/latest/octocrab/current/struct.CurrentAuthHandler.html
 [`dependency_graph`]: https://docs.rs/octocrab/latest/octocrab/dependency_graph/struct.RepoDependencyGraphHandler.html
+[`emojis`]: https://docs.rs/octocrab/latest/octocrab/emojis/struct.EmojisHandler.html
 [`enterprises`]: https://docs.rs/octocrab/latest/octocrab/enterprises/struct.EnterpriseHandler.html
 [`events`]: https://docs.rs/octocrab/latest/octocrab/events/struct.EventsBuilder.html
 [`gist_comments`]: https://docs.rs/octocrab/latest/octocrab/gist_comments/struct.GistCommentsHandler.html

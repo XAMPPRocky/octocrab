@@ -60,6 +60,26 @@ pub struct StarredRepository {
     pub starred_at: DateTime<Utc>,
 }
 
+/// The stargazer count for a repository.
+///
+/// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-stargazer-count)
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct StargazerCount {
+    pub count: u64,
+}
+
+/// A weekly repository star history entry.
+///
+/// [See the GitHub API documentation](https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#get-repository-star-history)
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct StarHistoryEntry {
+    pub week: i64,
+    pub total: u64,
+    pub days: Vec<u64>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RepositorySubscription {
