@@ -12,7 +12,7 @@ use crate::{Octocrab, Page, Result};
 
 /// Handler for GitHub's code quality API.
 ///
-/// Created with [`Octocrab::code_quality`] or [`Octocrab::code_quality_org`].
+/// Created with [`Octocrab::code_quality`].
 pub struct CodeQualityHandler<'octo> {
     crab: &'octo Octocrab,
     owner: String,

@@ -11,17 +11,23 @@
 //!
 //! - [`actions`] GitHub Actions
 //! - [`activity`] GitHub Activity
+//! - [`agents`] GitHub Agents
 //! - [`apps`] GitHub Apps
 //! - [`billing`] Billing
+//! - [`campaigns`] Campaigns
 //! - [`checks`] GitHub Checks
 //! - [`classroom`] GitHub Classroom
+//! - [`code_quality`] Code Quality
 //! - [`code_scannings`] Code Scanning
 //! - [`codes_of_conduct`] GitHub Codes of Conduct
 //! - [`codespaces`] GitHub Codespaces
 //! - [`commits`] GitHub Commits
 //! - [`copilot`] GitHub Copilot
+//! - [`copilot_spaces`] Copilot Spaces
+//! - [`credentials`] Credentials Revocation
 //! - [`current`] Information about the current user
 //! - [`dependency_graph`] Dependency Graph
+//! - [`emojis`] Emojis
 //! - [`enterprises`] GitHub Enterprises
 //! - [`events`] GitHub Events
 //! - [`gist_comments`] Gist Comments
@@ -39,6 +45,7 @@
 //! - [`orgs`] GitHub Organisations
 //! - [`packages`] GitHub Packages
 //! - [`projects`] GitHub Projects
+//! - [`projects_v2`] GitHub Projects V2
 //! - [`pulls`] Pull Requests
 //! - [`ratelimit`] Rate Limiting
 //! - [`repos`] Repositories
@@ -349,11 +356,12 @@ pub use jsonwebtoken::{self, EncodingKey};
 
 pub use self::{
     api::{
-        actions, activity, apps, billing, campaigns, checks, classroom, code_quality,
-        code_scannings, codes_of_conduct, codespaces, commits, copilot, credentials, current,
-        dependency_graph, emojis, enterprises, events, gist_comments, gists, git, gitignore, hooks,
-        issues, licenses, markdown, marketplace, migrations, orgs, packages, projects, pulls,
-        ratelimit, repos, search, security_advisories, teams, users, workflows,
+        actions, activity, agents, apps, billing, campaigns, checks, classroom, code_quality,
+        code_scannings, codes_of_conduct, codespaces, commits, copilot, copilot_spaces,
+        credentials, current, dependency_graph, emojis, enterprises, events, gist_comments, gists,
+        git, gitignore, hooks, issues, licenses, markdown, marketplace, migrations, orgs, packages,
+        projects, projects_v2, pulls, ratelimit, repos, search, security_advisories, teams, users,
+        workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,

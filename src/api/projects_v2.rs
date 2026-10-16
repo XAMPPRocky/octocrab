@@ -8,7 +8,7 @@ use crate::{Octocrab, Page, Result};
 
 /// A client to GitHub's Projects (v2) API.
 ///
-/// Created with [`Octocrab::projects_v2`] or [`ProjectHandler::v2`].
+/// Created with [`Octocrab::projects_v2`].
 pub struct ProjectsV2Handler<'octo> {
     crab: &'octo Octocrab,
 }
