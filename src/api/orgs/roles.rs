@@ -185,6 +185,22 @@ impl<'octo, 'r> OrgRolesHandler<'octo, 'r> {
         Ok(())
     }
 
+    /// Removes all organization roles from a team.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28#remove-all-organization-roles-for-a-team)
+    pub async fn remove_all_for_team(&self, team_slug: impl AsRef<str>) -> Result<()> {
+        let route = format!(
+            "/orgs/{org}/organization-roles/teams/{team_slug}",
+            org = self.handler.owner,
+            team_slug = team_slug.as_ref()
+        );
+        let response = self.handler.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
     /// Lists organization roles assigned to a user.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28#list-organization-roles-assigned-to-a-user)
@@ -229,6 +245,22 @@ impl<'octo, 'r> OrgRolesHandler<'octo, 'r> {
         let role_id = role_id.into();
         let route = format!(
             "/orgs/{org}/organization-roles/users/{username}/{role_id}",
+            org = self.handler.owner,
+            username = username.as_ref()
+        );
+        let response = self.handler.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Removes all organization roles from a user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28#remove-all-organization-roles-for-a-user)
+    pub async fn remove_all_for_user(&self, username: impl AsRef<str>) -> Result<()> {
+        let route = format!(
+            "/orgs/{org}/organization-roles/users/{username}",
             org = self.handler.owner,
             username = username.as_ref()
         );

@@ -1,5 +1,7 @@
 //! The Organization API.
 
+pub mod artifact_metadata;
+pub mod attestations;
 mod code_scanning;
 pub mod code_security_configurations;
 pub mod codespaces;
@@ -8,12 +10,17 @@ pub mod copilot_seat_manager;
 mod custom_properties;
 pub mod dependabot;
 mod events;
+pub mod external_properties;
 mod hooks;
+pub mod immutable_releases;
+pub mod insights;
 mod invitations;
+pub mod issue_fields_and_types;
 mod issues;
 mod list_members;
 mod list_repos;
 pub mod migrations;
+pub mod network_configurations;
 mod personal_access_tokens;
 pub mod private_registries;
 mod roles;
@@ -21,10 +28,17 @@ mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 mod variables;
+pub use self::artifact_metadata::OrgArtifactMetadataHandler;
+pub use self::attestations::OrgAttestationsHandler;
 pub use self::code_security_configurations::{
     ListOrgCodeSecurityConfigRepositoriesBuilder, ListOrgCodeSecurityConfigsBuilder,
     OrgCodeSecurityHandler,
 };
+pub use self::external_properties::OrgExternalPropertiesHandler;
+pub use self::immutable_releases::OrgImmutableReleasesHandler;
+pub use self::insights::OrgInsightsHandler;
+pub use self::issue_fields_and_types::{OrgIssueFieldsHandler, OrgIssueTypesHandler};
+pub use self::network_configurations::OrgNetworkConfigurationsHandler;
 pub use self::private_registries::{ListOrgPrivateRegistriesBuilder, OrgPrivateRegistriesHandler};
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
@@ -238,6 +252,62 @@ impl<'octo> OrgHandler<'octo> {
         ListOrgIssuesBuilder::new(self)
     }
 
+    /// Handle API insights for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/api-insights?apiVersion=2022-11-28)
+    pub fn insights(&self) -> OrgInsightsHandler<'octo, '_> {
+        OrgInsightsHandler::new(self)
+    }
+
+    /// Handle artifact metadata and deployment records for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/artifact-metadata?apiVersion=2022-11-28)
+    pub fn artifact_metadata(&self) -> OrgArtifactMetadataHandler<'octo, '_> {
+        OrgArtifactMetadataHandler::new(self)
+    }
+
+    /// Handle attestations for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/attestations?apiVersion=2022-11-28)
+    pub fn attestations(&self) -> OrgAttestationsHandler<'octo, '_> {
+        OrgAttestationsHandler::new(self)
+    }
+
+    /// Handle external custom properties for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/external-properties?apiVersion=2022-11-28)
+    pub fn external_properties(&self) -> OrgExternalPropertiesHandler<'octo, '_> {
+        OrgExternalPropertiesHandler::new(self)
+    }
+
+    /// Handle issue fields for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/issue-fields?apiVersion=2022-11-28)
+    pub fn issue_fields(&self) -> OrgIssueFieldsHandler<'octo, '_> {
+        OrgIssueFieldsHandler::new(self)
+    }
+
+    /// Handle issue types for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/issue-types?apiVersion=2022-11-28)
+    pub fn issue_types(&self) -> OrgIssueTypesHandler<'octo, '_> {
+        OrgIssueTypesHandler::new(self)
+    }
+
+    /// Handle hosted compute network configurations for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/network-configurations?apiVersion=2022-11-28)
+    pub fn network_configurations(&self) -> OrgNetworkConfigurationsHandler<'octo, '_> {
+        OrgNetworkConfigurationsHandler::new(self)
+    }
+
+    /// Handle immutable releases settings for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-settings?apiVersion=2022-11-28)
+    pub fn immutable_releases(&self) -> OrgImmutableReleasesHandler<'octo, '_> {
+        OrgImmutableReleasesHandler::new(self)
+    }
+
     /// Add or update organization membership
     ///
     /// **Note**
@@ -271,7 +341,7 @@ impl<'octo> OrgHandler<'octo> {
 
         let body = role.map(|role| serde_json::json!({ "role": role }));
 
-        self.crab.post(route, body.as_ref()).await
+        self.crab.put(route, body.as_ref()).await
     }
 
     /// Check if a user is, publicly or privately, a member of the organization.
@@ -303,6 +373,59 @@ impl<'octo> OrgHandler<'octo> {
         }
     }
 
+    /// Remove an organization member.
+    ///
+    /// In order to remove a member of an organization, the authenticated user must be an organization owner.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#remove-an-organization-member)
+    pub async fn remove_member(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/members/{username}",
+            org = self.owner,
+            username = username.as_ref(),
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Get organization membership for a user.
+    ///
+    /// In order to get a user's membership with an organization, the authenticated user must be an organization owner.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#get-organization-membership-for-a-user)
+    pub async fn get_membership(
+        &self,
+        username: impl AsRef<str>,
+    ) -> crate::Result<crate::models::orgs::MembershipInvitation> {
+        let route = format!(
+            "/orgs/{org}/memberships/{username}",
+            org = self.owner,
+            username = username.as_ref(),
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Remove organization membership for a user.
+    ///
+    /// In order to remove a user's membership with an organization, the authenticated user must be an organization owner.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#remove-organization-membership-for-a-user)
+    pub async fn remove_membership(&self, username: impl AsRef<str>) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{org}/memberships/{username}",
+            org = self.owner,
+            username = username.as_ref(),
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
     /// Get an organization
     ///
     /// To see many of the organization response values, you need to be an
@@ -320,6 +443,31 @@ impl<'octo> OrgHandler<'octo> {
         let route = format!("/orgs/{org}", org = self.owner);
 
         self.crab.get(route, None::<&()>).await
+    }
+
+    /// Update an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#update-an-organization)
+    pub async fn update(
+        &self,
+        body: &impl serde::Serialize,
+    ) -> crate::Result<crate::models::orgs::Organization> {
+        let route = format!("/orgs/{org}", org = self.owner);
+        self.crab.patch(route, Some(body)).await
+    }
+
+    /// Delete an organization.
+    ///
+    /// Deletes an organization and all its repositories.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#delete-an-organization)
+    pub async fn delete(&self) -> crate::Result<()> {
+        let route = format!("/orgs/{org}", org = self.owner);
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
     }
 
     /// List repos for the specified organization.
@@ -797,11 +945,21 @@ impl<'octo> OrgHandler<'octo> {
             product = product,
             enablement = enablement
         );
-        let response = self.crab._patch(route, None::<&()>).await?;
+        let response = self.crab._post(route, None::<&()>).await?;
         if !response.status().is_success() {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
         Ok(())
+    }
+
+    /// Alias for [`set_security_product_enablement`][OrgHandler::set_security_product_enablement].
+    pub async fn enable_or_disable_security_product(
+        &self,
+        product: crate::models::orgs::security::SecurityProduct,
+        enablement: crate::models::orgs::security::SecurityEnablement,
+    ) -> crate::Result<()> {
+        self.set_security_product_enablement(product, enablement)
+            .await
     }
 
     /// Lists app installations for an organization.

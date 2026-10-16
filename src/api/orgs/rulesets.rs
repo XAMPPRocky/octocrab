@@ -1,5 +1,7 @@
 use super::OrgHandler;
-use crate::models::rulesets::{RuleSuite, RuleSuiteId, RuleSuiteSummary, Ruleset, RulesetId};
+use crate::models::rulesets::{
+    RuleSuite, RuleSuiteId, RuleSuiteSummary, Ruleset, RulesetId, RulesetVersion,
+};
 
 /// A client to GitHub's organization rulesets API.
 ///
@@ -70,6 +72,37 @@ impl<'octo, 'r> OrgRulesetsHandler<'octo, 'r> {
             return Err(crate::map_github_error(response).await.unwrap_err());
         }
         Ok(())
+    }
+
+    /// Get organization ruleset history.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28#get-organization-ruleset-history)
+    pub async fn history(
+        &self,
+        ruleset_id: impl Into<RulesetId>,
+    ) -> crate::Result<Vec<RulesetVersion>> {
+        let route = format!(
+            "/orgs/{org}/rulesets/{id}/history",
+            org = self.handler.owner,
+            id = ruleset_id.into(),
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Get an organization ruleset version.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/rules?apiVersion=2022-11-28#get-organization-ruleset-version)
+    pub async fn version(
+        &self,
+        ruleset_id: impl Into<RulesetId>,
+        version_id: u64,
+    ) -> crate::Result<RulesetVersion> {
+        let route = format!(
+            "/orgs/{org}/rulesets/{id}/history/{version_id}",
+            org = self.handler.owner,
+            id = ruleset_id.into(),
+        );
+        self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Access rule suites for this organization.

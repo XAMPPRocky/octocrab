@@ -94,7 +94,7 @@ async fn should_remove_security_manager_team() {
 async fn should_set_security_product_enablement() {
     let template = ResponseTemplate::new(StatusCode::NO_CONTENT);
     let mock_server = setup_mock(
-        "PATCH",
+        "POST",
         format!("/orgs/{}/dependabot_alerts/enable_all", OWNER).as_str(),
         template,
     )
