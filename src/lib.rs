@@ -349,11 +349,11 @@ pub use jsonwebtoken::{self, EncodingKey};
 
 pub use self::{
     api::{
-        actions, activity, apps, billing, checks, classroom, code_scannings, codes_of_conduct,
-        codespaces, commits, copilot, current, dependency_graph, enterprises, events,
-        gist_comments, gists, git, gitignore, hooks, issues, licenses, markdown, marketplace,
-        migrations, orgs, packages, projects, pulls, ratelimit, repos, search, security_advisories,
-        teams, users, workflows,
+        actions, activity, apps, billing, campaigns, checks, classroom, code_quality,
+        code_scannings, codes_of_conduct, codespaces, commits, copilot, current, dependency_graph,
+        enterprises, events, gist_comments, gists, git, gitignore, hooks, issues, licenses,
+        markdown, marketplace, migrations, orgs, packages, projects, pulls, ratelimit, repos,
+        search, security_advisories, teams, users, workflows,
     },
     error::{Error, GitHubError},
     from_response::FromResponse,
@@ -1981,6 +1981,20 @@ impl Octocrab {
     /// Creates a [`codes_of_conduct::CodesOfConductHandler`] providing the GitHub Codes of Codes of Conduct API
     pub fn codes_of_conduct(&self) -> codes_of_conduct::CodesOfConductHandler<'_> {
         codes_of_conduct::CodesOfConductHandler::new(self)
+    }
+
+    /// Creates a [`campaigns::CampaignsHandler`] providing GitHub's Campaigns API.
+    pub fn campaigns(&self, org: impl Into<String>) -> campaigns::CampaignsHandler<'_> {
+        campaigns::CampaignsHandler::new(self, org.into())
+    }
+
+    /// Creates a [`code_quality::CodeQualityHandler`] providing GitHub's Code Quality API.
+    pub fn code_quality(
+        &self,
+        owner: impl Into<String>,
+        repo: Option<String>,
+    ) -> code_quality::CodeQualityHandler<'_> {
+        code_quality::CodeQualityHandler::new(self, owner.into(), repo)
     }
 
     /// Creates a [`security_advisories::SecurityAdvisoriesHandler`] providing GitHub's Security Advisories API.
