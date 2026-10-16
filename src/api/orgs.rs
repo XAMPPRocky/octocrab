@@ -133,6 +133,11 @@ impl<'octo> OrgHandler<'octo> {
     /// Handle code scanning alerts for the organization.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-scanning/code-scanning?apiVersion=2022-11-28#list-code-scanning-alerts-for-an-organization)
+    /// Handle security campaigns for the organization.
+    pub fn campaigns(&self) -> crate::api::campaigns::CampaignsHandler<'octo> {
+        crate::api::campaigns::CampaignsHandler::new(self.crab, self.owner.clone())
+    }
+
     pub fn code_scanning(&self) -> OrgCodeScanningHandler<'octo, '_> {
         OrgCodeScanningHandler::new(self)
     }

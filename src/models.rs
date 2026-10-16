@@ -1590,3 +1590,6 @@ mod maybe_empty {
         }
     }
 }
+
+pub mod campaigns;
+pub mod code_quality;

@@ -305,3 +305,143 @@ pub struct SarifAnalysis {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AiScanSetting {
+    pub pr_scan: String,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct UpdateAiScan {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pr_scan: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct Autofix {
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommitAutofix {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target_ref: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AutofixCommitResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target_ref: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct CreateVariantAnalysis {
+    pub language: String,
+    pub query_pack: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repositories: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repository_lists: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repository_owners: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisRepository {
+    pub id: RepositoryId,
+    pub name: String,
+    pub full_name: String,
+    pub private: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisScannedRepo {
+    pub repository: VariantAnalysisRepository,
+    pub analysis_status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub artifact_size_in_bytes: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure_message: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisSkippedRepoGroup {
+    pub repository_count: u64,
+    pub repositories: Vec<VariantAnalysisRepository>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisNotFoundRepoGroup {
+    pub repository_count: u64,
+    pub repository_full_names: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisSkippedRepositories {
+    pub access_mismatch_repos: VariantAnalysisSkippedRepoGroup,
+    pub not_found_repos: VariantAnalysisNotFoundRepoGroup,
+    pub no_codeql_db_repos: VariantAnalysisSkippedRepoGroup,
+    pub over_limit_repos: VariantAnalysisSkippedRepoGroup,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysis {
+    pub id: u64,
+    pub controller_repo: Repository,
+    pub actor: SimpleUser,
+    pub query_language: String,
+    pub query_pack_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actions_workflow_run_id: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure_reason: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scanned_repositories: Option<Vec<VariantAnalysisScannedRepo>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skipped_repositories: Option<VariantAnalysisSkippedRepositories>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VariantAnalysisRepoTask {
+    pub repository: Repository,
+    pub analysis_status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub artifact_size_in_bytes: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure_message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub database_commit_sha: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_location_prefix: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub artifact_url: Option<String>,
+}
