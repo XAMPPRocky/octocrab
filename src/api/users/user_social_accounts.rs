@@ -125,4 +125,26 @@ impl<'octo, 'b> UserSocialAccountsOpsBuilder<'octo, 'b> {
 
         Ok(())
     }
+
+    ///## List social accounts for a user
+    ///
+    ///Lists social accounts for a user. This is accessible by anyone.
+    ///
+    ///See: [GitHub API Documentation][docs] for `GET /users/{username}/social_accounts`
+    ///
+    ///[docs]: https://docs.github.com/en/rest/users/social-accounts?apiVersion=2022-11-28#list-social-accounts-for-a-user
+    pub async fn list_user_social_accounts(&self) -> crate::Result<Page<SocialAccount>> {
+        let route = format!("/{}/social_accounts", self.handler.user);
+        self.handler.crab.get(route, Some(&self)).await
+    }
+
+    /// Sends the request to list social accounts for a user.
+    pub async fn send(&self) -> crate::Result<Page<SocialAccount>> {
+        self.list_user_social_accounts().await
+    }
 }
+
+/// A builder pattern struct for listing a user's social accounts.
+///
+/// Created by [`UserHandler::list_user_social_accounts`].
+pub type ListUserSocialAccountsBuilder<'octo, 'b> = UserSocialAccountsOpsBuilder<'octo, 'b>;

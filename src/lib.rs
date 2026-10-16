@@ -1881,6 +1881,18 @@ impl Octocrab {
         self.all_repositories()
     }
 
+    /// List all public users in the order that they signed up.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#list-users)
+    pub fn all_users(&self) -> users::ListUsersBuilder<'_> {
+        users::ListUsersBuilder::new(self)
+    }
+
+    /// List all public users in the order that they signed up (alias for [`all_users`][Octocrab::all_users]).
+    pub fn list_users(&self) -> users::ListUsersBuilder<'_> {
+        self.all_users()
+    }
+
     /// Creates a [`billing::BillingHandler`] providing GitHub's Billing API.
     ///
     /// You can scope to an organization or user using [`.org()`][billing::BillingHandler::org]

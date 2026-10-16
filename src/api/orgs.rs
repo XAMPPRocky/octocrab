@@ -505,6 +505,34 @@ impl<'octo> OrgHandler<'octo> {
         crate::map_github_error(response).await.map(drop)
     }
 
+    /// Get pull request creation cap for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/org-restrictions?apiVersion=2022-11-28#get-pull-request-creation-cap-for-an-organization)
+    pub async fn pull_request_creation_cap(
+        &self,
+    ) -> crate::Result<crate::models::interaction_limits::PullRequestCreationCap> {
+        let route = format!("/orgs/{}/interaction-limits/pulls/creation-cap", self.owner);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    /// Update pull request creation cap for an organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/interactions/org-restrictions?apiVersion=2022-11-28#update-pull-request-creation-cap-for-an-organization)
+    pub async fn update_pull_request_creation_cap(
+        &self,
+        cap: &crate::models::interaction_limits::PullRequestCreationCap,
+    ) -> crate::Result<crate::models::interaction_limits::PullRequestCreationCap> {
+        let route = format!("/orgs/{}/interaction-limits/pulls/creation-cap", self.owner);
+        self.crab.patch(route, Some(cap)).await
+    }
+
+    /// Create an organization repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#create-an-organization-repository)
+    pub fn create_repo(&self, name: impl Into<String>) -> CreateOrgRepoBuilder<'octo, '_> {
+        CreateOrgRepoBuilder::new(self, name.into())
+    }
+
     /// Lists public members of an organization.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-public-organization-members)
@@ -902,5 +930,99 @@ impl<'octo, 'r> ListOrgInstallationsBuilder<'octo, 'r> {
     pub async fn send(self) -> crate::Result<Page<Installation>> {
         let route = format!("/orgs/{org}/installations", org = self.handler.owner);
         self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for creating an organization repository.
+#[derive(serde::Serialize)]
+pub struct CreateOrgRepoBuilder<'octo, 'b> {
+    #[serde(skip)]
+    handler: &'b OrgHandler<'octo>,
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    private: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    visibility: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_issues: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_projects: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_wiki: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_template: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    auto_init: Option<bool>,
+}
+
+impl<'octo, 'b> CreateOrgRepoBuilder<'octo, 'b> {
+    pub(crate) fn new(handler: &'b OrgHandler<'octo>, name: String) -> Self {
+        Self {
+            handler,
+            name,
+            description: None,
+            homepage: None,
+            private: None,
+            visibility: None,
+            has_issues: None,
+            has_projects: None,
+            has_wiki: None,
+            is_template: None,
+            auto_init: None,
+        }
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
+        self
+    }
+
+    pub fn homepage(mut self, homepage: impl Into<String>) -> Self {
+        self.homepage = Some(homepage.into());
+        self
+    }
+
+    pub fn private(mut self, private: bool) -> Self {
+        self.private = Some(private);
+        self
+    }
+
+    pub fn visibility(mut self, visibility: impl Into<String>) -> Self {
+        self.visibility = Some(visibility.into());
+        self
+    }
+
+    pub fn has_issues(mut self, has_issues: bool) -> Self {
+        self.has_issues = Some(has_issues);
+        self
+    }
+
+    pub fn has_projects(mut self, has_projects: bool) -> Self {
+        self.has_projects = Some(has_projects);
+        self
+    }
+
+    pub fn has_wiki(mut self, has_wiki: bool) -> Self {
+        self.has_wiki = Some(has_wiki);
+        self
+    }
+
+    pub fn is_template(mut self, is_template: bool) -> Self {
+        self.is_template = Some(is_template);
+        self
+    }
+
+    pub fn auto_init(mut self, auto_init: bool) -> Self {
+        self.auto_init = Some(auto_init);
+        self
+    }
+
+    pub async fn send(self) -> crate::Result<crate::models::Repository> {
+        let route = format!("/orgs/{}/repos", self.handler.owner);
+        self.handler.crab.post(route, Some(&self)).await
     }
 }
