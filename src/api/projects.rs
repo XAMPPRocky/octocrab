@@ -26,6 +26,11 @@ impl<'octo> ProjectHandler<'octo> {
         Self { crab }
     }
 
+    /// Access the Projects (v2) API.
+    pub fn v2(&self) -> crate::api::projects_v2::ProjectsV2Handler<'octo> {
+        crate::api::projects_v2::ProjectsV2Handler::new(self.crab)
+    }
+
     /// Get a project by its id.    
     ///
     /// # Arguments

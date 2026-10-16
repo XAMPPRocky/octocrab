@@ -189,6 +189,13 @@ impl<'octo> OrgHandler<'octo> {
         OrgPrivateRegistriesHandler::new(self)
     }
 
+    /// Handle Projects (v2) for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/projects/projects?apiVersion=2022-11-28)
+    pub fn projects_v2(&self) -> crate::api::projects_v2::OrgProjectsV2Handler<'octo> {
+        crate::api::projects_v2::OrgProjectsV2Handler::new(self.crab, &self.owner)
+    }
+
     /// Handle organization roles.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28)

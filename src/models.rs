@@ -1648,3 +1648,8 @@ pub mod private_registries;
 pub use private_registries::{
     OrgPrivateRegistriesResponse, OrgPrivateRegistry, OrgPrivateRegistryPublicKey,
 };
+pub mod projects_v2;
+pub use projects_v2::{
+    ProjectV2, ProjectV2Field, ProjectV2FieldOption, ProjectV2Item, ProjectV2ItemResponse,
+    ProjectV2ValueResponse, ProjectV2View, ProjectV2ViewResponse,
+};
