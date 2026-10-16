@@ -2417,6 +2417,16 @@ impl<'octo> RepoHandler<'octo> {
         let response = self.crab._delete(route, Some(&body)).await?;
         crate::map_github_error(response).await.map(drop)
     }
+
+    /// Get the code security configuration associated with a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-security/configurations?apiVersion=2022-11-28#get-the-code-security-configuration-associated-with-a-repository)
+    pub async fn code_security_configuration(
+        &self,
+    ) -> Result<models::code_security::RepoCodeSecurityConfiguration> {
+        let route = format!("/{}/code-security-configuration", self.repo);
+        self.crab.get(route, None::<&()>).await
+    }
 }
 
 /// Builder for updating a repository.

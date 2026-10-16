@@ -1,6 +1,7 @@
 //! The Organization API.
 
 mod code_scanning;
+pub mod code_security_configurations;
 pub mod codespaces;
 pub mod copilot;
 pub mod copilot_seat_manager;
@@ -19,6 +20,10 @@ mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 mod variables;
+pub use self::code_security_configurations::{
+    ListOrgCodeSecurityConfigRepositoriesBuilder, ListOrgCodeSecurityConfigsBuilder,
+    OrgCodeSecurityHandler,
+};
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
 pub use self::codespaces::OrgCodespacesHandler;
@@ -140,6 +145,13 @@ impl<'octo> OrgHandler<'octo> {
 
     pub fn code_scanning(&self) -> OrgCodeScanningHandler<'octo, '_> {
         OrgCodeScanningHandler::new(self)
+    }
+
+    /// Handle code security configurations for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-security/configurations?apiVersion=2022-11-28)
+    pub fn code_security(&self) -> OrgCodeSecurityHandler<'octo, '_> {
+        OrgCodeSecurityHandler::new(self)
     }
 
     /// Handle code scanning alerts for the organization (alias for [`code_scanning`][OrgHandler::code_scanning]).

@@ -1639,3 +1639,8 @@ mod maybe_empty {
 
 pub mod campaigns;
 pub mod code_quality;
+pub mod code_security;
+pub use code_security::{
+    CodeSecurityConfiguration, CodeSecurityConfigurationRepositories,
+    CodeSecurityDefaultConfiguration, RepoCodeSecurityConfiguration,
+};

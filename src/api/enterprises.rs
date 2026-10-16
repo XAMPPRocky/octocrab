@@ -8,6 +8,11 @@ use crate::models::dependabot::{
 use crate::models::RepositoryId;
 use crate::params::Direction;
 use crate::{Octocrab, Page, Result};
+pub mod code_security;
+pub use code_security::{
+    EnterpriseCodeSecurityHandler, ListEnterpriseCodeSecurityConfigRepositoriesBuilder,
+    ListEnterpriseCodeSecurityConfigsBuilder,
+};
 
 /// A client to GitHub's enterprise API.
 ///
@@ -40,6 +45,13 @@ impl<'octo> EnterpriseHandler<'octo> {
     /// ```
     pub fn secret_scanning(&self) -> EnterpriseSecretScanningAlertsHandler<'_> {
         EnterpriseSecretScanningAlertsHandler::new(self)
+    }
+
+    /// Handle code security configurations for the enterprise.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/code-security/configurations?apiVersion=2022-11-28)
+    pub fn code_security(&self) -> EnterpriseCodeSecurityHandler<'octo, '_> {
+        EnterpriseCodeSecurityHandler::new(self)
     }
 
     /// Handle secret scanning alerts for the enterprise (alias for [`secret_scanning`][EnterpriseHandler::secret_scanning]).
