@@ -97,3 +97,70 @@ pub enum SubIssuePriority {
     Before(IssueId),
     After(IssueId),
 }
+
+/// Option entry for a single-select or multi-select issue field value.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueFieldSelectOption {
+    pub id: u64,
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+}
+
+/// An issue field value associated with an issue.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueFieldValue {
+    pub issue_field_id: u64,
+    pub issue_field_name: String,
+    pub node_id: String,
+    pub data_type: String,
+    pub value: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub single_select_option: Option<IssueFieldSelectOption>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub multi_select_options: Option<Vec<IssueFieldSelectOption>>,
+}
+
+/// Request entry for adding or setting an issue field value on an issue.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IssueFieldValueInput {
+    pub field_id: u64,
+    pub value: serde_json::Value,
+}
+
+impl IssueFieldValueInput {
+    pub fn new(field_id: u64, value: impl Into<serde_json::Value>) -> Self {
+        Self {
+            field_id,
+            value: value.into(),
+        }
+    }
+}
+
+/// An issue suggestion proposed for an issue.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueSuggestion {
+    pub id: u64,
+    pub issue_id: IssueId,
+    pub action: String,
+    pub state: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_id: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_value: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rationale: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub confidence: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub actor_id: Option<ActorId>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub issue_event_id: Option<IssueEventId>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolved_by: Option<UserId>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+}

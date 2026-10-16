@@ -1,5 +1,11 @@
 use super::OrgHandler;
 use crate::api::repos::secret_scanning_alerts::Params;
+use crate::models::repos::secret_scanning_alert::{
+    BulkCreatedCustomPatterns, CreateSecretScanningCustomPattern,
+    DeleteSecretScanningCustomPattern, SecretScanningAlert, SecretScanningCustomPattern,
+    SecretScanningPatternConfigurations, UpdateSecretScanningCustomPattern,
+    UpdateSecretScanningPatternConfigurations, UpdatedSecretScanningPatternConfigurations,
+};
 
 /// A client to GitHub's organization Secret Scanning API.
 ///
@@ -29,10 +35,7 @@ impl<'octo> OrgSecretScanningAlertsHandler<'octo> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn get_alerts(
-        &self,
-    ) -> crate::Result<crate::Page<crate::models::repos::secret_scanning_alert::SecretScanningAlert>>
-    {
+    pub async fn get_alerts(&self) -> crate::Result<crate::Page<SecretScanningAlert>> {
         let route = format!("/orgs/{}/secret-scanning/alerts", self.handler.owner);
         self.handler.crab.get(route, Some(&self.params)).await
     }
@@ -49,9 +52,15 @@ impl<'octo> OrgSecretScanningAlertsHandler<'octo> {
         self
     }
 
-    /// Filter Secret Scanning Alerts by state.
+    /// Filter Secret Scanning Alerts or custom patterns by state.
     pub fn state(mut self, state: impl Into<String>) -> Self {
         self.params.state = Some(state.into());
+        self
+    }
+
+    /// Filter custom patterns by whether push protection is enabled (`"enabled"` or `"disabled"`).
+    pub fn push_protection(mut self, push_protection: impl Into<String>) -> Self {
+        self.params.push_protection = Some(push_protection.into());
         self
     }
 
@@ -155,5 +164,100 @@ impl<'octo> OrgSecretScanningAlertsHandler<'octo> {
     pub fn direction(mut self, direction: impl Into<String>) -> Self {
         self.params.direction = Some(direction.into());
         self
+    }
+
+    /// Lists secret scanning custom patterns for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#list-organization-custom-patterns>
+    pub async fn list_custom_patterns(
+        &self,
+    ) -> crate::Result<crate::Page<SecretScanningCustomPattern>> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/custom-patterns",
+            self.handler.owner
+        );
+        self.handler.crab.get(route, Some(&self.params)).await
+    }
+
+    /// Bulk creates secret scanning custom patterns for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#bulk-create-organization-custom-patterns>
+    pub async fn create_custom_patterns(
+        &self,
+        patterns: &[CreateSecretScanningCustomPattern],
+    ) -> crate::Result<BulkCreatedCustomPatterns> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/custom-patterns",
+            self.handler.owner
+        );
+        let body = serde_json::json!({ "patterns": patterns });
+        self.handler.crab.post(route, Some(&body)).await
+    }
+
+    /// Bulk deletes secret scanning custom patterns for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#bulk-delete-organization-custom-patterns>
+    pub async fn delete_custom_patterns(
+        &self,
+        patterns: &[DeleteSecretScanningCustomPattern],
+        post_delete_action: Option<&str>,
+    ) -> crate::Result<()> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/custom-patterns",
+            self.handler.owner
+        );
+        let body = match post_delete_action {
+            Some(action) => serde_json::json!({
+                "patterns": patterns,
+                "post_delete_action": action,
+            }),
+            None => serde_json::json!({
+                "patterns": patterns,
+            }),
+        };
+        let response = self.handler.crab._delete(route, Some(&body)).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Updates a secret scanning custom pattern for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#update-an-organization-custom-pattern>
+    pub async fn update_custom_pattern(
+        &self,
+        pattern_id: u64,
+        update: &UpdateSecretScanningCustomPattern,
+    ) -> crate::Result<SecretScanningCustomPattern> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/custom-patterns/{pattern_id}",
+            self.handler.owner
+        );
+        self.handler.crab.patch(route, Some(update)).await
+    }
+
+    /// Lists secret scanning pattern configurations for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/push-protection?apiVersion=2022-11-28#list-organization-pattern-configurations>
+    pub async fn list_pattern_configurations(
+        &self,
+    ) -> crate::Result<SecretScanningPatternConfigurations> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/pattern-configurations",
+            self.handler.owner
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Updates secret scanning pattern configurations for an organization.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/push-protection?apiVersion=2022-11-28#update-organization-pattern-configurations>
+    pub async fn update_pattern_configurations(
+        &self,
+        update: &UpdateSecretScanningPatternConfigurations,
+    ) -> crate::Result<UpdatedSecretScanningPatternConfigurations> {
+        let route = format!(
+            "/orgs/{}/secret-scanning/pattern-configurations",
+            self.handler.owner
+        );
+        self.handler.crab.patch(route, Some(update)).await
     }
 }

@@ -1,4 +1,10 @@
 use super::RepoHandler;
+use crate::models::repos::secret_scanning_alert::{
+    BulkCreatedCustomPatterns, CreateSecretScanningCustomPattern,
+    DeleteSecretScanningCustomPattern, PushProtectionBypass, PushProtectionBypassReason,
+    SecretScanningAlert, SecretScanningCustomPattern, SecretScanningScanHistory,
+    SecretsScanningAlertLocation, UpdateSecretScanningAlert, UpdateSecretScanningCustomPattern,
+};
 
 /// A client to GitHub's repository Secret Scanning API.
 ///
@@ -29,6 +35,8 @@ pub(crate) struct Params {
     pub page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub push_protection: Option<String>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_comma_separated"
@@ -90,10 +98,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    pub async fn get_alerts(
-        &self,
-    ) -> crate::Result<crate::Page<crate::models::repos::secret_scanning_alert::SecretScanningAlert>>
-    {
+    pub async fn get_alerts(&self) -> crate::Result<crate::Page<SecretScanningAlert>> {
         let route = format!("/{}/secret-scanning/alerts", self.handler.repo);
         self.handler.crab.get(route, Some(&self.params)).await
     }
@@ -110,9 +115,15 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
         self
     }
 
-    /// Filter Secret Scanning Alerts by state.
+    /// Filter Secret Scanning Alerts or custom patterns by state.
     pub fn state(mut self, state: impl Into<String>) -> Self {
         self.params.state = Some(state.into());
+        self
+    }
+
+    /// Filter custom patterns by whether push protection is enabled (`"enabled"` or `"disabled"`).
+    pub fn push_protection(mut self, push_protection: impl Into<String>) -> Self {
+        self.params.push_protection = Some(push_protection.into());
         self
     }
 
@@ -228,10 +239,7 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    pub async fn get_alert(
-        &self,
-        alert_number: u32,
-    ) -> crate::Result<crate::models::repos::secret_scanning_alert::SecretScanningAlert> {
+    pub async fn get_alert(&self, alert_number: u32) -> crate::Result<SecretScanningAlert> {
         let route = format!(
             "/{}/secret-scanning/alerts/{}",
             self.handler.repo, alert_number
@@ -262,10 +270,8 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     pub async fn update_alert(
         &self,
         alert_number: u32,
-        alert_update: Option<
-            &crate::models::repos::secret_scanning_alert::UpdateSecretScanningAlert<'_>,
-        >,
-    ) -> crate::Result<crate::models::repos::secret_scanning_alert::SecretScanningAlert> {
+        alert_update: Option<&UpdateSecretScanningAlert<'_>>,
+    ) -> crate::Result<SecretScanningAlert> {
         let route = format!(
             "/{}/secret-scanning/alerts/{}",
             self.handler.repo, alert_number
@@ -290,13 +296,97 @@ impl<'octo> RepoSecretScanningAlertsHandler<'octo> {
     pub async fn get_alert_locations(
         &self,
         alert_number: u32,
-    ) -> crate::Result<
-        crate::Page<crate::models::repos::secret_scanning_alert::SecretsScanningAlertLocation>,
-    > {
+    ) -> crate::Result<crate::Page<SecretsScanningAlertLocation>> {
         let route = format!(
             "/{}/secret-scanning/alerts/{}/locations",
             self.handler.repo, alert_number
         );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Lists secret scanning custom patterns for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#list-repository-custom-patterns>
+    pub async fn list_custom_patterns(
+        &self,
+    ) -> crate::Result<crate::Page<SecretScanningCustomPattern>> {
+        let route = format!("/{}/secret-scanning/custom-patterns", self.handler.repo);
+        self.handler.crab.get(route, Some(&self.params)).await
+    }
+
+    /// Bulk creates secret scanning custom patterns for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#bulk-create-repository-custom-patterns>
+    pub async fn create_custom_patterns(
+        &self,
+        patterns: &[CreateSecretScanningCustomPattern],
+    ) -> crate::Result<BulkCreatedCustomPatterns> {
+        let route = format!("/{}/secret-scanning/custom-patterns", self.handler.repo);
+        let body = serde_json::json!({ "patterns": patterns });
+        self.handler.crab.post(route, Some(&body)).await
+    }
+
+    /// Bulk deletes secret scanning custom patterns for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#bulk-delete-repository-custom-patterns>
+    pub async fn delete_custom_patterns(
+        &self,
+        patterns: &[DeleteSecretScanningCustomPattern],
+        post_delete_action: Option<&str>,
+    ) -> crate::Result<()> {
+        let route = format!("/{}/secret-scanning/custom-patterns", self.handler.repo);
+        let body = match post_delete_action {
+            Some(action) => serde_json::json!({
+                "patterns": patterns,
+                "post_delete_action": action,
+            }),
+            None => serde_json::json!({
+                "patterns": patterns,
+            }),
+        };
+        let response = self.handler.crab._delete(route, Some(&body)).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Updates a secret scanning custom pattern for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/custom-patterns?apiVersion=2022-11-28#update-a-repository-custom-pattern>
+    pub async fn update_custom_pattern(
+        &self,
+        pattern_id: u64,
+        update: &UpdateSecretScanningCustomPattern,
+    ) -> crate::Result<SecretScanningCustomPattern> {
+        let route = format!(
+            "/{}/secret-scanning/custom-patterns/{pattern_id}",
+            self.handler.repo
+        );
+        self.handler.crab.patch(route, Some(update)).await
+    }
+
+    /// Creates a push protection bypass for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/secret-scanning?apiVersion=2022-11-28#create-a-push-protection-bypass>
+    pub async fn create_push_protection_bypass(
+        &self,
+        reason: PushProtectionBypassReason,
+        placeholder_id: impl Into<String>,
+    ) -> crate::Result<PushProtectionBypass> {
+        let route = format!(
+            "/{}/secret-scanning/push-protection-bypasses",
+            self.handler.repo
+        );
+        let body = serde_json::json!({
+            "reason": reason,
+            "placeholder_id": placeholder_id.into(),
+        });
+        self.handler.crab.post(route, Some(&body)).await
+    }
+
+    /// Gets secret scanning scan history for a repository.
+    ///
+    /// See: <https://docs.github.com/en/rest/secret-scanning/secret-scanning?apiVersion=2022-11-28#get-secret-scanning-scan-history-for-a-repository>
+    pub async fn get_scan_history(&self) -> crate::Result<SecretScanningScanHistory> {
+        let route = format!("/{}/secret-scanning/scan-history", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 }
