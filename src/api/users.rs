@@ -80,6 +80,17 @@ impl<'octo> UserHandler<'octo> {
         crate::api::projects_v2::UserProjectsV2Handler::new(self.crab, username)
     }
 
+    /// Handle Copilot Spaces for this user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot-spaces?apiVersion=2022-11-28)
+    pub fn copilot_spaces(&self) -> crate::api::copilot_spaces::UserCopilotSpacesHandler<'octo> {
+        let username = match &self.user {
+            UserRef::ByString(name) => name.clone(),
+            UserRef::ById(id) => id.to_string(),
+        };
+        crate::api::copilot_spaces::UserCopilotSpacesHandler::new(self.crab, username)
+    }
+
     pub fn billing(&self) -> crate::api::billing::ScopedBillingHandler<'octo> {
         let username = match &self.user {
             UserRef::ByString(name) => name.clone(),

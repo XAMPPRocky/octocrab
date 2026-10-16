@@ -1966,6 +1966,13 @@ impl<'octo> RepoHandler<'octo> {
         crate::api::agents::RepoAgentsHandler::new(self)
     }
 
+    /// Handle Copilot on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot?apiVersion=2022-11-28)
+    pub fn copilot(&self) -> RepoCopilotHandler<'octo, '_> {
+        RepoCopilotHandler::new(self)
+    }
+
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
     ///
     /// # Examples
@@ -2549,5 +2556,24 @@ impl<'octo, 'b> UpdateRepoBuilder<'octo, 'b> {
     pub async fn send(self) -> Result<models::Repository> {
         let route = format!("/{}", self.handler.repo);
         self.handler.crab.patch(route, Some(&self)).await
+    }
+}
+
+/// Handler for repository Copilot API.
+pub struct RepoCopilotHandler<'octo, 'b> {
+    handler: &'b RepoHandler<'octo>,
+}
+
+impl<'octo, 'b> RepoCopilotHandler<'octo, 'b> {
+    pub(crate) fn new(handler: &'b RepoHandler<'octo>) -> Self {
+        Self { handler }
+    }
+
+    /// Get Copilot cloud agent configuration for a repository.
+    pub async fn get_cloud_agent_configuration(
+        &self,
+    ) -> Result<crate::models::CopilotCloudAgentConfiguration> {
+        let route = format!("/{}/copilot/cloud-agent/configuration", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
     }
 }
