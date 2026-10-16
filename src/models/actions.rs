@@ -253,3 +253,192 @@ pub struct OidcCustomSub {
     #[serde(default)]
     pub include_claim_keys: Option<Vec<String>>,
 }
+
+// Cache retention and storage limits
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ActionsCacheRetentionLimit {
+    pub max_cache_retention_days: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ActionsCacheStorageLimit {
+    pub max_cache_size_gb: u32,
+}
+
+// Concurrency groups
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ConcurrencyGroup {
+    pub group_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_acquired_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ConcurrencyGroupsResponse {
+    pub total_count: u64,
+    pub concurrency_groups: Vec<ConcurrencyGroup>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ConcurrencyGroupDetails {
+    pub group_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_url: Option<String>,
+    pub total_count: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_members: Option<Vec<serde_json::Value>>,
+}
+
+// Runner version deprecation
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RunnerVersionDeprecation {
+    pub runner_version: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runtime_deprecates_at: Option<DateTime<Utc>>,
+}
+
+// Permissions extensions
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ArtifactAndLogRetention {
+    pub days: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum_allowed_days: Option<u32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ForkPrContributorApproval {
+    pub approval_policy: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ForkPrWorkflowsPrivateRepos {
+    pub run_workflows_from_fork_pull_requests: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub send_write_tokens_to_workflows: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub send_secrets_and_variables: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub require_approval_for_fork_pr_workflows: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct OrgSelfHostedRunnersPermissions {
+    pub enabled_repositories: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selected_repositories_url: Option<String>,
+}
+
+// Policies
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ActionsPolicy {
+    pub id: u64,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enforcement: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub conditions: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rules: Option<Vec<serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ActionsPoliciesResponse {
+    pub total_count: u64,
+    pub policies: Vec<ActionsPolicy>,
+}
+
+// Hosted runners
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct HostedRunner {
+    pub id: u64,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_group_id: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub platform: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub machine_size_details: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum_runners: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public_ip_enabled: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public_ips: Option<Vec<serde_json::Value>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_active_on: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct HostedRunnersResponse {
+    pub total_count: u64,
+    pub runners: Vec<HostedRunner>,
+}
+
+// Runner groups
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RunnerGroup {
+    pub id: RunnerGroupId,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub visibility: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selected_repositories_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runners_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hosted_runners_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub network_configuration_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub inherited: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allows_public_repositories: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub restricted_to_workflows: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selected_workflows: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workflow_restrictions_read_only: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RunnerGroupsResponse {
+    pub total_count: u64,
+    pub runner_groups: Vec<RunnerGroup>,
+}

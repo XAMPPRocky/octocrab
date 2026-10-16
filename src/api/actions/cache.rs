@@ -1,10 +1,10 @@
 use crate::{
     actions::ActionsHandler,
     models::actions::{
-        ActionsCacheList, OrgActionsCacheUsage, OrgActionsCacheUsageByRepository,
-        RepoActionsCacheUsage,
+        ActionsCacheList, ActionsCacheRetentionLimit, ActionsCacheStorageLimit,
+        OrgActionsCacheUsage, OrgActionsCacheUsageByRepository, RepoActionsCacheUsage,
     },
-    FromResponse, Result,
+    FromResponse, Octocrab, Result,
 };
 use serde::Serialize;
 
@@ -230,5 +230,156 @@ impl<'octo> ActionsHandler<'octo> {
         org: impl Into<String>,
     ) -> ListOrgCacheUsageByRepositoryBuilder<'octo, '_> {
         ListOrgCacheUsageByRepositoryBuilder::new(self, org.into())
+    }
+}
+
+/// Handler for GitHub Actions cache settings for an enterprise.
+pub struct EnterpriseActionsCacheHandler<'octo> {
+    crab: &'octo Octocrab,
+    enterprise: String,
+}
+
+impl<'octo> EnterpriseActionsCacheHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, enterprise: String) -> Self {
+        Self { crab, enterprise }
+    }
+
+    pub async fn get_retention_limit(&self) -> Result<ActionsCacheRetentionLimit> {
+        let route = format!(
+            "/enterprises/{}/actions/cache/retention-limit",
+            self.enterprise
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_retention_limit(&self, max_cache_retention_days: u32) -> Result<()> {
+        let route = format!(
+            "/enterprises/{}/actions/cache/retention-limit",
+            self.enterprise
+        );
+        let body = serde_json::json!({ "max_cache_retention_days": max_cache_retention_days });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    pub async fn get_storage_limit(&self) -> Result<ActionsCacheStorageLimit> {
+        let route = format!(
+            "/enterprises/{}/actions/cache/storage-limit",
+            self.enterprise
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_storage_limit(&self, max_cache_size_gb: u32) -> Result<()> {
+        let route = format!(
+            "/enterprises/{}/actions/cache/storage-limit",
+            self.enterprise
+        );
+        let body = serde_json::json!({ "max_cache_size_gb": max_cache_size_gb });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+}
+
+/// Handler for GitHub Actions cache settings for an organization.
+pub struct OrgActionsCacheHandler<'octo> {
+    crab: &'octo Octocrab,
+    org: String,
+}
+
+impl<'octo> OrgActionsCacheHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, org: String) -> Self {
+        Self { crab, org }
+    }
+
+    pub async fn get_retention_limit(&self) -> Result<ActionsCacheRetentionLimit> {
+        let route = format!("/organizations/{}/actions/cache/retention-limit", self.org);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_retention_limit(&self, max_cache_retention_days: u32) -> Result<()> {
+        let route = format!("/organizations/{}/actions/cache/retention-limit", self.org);
+        let body = serde_json::json!({ "max_cache_retention_days": max_cache_retention_days });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    pub async fn get_storage_limit(&self) -> Result<ActionsCacheStorageLimit> {
+        let route = format!("/organizations/{}/actions/cache/storage-limit", self.org);
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_storage_limit(&self, max_cache_size_gb: u32) -> Result<()> {
+        let route = format!("/organizations/{}/actions/cache/storage-limit", self.org);
+        let body = serde_json::json!({ "max_cache_size_gb": max_cache_size_gb });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+}
+
+/// Handler for GitHub Actions cache settings for a repository.
+pub struct RepoActionsCacheHandler<'octo> {
+    crab: &'octo Octocrab,
+    owner: String,
+    repo: String,
+}
+
+impl<'octo> RepoActionsCacheHandler<'octo> {
+    pub(crate) fn new(crab: &'octo Octocrab, owner: String, repo: String) -> Self {
+        Self { crab, owner, repo }
+    }
+
+    pub async fn get_retention_limit(&self) -> Result<ActionsCacheRetentionLimit> {
+        let route = format!(
+            "/repos/{}/{}/actions/cache/retention-limit",
+            self.owner, self.repo
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_retention_limit(&self, max_cache_retention_days: u32) -> Result<()> {
+        let route = format!(
+            "/repos/{}/{}/actions/cache/retention-limit",
+            self.owner, self.repo
+        );
+        let body = serde_json::json!({ "max_cache_retention_days": max_cache_retention_days });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    pub async fn get_storage_limit(&self) -> Result<ActionsCacheStorageLimit> {
+        let route = format!(
+            "/repos/{}/{}/actions/cache/storage-limit",
+            self.owner, self.repo
+        );
+        self.crab.get(route, None::<&()>).await
+    }
+
+    pub async fn set_storage_limit(&self, max_cache_size_gb: u32) -> Result<()> {
+        let route = format!(
+            "/repos/{}/{}/actions/cache/storage-limit",
+            self.owner, self.repo
+        );
+        let body = serde_json::json!({ "max_cache_size_gb": max_cache_size_gb });
+        let res = self.crab._put(route, Some(&body)).await?;
+        if !res.status().is_success() {
+            return Err(crate::map_github_error(res).await.unwrap_err());
+        }
+        Ok(())
     }
 }

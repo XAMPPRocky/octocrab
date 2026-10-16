@@ -58,6 +58,7 @@ pub mod transfer;
 mod variables;
 pub mod watchers;
 
+pub use crate::api::actions::RepoActionsHandler;
 pub use crate::api::git::{
     CreateBlobBuilder, CreateGitCommitObjectBuilder, CreateTagBuilder, CreateTreeBuilder,
     GetTreeBuilder, UpdateRefBuilder,
@@ -1971,6 +1972,17 @@ impl<'octo> RepoHandler<'octo> {
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/copilot?apiVersion=2022-11-28)
     pub fn copilot(&self) -> RepoCopilotHandler<'octo, '_> {
         RepoCopilotHandler::new(self)
+    }
+
+    /// Handle GitHub Actions on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions?apiVersion=2022-11-28)
+    pub fn actions(&self) -> RepoActionsHandler<'octo> {
+        let (owner, repo) = match &self.repo {
+            RepoRef::ByOwnerAndName(o, r) => (o.clone(), r.clone()),
+            RepoRef::ById(id) => (String::new(), id.to_string()),
+        };
+        RepoActionsHandler::new(self.crab, owner, repo)
     }
 
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).

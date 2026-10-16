@@ -100,6 +100,38 @@ impl<'octo> EnterpriseHandler<'octo> {
     pub fn copilot(&self) -> EnterpriseCopilotHandler<'octo, '_> {
         EnterpriseCopilotHandler::new(self)
     }
+
+    /// Handle GitHub Actions for the enterprise.
+    pub fn actions(&self) -> EnterpriseActionsHandler<'octo, '_> {
+        EnterpriseActionsHandler::new(self)
+    }
+}
+
+/// A client to GitHub Actions at the enterprise level.
+pub struct EnterpriseActionsHandler<'octo, 'r> {
+    handler: &'r EnterpriseHandler<'octo>,
+}
+
+impl<'octo, 'r> EnterpriseActionsHandler<'octo, 'r> {
+    pub(crate) fn new(handler: &'r EnterpriseHandler<'octo>) -> Self {
+        Self { handler }
+    }
+
+    /// Handle cache settings for the enterprise.
+    pub fn cache(&self) -> crate::api::actions::cache::EnterpriseActionsCacheHandler<'octo> {
+        crate::api::actions::cache::EnterpriseActionsCacheHandler::new(
+            self.handler.crab,
+            self.handler.enterprise.clone(),
+        )
+    }
+
+    /// Handle OIDC customization for the enterprise.
+    pub fn oidc(&self) -> crate::api::actions::oidc::EnterpriseActionsOidcHandler<'octo> {
+        crate::api::actions::oidc::EnterpriseActionsOidcHandler::new(
+            self.handler.crab,
+            self.handler.enterprise.clone(),
+        )
+    }
 }
 
 /// A client to GitHub's enterprise Secret Scanning API.

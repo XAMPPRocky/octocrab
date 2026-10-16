@@ -608,6 +608,65 @@ impl<'octo> WorkflowsHandler<'octo> {
             .await
             .map(drop)
     }
+
+    /// Deletes a workflow run along with its logs.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#delete-a-workflow-run)
+    pub async fn delete_run(&self, run_id: impl Into<RunId>) -> Result<()> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runs/{run_id}",
+            owner = self.owner,
+            repo = self.repo,
+            run_id = run_id.into(),
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        if !response.status().is_success() {
+            return Err(crate::map_github_error(response).await.unwrap_err());
+        }
+        Ok(())
+    }
+
+    /// Review pending deployments for a workflow run.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#review-pending-deployments-for-a-workflow-run)
+    pub async fn review_pending_deployments(
+        &self,
+        run_id: impl Into<RunId>,
+        environment_ids: &[u64],
+        state: impl AsRef<str>,
+        comment: impl AsRef<str>,
+    ) -> Result<serde_json::Value> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments",
+            owner = self.owner,
+            repo = self.repo,
+            run_id = run_id.into(),
+        );
+        let body = serde_json::json!({
+            "environment_ids": environment_ids,
+            "state": state.as_ref(),
+            "comment": comment.as_ref(),
+        });
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Download step logs for a workflow run job.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/actions/workflow-jobs?apiVersion=2022-11-28#download-step-logs-for-a-workflow-run-job)
+    pub async fn download_step_logs(
+        &self,
+        job_id: impl Into<JobId>,
+        step_number: u32,
+    ) -> Result<bytes::Bytes> {
+        let route = format!(
+            "/repos/{owner}/{repo}/actions/jobs/{job_id}/steps/{step_number}/logs",
+            owner = self.owner,
+            repo = self.repo,
+            job_id = job_id.into(),
+        );
+        self.follow_location_to_data(self.crab._get(route).await?)
+            .await
+    }
 }
 
 #[derive(serde::Serialize)]
