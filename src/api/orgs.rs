@@ -196,6 +196,13 @@ impl<'octo> OrgHandler<'octo> {
         crate::api::projects_v2::OrgProjectsV2Handler::new(self.crab, &self.owner)
     }
 
+    /// Handle Agents for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/agents?apiVersion=2022-11-28)
+    pub fn agents(&self) -> crate::api::agents::OrgAgentsHandler<'octo, '_> {
+        crate::api::agents::OrgAgentsHandler::new(self.crab, &self.owner)
+    }
+
     /// Handle organization roles.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/organization-roles?apiVersion=2022-11-28)

@@ -1,5 +1,6 @@
 pub mod actions;
 pub mod activity;
+pub mod agents;
 pub mod apps;
 pub mod billing;
 pub mod campaigns;

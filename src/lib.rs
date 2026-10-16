@@ -1601,6 +1601,11 @@ impl Octocrab {
         actions::ActionsHandler::new(self)
     }
 
+    /// Creates a new [`api::agents::AgentsHandler`] for accessing GitHub Agents API.
+    pub fn agents(&self) -> api::agents::AgentsHandler<'_> {
+        api::agents::AgentsHandler::new(self)
+    }
+
     /// Creates a [`current::CurrentAuthHandler`] that allows you to access
     /// information about the current authenticated user.
     pub fn current(&self) -> current::CurrentAuthHandler<'_> {

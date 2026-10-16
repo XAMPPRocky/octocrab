@@ -1653,3 +1653,9 @@ pub use projects_v2::{
     ProjectV2, ProjectV2Field, ProjectV2FieldOption, ProjectV2Item, ProjectV2ItemResponse,
     ProjectV2ValueResponse, ProjectV2View, ProjectV2ViewResponse,
 };
+pub mod agents;
+pub use agents::{
+    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableTrigger,
+    AgentPublicKey, AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask,
+    AgentTasksResponse, AgentVariable, AgentVariablesResponse,
+};

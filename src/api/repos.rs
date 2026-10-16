@@ -171,8 +171,8 @@ impl std::fmt::Display for RepoRef {
 ///
 /// Created with [`Octocrab::repos`].
 pub struct RepoHandler<'octo> {
-    crab: &'octo Octocrab,
-    repo: RepoRef,
+    pub(crate) crab: &'octo Octocrab,
+    pub(crate) repo: RepoRef,
 }
 
 impl<'octo> RepoHandler<'octo> {
@@ -1957,6 +1957,13 @@ impl<'octo> RepoHandler<'octo> {
     /// ```
     pub fn code_scanning(&self) -> RepoCodeScanningHandler<'octo, '_> {
         RepoCodeScanningHandler::new(self)
+    }
+
+    /// Handle Agents on the repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/agents?apiVersion=2022-11-28)
+    pub fn agents(&self) -> crate::api::agents::RepoAgentsHandler<'octo, '_> {
+        crate::api::agents::RepoAgentsHandler::new(self)
     }
 
     /// Handle code scanning on the repository (alias for [`code_scanning`][RepoHandler::code_scanning]).
