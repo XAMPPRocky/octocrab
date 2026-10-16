@@ -432,6 +432,24 @@ impl IssueHandler<'_> {
             .await
     }
 
+    /// Removes all labels from an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#remove-all-labels-from-an-issue>
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// octocrab::instance()
+    ///     .issues("owner", "repo")
+    ///     .remove_all_labels(101)
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn remove_all_labels(&self, number: u64) -> Result<()> {
+        let route = format!("/{}/issues/{issue}/labels", self.repo, issue = number);
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
     /// Creates a label in the repository.
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -1216,6 +1234,8 @@ impl IssueHandler<'_> {
     }
 
     /// Unlinks a sub-issue from the parent.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/sub-issues?apiVersion=2022-11-28#remove-sub-issue>
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
@@ -1230,7 +1250,7 @@ impl IssueHandler<'_> {
         issue_number: u64,
         sub_issue_id: IssueId,
     ) -> Result<models::issues::Issue> {
-        let route = format!("/{}/issues/{issue_number}/sub_issues", self.repo);
+        let route = format!("/{}/issues/{issue_number}/sub_issue", self.repo);
 
         let body = serde_json::json!({
             "sub_issue_id": sub_issue_id,
@@ -1314,6 +1334,429 @@ impl<'octo, 'r> ListSubIssuesBuilder<'octo, 'r> {
             issue = self.issue_number,
         );
 
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// # Issue Dependencies, Field Values, Related Issues, and Suggestions
+impl IssueHandler<'_> {
+    /// Lists dependencies an issue is blocked by.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-dependencies?apiVersion=2022-11-28#list-dependencies-an-issue-is-blocked-by>
+    pub fn list_dependencies_blocked_by(
+        &self,
+        issue_number: u64,
+    ) -> ListIssueDependenciesBlockedByBuilder<'_, '_> {
+        ListIssueDependenciesBlockedByBuilder::new(self, issue_number)
+    }
+
+    /// Adds a dependency an issue is blocked by.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-dependencies?apiVersion=2022-11-28#add-a-dependency-an-issue-is-blocked-by>
+    pub async fn add_dependency_blocked_by(
+        &self,
+        issue_number: u64,
+        issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!(
+            "/{}/issues/{issue_number}/dependencies/blocked_by",
+            self.repo
+        );
+        let body = serde_json::json!({ "issue_id": issue_id });
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Removes a dependency an issue is blocked by.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-dependencies?apiVersion=2022-11-28#remove-dependency-an-issue-is-blocked-by>
+    pub async fn remove_dependency_blocked_by(
+        &self,
+        issue_number: u64,
+        issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!(
+            "/{}/issues/{issue_number}/dependencies/blocked_by/{issue_id}",
+            self.repo
+        );
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Lists dependencies an issue is blocking.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-dependencies?apiVersion=2022-11-28#list-dependencies-an-issue-is-blocking>
+    pub fn list_dependencies_blocking(
+        &self,
+        issue_number: u64,
+    ) -> ListIssueDependenciesBlockingBuilder<'_, '_> {
+        ListIssueDependenciesBlockingBuilder::new(self, issue_number)
+    }
+
+    /// Lists issue field values for an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-field-values?apiVersion=2022-11-28#list-issue-field-values-for-an-issue>
+    pub fn list_issue_field_values(
+        &self,
+        issue_number: u64,
+    ) -> ListIssueFieldValuesBuilder<'_, '_> {
+        ListIssueFieldValuesBuilder::new(self, issue_number)
+    }
+
+    /// Adds issue field values to an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-field-values?apiVersion=2022-11-28#add-issue-field-values-to-an-issue>
+    pub async fn add_issue_field_values(
+        &self,
+        issue_number: u64,
+        issue_field_values: &[models::issues::IssueFieldValueInput],
+    ) -> Result<Vec<models::issues::IssueFieldValue>> {
+        let route = format!("/{}/issues/{issue_number}/issue-field-values", self.repo);
+        let body = serde_json::json!({ "issue_field_values": issue_field_values });
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Sets issue field values for an issue, replacing existing field values.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-field-values?apiVersion=2022-11-28#set-issue-field-values-for-an-issue>
+    pub async fn set_issue_field_values(
+        &self,
+        issue_number: u64,
+        issue_field_values: &[models::issues::IssueFieldValueInput],
+    ) -> Result<Vec<models::issues::IssueFieldValue>> {
+        let route = format!("/{}/issues/{issue_number}/issue-field-values", self.repo);
+        let body = serde_json::json!({ "issue_field_values": issue_field_values });
+        self.crab.put(route, Some(&body)).await
+    }
+
+    /// Deletes an issue field value from an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issue-field-values?apiVersion=2022-11-28#delete-an-issue-field-value-from-an-issue>
+    pub async fn delete_issue_field_value(
+        &self,
+        issue_number: u64,
+        issue_field_id: u64,
+    ) -> Result<()> {
+        let route = format!(
+            "/{}/issues/{issue_number}/issue-field-values/{issue_field_id}",
+            self.repo
+        );
+        let response = self.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(response).await.map(drop)
+    }
+
+    /// Lists issues related to an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issues-related-to-an-issue>
+    pub fn list_related_issues(&self, issue_number: u64) -> ListRelatedIssuesBuilder<'_, '_> {
+        ListRelatedIssuesBuilder::new(self, issue_number)
+    }
+
+    /// Adds a related issue to an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#add-a-related-issue>
+    pub async fn add_related_issue(
+        &self,
+        issue_number: u64,
+        issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/relates_to", self.repo);
+        let body = serde_json::json!({ "issue_id": issue_id });
+        self.crab.post(route, Some(&body)).await
+    }
+
+    /// Removes a related issue from an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#remove-a-related-issue>
+    pub async fn remove_related_issue(
+        &self,
+        issue_number: u64,
+        issue_id: IssueId,
+    ) -> Result<models::issues::Issue> {
+        let route = format!("/{}/issues/{issue_number}/relates_to/{issue_id}", self.repo);
+        self.crab.delete(route, None::<&()>).await
+    }
+
+    /// Lists issue suggestions for an issue.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issue-suggestions>
+    pub fn list_suggestions(&self, issue_number: u64) -> ListIssueSuggestionsBuilder<'_, '_> {
+        ListIssueSuggestionsBuilder::new(self, issue_number)
+    }
+
+    /// Approves an issue suggestion.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#approve-an-issue-suggestion>
+    pub async fn approve_suggestion(
+        &self,
+        issue_number: u64,
+        suggestion_id: u64,
+    ) -> Result<models::issues::IssueSuggestion> {
+        let route = format!(
+            "/{}/issues/{issue_number}/suggestions/{suggestion_id}/approve",
+            self.repo
+        );
+        self.crab.post(route, None::<&()>).await
+    }
+
+    /// Dismisses an issue suggestion.
+    ///
+    /// See: <https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#dismiss-an-issue-suggestion>
+    pub async fn dismiss_suggestion(
+        &self,
+        issue_number: u64,
+        suggestion_id: u64,
+    ) -> Result<models::issues::IssueSuggestion> {
+        let route = format!(
+            "/{}/issues/{issue_number}/suggestions/{suggestion_id}/dismiss",
+            self.repo
+        );
+        self.crab.post(route, None::<&()>).await
+    }
+}
+
+/// Builder for listing dependencies an issue is blocked by.
+#[derive(serde::Serialize)]
+pub struct ListIssueDependenciesBlockedByBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListIssueDependenciesBlockedByBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::Issue>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/dependencies/blocked_by",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing dependencies an issue is blocking.
+#[derive(serde::Serialize)]
+pub struct ListIssueDependenciesBlockingBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListIssueDependenciesBlockingBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::Issue>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/dependencies/blocking",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing issue field values for an issue.
+#[derive(serde::Serialize)]
+pub struct ListIssueFieldValuesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListIssueFieldValuesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::IssueFieldValue>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/issue-field-values",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing issues related to an issue.
+#[derive(serde::Serialize)]
+pub struct ListRelatedIssuesBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListRelatedIssuesBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::Issue>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/relates_to",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
+        self.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// Builder for listing suggestions for an issue.
+#[derive(serde::Serialize)]
+pub struct ListIssueSuggestionsBuilder<'octo, 'r> {
+    #[serde(skip)]
+    handler: &'r IssueHandler<'octo>,
+    #[serde(skip)]
+    issue_number: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    action: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'r> ListIssueSuggestionsBuilder<'octo, 'r> {
+    pub(crate) fn new(handler: &'r IssueHandler<'octo>, issue_number: u64) -> Self {
+        Self {
+            handler,
+            issue_number,
+            state: None,
+            action: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// Filter suggestions by their state.
+    pub fn state(mut self, state: impl Into<String>) -> Self {
+        self.state = Some(state.into());
+        self
+    }
+
+    /// Filter suggestions by the change they propose.
+    pub fn action(mut self, action: impl Into<String>) -> Self {
+        self.action = Some(action.into());
+        self
+    }
+
+    /// Results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Send the actual request.
+    pub async fn send(self) -> Result<crate::Page<models::issues::IssueSuggestion>> {
+        let route = format!(
+            "/{repo}/issues/{issue}/suggestions",
+            repo = self.handler.repo,
+            issue = self.issue_number,
+        );
         self.handler.crab.get(route, Some(&self)).await
     }
 }
