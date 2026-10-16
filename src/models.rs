@@ -1644,3 +1644,7 @@ pub use code_security::{
     CodeSecurityConfiguration, CodeSecurityConfigurationRepositories,
     CodeSecurityDefaultConfiguration, RepoCodeSecurityConfiguration,
 };
+pub mod private_registries;
+pub use private_registries::{
+    OrgPrivateRegistriesResponse, OrgPrivateRegistry, OrgPrivateRegistryPublicKey,
+};
