@@ -14,11 +14,13 @@ mod list_members;
 mod list_repos;
 pub mod migrations;
 mod personal_access_tokens;
+pub mod private_registries;
 mod roles;
 mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 mod variables;
+pub use self::private_registries::{ListOrgPrivateRegistriesBuilder, OrgPrivateRegistriesHandler};
 
 pub use self::code_scanning::{ListOrgCodeScanningAlertsBuilder, OrgCodeScanningHandler};
 pub use self::codespaces::OrgCodespacesHandler;
@@ -166,6 +168,13 @@ impl<'octo> OrgHandler<'octo> {
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/custom-properties?apiVersion=2022-11-28)
     pub fn custom_properties(&self) -> OrgCustomPropertiesHandler<'octo, '_> {
         OrgCustomPropertiesHandler::new(self)
+    }
+
+    /// Handle private registries for the organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/private-registries/organization-configurations?apiVersion=2022-11-28)
+    pub fn private_registries(&self) -> OrgPrivateRegistriesHandler<'octo, '_> {
+        OrgPrivateRegistriesHandler::new(self)
     }
 
     /// Handle organization roles.

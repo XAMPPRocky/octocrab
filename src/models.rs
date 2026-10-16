@@ -1639,3 +1639,7 @@ mod maybe_empty {
 
 pub mod campaigns;
 pub mod code_quality;
+pub mod private_registries;
+pub use private_registries::{
+    OrgPrivateRegistriesResponse, OrgPrivateRegistry, OrgPrivateRegistryPublicKey,
+};
