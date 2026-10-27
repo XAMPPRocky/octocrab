@@ -1405,6 +1405,7 @@ pub enum AuthState {
     },
 }
 
+#[cfg(feature = "jwt")]
 #[derive(serde::Serialize)]
 struct CreateInstallationAccessToken<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1426,6 +1427,8 @@ pub struct Octocrab {
 }
 
 /// A builder for an installation-authenticated `Octocrab` with an optional repository scope.
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
 pub struct InstallationRequestBuilder<'octo> {
     crab: &'octo Octocrab,
     installation: InstallationId,
@@ -1433,6 +1436,7 @@ pub struct InstallationRequestBuilder<'octo> {
     repository_ids: Option<Vec<RepositoryId>>,
 }
 
+#[cfg(feature = "jwt")]
 impl<'octo> InstallationRequestBuilder<'octo> {
     /// Scope the minted token to these repository names.
     pub fn repositories(mut self, repositories: Vec<String>) -> Self {
@@ -1551,6 +1555,8 @@ impl Octocrab {
     /// Returns a builder that authorizes via a specific installation and lets you scope the minted
     /// access token to specific repositories. The scope is retained, so automatic token refresh
     /// re-mints a token with the same scope.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub fn installation_builder(&self, id: InstallationId) -> InstallationRequestBuilder<'_> {
         InstallationRequestBuilder {
             crab: self,
