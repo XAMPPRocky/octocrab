@@ -59,19 +59,27 @@ impl RateLimitMetrics for NoOpRateLimitMetrics {
 pub enum RetryConfig {
     None,
     Simple(usize),
-    /// Handle GitHub's retry headers, up to [`self.0`] times.
+    /// Handle GitHub's retry headers and transport errors, up to `max_retries` times.
     ///
     /// Per the rate limit documentation here: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28
     /// - If we get a 403/429 and can parse the headers, wait until the refresh period before retrying.
     /// - If we get a 429 and none of the headers are present, wait `min_wait_seconds` seconds.
-    /// - If we get a 403, and neither of those headers are present, do not retry.
-    ///   This is because it is not clear whether it's actually forbidden, or if it's a rate limit.
+    /// - If we get a 403 and none of the headers are present, wait `min_wait_seconds` seconds and
+    ///   retry when `retry_on_forbidden` is `true`. When it is `false`, do not retry because it is
+    ///   not clear whether the response is actually forbidden or is a rate limit.
     /// - For server errors (5xx), retry immediately
+    /// - For transport errors that occur before receiving an HTTP response, retry immediately.
     /// - For any other errors do not retry.
     HandleRateLimits {
         metrics: Arc<dyn RateLimitMetrics>,
         max_retries: usize,
         min_wait_seconds: u64,
+        /// When `true`, a `403` response without a `retry-after` header and without
+        /// `x-ratelimit-remaining: 0` is treated as a secondary rate limit: the handler waits
+        /// `min_wait_seconds` and retries. When `false` (the default-conservative choice), such a
+        /// `403` is not retried, because it may be a genuine authorization failure rather than a
+        /// rate limit.
+        retry_on_forbidden: bool,
     },
 }
 
@@ -115,9 +123,16 @@ impl<B, E> Policy<Request<OctoBody>, Response<B>, E> for RetryConfig {
                 metrics,
                 max_retries,
                 min_wait_seconds,
+                retry_on_forbidden,
             } => {
                 if *max_retries > 0 {
-                    let response = result.as_ref().ok()?;
+                    let response = match result.as_ref() {
+                        Ok(response) => response,
+                        Err(_) => {
+                            *max_retries -= 1;
+                            return Some(future::ready(()).boxed());
+                        }
+                    };
 
                     if matches!(
                         response.status(),
@@ -137,7 +152,9 @@ impl<B, E> Policy<Request<OctoBody>, Response<B>, E> for RetryConfig {
                                     as u64)
                             }
                             (None, _, _)
-                                if response.status() == http::StatusCode::TOO_MANY_REQUESTS =>
+                                if response.status() == http::StatusCode::TOO_MANY_REQUESTS
+                                    || (response.status() == http::StatusCode::FORBIDDEN
+                                        && *retry_on_forbidden) =>
                             {
                                 Some(*min_wait_seconds)
                             }
@@ -190,5 +207,124 @@ impl<B, E> Policy<Request<OctoBody>, Response<B>, E> for RetryConfig {
                 Some(new_req)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{NoOpRateLimitMetrics, RetryConfig};
+    use crate::body::OctoBody;
+    use http::{Request, Response, StatusCode};
+    use std::sync::Arc;
+    use tower::retry::Policy;
+
+    fn policy(retry_on_forbidden: bool, max_retries: usize) -> RetryConfig {
+        RetryConfig::HandleRateLimits {
+            metrics: Arc::new(NoOpRateLimitMetrics),
+            max_retries,
+            min_wait_seconds: 60,
+            retry_on_forbidden,
+        }
+    }
+
+    fn request() -> Request<OctoBody> {
+        Request::builder().body(OctoBody::empty()).unwrap()
+    }
+
+    fn response(
+        status: StatusCode,
+        headers: &[(&'static str, String)],
+    ) -> Result<Response<()>, ()> {
+        let mut response = Response::builder().status(status);
+        for (name, value) in headers {
+            response = response.header(*name, value.as_str());
+        }
+        Ok(response.body(()).unwrap())
+    }
+
+    fn will_retry(policy: &mut RetryConfig, result: &mut Result<Response<()>, ()>) -> bool {
+        policy.retry(&mut request(), result).is_some()
+    }
+
+    #[tokio::test]
+    async fn retries_transport_error() {
+        let mut policy = policy(false, 1);
+        let mut result = Err(());
+
+        assert!(will_retry(&mut policy, &mut result));
+        assert!(!will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn retries_forbidden_with_retry_after() {
+        let mut policy = policy(false, 3);
+        let mut result = response(StatusCode::FORBIDDEN, &[("retry-after", "5".into())]);
+
+        assert!(will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn retries_forbidden_when_primary_rate_limit_is_exhausted() {
+        let mut policy = policy(false, 3);
+        let reset = (chrono::Utc::now().timestamp() + 60).to_string();
+        let mut result = response(
+            StatusCode::FORBIDDEN,
+            &[
+                ("x-ratelimit-remaining", "0".into()),
+                ("x-ratelimit-reset", reset),
+            ],
+        );
+
+        assert!(will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn does_not_retry_bare_forbidden_by_default() {
+        let mut policy = policy(false, 3);
+        let mut result = response(StatusCode::FORBIDDEN, &[]);
+
+        assert!(!will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn retries_bare_forbidden_when_enabled() {
+        let mut policy = policy(true, 3);
+        let mut result = response(StatusCode::FORBIDDEN, &[]);
+
+        assert!(will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn retries_bare_too_many_requests_regardless_of_forbidden_setting() {
+        for retry_on_forbidden in [false, true] {
+            let mut policy = policy(retry_on_forbidden, 3);
+            let mut result = response(StatusCode::TOO_MANY_REQUESTS, &[]);
+
+            assert!(will_retry(&mut policy, &mut result));
+        }
+    }
+
+    #[tokio::test]
+    async fn does_not_retry_success() {
+        let mut policy = policy(false, 3);
+        let mut result = response(StatusCode::OK, &[]);
+
+        assert!(!will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn retries_server_error() {
+        let mut policy = policy(false, 3);
+        let mut result = response(StatusCode::INTERNAL_SERVER_ERROR, &[]);
+
+        assert!(will_retry(&mut policy, &mut result));
+    }
+
+    #[tokio::test]
+    async fn does_not_retry_too_many_requests_when_retries_are_exhausted() {
+        let mut policy = policy(false, 0);
+        let mut result = response(StatusCode::TOO_MANY_REQUESTS, &[]);
+
+        assert!(!will_retry(&mut policy, &mut result));
     }
 }
