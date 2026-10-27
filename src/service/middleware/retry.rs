@@ -215,7 +215,6 @@ mod tests {
     use super::{NoOpRateLimitMetrics, RetryConfig};
     use crate::body::OctoBody;
     use http::{Request, Response, StatusCode};
-    use hyper_util::client::legacy::Error;
     use std::sync::Arc;
     use tower::retry::Policy;
 
@@ -235,7 +234,7 @@ mod tests {
     fn response(
         status: StatusCode,
         headers: &[(&'static str, String)],
-    ) -> Result<Response<()>, Error> {
+    ) -> Result<Response<()>, ()> {
         let mut response = Response::builder().status(status);
         for (name, value) in headers {
             response = response.header(*name, value.as_str());
@@ -243,12 +242,18 @@ mod tests {
         Ok(response.body(()).unwrap())
     }
 
-    fn will_retry(policy: &mut RetryConfig, result: &mut Result<Response<()>, Error>) -> bool {
+    fn will_retry(policy: &mut RetryConfig, result: &mut Result<Response<()>, ()>) -> bool {
         policy.retry(&mut request(), result).is_some()
     }
 
-    // The transport-error path is not unit-tested because hyper_util's legacy Error has no public
-    // constructor. It mirrors Simple's Err(_) arm by construction.
+    #[tokio::test]
+    async fn retries_transport_error() {
+        let mut policy = policy(false, 1);
+        let mut result = Err(());
+
+        assert!(will_retry(&mut policy, &mut result));
+        assert!(!will_retry(&mut policy, &mut result));
+    }
 
     #[tokio::test]
     async fn retries_forbidden_with_retry_after() {
