@@ -1420,12 +1420,25 @@ pub enum AuthState {
         installation: InstallationId,
         /// The cached access token, if any
         token: CachedToken,
+        /// Repository names the minted token is scoped to. `None` => installation-wide.
+        repositories: Option<Vec<String>>,
+        /// Repository IDs the minted token is scoped to. `None` => installation-wide.
+        repository_ids: Option<Vec<RepositoryId>>,
     },
     /// Access token based authentication.
     AccessToken {
         /// The access token
         token: SecretString,
     },
+}
+
+#[cfg(feature = "jwt")]
+#[derive(serde::Serialize)]
+struct CreateInstallationAccessToken<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repositories: Option<&'a [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repository_ids: Option<&'a [RepositoryId]>,
 }
 
 pub type OctocrabService = Buffer<
@@ -1438,6 +1451,53 @@ pub type OctocrabService = Buffer<
 pub struct Octocrab {
     client: OctocrabService,
     auth_state: AuthState,
+}
+
+/// A builder for an installation-authenticated `Octocrab` with an optional repository scope.
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+pub struct InstallationRequestBuilder<'octo> {
+    crab: &'octo Octocrab,
+    installation: InstallationId,
+    repositories: Option<Vec<String>>,
+    repository_ids: Option<Vec<RepositoryId>>,
+}
+
+#[cfg(feature = "jwt")]
+impl<'octo> InstallationRequestBuilder<'octo> {
+    /// Scope the minted token to these repository names.
+    pub fn repositories(mut self, repositories: Vec<String>) -> Self {
+        self.repositories = Some(repositories);
+        self
+    }
+
+    /// Scope the minted token to these repository IDs.
+    pub fn repository_ids(mut self, repository_ids: Vec<RepositoryId>) -> Self {
+        self.repository_ids = Some(repository_ids);
+        self
+    }
+
+    /// Build the installation-authenticated `Octocrab`.
+    pub fn build(self) -> Result<Octocrab> {
+        let app_auth = if let AuthState::App(ref app_auth) = self.crab.auth_state {
+            app_auth.clone()
+        } else {
+            return Err(Error::Installation {
+                backtrace: Backtrace::capture(),
+            });
+        };
+
+        Ok(Octocrab {
+            client: self.crab.client.clone(),
+            auth_state: AuthState::Installation {
+                app: app_auth,
+                installation: self.installation,
+                token: CachedToken::default(),
+                repositories: self.repositories,
+                repository_ids: self.repository_ids,
+            },
+        })
+    }
 }
 
 impl fmt::Debug for Octocrab {
@@ -1516,21 +1576,21 @@ impl Octocrab {
     #[cfg(feature = "jwt")]
     #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub fn installation(&self, id: InstallationId) -> Result<Octocrab> {
-        let app_auth = if let AuthState::App(ref app_auth) = self.auth_state {
-            app_auth.clone()
-        } else {
-            return Err(Error::Installation {
-                backtrace: Backtrace::capture(),
-            });
-        };
-        Ok(Octocrab {
-            client: self.client.clone(),
-            auth_state: AuthState::Installation {
-                app: app_auth,
-                installation: id,
-                token: CachedToken::default(),
-            },
-        })
+        self.installation_builder(id).build()
+    }
+
+    /// Returns a builder that authorizes via a specific installation and lets you scope the minted
+    /// access token to specific repositories. The scope is retained, so automatic token refresh
+    /// re-mints a token with the same scope.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+    pub fn installation_builder(&self, id: InstallationId) -> InstallationRequestBuilder<'_> {
+        InstallationRequestBuilder {
+            crab: self,
+            installation: id,
+            repositories: None,
+            repository_ids: None,
+        }
     }
 
     /// Similar to `installation`, but also eagerly caches the installation
@@ -2387,18 +2447,21 @@ impl Octocrab {
     /// Requests a fresh installation auth token and caches it. Returns the token.
     #[cfg(feature = "jwt")]
     async fn request_installation_auth_token(&self) -> Result<SecretString> {
-        let (app, installation, token) = if let AuthState::Installation {
-            ref app,
-            installation,
-            ref token,
-        } = self.auth_state
-        {
-            (app, installation, token)
-        } else {
-            return Err(Error::Installation {
-                backtrace: Backtrace::capture(),
-            });
-        };
+        let (app, installation, token, repositories, repository_ids) =
+            if let AuthState::Installation {
+                ref app,
+                installation,
+                ref token,
+                ref repositories,
+                ref repository_ids,
+            } = self.auth_state
+            {
+                (app, installation, token, repositories, repository_ids)
+            } else {
+                return Err(Error::Installation {
+                    backtrace: Backtrace::capture(),
+                });
+            };
         let mut request = Builder::new();
         let mut sensitive_value =
             HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
@@ -2413,10 +2476,17 @@ impl Octocrab {
         sensitive_value.set_sensitive(true);
         request = request
             .header(http::header::AUTHORIZATION, sensitive_value)
+            .header(http::header::CONTENT_TYPE, "application/json")
             .method(http::Method::POST)
             .uri(uri);
+
+        let body = CreateInstallationAccessToken {
+            repositories: repositories.as_deref(),
+            repository_ids: repository_ids.as_deref(),
+        };
+        let body = serde_json::to_string(&body).context(SerdeSnafu)?;
         let response = self
-            .send(request.body("{}".into()).context(HttpSnafu)?)
+            .send(request.body(body.into()).context(HttpSnafu)?)
             .await?;
         let _status = response.status();
 
