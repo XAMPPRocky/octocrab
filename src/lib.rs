@@ -2543,27 +2543,24 @@ impl Octocrab {
         request: http::Request<impl Into<OctoBody>>,
     ) -> Result<http::Response<BoxBody<Bytes, crate::Error>>> {
         let (parts, body) = request.into_parts();
-        let method = parts.method;
-        let uri = parts.uri;
-        let version = parts.version;
-        let headers = parts.headers;
         let body: OctoBody = body.into();
         #[cfg(feature = "jwt")]
-        let (first_body, retry_body) = match body
-            .try_clone()
-            .or_else(|| http_body::Body::is_end_stream(&body).then(OctoBody::empty))
-        {
-            Some(cloned_body) => (cloned_body, Some(body)),
-            None => (body, None),
-        };
+        let (first_body, retry_request) =
+            if matches!(self.auth_state, AuthState::Installation { .. }) {
+                match body
+                    .try_clone()
+                    .or_else(|| http_body::Body::is_end_stream(&body).then(OctoBody::empty))
+                {
+                    Some(cloned_body) => (cloned_body, Some((parts.clone(), body))),
+                    None => (body, None),
+                }
+            } else {
+                (body, None)
+            };
         #[cfg(not(feature = "jwt"))]
         let first_body = body;
 
-        let send_request = |body| {
-            let method = method.clone();
-            let uri = uri.clone();
-            let mut headers = headers.clone();
-
+        let send_request = |mut parts: http::request::Parts, body: OctoBody| {
             async move {
                 let auth_header: Option<HeaderValue> = match self.auth_state {
                     AuthState::None => None,
@@ -2622,14 +2619,18 @@ impl Octocrab {
                     // GitHub). Otherwise, leave it off as we could have been redirected
                     // away from GitHub (via follow_location_to_data()), and we don't
                     // want to give our credentials to third-party services.
-                    match uri.authority() {
+                    match parts.uri.authority() {
                         None => {
                             auth_header.set_sensitive(true);
-                            headers.insert(http::header::AUTHORIZATION, auth_header);
+                            parts
+                                .headers
+                                .insert(http::header::AUTHORIZATION, auth_header);
                         }
                         Some(authority) if authority == "api.github.com" => {
                             auth_header.set_sensitive(true);
-                            headers.insert(http::header::AUTHORIZATION, auth_header);
+                            parts
+                                .headers
+                                .insert(http::header::AUTHORIZATION, auth_header);
                         }
                         Some(_) => {
                             // Don't insert auth header.
@@ -2637,27 +2638,21 @@ impl Octocrab {
                     }
                 }
 
-                let mut request = http::Request::builder()
-                    .method(method)
-                    .uri(uri)
-                    .version(version)
-                    .body(body)
-                    .context(HttpSnafu)?;
-                *request.headers_mut() = headers;
+                let request = http::Request::from_parts(parts, body);
 
                 self.send(request).await
             }
         };
 
-        let response = send_request(first_body).await?;
+        let response = send_request(parts, first_body).await?;
 
         #[cfg(feature = "jwt")]
         if StatusCode::UNAUTHORIZED == response.status() {
             if let AuthState::Installation { ref token, .. } = self.auth_state {
                 token.clear();
 
-                if let Some(body) = retry_body {
-                    let response = send_request(body).await?;
+                if let Some((parts, body)) = retry_request {
+                    let response = send_request(parts, body).await?;
                     if StatusCode::UNAUTHORIZED == response.status() {
                         token.clear();
                     }

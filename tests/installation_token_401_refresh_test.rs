@@ -23,9 +23,9 @@ fn app_client(mock_server: &MockServer) -> Octocrab {
         .unwrap()
 }
 
-fn token_response() -> ResponseTemplate {
+fn token_response(token: &str) -> ResponseTemplate {
     ResponseTemplate::new(201).set_body_json(json!({
-        "token": "dummy-installation-token",
+        "token": token,
         "expires_at": "2099-01-01T00:00:00Z",
         "permissions": {}
     }))
@@ -36,8 +36,19 @@ async fn mount_token_mock(mock_server: &MockServer) {
         .and(path(INSTALLATION_TOKEN_PATH))
         .and(header("content-type", "application/json"))
         .and(body_json(json!({})))
-        .respond_with(token_response())
-        .expect(2)
+        .respond_with(token_response("expired-installation-token"))
+        .up_to_n_times(1)
+        .expect(1)
+        .with_priority(1)
+        .mount(mock_server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path(INSTALLATION_TOKEN_PATH))
+        .and(header("content-type", "application/json"))
+        .and(body_json(json!({})))
+        .respond_with(token_response("fresh-installation-token"))
+        .expect(1)
+        .with_priority(2)
         .mount(mock_server)
         .await;
 }
@@ -49,6 +60,7 @@ async fn installation_token_is_refreshed_and_request_is_resent_after_unauthorize
 
     Mock::given(method("GET"))
         .and(path(ISSUES_PATH))
+        .and(header("authorization", "Bearer expired-installation-token"))
         .respond_with(ResponseTemplate::new(401).set_body_json(json!({
             "message": "Bad credentials"
         })))
@@ -59,6 +71,7 @@ async fn installation_token_is_refreshed_and_request_is_resent_after_unauthorize
         .await;
     Mock::given(method("GET"))
         .and(path(ISSUES_PATH))
+        .and(header("authorization", "Bearer fresh-installation-token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!([])))
         .expect(1)
         .with_priority(2)
