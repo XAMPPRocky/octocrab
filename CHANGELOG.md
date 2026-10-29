@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.8](https://github.com/XAMPPRocky/octocrab/compare/v0.54.7...v0.54.8) - 2026-10-29
+
+### Other
+
+- added ci badge to readme.md with endpoint coverage ([#996](https://github.com/XAMPPRocky/octocrab/pull/996))
+
 ## [0.54.7](https://github.com/XAMPPRocky/octocrab/compare/v0.54.6...v0.54.7) - 2026-10-29
 
 ### Other
