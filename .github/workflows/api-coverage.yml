@@ -1,0 +1,59 @@
+name: REST API Endpoint Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    name: GitHub REST API (v2022-11-28) Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache OpenAPI Specification
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: openapi-spec-2022-11-28-v1
+
+      - name: Calculate Coverage & Generate Job Summary
+        run: |
+          python3 scripts/calculate_api_coverage.py \
+            --badge-out endpoint-coverage.json \
+            --details-out coverage-details.json \
+            --missing-out missing-endpoints.md \
+            --summary-out "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: endpoint-coverage
+          path: |
+            endpoint-coverage.json
+            coverage-details.json
+            missing-endpoints.md
+
+      - name: Deploy Badge JSON to 'badges' Branch
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: badges
+          publish_dir: .
+          exclude_assets: '.git,.github,src,tests,examples,target,.cache'
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

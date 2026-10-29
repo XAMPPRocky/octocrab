@@ -1,6 +1,7 @@
 # Octocrab: A modern, extensible GitHub API client.
 
 [![Rust](https://github.com/XAMPPRocky/octocrab/workflows/Rust/badge.svg)](https://github.com/XAMPPRocky/octocrab/actions?query=workflow%3ARust)
+[![REST API v2022-11-28 Coverage](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FXAMPPRocky%2Foctocrab%2Fbadges%2Fendpoint-coverage.json&query=%24.message&label=API%20Coverage&color=brightgreen)](https://docs.github.com/en/rest?apiVersion=2022-11-28)
 [![crates.io](https://img.shields.io/crates/d/octocrab.svg)](https://crates.io/crates/octocrab)
 [![Help Wanted](https://img.shields.io/github/issues/XAMPPRocky/octocrab/help%20wanted?color=green)](https://github.com/XAMPPRocky/octocrab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![Documentation](https://docs.rs/octocrab/badge.svg)](https://docs.rs/octocrab/)
