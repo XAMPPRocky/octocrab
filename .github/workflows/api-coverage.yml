@@ -34,6 +34,7 @@ jobs:
           python3 scripts/calculate_api_coverage.py \
             --badge-out endpoint-coverage.json \
             --details-out coverage-details.json \
+            --missing-out missing-endpoints.md \
             --summary-out "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Coverage Artifacts
@@ -43,6 +44,7 @@ jobs:
           path: |
             endpoint-coverage.json
             coverage-details.json
+            missing-endpoints.md
 
       - name: Deploy Badge JSON to 'badges' Branch
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
