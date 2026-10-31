@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.9](https://github.com/XAMPPRocky/octocrab/compare/v0.54.8...v0.54.9) - 2026-10-31
+
+### Fixed
+
+- fixed api-coverage.yml ([#998](https://github.com/XAMPPRocky/octocrab/pull/998))
+
+### Other
+
+- added missing handlers after CI badge check ([#1000](https://github.com/XAMPPRocky/octocrab/pull/1000))
+
 ## [0.54.8](https://github.com/XAMPPRocky/octocrab/compare/v0.54.7...v0.54.8) - 2026-10-29
 
 ### Other
