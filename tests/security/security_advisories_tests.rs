@@ -349,3 +349,115 @@ async fn should_create_temporary_private_fork() {
     let fork = result.unwrap();
     assert_eq!(fork.name, "actix-examples");
 }
+
+#[tokio::test]
+async fn should_handle_repository_security_advisory_comments() {
+    let comment_json = serde_json::json!({
+        "id": 1,
+        "node_id": "MDEyOklzc3VlQ29tbWVudDE=",
+        "url": format!("https://api.github.com/repos/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}/comments/1"),
+        "html_url": format!("https://github.com/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}#comment-1"),
+        "body": "Great catch!",
+        "created_at": "2022-11-28T00:00:00Z",
+        "updated_at": "2022-11-28T00:00:00Z"
+    });
+
+    let mock_server = MockServer::start().await;
+    let client = setup_octocrab(&mock_server.uri());
+
+    // 1. List comments
+    let page_json = serde_json::json!([comment_json]);
+    Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}/comments"
+        )))
+        .respond_with(ResponseTemplate::new(StatusCode::OK).set_body_json(&page_json))
+        .mount(&mock_server)
+        .await;
+
+    let comments = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .list()
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(comments.items.len(), 1);
+    assert_eq!(comments.items[0].body, "Great catch!");
+
+    // 2. Create comment
+    Mock::given(method("POST"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}/comments"
+        )))
+        .respond_with(ResponseTemplate::new(StatusCode::CREATED).set_body_json(&comment_json))
+        .mount(&mock_server)
+        .await;
+
+    let created = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .create("Great catch!")
+        .await
+        .unwrap();
+    assert_eq!(created.id, 1);
+
+    // 3. Get comment
+    Mock::given(method("GET"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}/comments/1"
+        )))
+        .respond_with(ResponseTemplate::new(StatusCode::OK).set_body_json(&comment_json))
+        .mount(&mock_server)
+        .await;
+
+    let fetched = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .get("1")
+        .await
+        .unwrap();
+    assert_eq!(fetched.body, "Great catch!");
+
+    // 4. Update comment
+    let mut updated_comment_json = comment_json.clone();
+    updated_comment_json["body"] = serde_json::json!("Updated comment!");
+    Mock::given(method("PATCH"))
+        .and(path(format!(
+            "/repos/{OWNER}/{REPO}/security-advisories/{REPO_GHSA_ID}/comments/1"
+        )))
+        .respond_with(ResponseTemplate::new(StatusCode::OK).set_body_json(&updated_comment_json))
+        .mount(&mock_server)
+        .await;
+
+    let updated = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .update("1", "Updated comment!")
+        .await
+        .unwrap();
+    assert_eq!(updated.body, "Updated comment!");
+
+    // Also verify accepting u64 directly
+    let fetched_numeric = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .get(1u64)
+        .await
+        .unwrap();
+    assert_eq!(fetched_numeric.id, 1);
+
+    let updated_numeric = client
+        .repos(OWNER, REPO)
+        .security_advisories()
+        .comments(REPO_GHSA_ID)
+        .update(1u64, "Updated comment!")
+        .await
+        .unwrap();
+    assert_eq!(updated_numeric.id, 1);
+}

@@ -51,6 +51,73 @@ pub struct AgentAvailableTool {
     pub tools: Option<Vec<serde_json::Value>>,
 }
 
+/// Response for listing available tools for automations.
+///
+/// Supports both the GitHub API catalog response `{ tool_groups: [...], mcp_servers: [...] }`
+/// and a flat list of available tools.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AgentAvailableToolsResponse {
+    Catalog {
+        #[serde(default)]
+        tool_groups: Vec<AgentAvailableTool>,
+        #[serde(default)]
+        mcp_servers: Vec<serde_json::Value>,
+    },
+    List(Vec<AgentAvailableTool>),
+}
+
+impl AgentAvailableToolsResponse {
+    pub fn tool_groups(&self) -> &[AgentAvailableTool] {
+        match self {
+            Self::Catalog { tool_groups, .. } => tool_groups,
+            Self::List(tools) => tools,
+        }
+    }
+
+    pub fn mcp_servers(&self) -> &[serde_json::Value] {
+        match self {
+            Self::Catalog { mcp_servers, .. } => mcp_servers,
+            Self::List(_) => &[],
+        }
+    }
+}
+
+impl std::ops::Deref for AgentAvailableToolsResponse {
+    type Target = [AgentAvailableTool];
+
+    fn deref(&self) -> &Self::Target {
+        self.tool_groups()
+    }
+}
+
+impl From<AgentAvailableToolsResponse> for Vec<AgentAvailableTool> {
+    fn from(resp: AgentAvailableToolsResponse) -> Self {
+        match resp {
+            AgentAvailableToolsResponse::Catalog { tool_groups, .. } => tool_groups,
+            AgentAvailableToolsResponse::List(tools) => tools,
+        }
+    }
+}
+
+impl IntoIterator for AgentAvailableToolsResponse {
+    type Item = AgentAvailableTool;
+    type IntoIter = std::vec::IntoIter<AgentAvailableTool>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Vec::from(self).into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a AgentAvailableToolsResponse {
+    type Item = &'a AgentAvailableTool;
+    type IntoIter = std::slice::Iter<'a, AgentAvailableTool>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tool_groups().iter()
+    }
+}
+
 /// Available trigger for agent automations.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -98,6 +165,10 @@ pub struct AgentTasksResponse {
     pub tasks: Vec<AgentTask>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_active_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_archived_count: Option<u64>,
 }
 
 /// An Agent secret.
@@ -157,4 +228,21 @@ pub struct AgentVariablesResponse {
 pub struct AgentRepositoriesResponse {
     pub total_count: u64,
     pub repositories: Vec<Repository>,
+}
+
+/// Configuration for Agent Merge on a pull request.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AgentMergeConfiguration {
+    pub allowed_actions: Vec<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub user: AgentMergeUser,
+}
+
+/// User who enrolled the pull request in Agent Merge.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AgentMergeUser {
+    pub id: u64,
 }

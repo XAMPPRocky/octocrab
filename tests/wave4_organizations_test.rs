@@ -352,3 +352,43 @@ async fn test_org_network_immutable_roles_and_verbs() {
         .await
         .unwrap();
 }
+
+#[tokio::test]
+async fn test_all_organizations() {
+    let mock_server = MockServer::start().await;
+    let octocrab = setup_octocrab(&mock_server.uri());
+
+    let orgs_json = json!([
+        {
+            "login": "github",
+            "id": 1,
+            "node_id": "MDEyOk9yZ2FuaXphdGlvbjE=",
+            "url": "https://api.github.com/orgs/github",
+            "repos_url": "https://api.github.com/orgs/github/repos",
+            "events_url": "https://api.github.com/orgs/github/events",
+            "hooks_url": "https://api.github.com/orgs/github/hooks",
+            "issues_url": "https://api.github.com/orgs/github/issues",
+            "members_url": "https://api.github.com/orgs/github/members{/member}",
+            "public_members_url": "https://api.github.com/orgs/github/public_members{/member}",
+            "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+            "description": "A great organization"
+        }
+    ]);
+
+    Mock::given(method("GET"))
+        .and(path("/organizations"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(&orgs_json))
+        .mount(&mock_server)
+        .await;
+
+    let page = octocrab
+        .all_organizations()
+        .since(0u64)
+        .per_page(100)
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(page.items.len(), 1);
+    assert_eq!(page.items[0].login, "github");
+}

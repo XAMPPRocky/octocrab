@@ -55,7 +55,7 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
     /// let page = octocrab.apps().installations().per_page(50).send().await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/apps/apps#list-installations-for-the-authenticated-app)
     pub async fn send(self) -> crate::Result<Page<crate::models::Installation>> {
         let route = "/app/installations";
         self.handler.http_get(route, Some(&self)).await

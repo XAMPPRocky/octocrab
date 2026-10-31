@@ -186,7 +186,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#upload-a-release-asset)
     pub fn upload_asset<'asset_name>(
         &self,
         id: u64,
@@ -198,6 +198,9 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Creates a new [`ListReleaseAssetsBuilder`] that can be configured to filter
     /// listing release assetss.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#list-release-assets)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let page = octocrab.repos("owner", "repo")

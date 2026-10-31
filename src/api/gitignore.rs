@@ -25,7 +25,7 @@ impl<'octo> GitignoreHandler<'octo> {
     /// let list = octocrab::instance().gitignore().list().await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gitignore/gitignore#get-all-gitignore-templates)
     pub async fn list(&self) -> crate::Result<Vec<String>> {
         self.crab.get("/gitignore/templates", None::<&()>).await
     }

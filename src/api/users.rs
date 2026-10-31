@@ -119,12 +119,14 @@ impl<'octo> UserHandler<'octo> {
     /// Get this user's profile info.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-a-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/users#get-a-user-using-their-id)
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let profile = octocrab.users("octocat").profile().await?;
+    /// let profile_by_id = octocrab.users_by_id(1u64).profile().await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -457,6 +459,9 @@ impl<'octo> UserHandler<'octo> {
     }
 
     ///## Set primary email visibility for the authenticated user
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/emails#set-primary-email-visibility-for-the-authenticated-user)
+    ///
     ///works with the following token types:
     ///[GitHub App user access tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app)
     ///[Fine-grained personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)

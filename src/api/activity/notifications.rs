@@ -143,7 +143,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/notifications#mark-notifications-as-read)
     pub async fn mark_all_as_read(
         &self,
         last_read_at: impl Into<Option<DateTime>>,
@@ -261,6 +261,8 @@ impl<'octo> NotificationsHandler<'octo> {
     }
 
     /// List all notifications for the current user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/notifications#list-notifications-for-the-authenticated-user)
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

@@ -93,6 +93,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Lists all packages that encountered a conflict during a Docker migration.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-list-of-conflicting-packages-during-docker-migration-for-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-list-of-conflicting-packages-during-docker-migration-for-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-list-of-conflicting-packages-during-docker-migration-for-user)
     ///
     /// # Examples
     ///
@@ -110,6 +112,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to list packages readable by the user.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#list-packages-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#list-packages-for-the-authenticated-users-namespace)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#list-packages-for-a-user)
     ///
     /// # Examples
     ///
@@ -133,6 +137,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Gets a specific package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-a-package-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-a-package-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-a-package-for-a-user)
     ///
     /// # Examples
     ///
@@ -164,6 +170,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Deletes a specific package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#delete-a-package-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#delete-a-package-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#delete-a-package-for-a-user)
     ///
     /// # Examples
     ///
@@ -197,6 +205,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to restore an entire package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#restore-a-package-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#restore-a-package-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#restore-a-package-for-a-user)
     ///
     /// # Examples
     ///
@@ -224,6 +234,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Creates a builder to list package versions for a package.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#list-package-versions-for-a-package-owned-by-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#list-package-versions-for-a-package-owned-by-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#list-package-versions-for-a-package-owned-by-a-user)
     ///
     /// # Examples
     ///
@@ -251,6 +263,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Gets a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#get-a-package-version-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-a-package-version-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#get-a-package-version-for-a-user)
     ///
     /// # Examples
     ///
@@ -284,6 +298,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Deletes a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#delete-package-version-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#delete-a-package-version-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#delete-package-version-for-a-user)
     ///
     /// # Examples
     ///
@@ -319,6 +335,8 @@ impl<'octo> PackagesHandler<'octo> {
     /// Restores a specific package version.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/packages/packages?apiVersion=2022-11-28#restore-package-version-for-an-organization)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#restore-a-package-version-for-the-authenticated-user)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/packages/packages#restore-package-version-for-a-user)
     ///
     /// # Examples
     ///

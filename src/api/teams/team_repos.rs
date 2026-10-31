@@ -137,7 +137,7 @@ impl<'octo> TeamRepoHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/teams/teams#remove-a-repository-from-a-team)
     pub async fn remove(
         &self,
         repo_owner: impl Into<String>,

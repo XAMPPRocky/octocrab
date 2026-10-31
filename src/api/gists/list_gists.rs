@@ -17,6 +17,12 @@ impl EndpointSelector for PublicOnly {
     const ENDPOINT: &'static str = "/gists/public";
 }
 
+pub struct Starred;
+
+impl EndpointSelector for Starred {
+    const ENDPOINT: &'static str = "/gists/starred";
+}
+
 #[derive(Debug, serde::Serialize)]
 pub struct ListGistsBuilder<'octo, T: EndpointSelector> {
     #[serde(skip)]
@@ -83,6 +89,11 @@ pub type ListAllGistsBuilder<'octo> = ListGistsBuilder<'octo, AllOrByAuth>;
 ///
 /// Fetches all publicly available gists on the GitHub instance with pagination.
 pub type ListPublicGistsBuilder<'octo> = ListGistsBuilder<'octo, PublicOnly>;
+
+/// Handles query data for the `GET /gists/starred` endpoint.
+///
+/// Fetches starred gists of the authenticated user.
+pub type ListStarredGistsBuilder<'octo> = ListGistsBuilder<'octo, Starred>;
 
 /// Handles query data for the `GET /users/{username}/gists` endpoint.
 #[derive(Debug, serde::Serialize)]

@@ -14,7 +14,9 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub use self::list_commits::ListCommitsBuilder;
-pub use self::list_gists::{ListAllGistsBuilder, ListPublicGistsBuilder, ListUserGistsBuilder};
+pub use self::list_gists::{
+    ListAllGistsBuilder, ListPublicGistsBuilder, ListStarredGistsBuilder, ListUserGistsBuilder,
+};
 
 use crate::{
     gist_comments,
@@ -128,7 +130,30 @@ impl<'octo> GistsHandler<'octo> {
         ListUserGistsBuilder::new(self.crab, username.as_ref().to_string())
     }
 
+    /// List starred gists of the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gists/gists#list-starred-gists)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let gists = octocrab::instance()
+    ///     .gists()
+    ///     .list_starred_gists()
+    ///     .per_page(10)
+    ///     .send()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn list_starred_gists(&self) -> ListStarredGistsBuilder<'octo> {
+        ListStarredGistsBuilder::new(self.crab)
+    }
+
     /// Create a new gist.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gists/gists#create-a-gist)
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
@@ -185,6 +210,8 @@ impl<'octo> GistsHandler<'octo> {
     }
 
     /// Delete a single gist.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gists/gists#delete-a-gist)
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {

@@ -232,3 +232,22 @@ pub struct CreateCredit {
     pub login: String,
     pub r#type: String,
 }
+
+/// A comment on a repository security advisory.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RepositoryAdvisoryComment {
+    pub id: u64,
+    pub node_id: String,
+    pub url: Url,
+    pub html_url: Url,
+    pub body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<SimpleUser>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub advisory_url: Option<Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_association: Option<String>,
+}

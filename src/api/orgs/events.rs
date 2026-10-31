@@ -8,6 +8,7 @@ use crate::{
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
 
+/// See: [GitHub API Documentation](https://docs.github.com/rest/activity/events#list-public-organization-events)
 pub struct ListOrgEventsBuilder<'octo, 'handler> {
     handler: &'handler OrgHandler<'octo>,
     headers: Headers,

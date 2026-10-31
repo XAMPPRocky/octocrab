@@ -248,13 +248,9 @@ impl<'octo, 'r> ListStatusesBuilder<'octo, 'r> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/commits/statuses#list-commit-statuses-for-a-reference)
     pub async fn send(self) -> crate::Result<crate::Page<crate::models::Status>> {
-        let route = format!(
-            "/{repo}/commits/{sha}/statuses",
-            repo = self.handler.repo,
-            sha = self.sha,
-        );
+        let route = format!("/{}/commits/{}/statuses", self.handler.repo, self.sha,);
         self.handler.crab.get(route, Some(&self)).await
     }
 }

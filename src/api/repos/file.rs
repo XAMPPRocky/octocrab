@@ -86,6 +86,7 @@ impl<'octo, 'r> GetRawContentBuilder<'octo, 'r> {
     }
 }
 
+/// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#get-a-repository-readme)
 #[derive(serde::Serialize)]
 pub struct GetReadmeBuilder<'octo, 'r> {
     #[serde(skip)]

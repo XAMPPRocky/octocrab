@@ -1,6 +1,7 @@
 use super::RepoHandler;
 use crate::models::security_advisories::{
-    CreateRepositoryAdvisory, ReportVulnerability, RepositoryAdvisory, UpdateRepositoryAdvisory,
+    CreateRepositoryAdvisory, ReportVulnerability, RepositoryAdvisory, RepositoryAdvisoryComment,
+    UpdateRepositoryAdvisory,
 };
 use crate::models::Repository;
 use crate::{FromResponse, Page, Result};
@@ -15,6 +16,14 @@ pub struct RepoSecurityAdvisoriesHandler<'octo, 'b> {
 impl<'octo, 'b> RepoSecurityAdvisoriesHandler<'octo, 'b> {
     pub(crate) fn new(handler: &'b RepoHandler<'octo>) -> Self {
         Self { handler }
+    }
+
+    /// Access security advisory comments API.
+    pub fn comments(
+        &self,
+        ghsa_id: impl Into<String>,
+    ) -> RepoSecurityAdvisoryCommentsHandler<'octo, 'b> {
+        RepoSecurityAdvisoryCommentsHandler::new(self.handler, ghsa_id.into())
     }
 
     /// List security advisories in a repository.
@@ -275,6 +284,108 @@ impl<'octo, 'b, 'c> ListRepoSecurityAdvisoriesBuilder<'octo, 'b, 'c> {
     /// Sends the request to list security advisories in a repository.
     pub async fn send(&self) -> Result<Page<RepositoryAdvisory>> {
         let route = format!("/{}/security-advisories", self.handler.handler.repo);
+        self.handler.handler.crab.get(route, Some(&self)).await
+    }
+}
+
+/// A client to GitHub's repository security advisory comments API.
+pub struct RepoSecurityAdvisoryCommentsHandler<'octo, 'b> {
+    handler: &'b RepoHandler<'octo>,
+    ghsa_id: String,
+}
+
+impl<'octo, 'b> RepoSecurityAdvisoryCommentsHandler<'octo, 'b> {
+    pub(crate) fn new(handler: &'b RepoHandler<'octo>, ghsa_id: String) -> Self {
+        Self { handler, ghsa_id }
+    }
+
+    /// List comments on a repository security advisory.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/security-advisories/repository-advisories#list-repository-security-advisory-comments)
+    pub fn list(&self) -> ListRepoSecurityAdvisoryCommentsBuilder<'octo, 'b, '_> {
+        ListRepoSecurityAdvisoryCommentsBuilder::new(self)
+    }
+
+    /// Create a comment on a repository security advisory.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/security-advisories/repository-advisories#create-a-repository-advisory-comment)
+    pub async fn create(&self, body: impl Into<String>) -> Result<RepositoryAdvisoryComment> {
+        let route = format!(
+            "/{}/security-advisories/{}/comments",
+            self.handler.repo, self.ghsa_id
+        );
+        let payload = serde_json::json!({ "body": body.into() });
+        self.handler.crab.post(route, Some(&payload)).await
+    }
+
+    /// Get a comment on a repository security advisory.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/security-advisories/repository-advisories#get-a-repository-advisory-comment)
+    pub async fn get(
+        &self,
+        comment_id: impl std::fmt::Display,
+    ) -> Result<RepositoryAdvisoryComment> {
+        let route = format!(
+            "/{}/security-advisories/{}/comments/{}",
+            self.handler.repo, self.ghsa_id, comment_id
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Update a comment on a repository security advisory.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/security-advisories/repository-advisories#update-a-repository-advisory-comment)
+    pub async fn update(
+        &self,
+        comment_id: impl std::fmt::Display,
+        body: impl Into<String>,
+    ) -> Result<RepositoryAdvisoryComment> {
+        let route = format!(
+            "/{}/security-advisories/{}/comments/{}",
+            self.handler.repo, self.ghsa_id, comment_id
+        );
+        let payload = serde_json::json!({ "body": body.into() });
+        self.handler.crab.patch(route, Some(&payload)).await
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ListRepoSecurityAdvisoryCommentsBuilder<'octo, 'b, 'c> {
+    #[serde(skip)]
+    handler: &'c RepoSecurityAdvisoryCommentsHandler<'octo, 'b>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page: Option<u32>,
+}
+
+impl<'octo, 'b, 'c> ListRepoSecurityAdvisoryCommentsBuilder<'octo, 'b, 'c> {
+    pub(crate) fn new(handler: &'c RepoSecurityAdvisoryCommentsHandler<'octo, 'b>) -> Self {
+        Self {
+            handler,
+            per_page: None,
+            page: None,
+        }
+    }
+
+    /// The number of results per page (max 100).
+    pub fn per_page(mut self, per_page: impl Into<u8>) -> Self {
+        self.per_page = Some(per_page.into());
+        self
+    }
+
+    /// Page number of the results to fetch.
+    pub fn page(mut self, page: impl Into<u32>) -> Self {
+        self.page = Some(page.into());
+        self
+    }
+
+    /// Sends the request to list comments on a repository security advisory.
+    pub async fn send(&self) -> Result<Page<RepositoryAdvisoryComment>> {
+        let route = format!(
+            "/{}/security-advisories/{}/comments",
+            self.handler.handler.repo, self.handler.ghsa_id
+        );
         self.handler.handler.crab.get(route, Some(&self)).await
     }
 }

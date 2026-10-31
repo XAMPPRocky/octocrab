@@ -26,7 +26,7 @@ impl<'octo> SearchHandler<'octo> {
     ///     .await?;
     ///# Ok(())
     ///# }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/search/search#search-repositories)
     pub fn repositories<'query>(
         self,
         query: &'query (impl AsRef<str> + ?Sized),
@@ -35,6 +35,9 @@ impl<'octo> SearchHandler<'octo> {
     }
 
     /// Searches for all the commits matching the search query.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/search/search#search-commits)
+    ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -55,6 +58,9 @@ impl<'octo> SearchHandler<'octo> {
     }
 
     /// Searches for all users matching the search query.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/search/search#search-users)
+    ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()
@@ -95,6 +101,9 @@ impl<'octo> SearchHandler<'octo> {
     }
 
     /// Searches for all code matching the search query.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/search/search#search-code)
+    ///
     /// ```no_run
     ///# async fn run() -> octocrab::Result<()> {
     /// let page = octocrab::instance()

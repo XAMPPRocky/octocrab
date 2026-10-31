@@ -34,7 +34,7 @@ impl<'octo> CodesOfConductHandler<'octo> {
     /// let codes = octocrab.codes_of_conduct().list_all_codes_of_conduct().await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codes-of-conduct/codes-of-conduct#get-all-codes-of-conduct)
     pub async fn list_all_codes_of_conduct(&self) -> crate::Result<Vec<CodeOfConduct>> {
         let route = String::from("/codes_of_conduct");
         self.crab.get(route, Some(&self)).await

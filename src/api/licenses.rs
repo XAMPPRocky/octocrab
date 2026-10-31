@@ -21,7 +21,7 @@ impl<'octo> LicenseHandler<'octo> {
     /// let licenses = octocrab::instance().licenses().list_commonly_used().await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/licenses/licenses#get-all-commonly-used-licenses)
     pub async fn list_commonly_used(&self) -> crate::Result<Vec<models::License>> {
         self.crab.get("/licenses", None::<&()>).await
     }

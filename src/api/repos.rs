@@ -140,7 +140,10 @@ pub use security::{
     RepoAutomatedSecurityFixesHandler, RepoPrivateVulnerabilityReportingHandler,
     RepoVulnerabilityAlertsHandler,
 };
-pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
+pub use security_advisories::{
+    ListRepoSecurityAdvisoriesBuilder, ListRepoSecurityAdvisoryCommentsBuilder,
+    RepoSecurityAdvisoriesHandler, RepoSecurityAdvisoryCommentsHandler,
+};
 pub use stargazers::{ListStarGazersBuilder, ListStarHistoryBuilder};
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
@@ -216,7 +219,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#get-a-repository)
     pub async fn get(&self) -> Result<models::Repository> {
         let route = format!("/{}", self.repo);
         self.crab.get(route, None::<&()>).await
@@ -592,7 +595,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#get-a-repository-readme)
     pub fn get_readme(&self) -> GetReadmeBuilder<'_, '_> {
         GetReadmeBuilder::new(self)
     }
@@ -1054,7 +1057,7 @@ impl<'octo> RepoHandler<'octo> {
     /// let stargazers = octocrab::instance().repos("owner", "repo").list_stargazers().send().await?;
     /// # Ok(())
     /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/starring#list-stargazers)
     pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
         ListStarGazersBuilder::new(self)
     }
@@ -1304,8 +1307,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .combined_status_for_ref(&Reference::Branch("main".to_string()))
     ///     .await?;
     /// # Ok(())
-    /// # }
-    /// ```
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/commits/statuses#get-the-combined-status-for-a-specific-reference)
     pub async fn combined_status_for_ref(
         &self,
         reference: &params::repos::Reference,
@@ -1374,6 +1376,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Deletes this repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#delete-a-repository)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance().repos("owner", "repo").delete().await
@@ -1391,6 +1396,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#download-a-repository-archive-tar)
     ///
     /// # Examples
     ///
@@ -1422,6 +1429,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .zip
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#download-a-repository-archive-zip)
     ///
     /// # Examples
     ///
