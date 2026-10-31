@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "label": "REST API v2022-11-28",
+  "message": "92.1%",
+  "color": "brightgreen",
+  "total": 1216,
+  "covered": 1120,
+  "missing": 96,
+  "percentage": 92.1
+}
