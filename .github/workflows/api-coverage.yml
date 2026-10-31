@@ -31,11 +31,13 @@ jobs:
 
       - name: Calculate Coverage & Generate Job Summary
         run: |
+          mkdir -p public_badges
           python3 scripts/calculate_api_coverage.py \
-            --badge-out endpoint-coverage.json \
+            --badge-out public_badges/endpoint-coverage.json \
             --details-out coverage-details.json \
             --missing-out missing-endpoints.md \
             --summary-out "$GITHUB_STEP_SUMMARY"
+          cp public_badges/endpoint-coverage.json .
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -52,8 +54,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: badges
-          publish_dir: .
-          exclude_assets: '.git,.github,src,tests,examples,target,.cache'
+          publish_dir: ./public_badges
           keep_files: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
