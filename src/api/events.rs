@@ -8,6 +8,7 @@ use crate::{
 use http::request::Builder;
 use http::{header::HeaderMap, Method, StatusCode};
 
+/// See: [GitHub API Documentation](https://docs.github.com/rest/activity/events#list-public-events)
 pub struct EventsBuilder<'octo> {
     crab: &'octo Octocrab,
     route: String,

@@ -165,7 +165,7 @@ impl<'octo, 'r> RepoRulesetsHandler<'octo, 'r> {
 
     /// Get a repository ruleset version.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/repos/rules?apiVersion=2022-11-28#get-a-repository-ruleset-version)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/rules#get-repository-ruleset-version)
     pub async fn version(
         &self,
         ruleset_id: impl Into<RulesetId>,

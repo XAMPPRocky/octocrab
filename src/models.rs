@@ -72,7 +72,7 @@ pub use repos::{
     PagesDeploymentStatus, PagesDeploymentStatusState, PagesDomainHealth, PagesHealthCheck,
     PagesHttpsCertificate, PagesSite, PagesSource, UpdatePagesSource,
 };
-pub use security_advisories::{RepositoryAdvisory, SecurityAdvisory};
+pub use security_advisories::{RepositoryAdvisory, RepositoryAdvisoryComment, SecurityAdvisory};
 
 pub mod actions;
 pub mod activity;
@@ -1655,9 +1655,10 @@ pub use projects_v2::{
 };
 pub mod agents;
 pub use agents::{
-    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableTrigger,
-    AgentPublicKey, AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask,
-    AgentTasksResponse, AgentVariable, AgentVariablesResponse,
+    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableToolsResponse,
+    AgentAvailableTrigger, AgentMergeConfiguration, AgentMergeUser, AgentPublicKey,
+    AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask, AgentTasksResponse,
+    AgentVariable, AgentVariablesResponse,
 };
 pub mod copilot_spaces;
 pub use copilot_spaces::{

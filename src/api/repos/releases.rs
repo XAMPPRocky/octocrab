@@ -173,6 +173,9 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Upload an [`crate::models::repos::Asset`] associated with
     /// a [`crate::models::repos::Release`]
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#upload-a-release-asset)
+    ///
     /// ```no_run
     /// use bytes::Bytes;
     /// # async fn run() -> octocrab::Result<()> {
@@ -198,6 +201,9 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Creates a new [`ListReleaseAssetsBuilder`] that can be configured to filter
     /// listing release assetss.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#list-release-assets)
+    ///
     /// ```no_run
     /// # async fn run(octocrab: &octocrab::Octocrab) -> octocrab::Result<()> {
     /// let page = octocrab.repos("owner", "repo")

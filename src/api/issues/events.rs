@@ -62,7 +62,7 @@ impl<'octo, 'r> IssueEventsHandler<'octo, 'r> {
 
     /// List issue events for an issue in the repository.
     ///
-    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/issues/events?apiVersion=2022-11-28#list-issue-events-for-an-issue)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/issues/events#list-issue-events)
     ///
     /// # Examples
     ///

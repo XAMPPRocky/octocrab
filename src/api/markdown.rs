@@ -19,6 +19,9 @@ impl<'octo> MarkdownHandler<'octo> {
     }
 
     /// Render an arbitrary Markdown document.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/markdown/markdown#render-a-markdown-document)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params;
@@ -41,6 +44,9 @@ impl<'octo> MarkdownHandler<'octo> {
     }
 
     /// Render a Markdown document in raw mode.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/markdown/markdown#render-a-markdown-document-in-raw-mode)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params;

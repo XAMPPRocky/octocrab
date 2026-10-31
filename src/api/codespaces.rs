@@ -503,6 +503,9 @@ impl<'octo> CodespacesSecretRepositoriesHandler<'octo> {
 
     /// Lists selected repositories for a secret.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/organization-secrets#list-selected-repositories-for-an-organization-secret)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/secrets#list-selected-repositories-for-a-user-secret)
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -517,6 +520,9 @@ impl<'octo> CodespacesSecretRepositoriesHandler<'octo> {
     }
 
     /// Sets selected repositories for a secret.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/organization-secrets#set-selected-repositories-for-an-organization-secret)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/secrets#set-selected-repositories-for-a-user-secret)
     ///
     /// # Examples
     ///
@@ -545,6 +551,9 @@ impl<'octo> CodespacesSecretRepositoriesHandler<'octo> {
 
     /// Adds a selected repository to a secret.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/organization-secrets#add-selected-repository-to-an-organization-secret)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/secrets#add-a-selected-repository-to-a-user-secret)
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -568,6 +577,9 @@ impl<'octo> CodespacesSecretRepositoriesHandler<'octo> {
     }
 
     /// Removes a selected repository from a secret.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/organization-secrets#remove-selected-repository-from-an-organization-secret)
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codespaces/secrets#remove-a-selected-repository-from-a-user-secret)
     ///
     /// # Examples
     ///

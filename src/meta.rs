@@ -33,6 +33,7 @@ impl<'octo> MetaHandler<'octo> {
 
     /// Returns meta information about GitHub, including a list of GitHub's IP addresses.
     ///
+    /// See also: [Get GitHub meta information](https://docs.github.com/rest/meta/meta#get-apiname-meta-information)
     /// See also: [Get GitHub meta information](https://docs.github.com/en/rest/meta/meta?apiVersion=2022-11-28#get-github-meta-information)
     ///
     /// ```no_run

@@ -3,6 +3,8 @@ pub mod cache_test_helpers;
 #[path = "common/mock_error.rs"]
 pub mod mock_error;
 
+#[path = "issues/issues_artifacts_tests.rs"]
+mod issues_artifacts_tests;
 #[path = "issues/issues_check_assignee_test.rs"]
 mod issues_check_assignee_test;
 #[path = "issues/issues_check_issue_assignee_tests.rs"]

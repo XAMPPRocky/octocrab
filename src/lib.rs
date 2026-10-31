@@ -1960,6 +1960,33 @@ impl Octocrab {
         self.all_repositories()
     }
 
+    /// List all organizations in the order that they were created.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#list-organizations)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # async fn run() -> octocrab::Result<()> {
+    /// let octocrab = octocrab::instance();
+    /// let page = octocrab.all_organizations().since(1000u64).send().await?;
+    /// for org in page {
+    ///     println!("Organization: {}", org.login);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn all_organizations(&self) -> orgs::ListAllOrganizationsBuilder<'_> {
+        orgs::ListAllOrganizationsBuilder::new(self)
+    }
+
+    /// List all organizations in the order that they were created (alias for [`all_organizations`][Octocrab::all_organizations]).
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/en/rest/orgs/orgs?apiVersion=2022-11-28#list-organizations)
+    pub fn list_organizations(&self) -> orgs::ListAllOrganizationsBuilder<'_> {
+        self.all_organizations()
+    }
+
     /// List all public users in the order that they signed up.
     ///
     /// See: [GitHub API Documentation](https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#list-users)
@@ -2030,6 +2057,8 @@ impl Octocrab {
     }
 
     /// Creates a [`users::UserHandler`] for the specified user using the user ID
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/users#get-a-user-using-their-id)
     pub fn users_by_id(&self, user: impl Into<UserId>) -> users::UserHandler<'_> {
         users::UserHandler::new(self, UserRef::ById(user.into()))
     }
@@ -2046,6 +2075,8 @@ impl Octocrab {
 
     /// Creates an [`events::EventsBuilder`] that allows you to access
     /// GitHub's events API.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/events#list-public-events)
     pub fn events(&self) -> events::EventsBuilder<'_> {
         events::EventsBuilder::new(self)
     }

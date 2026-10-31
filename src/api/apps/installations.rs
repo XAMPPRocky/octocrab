@@ -48,6 +48,8 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
 
     /// Sends the actual request.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/apps/apps#list-installations-for-the-authenticated-app)
+    ///
     /// # Examples
     ///
     /// ```no_run

@@ -1,5 +1,6 @@
 //! The Organization API.
 
+pub mod all_organizations;
 pub mod artifact_metadata;
 pub mod attestations;
 mod code_scanning;
@@ -28,6 +29,7 @@ mod rulesets;
 mod secret_scanning_alerts;
 mod secrets;
 mod variables;
+pub use self::all_organizations::ListAllOrganizationsBuilder;
 pub use self::artifact_metadata::OrgArtifactMetadataHandler;
 pub use self::attestations::OrgAttestationsHandler;
 pub use self::code_security_configurations::{
@@ -505,6 +507,8 @@ impl<'octo> OrgHandler<'octo> {
     }
 
     /// List events on this organization.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/events#list-public-organization-events)
     ///
     /// Takes an optional etag which allows for efficient polling. Here is a quick example to poll a
     /// organization's events.

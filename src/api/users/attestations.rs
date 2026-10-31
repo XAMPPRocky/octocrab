@@ -16,6 +16,8 @@ impl<'octo, 'r> UserAttestationsHandler<'octo, 'r> {
     /// List attestations by bulk subject digests for a user.
     ///
     /// `POST /users/{username}/attestations/bulk-list`
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#list-attestations-by-bulk-subject-digests)
     pub fn bulk_list(
         &self,
         subject_digests: Vec<String>,
@@ -26,6 +28,8 @@ impl<'octo, 'r> UserAttestationsHandler<'octo, 'r> {
     /// Request deletion of attestations by subject digests for a user.
     ///
     /// `POST /users/{username}/attestations/delete-request`
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#delete-attestations-in-bulk)
     pub async fn request_delete_by_digests(
         &self,
         subject_digests: Vec<String>,
@@ -41,6 +45,8 @@ impl<'octo, 'r> UserAttestationsHandler<'octo, 'r> {
     /// Delete attestations by subject digest for a user.
     ///
     /// `DELETE /users/{username}/attestations/digest/{subject_digest}`
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#delete-attestations-by-subject-digest)
     pub async fn delete_by_digest(&self, subject_digest: impl AsRef<str>) -> crate::Result<()> {
         let route = format!(
             "/{}/attestations/digest/{}",
@@ -54,6 +60,8 @@ impl<'octo, 'r> UserAttestationsHandler<'octo, 'r> {
     /// Delete an attestation by ID for a user.
     ///
     /// `DELETE /users/{username}/attestations/{attestation_id}`
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#delete-attestations-by-id)
     pub async fn delete_by_id(&self, attestation_id: u64) -> crate::Result<()> {
         let route = format!("/{}/attestations/{attestation_id}", self.handler.user);
         let response = self.handler.crab._delete(route, None::<&()>).await?;
@@ -63,6 +71,8 @@ impl<'octo, 'r> UserAttestationsHandler<'octo, 'r> {
     /// List attestations for a subject digest for a user.
     ///
     /// `GET /users/{username}/attestations/{subject_digest}`
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#list-attestations)
     pub fn list(
         &self,
         subject_digest: impl Into<String>,
@@ -136,6 +146,8 @@ impl<'octo, 'r> BulkListUserAttestationsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#list-attestations-by-bulk-subject-digests)
     pub async fn send(self) -> crate::Result<BulkAttestationsResponse> {
         let route = format!("/{}/attestations/bulk-list", self.handler.user);
         let uri = self
@@ -203,6 +215,8 @@ impl<'octo, 'r> ListUserAttestationsBuilder<'octo, 'r> {
     }
 
     /// Sends the actual request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/attestations#list-attestations)
     pub async fn send(self) -> crate::Result<AttestationsResponse> {
         let route = format!(
             "/{}/attestations/{}",

@@ -481,3 +481,237 @@ async fn test_agent_secrets_and_variables() {
         .await
         .unwrap();
 }
+
+#[tokio::test]
+async fn test_repo_agent_merge() {
+    let mock_server = MockServer::start().await;
+    let octocrab = setup_octocrab(&mock_server.uri());
+
+    // 1. GET agent merge
+    Mock::given(method("GET"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/pulls/42/agent-merge",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "allowed_actions": ["merge"],
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:00:00Z",
+            "user": {
+                "id": 1
+            }
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let merge_config = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .agent_merge(42)
+        .get()
+        .await
+        .unwrap();
+    assert_eq!(merge_config.allowed_actions, vec!["merge"]);
+    assert_eq!(merge_config.user.id, 1);
+
+    // 2. PUT agent merge
+    Mock::given(method("PUT"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/pulls/42/agent-merge",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "allowed_actions": [],
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:00:00Z",
+            "user": {
+                "id": 1
+            }
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let updated_config = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .agent_merge(42)
+        .update(&json!({ "allowed_actions": [] }))
+        .await
+        .unwrap();
+    assert!(updated_config.allowed_actions.is_empty());
+
+    // 3. DELETE agent merge
+    Mock::given(method("DELETE"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/pulls/42/agent-merge",
+        ))
+        .respond_with(ResponseTemplate::new(204))
+        .mount(&mock_server)
+        .await;
+
+    octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .agent_merge(42)
+        .disable()
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn test_repo_agent_automations_extended() {
+    let mock_server = MockServer::start().await;
+    let octocrab = setup_octocrab(&mock_server.uri());
+
+    // Available tools for repo
+    Mock::given(method("GET"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/automations/available-tools",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
+            {
+                "id": "repo_tool_1",
+                "title": "Repo Tools"
+            }
+        ])))
+        .mount(&mock_server)
+        .await;
+
+    let tools = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .automations()
+        .get_available_tools()
+        .await
+        .unwrap();
+    assert_eq!(tools.len(), 1);
+    assert_eq!(tools[0].id, "repo_tool_1");
+
+    // Available triggers for repo
+    Mock::given(method("GET"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/automations/available-triggers",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
+            {
+                "id": "repo_trigger_1",
+                "title": "Repo Trigger"
+            }
+        ])))
+        .mount(&mock_server)
+        .await;
+
+    let triggers = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .automations()
+        .get_available_triggers()
+        .await
+        .unwrap();
+    assert_eq!(triggers.len(), 1);
+    assert_eq!(triggers[0].id, "repo_trigger_1");
+
+    // List tasks for automation in repo
+    Mock::given(method("GET"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/automations/auto_1/tasks",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "tasks": [
+                {
+                    "id": "repo_task_1",
+                    "status": "completed"
+                }
+            ],
+            "total_count": 1
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let tasks = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .automations()
+        .list_tasks("auto_1")
+        .await
+        .unwrap();
+    assert_eq!(tasks.total_count, Some(1));
+    assert_eq!(tasks.tasks[0].id, "repo_task_1");
+
+    // Run task for automation in repo
+    Mock::given(method("POST"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/automations/auto_1/tasks",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "id": "repo_task_2",
+            "status": "queued"
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let task = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .automations()
+        .run_task("auto_1", &json!({}))
+        .await
+        .unwrap();
+    assert_eq!(task.id, "repo_task_2");
+    assert_eq!(task.status, Some("queued".to_string()));
+}
+
+#[tokio::test]
+async fn test_repo_agent_available_tools_catalog() {
+    let mock_server = MockServer::start().await;
+    let octocrab = setup_octocrab(&mock_server.uri());
+
+    // Test real catalog response with tool_groups and mcp_servers
+    Mock::given(method("GET"))
+        .and(path(
+            "/agents/repos/test-owner/test-repo/automations/available-tools",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "tool_groups": [
+                {
+                    "id": "github_tools",
+                    "title": "GitHub Tools",
+                    "tools": [
+                        {
+                            "id": "search",
+                            "title": "Search",
+                            "description": "Search repo"
+                        }
+                    ]
+                }
+            ],
+            "mcp_servers": [
+                {
+                    "name": "sentry",
+                    "tools": [
+                        {
+                            "id": "sentry/list_issues"
+                        }
+                    ]
+                }
+            ]
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let response = octocrab
+        .repos("test-owner", "test-repo")
+        .agents()
+        .automations()
+        .get_available_tools()
+        .await
+        .unwrap();
+
+    // Verify Deref to [AgentAvailableTool]
+    assert_eq!(response.len(), 1);
+    assert_eq!(response[0].id, "github_tools");
+    assert_eq!(response[0].title.as_deref(), Some("GitHub Tools"));
+
+    // Verify catalog helpers
+    assert_eq!(response.tool_groups().len(), 1);
+    assert_eq!(response.mcp_servers().len(), 1);
+    assert_eq!(response.mcp_servers()[0]["name"], "sentry");
+}

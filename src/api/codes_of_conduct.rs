@@ -15,6 +15,8 @@ impl<'octo> CodesOfConductHandler<'octo> {
     ///
     /// Returns array of all GitHub's codes of conduct.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/codes-of-conduct/codes-of-conduct#get-all-codes-of-conduct)
+    ///
     /// Fine-grained access tokens for "Get all codes of conduct"
     ///
     /// This endpoint works with the following fine-grained token types:

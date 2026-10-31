@@ -16,6 +16,9 @@ impl<'octo> LicenseHandler<'octo> {
     }
 
     /// List commonly used licenses.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/licenses/licenses#get-all-commonly-used-licenses)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let licenses = octocrab::instance().licenses().list_commonly_used().await?;

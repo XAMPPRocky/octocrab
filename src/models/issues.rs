@@ -164,3 +164,80 @@ pub struct IssueSuggestion {
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
+
+/// An artifact attached to an issue.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueArtifact {
+    pub id: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<Url>,
+    pub number: u64,
+    #[serde(rename = "type")]
+    pub artifact_type: String,
+    pub name: String,
+    pub body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub creator: Option<IssueArtifactActor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_by_actor: Option<IssueArtifactActor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+/// Actor who created or updated an issue artifact.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueArtifactActor {
+    pub login: String,
+    pub id: u64,
+}
+
+/// Historical version of an issue artifact.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct IssueArtifactVersion {
+    pub version: u64,
+    pub name: String,
+    pub body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actor: Option<IssueArtifactActor>,
+}
+
+/// Response format for getting an issue artifact.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum IssueArtifactResponse {
+    Detailed {
+        artifact: IssueArtifact,
+        #[serde(default)]
+        versions: Vec<IssueArtifactVersion>,
+    },
+    Simple(IssueArtifact),
+}
+
+impl IssueArtifactResponse {
+    pub fn into_artifact(self) -> IssueArtifact {
+        match self {
+            Self::Detailed { artifact, .. } => artifact,
+            Self::Simple(artifact) => artifact,
+        }
+    }
+
+    pub fn artifact(&self) -> &IssueArtifact {
+        match self {
+            Self::Detailed { artifact, .. } => artifact,
+            Self::Simple(artifact) => artifact,
+        }
+    }
+}

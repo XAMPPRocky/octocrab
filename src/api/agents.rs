@@ -1,9 +1,10 @@
 use serde::Serialize;
 
 use crate::models::agents::{
-    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableTrigger,
-    AgentPublicKey, AgentRepositoriesResponse, AgentSecret, AgentSecretsResponse, AgentTask,
-    AgentTasksResponse, AgentVariable, AgentVariablesResponse,
+    AgentAutomation, AgentAutomationsResponse, AgentAvailableTool, AgentAvailableToolsResponse,
+    AgentAvailableTrigger, AgentMergeConfiguration, AgentPublicKey, AgentRepositoriesResponse,
+    AgentSecret, AgentSecretsResponse, AgentTask, AgentTasksResponse, AgentVariable,
+    AgentVariablesResponse,
 };
 use crate::{Octocrab, Result};
 
@@ -37,15 +38,19 @@ pub struct AgentAutomationsHandler<'octo> {
 
 impl<'octo> AgentAutomationsHandler<'octo> {
     /// List automations for user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#list-automations-for-user)
     pub async fn list(&self) -> Result<Vec<AgentAutomation>> {
         self.crab.get("/agents/automations", None::<&()>).await
     }
 
     /// List available automation tools.
     pub async fn get_available_tools(&self) -> Result<Vec<AgentAvailableTool>> {
-        self.crab
+        let resp: AgentAvailableToolsResponse = self
+            .crab
             .get("/agents/automations/available-tools", None::<&()>)
-            .await
+            .await?;
+        Ok(resp.into())
     }
 
     /// List available automation triggers.
@@ -75,6 +80,8 @@ pub struct AgentTasksHandler<'octo> {
 
 impl<'octo> AgentTasksHandler<'octo> {
     /// List agent tasks.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-tasks/agent-tasks#list-tasks)
     pub async fn list(&self) -> Result<AgentTasksResponse> {
         self.crab.get("/agents/tasks", None::<&()>).await
     }
@@ -112,6 +119,10 @@ impl<'octo, 'b> RepoAgentsHandler<'octo, 'b> {
         }
     }
 
+    pub fn agent_merge(&self, pull_number: u64) -> AgentMergeHandler<'octo, 'b> {
+        AgentMergeHandler::new(self.handler, pull_number)
+    }
+
     pub fn secrets(&self) -> RepoAgentSecretsHandler<'octo, 'b> {
         RepoAgentSecretsHandler {
             handler: self.handler,
@@ -131,18 +142,43 @@ pub struct RepoAgentAutomationsHandler<'octo, 'b> {
 
 impl<'octo, 'b> RepoAgentAutomationsHandler<'octo, 'b> {
     /// List automations for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#list-automations-for-a-repository)
     pub async fn list(&self) -> Result<AgentAutomationsResponse> {
         let route = format!("/agents/{}/automations", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Create an automation for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#create-an-automation-for-a-repository)
     pub async fn create(&self, body: &impl Serialize) -> Result<AgentAutomation> {
         let route = format!("/agents/{}/automations", self.handler.repo);
         self.handler.crab.post(route, Some(body)).await
     }
 
+    /// List available automation tools for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#list-available-automation-tools-for-a-repository)
+    pub async fn get_available_tools(&self) -> Result<AgentAvailableToolsResponse> {
+        let route = format!("/agents/{}/automations/available-tools", self.handler.repo);
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// List available automation triggers for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#list-available-automation-triggers-for-a-repository)
+    pub async fn get_available_triggers(&self) -> Result<Vec<AgentAvailableTrigger>> {
+        let route = format!(
+            "/agents/{}/automations/available-triggers",
+            self.handler.repo
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
     /// Get an automation for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#get-an-automation)
     pub async fn get(&self, automation_id: impl AsRef<str>) -> Result<AgentAutomation> {
         let route = format!(
             "/agents/{}/automations/{}",
@@ -153,6 +189,8 @@ impl<'octo, 'b> RepoAgentAutomationsHandler<'octo, 'b> {
     }
 
     /// Edit an automation for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#update-an-automation)
     pub async fn update(
         &self,
         automation_id: impl AsRef<str>,
@@ -167,11 +205,90 @@ impl<'octo, 'b> RepoAgentAutomationsHandler<'octo, 'b> {
     }
 
     /// Delete an automation for a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#delete-an-automation)
     pub async fn delete(&self, automation_id: impl AsRef<str>) -> Result<()> {
         let route = format!(
             "/agents/{}/automations/{}",
             self.handler.repo,
             automation_id.as_ref()
+        );
+        let res = self.handler.crab._delete(route, None::<&()>).await?;
+        crate::map_github_error(res).await.map(drop)
+    }
+
+    /// List tasks for an automation in a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#list-tasks-for-an-automation-in-a-repository)
+    pub async fn list_tasks(&self, automation_id: impl AsRef<str>) -> Result<AgentTasksResponse> {
+        let route = format!(
+            "/agents/{}/automations/{}/tasks",
+            self.handler.repo,
+            automation_id.as_ref()
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Run an automation.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-automations/agent-automations#run-an-automation)
+    pub async fn run_task(
+        &self,
+        automation_id: impl AsRef<str>,
+        body: &impl Serialize,
+    ) -> Result<AgentTask> {
+        let route = format!(
+            "/agents/{}/automations/{}/tasks",
+            self.handler.repo,
+            automation_id.as_ref()
+        );
+        self.handler.crab.post(route, Some(body)).await
+    }
+}
+
+/// Handler for pull request Agent Merge operations.
+pub struct AgentMergeHandler<'octo, 'b> {
+    handler: &'b RepoHandler<'octo>,
+    pull_number: u64,
+}
+
+impl<'octo, 'b> AgentMergeHandler<'octo, 'b> {
+    pub(crate) fn new(handler: &'b RepoHandler<'octo>, pull_number: u64) -> Self {
+        Self {
+            handler,
+            pull_number,
+        }
+    }
+
+    /// Get Agent Merge configuration for a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/pulls/agent-merge#get-agent-merge-configuration-for-a-pull-request)
+    pub async fn get(&self) -> Result<AgentMergeConfiguration> {
+        let route = format!(
+            "/agents/{}/pulls/{}/agent-merge",
+            self.handler.repo, self.pull_number
+        );
+        self.handler.crab.get(route, None::<&()>).await
+    }
+
+    /// Update Agent Merge configuration for a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/pulls/agent-merge#update-agent-merge-configuration-for-a-pull-request)
+    pub async fn update(&self, body: &impl Serialize) -> Result<AgentMergeConfiguration> {
+        let route = format!(
+            "/agents/{}/pulls/{}/agent-merge",
+            self.handler.repo, self.pull_number
+        );
+        self.handler.crab.put(route, Some(body)).await
+    }
+
+    /// Disable Agent Merge for a pull request.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/pulls/agent-merge#disable-agent-merge-for-a-pull-request)
+    pub async fn disable(&self) -> Result<()> {
+        let route = format!(
+            "/agents/{}/pulls/{}/agent-merge",
+            self.handler.repo, self.pull_number
         );
         let res = self.handler.crab._delete(route, None::<&()>).await?;
         crate::map_github_error(res).await.map(drop)
@@ -184,18 +301,24 @@ pub struct RepoAgentTasksHandler<'octo, 'b> {
 
 impl<'octo, 'b> RepoAgentTasksHandler<'octo, 'b> {
     /// List tasks for repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-tasks/agent-tasks#list-tasks-for-repository)
     pub async fn list(&self) -> Result<AgentTasksResponse> {
         let route = format!("/agents/{}/tasks", self.handler.repo);
         self.handler.crab.get(route, None::<&()>).await
     }
 
     /// Start a task.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-tasks/agent-tasks#start-a-task)
     pub async fn start(&self, body: &impl Serialize) -> Result<AgentTask> {
         let route = format!("/agents/{}/tasks", self.handler.repo);
         self.handler.crab.post(route, Some(body)).await
     }
 
     /// Get a task by repo.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/agent-tasks/agent-tasks#get-a-task-by-repo)
     pub async fn get(&self, task_id: impl AsRef<str>) -> Result<AgentTask> {
         let route = format!("/agents/{}/tasks/{}", self.handler.repo, task_id.as_ref());
         self.handler.crab.get(route, None::<&()>).await

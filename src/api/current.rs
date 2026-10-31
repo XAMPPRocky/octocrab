@@ -39,11 +39,15 @@ impl<'octo> CurrentAuthHandler<'octo> {
     }
 
     /// Fetches information about the current user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/users#get-the-authenticated-user)
     pub async fn user(&self) -> Result<models::Author> {
         self.crab.get("/user", None::<&()>).await
     }
 
     /// ### Update the authenticated user
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/users/users#update-the-authenticated-user)
     ///
     ///works with the following fine-grained token types:
     ///
@@ -227,6 +231,8 @@ impl<'octo> CurrentAuthHandler<'octo> {
     }
 
     /// List gists that were starred by the authenticated user.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gists/gists#list-starred-gists)
     pub fn list_gists_starred_by_authenticated_user(&self) -> ListStarredGistsBuilder<'octo> {
         ListStarredGistsBuilder::new(self.crab)
     }
@@ -606,7 +612,7 @@ impl<'octo> CurrentAuthHandler<'octo> {
     /// # }
     /// ```
     ///
-    /// [docs]: https://docs.github.com/en/rest/users/followers?apiVersion=2022-11-28#list-followers-of-a-user
+    /// [docs]: https://docs.github.com/rest/users/followers#list-followers-of-the-authenticated-user
     pub fn list_followers(&self) -> ListCurrentUserFollowersBuilder<'octo> {
         ListCurrentUserFollowersBuilder::new(self.crab)
     }

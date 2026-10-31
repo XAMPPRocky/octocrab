@@ -1,5 +1,6 @@
 //! The issue API.
 
+pub mod artifacts;
 mod create;
 mod events;
 mod list;
@@ -16,6 +17,10 @@ use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use snafu::ResultExt;
 
 pub use self::{
+    artifacts::{
+        CreateIssueArtifactBuilder, IssueArtifactsHandler, ListIssueArtifactsBuilder,
+        UpdateIssueArtifactBuilder,
+    },
     create::CreateIssueBuilder,
     events::{IssueEventsHandler, ListEventsForIssueBuilder, ListIssueEventsBuilder},
     list::ListIssuesBuilder,
@@ -58,6 +63,11 @@ impl<'octo> IssueHandler<'octo> {
         let route = format!("/{}/issues/{number}", self.repo, number = number,);
 
         self.crab.get(route, None::<&()>).await
+    }
+
+    /// Create an [`IssueArtifactsHandler`] for the specified issue.
+    pub fn artifacts(&self, issue_number: u64) -> IssueArtifactsHandler<'octo, '_> {
+        IssueArtifactsHandler::new(self, issue_number)
     }
 
     /// Create an issue in the repository.
@@ -921,6 +931,9 @@ impl<'octo, 'r> ListTimelineEventsBuilder<'octo, 'r> {
 // Timeline
 impl IssueHandler<'_> {
     /// Lists events in the issue timeline.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/issues/timeline#list-timeline-events-for-an-issue)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let timeline = octocrab::instance()

@@ -140,7 +140,10 @@ pub use security::{
     RepoAutomatedSecurityFixesHandler, RepoPrivateVulnerabilityReportingHandler,
     RepoVulnerabilityAlertsHandler,
 };
-pub use security_advisories::{ListRepoSecurityAdvisoriesBuilder, RepoSecurityAdvisoriesHandler};
+pub use security_advisories::{
+    ListRepoSecurityAdvisoriesBuilder, ListRepoSecurityAdvisoryCommentsBuilder,
+    RepoSecurityAdvisoriesHandler, RepoSecurityAdvisoryCommentsHandler,
+};
 pub use stargazers::{ListStarGazersBuilder, ListStarHistoryBuilder};
 pub use stats::RepoStatsHandler;
 pub use status::{CreateStatusBuilder, ListStatusesBuilder};
@@ -208,6 +211,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Fetches a single repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#get-a-repository)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let repo = octocrab::instance()
@@ -580,6 +586,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Get repository readme.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#get-a-repository-readme)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     ///
@@ -1049,6 +1058,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// List star_gazers from a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/starring#list-stargazers)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let stargazers = octocrab::instance().repos("owner", "repo").list_stargazers().send().await?;
@@ -1295,6 +1307,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Gets the combined status for the specified reference.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/commits/statuses#get-the-combined-status-for-a-specific-reference)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params::repos::Reference;
@@ -1374,6 +1389,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Deletes this repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#delete-a-repository)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance().repos("owner", "repo").delete().await
@@ -1391,6 +1409,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .tar.gz
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#download-a-repository-archive-tar)
     ///
     /// # Examples
     ///
@@ -1422,6 +1442,8 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Stream the repository contents as a .zip
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#download-a-repository-archive-zip)
     ///
     /// # Examples
     ///
