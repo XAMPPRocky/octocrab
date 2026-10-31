@@ -20,12 +20,15 @@ impl<'octo> GitignoreHandler<'octo> {
 
     /// List all templates available to pass as an option when creating a
     /// repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/gitignore/gitignore#get-all-gitignore-templates)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let list = octocrab::instance().gitignore().list().await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/gitignore/gitignore#get-all-gitignore-templates)
+    /// ```
     pub async fn list(&self) -> crate::Result<Vec<String>> {
         self.crab.get("/gitignore/templates", None::<&()>).await
     }

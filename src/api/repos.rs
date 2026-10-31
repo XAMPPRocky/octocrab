@@ -211,6 +211,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Fetches a single repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#get-a-repository)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let repo = octocrab::instance()
@@ -219,7 +222,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/repos#get-a-repository)
+    /// ```
     pub async fn get(&self) -> Result<models::Repository> {
         let route = format!("/{}", self.repo);
         self.crab.get(route, None::<&()>).await
@@ -583,6 +586,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Get repository readme.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#get-a-repository-readme)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     ///
@@ -595,7 +601,7 @@ impl<'octo> RepoHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/repos/contents#get-a-repository-readme)
+    /// ```
     pub fn get_readme(&self) -> GetReadmeBuilder<'_, '_> {
         GetReadmeBuilder::new(self)
     }
@@ -1052,12 +1058,15 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// List star_gazers from a repository.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/starring#list-stargazers)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let stargazers = octocrab::instance().repos("owner", "repo").list_stargazers().send().await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/starring#list-stargazers)
+    /// ```
     pub fn list_stargazers(&self) -> ListStarGazersBuilder<'_, '_> {
         ListStarGazersBuilder::new(self)
     }
@@ -1298,6 +1307,9 @@ impl<'octo> RepoHandler<'octo> {
     }
 
     /// Gets the combined status for the specified reference.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/commits/statuses#get-the-combined-status-for-a-specific-reference)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// use octocrab::params::repos::Reference;
@@ -1307,7 +1319,8 @@ impl<'octo> RepoHandler<'octo> {
     ///     .combined_status_for_ref(&Reference::Branch("main".to_string()))
     ///     .await?;
     /// # Ok(())
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/commits/statuses#get-the-combined-status-for-a-specific-reference)
+    /// # }
+    /// ```
     pub async fn combined_status_for_ref(
         &self,
         reference: &params::repos::Reference,

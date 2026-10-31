@@ -15,6 +15,9 @@ impl<'octo> RateLimitHandler<'octo> {
     }
 
     /// Get the rate limit.
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/rate-limit/rate-limit#get-rate-limit-status-for-the-authenticated-user)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// let ratelimit = octocrab::instance()
@@ -23,7 +26,7 @@ impl<'octo> RateLimitHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/rate-limit/rate-limit#get-rate-limit-status-for-the-authenticated-user)
+    /// ```
     pub async fn get(&self) -> Result<models::RateLimit> {
         self.crab.get("/rate_limit", None::<&()>).await
     }

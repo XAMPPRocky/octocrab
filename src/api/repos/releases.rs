@@ -173,6 +173,9 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
 
     /// Upload an [`crate::models::repos::Asset`] associated with
     /// a [`crate::models::repos::Release`]
+    ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#upload-a-release-asset)
+    ///
     /// ```no_run
     /// use bytes::Bytes;
     /// # async fn run() -> octocrab::Result<()> {
@@ -186,7 +189,7 @@ impl<'octo, 'r> ReleasesHandler<'octo, 'r> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/releases/assets#upload-a-release-asset)
+    /// ```
     pub fn upload_asset<'asset_name>(
         &self,
         id: u64,

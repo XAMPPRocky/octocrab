@@ -134,6 +134,8 @@ impl<'octo> NotificationsHandler<'octo> {
     /// If you provide a `last_read_at` parameter,
     /// anything updated since this time will not be marked as read.
     ///
+    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/notifications#mark-notifications-as-read)
+    ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
     /// octocrab::instance()
@@ -143,7 +145,7 @@ impl<'octo> NotificationsHandler<'octo> {
     ///     .await?;
     /// # Ok(())
     /// # }
-    /// See: [GitHub API Documentation](https://docs.github.com/rest/activity/notifications#mark-notifications-as-read)
+    /// ```
     pub async fn mark_all_as_read(
         &self,
         last_read_at: impl Into<Option<DateTime>>,
