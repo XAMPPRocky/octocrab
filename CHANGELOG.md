@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.10](https://github.com/XAMPPRocky/octocrab/compare/v0.54.9...v0.54.10) - 2026-11-13
+
+### Other
+
+- Added #[non_exhaustive] to all models; added method for downloading job logs ([#1001](https://github.com/XAMPPRocky/octocrab/pull/1001))
+
 ## [0.54.9](https://github.com/XAMPPRocky/octocrab/compare/v0.54.8...v0.54.9) - 2026-10-31
 
 ### Fixed
