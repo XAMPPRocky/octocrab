@@ -80,6 +80,7 @@ pub struct SbomDependencyGraph {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum SbomFetchResponse {
     NotFound,
     NotReady,

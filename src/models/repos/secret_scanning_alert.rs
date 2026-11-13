@@ -180,6 +180,7 @@ pub struct SecretScanningCustomPattern {
 
 /// Request entry for bulk creating secret scanning custom patterns.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct CreateSecretScanningCustomPattern {
     pub name: String,
     pub pattern: String,
@@ -216,6 +217,7 @@ pub struct BulkCreatedCustomPatterns {
 
 /// Request entry for bulk deleting secret scanning custom patterns.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DeleteSecretScanningCustomPattern {
     pub id: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -233,6 +235,7 @@ impl DeleteSecretScanningCustomPattern {
 
 /// Request body for updating a secret scanning custom pattern.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct UpdateSecretScanningCustomPattern {
     pub custom_pattern_version: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

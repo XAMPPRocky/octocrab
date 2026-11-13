@@ -213,6 +213,7 @@ pub struct DependabotRepositoryAccess {
 
 /// Request body for updating Dependabot's repository access list.
 #[derive(Debug, Clone, Default, Serialize)]
+#[non_exhaustive]
 pub struct UpdateDependabotRepositoryAccess<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repository_ids_to_add: Option<&'a [RepositoryId]>,

@@ -228,6 +228,7 @@ pub struct CreatePackage {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CreateCredit {
     pub login: String,
     pub r#type: String,

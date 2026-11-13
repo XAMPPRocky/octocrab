@@ -237,6 +237,7 @@ pub struct Content {
 }
 
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct ContentItems {
     pub items: Vec<Content>,
 }
@@ -620,6 +621,7 @@ pub struct Deployment {
 /// [GitHub API Documentation](https://docs.github.com/en/rest/deployments/statuses?apiVersion=2022-11-28)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum DeploymentStatusState {
     Error,
     Failure,

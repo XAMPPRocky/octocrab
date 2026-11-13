@@ -24,6 +24,7 @@ pub struct OrgCustomPropertyDefinition {
 /// The value type of a custom property.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum CustomPropertyValueType {
     String,
     SingleSelect,
@@ -34,6 +35,7 @@ pub enum CustomPropertyValueType {
 /// Who can edit values of a custom property.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum ValuesEditableBy {
     OrgActors,
     OrgAndRepoActors,

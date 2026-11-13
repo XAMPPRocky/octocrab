@@ -61,6 +61,7 @@ pub struct CodeQualitySetup {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct UpdateCodeQualitySetup {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
@@ -84,6 +85,7 @@ pub struct UpdateCodeQualitySetupResponse {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CodeQualityEnablement {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enablement: Option<String>,

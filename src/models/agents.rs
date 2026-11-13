@@ -57,6 +57,7 @@ pub struct AgentAvailableTool {
 /// and a flat list of available tools.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum AgentAvailableToolsResponse {
     Catalog {
         #[serde(default)]

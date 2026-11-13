@@ -239,6 +239,7 @@ pub struct UpdateStatusChecks {
 
 /// Request body for updating pull request reviews.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct UpdatePullRequestReviews {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dismiss_stale_reviews: Option<bool>,
@@ -256,6 +257,7 @@ pub struct UpdatePullRequestReviews {
 
 /// Request body for dismissal restrictions.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct DismissalRestrictionsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub users: Option<Vec<String>>,
@@ -267,6 +269,7 @@ pub struct DismissalRestrictionsRequest {
 
 /// Request body for bypass pull request allowances.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct BypassPullRequestAllowancesRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub users: Option<Vec<String>>,
@@ -278,6 +281,7 @@ pub struct BypassPullRequestAllowancesRequest {
 
 /// Request body for updating push access restrictions.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[non_exhaustive]
 pub struct UpdateRestrictions {
     pub users: Vec<String>,
     pub teams: Vec<String>,

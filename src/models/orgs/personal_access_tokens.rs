@@ -50,6 +50,7 @@ pub struct OrgPersonalAccessTokenRequest {
 /// Action to perform on a personal access token (e.g. revoke).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum PatAction {
     Revoke,
 }
@@ -57,6 +58,7 @@ pub enum PatAction {
 /// Decision for reviewing a personal access token request (approve or deny).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum PatReviewDecision {
     Approve,
     Deny,

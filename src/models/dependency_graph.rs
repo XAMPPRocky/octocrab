@@ -13,6 +13,7 @@ use super::repos::sbom::SbomDependencyGraph;
 /// Type of change in a dependency diff.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum ChangeType {
     Added,
     Removed,
@@ -21,6 +22,7 @@ pub enum ChangeType {
 /// Scope of a dependency.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum DependencyScope {
     Unknown,
     Runtime,
@@ -30,6 +32,7 @@ pub enum DependencyScope {
 /// Relationship of a dependency.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum DependencyRelationship {
     Direct,
     Indirect,

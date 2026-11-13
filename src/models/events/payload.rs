@@ -48,6 +48,7 @@ use crate::models::{
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum EventInstallation {
     /// A full installation object which is present for `Installation*` related webhook events.
     Full(Box<Installation>),
@@ -56,12 +57,14 @@ pub enum EventInstallation {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct EventInstallationId {
     pub id: InstallationId,
     pub node_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct WrappedEventPayload {
     pub installation: Option<EventInstallation>,
     pub organization: Option<Organization>,

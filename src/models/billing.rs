@@ -124,6 +124,7 @@ pub struct BillingUsageReportItem {
 
 /// Time period specification in billing summary reports.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct BillingTimePeriod {
     pub year: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -244,6 +245,7 @@ pub struct BillingModelUsageItem {
 /// Budget scope enum.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum BudgetScope {
     Enterprise,
     Organization,
@@ -256,6 +258,7 @@ pub enum BudgetScope {
 
 /// Budget pricing type enum.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum BudgetType {
     SkuPricing,
     ProductPricing,
@@ -306,6 +309,7 @@ pub struct GetAllBudgets {
 
 /// Effective budget details for a user.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct EffectiveBudget {
     pub id: String,
     pub budget_amount: u64,
@@ -332,6 +336,7 @@ pub struct CreateBudget {
 
 /// Response returned on budget creation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CreateBudgetResponse {
     pub message: String,
     pub budget: Budget,
@@ -362,6 +367,7 @@ pub struct UpdateBudget {
 
 /// Response returned on budget update.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct UpdateBudgetResponse {
     pub message: String,
     pub budget: Budget,
@@ -369,6 +375,7 @@ pub struct UpdateBudgetResponse {
 
 /// Response returned on budget deletion.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DeleteBudgetResponse {
     pub message: String,
     pub id: String,

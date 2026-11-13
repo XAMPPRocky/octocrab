@@ -41,6 +41,7 @@ pub struct Migration {
 
 /// Request payload to start a user or organization migration.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct StartMigration {
     pub repositories: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -201,6 +202,7 @@ pub struct ImportProjectChoice {
 
 /// Request body to start an import.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct StartImport {
     pub vcs_url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -247,6 +249,7 @@ impl StartImport {
 
 /// Request body to update an import.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct UpdateImport {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vcs_username: Option<String>,
@@ -299,6 +302,7 @@ pub struct ImportAuthor {
 
 /// Request body to map a commit author.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct MapCommitAuthor {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
@@ -335,6 +339,7 @@ pub struct LargeFile {
 /// Preference for using Git LFS during import.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum LfsPreference {
     OptIn,
     OptOut,

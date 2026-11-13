@@ -72,6 +72,7 @@ pub struct CreateCampaign {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct UpdateCampaign {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,

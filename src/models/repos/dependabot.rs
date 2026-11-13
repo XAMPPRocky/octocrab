@@ -1,6 +1,7 @@
 use super::super::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DependabotAlert {
     pub number: i64,
     pub state: State,
@@ -21,6 +22,7 @@ pub struct DependabotAlert {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum DissmisedReason {
     FixStarted,
     Inaccurate,
@@ -31,6 +33,7 @@ pub enum DissmisedReason {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum State {
     AutoDismissed,
     Dismissed,
@@ -39,6 +42,7 @@ pub enum State {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Dependency {
     pub package: Package,
     pub manifest_path: String,
@@ -47,18 +51,21 @@ pub struct Dependency {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum Scope {
     Development,
     Runtime,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Package {
     pub ecosystem: String,
     pub name: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SecurityAdvisory {
     pub ghsa_id: String,
     pub cve_id: Option<String>,
@@ -77,6 +84,7 @@ pub struct SecurityAdvisory {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Vulnerability {
     pub package: Package,
     pub severity: Severity,
@@ -86,6 +94,7 @@ pub struct Vulnerability {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum Severity {
     Low,
     Medium,
@@ -94,46 +103,54 @@ pub enum Severity {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct FirstPatchedVersion {
     pub identifier: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Cvss {
     pub vector_string: Option<String>,
     pub score: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CvssSeverities {
     pub cvss_v3: Option<Cvss>,
     pub cvss_v4: Option<Cvss>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Cwe {
     pub cwe_id: String,
     pub name: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Identifier {
     pub r#type: AdvisoryType,
     pub value: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum AdvisoryType {
     CVE,
     GHSA,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Reference {
     pub url: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SecurityVulnerability {
     pub package: Package,
     pub severity: Severity,

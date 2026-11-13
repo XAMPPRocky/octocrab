@@ -1209,6 +1209,7 @@ pub struct SecretScanningPushProtection {
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoryFile {
     pub name: Option<String>,
     pub key: Option<String>,
@@ -1217,6 +1218,7 @@ pub struct RepositoryFile {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoryMetrics {
     pub health_percentage: u64,
     pub description: Option<String>,
@@ -1457,12 +1459,14 @@ pub struct PublicKey {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RateLimit {
     pub resources: Resources,
     pub rate: Rate,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Resources {
     pub core: Rate,
     pub search: Rate,
@@ -1475,6 +1479,7 @@ pub struct Resources {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Rate {
     pub limit: usize,
     pub used: usize,
@@ -1483,6 +1488,7 @@ pub struct Rate {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct UserEmailInfo {
     pub email: String,
     pub primary: bool,
@@ -1491,6 +1497,7 @@ pub struct UserEmailInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GitSshKey {
     pub key: String,
     pub id: u64,
@@ -1507,12 +1514,14 @@ pub struct GitSshKey {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SocialAccount {
     pub provider: String,
     pub url: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SshSigningKey {
     pub key: String,
     pub id: u64,

@@ -88,11 +88,13 @@ pub struct PullRequestLink {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Pin {
     pinned_at: chrono::DateTime<chrono::Utc>,
     pinned_by: Author,
 }
 
+#[non_exhaustive]
 pub enum SubIssuePriority {
     Before(IssueId),
     After(IssueId),
@@ -125,6 +127,7 @@ pub struct IssueFieldValue {
 
 /// Request entry for adding or setting an issue field value on an issue.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IssueFieldValueInput {
     pub field_id: u64,
     pub value: serde_json::Value,
@@ -217,6 +220,7 @@ pub struct IssueArtifactVersion {
 /// Response format for getting an issue artifact.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum IssueArtifactResponse {
     Detailed {
         artifact: IssueArtifact,

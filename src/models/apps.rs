@@ -152,6 +152,7 @@ pub struct InstallationRepositories {
 ///
 /// See: [GitHub API Documentation](https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app)
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CreateInstallationAccessToken {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repositories: Option<Vec<String>>,
