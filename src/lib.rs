@@ -680,11 +680,16 @@ where
         .layer(self.service)
         .map_err(|e| e.into());
 
+        let base_uri = Uri::from_static(GITHUB_BASE_URI);
+        let upload_uri = Uri::from_static(GITHUB_BASE_UPLOAD_URI);
+
         if let Some(executor) = self.executor {
-            return Ok(Octocrab::new_with_executor(service, self.auth, executor));
+            return Ok(Octocrab::new_with_executor(
+                service, self.auth, base_uri, upload_uri, executor,
+            ));
         }
 
-        Ok(Octocrab::new(service, self.auth))
+        Ok(Octocrab::new(service, self.auth, base_uri, upload_uri))
     }
 }
 
@@ -1009,15 +1014,18 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = BaseUriLayer::new(base_uri.clone()).layer(client);
 
-        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
+        let client =
+            AuthHeaderLayer::new(auth_header, base_uri.clone(), upload_uri.clone()).layer(client);
 
         let client = HttpCacheLayer::new(cache_storage).layer(client);
 
         if let Some(executor) = executor {
-            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+            return Ok(Octocrab::new_with_executor(
+                client, auth_state, base_uri, upload_uri, executor,
+            ));
         }
 
-        Ok(Octocrab::new(client, auth_state))
+        Ok(Octocrab::new(client, auth_state, base_uri, upload_uri))
     }
 
     /// Build an [`Octocrab`] instance backed by [`reqwest::Client`] instead
@@ -1169,15 +1177,18 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
         let client = BaseUriLayer::new(base_uri.clone()).layer(client);
 
-        let client = AuthHeaderLayer::new(auth_header, base_uri, upload_uri).layer(client);
+        let client =
+            AuthHeaderLayer::new(auth_header, base_uri.clone(), upload_uri.clone()).layer(client);
 
         let client = HttpCacheLayer::new(cache_storage).layer(client);
 
         if let Some(executor) = executor {
-            return Ok(Octocrab::new_with_executor(client, auth_state, executor));
+            return Ok(Octocrab::new_with_executor(
+                client, auth_state, base_uri, upload_uri, executor,
+            ));
         }
 
-        Ok(Octocrab::new(client, auth_state))
+        Ok(Octocrab::new(client, auth_state, base_uri, upload_uri))
     }
 
     /// Computes the extra headers, auth header/state, and base/upload URIs
@@ -1451,6 +1462,8 @@ pub type OctocrabService = Buffer<
 pub struct Octocrab {
     client: OctocrabService,
     auth_state: AuthState,
+    base_uri: Uri,
+    upload_uri: Uri,
 }
 
 /// A builder for an installation-authenticated `Octocrab` with an optional repository scope.
@@ -1496,6 +1509,8 @@ impl<'octo> InstallationRequestBuilder<'octo> {
                 repositories: self.repositories,
                 repository_ids: self.repository_ids,
             },
+            base_uri: self.crab.base_uri.clone(),
+            upload_uri: self.crab.upload_uri.clone(),
         })
     }
 }
@@ -1504,6 +1519,8 @@ impl fmt::Debug for Octocrab {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Octocrab")
             .field("auth_state", &self.auth_state)
+            .field("base_uri", &self.base_uri)
+            .field("upload_uri", &self.upload_uri)
             .finish()
     }
 }
@@ -1529,7 +1546,7 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab`.
-    fn new<S>(service: S, auth_state: AuthState) -> Self
+    fn new<S>(service: S, auth_state: AuthState, base_uri: Uri, upload_uri: Uri) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
             + Send
@@ -1542,11 +1559,19 @@ impl Octocrab {
         Self {
             client: service,
             auth_state,
+            base_uri,
+            upload_uri,
         }
     }
 
     /// Creates a new `Octocrab` with a custom executor
-    fn new_with_executor<S>(service: S, auth_state: AuthState, executor: Executor) -> Self
+    fn new_with_executor<S>(
+        service: S,
+        auth_state: AuthState,
+        base_uri: Uri,
+        upload_uri: Uri,
+        executor: Executor,
+    ) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
             + Send
@@ -1563,6 +1588,8 @@ impl Octocrab {
         Self {
             client: service,
             auth_state,
+            base_uri,
+            upload_uri,
         }
     }
 
@@ -1657,6 +1684,8 @@ impl Octocrab {
             auth_state: AuthState::AccessToken {
                 token: token.into(),
             },
+            base_uri: self.base_uri.clone(),
+            upload_uri: self.upload_uri.clone(),
         })
     }
 }
@@ -2646,26 +2675,22 @@ impl Octocrab {
                 };
 
                 if let Some(mut auth_header) = auth_header {
-                    // Only set the auth_header if the authority (host) is api.github.com or empty (destined for
-                    // GitHub). Otherwise, leave it off as we could have been redirected
+                    // Only set the auth_header if the authority (host) is api.github.com,
+                    // matches base_uri or upload_uri, or is empty (destined for GitHub).
+                    // Otherwise, leave it off as we could have been redirected
                     // away from GitHub (via follow_location_to_data()), and we don't
                     // want to give our credentials to third-party services.
-                    match parts.uri.authority() {
-                        None => {
-                            auth_header.set_sensitive(true);
-                            parts
-                                .headers
-                                .insert(http::header::AUTHORIZATION, auth_header);
-                        }
-                        Some(authority) if authority == "api.github.com" => {
-                            auth_header.set_sensitive(true);
-                            parts
-                                .headers
-                                .insert(http::header::AUTHORIZATION, auth_header);
-                        }
-                        Some(_) => {
-                            // Don't insert auth header.
-                        }
+                    let authority = parts.uri.authority();
+                    let allowed_authorities =
+                        [self.base_uri.authority(), self.upload_uri.authority()];
+                    if authority.is_none()
+                        || authority.is_some_and(|a| a == "api.github.com")
+                        || allowed_authorities.contains(&authority)
+                    {
+                        auth_header.set_sensitive(true);
+                        parts
+                            .headers
+                            .insert(http::header::AUTHORIZATION, auth_header);
                     }
                 }
 

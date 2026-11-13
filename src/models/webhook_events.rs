@@ -995,6 +995,7 @@ impl WebhookEventType {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum EventInstallation {
     /// A full installation object which is present for `Installation*` related webhook events.
     Full(Box<Installation>),

@@ -131,6 +131,7 @@ pub struct ProjectV2View {
 
 /// Response wrapper for operations returning `{ "value": T }`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ProjectV2ValueResponse<T> {
     pub value: T,
 }
@@ -138,6 +139,7 @@ pub struct ProjectV2ValueResponse<T> {
 /// Helper enum to deserialize either `{ "value": ProjectV2Item }` or `ProjectV2Item`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum ProjectV2ItemResponse {
     Wrapped { value: ProjectV2Item },
     Direct(ProjectV2Item),
@@ -155,6 +157,7 @@ impl From<ProjectV2ItemResponse> for ProjectV2Item {
 /// Helper enum to deserialize either `{ "value": ProjectV2View }` or `ProjectV2View`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum ProjectV2ViewResponse {
     Wrapped { value: ProjectV2View },
     Direct(ProjectV2View),

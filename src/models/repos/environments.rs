@@ -100,6 +100,7 @@ impl EnvironmentReviewer {
 
 /// The type of reviewer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum ReviewerType {
     User,
     Team,
@@ -129,6 +130,7 @@ pub struct DeploymentBranchPolicies {
 /// The type of deployment branch policy target.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum BranchPolicyType {
     Branch,
     Tag,

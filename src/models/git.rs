@@ -55,6 +55,7 @@ pub struct GitTreeEntry {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct CreateTreeEntry {
     pub path: String,
     pub mode: String,

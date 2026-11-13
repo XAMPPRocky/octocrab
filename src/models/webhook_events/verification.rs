@@ -91,6 +91,7 @@ type HmacSha256 = Hmac<Sha256>;
 /// Errors that can occur during webhook signature verification.
 #[derive(Debug, Snafu, Clone, PartialEq)]
 #[snafu(visibility(pub))]
+#[non_exhaustive]
 pub enum WebhookVerificationError {
     /// Missing or invalid signature prefix (expected `sha256=`).
     #[snafu(display("Missing or invalid signature prefix: expected 'sha256='"))]
@@ -126,6 +127,7 @@ pub enum WebhookVerificationError {
 /// Errors that can occur when verifying and deserializing a webhook event.
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
+#[non_exhaustive]
 pub enum WebhookEventError {
     /// Failed to verify webhook signature.
     #[snafu(display("Webhook signature verification failed: {source}"))]

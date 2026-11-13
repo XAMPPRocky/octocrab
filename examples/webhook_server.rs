@@ -129,6 +129,12 @@ fn handle_client(mut stream: TcpStream, verifier: &WebhookVerifier) {
                 "HTTP/1.1 400 Bad Request\r\nContent-Length: 25\r\n\r\nMalformed JSON payload";
             let _ = stream.write_all(response.as_bytes());
         }
+        Err(err) => {
+            eprintln!("Webhook processing failed: {}", err);
+            let response =
+                "HTTP/1.1 400 Bad Request\r\nContent-Length: 25\r\n\r\nWebhook processing failed";
+            let _ = stream.write_all(response.as_bytes());
+        }
     }
 }
 

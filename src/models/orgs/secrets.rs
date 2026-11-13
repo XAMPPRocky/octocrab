@@ -2,6 +2,7 @@ use super::super::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum Visibility {
     All,
     Private,
@@ -42,6 +43,7 @@ pub struct CreateOrganizationSecret<'a> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum CreateOrganizationSecretResponse {
     Created,
     Updated,

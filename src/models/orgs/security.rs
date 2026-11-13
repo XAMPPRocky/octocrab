@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Security products that can be enabled or disabled for an organization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum SecurityProduct {
     DependencyGraph,
     DependabotAlerts,
@@ -34,6 +35,7 @@ impl std::fmt::Display for SecurityProduct {
 /// Enablement state for a security product.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum SecurityEnablement {
     EnableAll,
     DisableAll,

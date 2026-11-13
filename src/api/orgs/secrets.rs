@@ -96,6 +96,7 @@ impl<'octo> OrgSecretsHandler<'octo> {
     /// match result {
     ///    CreateOrganizationSecretResponse::Created => println!("Created secret!"),
     ///    CreateOrganizationSecretResponse::Updated => println!("Updated secret!"),
+    ///    _ => {}
     /// }
     /// # Ok(())
     /// # }

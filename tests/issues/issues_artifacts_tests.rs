@@ -195,5 +195,6 @@ async fn test_issue_artifacts_detailed_with_versions() {
         octocrab::models::issues::IssueArtifactResponse::Simple(_) => {
             panic!("Expected Detailed artifact response");
         }
+        _ => panic!("unexpected variant"),
     }
 }

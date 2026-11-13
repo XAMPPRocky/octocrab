@@ -240,6 +240,7 @@ pub struct CreateEnvironmentSecret<'a> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum CreateEnvironmentSecretResponse {
     Created,
     Updated,

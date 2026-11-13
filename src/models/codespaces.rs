@@ -153,6 +153,7 @@ pub struct OrgCodespacesAccess {
 /// Visibility setting for organization codespaces access.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum OrgCodespacesAccessVisibility {
     Disabled,
     SelectedMembers,
@@ -247,6 +248,7 @@ pub struct CreateRepoCodespace {
 
 /// Request body for creating a codespace from a pull request.
 #[derive(Debug, Clone, Default, Serialize)]
+#[non_exhaustive]
 pub struct CreatePullRequestCodespace {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,

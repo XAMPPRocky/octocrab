@@ -93,6 +93,7 @@ impl<'octo> RepoSecretsHandler<'octo> {
     /// match result {
     ///    CreateRepositorySecretResponse::Created => println!("Created secret!"),
     ///    CreateRepositorySecretResponse::Updated => println!("Updated secret!"),
+    ///    _ => {}
     /// }
     /// # Ok(())
     /// # }

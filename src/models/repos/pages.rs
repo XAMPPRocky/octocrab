@@ -197,6 +197,7 @@ pub struct PagesDomainHealth {
 /// An identifier for a GitHub Pages deployment (either an integer or a commit SHA string).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum PagesDeploymentId {
     Integer(u64),
     String(String),
@@ -277,6 +278,7 @@ pub struct PagesDeploymentStatus {
 /// or a structured [`PagesSource`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum UpdatePagesSource {
     Legacy(String),
     Source(PagesSource),
