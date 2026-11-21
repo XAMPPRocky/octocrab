@@ -531,7 +531,7 @@ impl<'octo> PullRequestHandler<'octo> {
     ///     .direction(params::Direction::Ascending)
     ///     .per_page(100)
     ///     .page(5u32)
-    ///     .since(chrono::Utc::now() - chrono::Duration::days(1))
+    ///     .since(jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24))
     ///     // Send the request
     ///     .send()
     ///     .await?;

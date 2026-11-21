@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 use crate::models::checks::{AutoTriggerCheck, CheckSuite, CheckSuitePreferences};
 use crate::models::{AppId, CheckRunId, CheckSuiteId};
@@ -60,7 +60,7 @@ pub struct CreateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     conclusion: Option<CheckRunConclusion>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    completed_at: Option<DateTime<Utc>>,
+    completed_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     output: Option<CheckRunOutput>,
 }
@@ -107,7 +107,7 @@ impl<'octo, 'r> CreateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The time that the check run completed.
-    pub fn completed_at(mut self, completed_at: DateTime<Utc>) -> Self {
+    pub fn completed_at(mut self, completed_at: Timestamp) -> Self {
         self.completed_at = Some(completed_at);
         self
     }
@@ -144,13 +144,13 @@ pub struct UpdateCheckRunBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     external_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    started_at: Option<DateTime<Utc>>,
+    started_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     status: Option<CheckRunStatus>,
     #[serde(skip_serializing_if = "Option::is_none")]
     conclusion: Option<CheckRunConclusion>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    completed_at: Option<DateTime<Utc>>,
+    completed_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     output: Option<CheckRunOutput>,
 }
@@ -191,7 +191,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The time that the check run began.
-    pub fn started_at(mut self, started_at: DateTime<Utc>) -> Self {
+    pub fn started_at(mut self, started_at: Timestamp) -> Self {
         self.started_at = Some(started_at);
         self
     }
@@ -210,7 +210,7 @@ impl<'octo, 'r> UpdateCheckRunBuilder<'octo, 'r> {
     }
 
     /// The time that the check run completed.
-    pub fn completed_at(mut self, completed_at: DateTime<Utc>) -> Self {
+    pub fn completed_at(mut self, completed_at: Timestamp) -> Self {
         self.completed_at = Some(completed_at);
         self
     }

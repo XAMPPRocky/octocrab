@@ -1,7 +1,7 @@
 // Tests for calls to the /repos/{owner}/{repo}/actions/secrets API.
 
 use crate::mock_error::setup_error_handler;
-use chrono::DateTime;
+use jiff::Timestamp;
 use octocrab::{
     models::{
         repos::secrets::{
@@ -103,21 +103,13 @@ async fn should_return_repo_secrets() {
         vec![
             RepositorySecret {
                 name: String::from("GH_TOKEN"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
             },
             RepositorySecret {
                 name: String::from("GIST_ID"),
-                created_at: DateTime::parse_from_rfc3339("2020-01-10T10:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-11T11:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2020-01-10T10:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-11T11:59:22Z".parse::<Timestamp>().unwrap(),
             },
         ]
     );
@@ -171,12 +163,8 @@ async fn should_return_repo_secret() {
         item,
         RepositorySecret {
             name: String::from("GH_TOKEN"),
-            created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                .unwrap()
-                .into(),
-            updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                .unwrap()
-                .into(),
+            created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+            updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
         }
     );
 }

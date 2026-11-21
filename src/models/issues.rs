@@ -36,11 +36,11 @@ pub struct Issue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pull_request: Option<PullRequestLink>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub closed_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub closed_by: Option<Author>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -63,9 +63,9 @@ pub struct Comment {
     pub user: Author,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pin: Option<Pin>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -90,7 +90,7 @@ pub struct PullRequestLink {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Pin {
-    pinned_at: chrono::DateTime<chrono::Utc>,
+    pinned_at: jiff::Timestamp,
     pinned_by: Author,
 }
 
@@ -164,8 +164,8 @@ pub struct IssueSuggestion {
     pub issue_event_id: Option<IssueEventId>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resolved_by: Option<UserId>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
 }
 
 /// An artifact attached to an issue.
@@ -189,9 +189,9 @@ pub struct IssueArtifact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_by_actor: Option<IssueArtifactActor>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
 }
 
 /// Actor who created or updated an issue artifact.
@@ -212,7 +212,7 @@ pub struct IssueArtifactVersion {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actor: Option<IssueArtifactActor>,
 }

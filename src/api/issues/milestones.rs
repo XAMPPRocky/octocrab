@@ -1,7 +1,7 @@
 use super::IssueHandler;
 use crate::models::{Label, Milestone};
 use crate::{params, Result};
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 /// Handler for GitHub's repository milestones API.
 ///
@@ -234,7 +234,7 @@ pub struct CreateMilestoneBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    due_on: Option<DateTime<Utc>>,
+    due_on: Option<Timestamp>,
 }
 
 impl<'octo, 'r> CreateMilestoneBuilder<'octo, 'r> {
@@ -261,7 +261,7 @@ impl<'octo, 'r> CreateMilestoneBuilder<'octo, 'r> {
     }
 
     /// The milestone due date.
-    pub fn due_on(mut self, due_on: impl Into<DateTime<Utc>>) -> Self {
+    pub fn due_on(mut self, due_on: impl Into<Timestamp>) -> Self {
         self.due_on = Some(due_on.into());
         self
     }
@@ -286,7 +286,7 @@ pub struct UpdateMilestoneBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    due_on: Option<DateTime<Utc>>,
+    due_on: Option<Timestamp>,
 }
 
 impl<'octo, 'r> UpdateMilestoneBuilder<'octo, 'r> {
@@ -320,7 +320,7 @@ impl<'octo, 'r> UpdateMilestoneBuilder<'octo, 'r> {
     }
 
     /// The milestone due date.
-    pub fn due_on(mut self, due_on: impl Into<DateTime<Utc>>) -> Self {
+    pub fn due_on(mut self, due_on: impl Into<Timestamp>) -> Self {
         self.due_on = Some(due_on.into());
         self
     }

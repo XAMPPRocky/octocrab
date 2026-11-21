@@ -7,7 +7,7 @@ pub struct Gist {
     pub comments: u64,
     pub comments_url: Url,
     pub commits_url: Url,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     pub description: Option<String>,
     pub files: BTreeMap<String, GistFile>,
     pub forks_url: Url,
@@ -17,7 +17,7 @@ pub struct Gist {
     pub id: String,
     pub node_id: String,
     pub public: bool,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Timestamp,
     pub url: Url,
 }
 
@@ -38,7 +38,7 @@ pub struct GistFile {
 pub struct GistCommit {
     pub user: Option<Author>,
     pub version: String,
-    pub committed_at: DateTime<Utc>,
+    pub committed_at: Timestamp,
     pub change_status: GistChangeStatus,
     pub url: Url,
 }
@@ -57,8 +57,8 @@ pub struct GistRevision {
     pub id: String,
     pub node_id: String,
     pub public: bool,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub description: Option<String>,
     pub files: BTreeMap<String, GistFile>,
     pub url: Url,
@@ -72,7 +72,7 @@ pub struct GistComment {
     pub url: Url,
     pub body: String,
     pub user: Option<Author>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub author_association: AuthorAssociation,
 }

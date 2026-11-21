@@ -2,7 +2,7 @@
 //!
 //! See: [GitHub REST API Documentation](https://docs.github.com/en/rest/codespaces?apiVersion=2022-11-28)
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -27,10 +27,10 @@ pub struct Codespace {
     pub devcontainer_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prebuild: Option<bool>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_used_at: Option<DateTime<Utc>>,
+    pub last_used_at: Option<Timestamp>,
     pub state: String,
     pub url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -54,7 +54,7 @@ pub struct Codespace {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub retention_period_minutes: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub retention_expires_at: Option<DateTime<Utc>>,
+    pub retention_expires_at: Option<Timestamp>,
 }
 
 /// A machine type available for a codespace.
@@ -130,7 +130,7 @@ pub struct CodespaceExportDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -166,8 +166,8 @@ pub enum OrgCodespacesAccessVisibility {
 #[non_exhaustive]
 pub struct CodespacesSecret {
     pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub visibility: crate::models::orgs::secrets::Visibility,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub selected_repositories_url: Option<String>,

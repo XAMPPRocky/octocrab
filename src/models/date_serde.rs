@@ -4,26 +4,25 @@
 //! - a seconds timestamp relative to Epoch, or
 //! - a string containing the timestamp in [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) format.
 //!
-//! This module handles transparently both formats to deserialize to [`DateTime<Utc>`](chrono::DateTime). It mostly
-//! redo things existing in [chrono::serde], because it is otherwise impossible to combine existing `serde_with` modules.
+//! This module handles transparently both formats to deserialize to [`jiff::Timestamp`].
 
-use core::fmt;
+use std::convert::TryFrom;
 
-use chrono::{DateTime, LocalResult, TimeZone, Utc};
+use jiff::Timestamp;
 use serde::{de, Deserialize};
 
-pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<DateTime<Utc>, D::Error>
+pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
 where
     D: de::Deserializer<'de>,
 {
     deserializer.deserialize_any(GithubTimestampVisitor)
 }
 
-/// Helper struct to tell serde the deserializer to use when working with Option<DateTime<Utc>>
+/// Helper struct to tell serde the deserializer to use when working with Option<Timestamp>
 #[derive(Debug, Deserialize)]
-struct WrappedGithubTimestamp(#[serde(deserialize_with = "deserialize")] DateTime<Utc>);
+struct WrappedGithubTimestamp(#[serde(deserialize_with = "deserialize")] Timestamp);
 
-pub(crate) fn deserialize_opt<'de, D>(deserializer: D) -> Result<Option<DateTime<Utc>>, D::Error>
+pub(crate) fn deserialize_opt<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Error>
 where
     D: de::Deserializer<'de>,
 {
@@ -34,7 +33,7 @@ where
 struct GithubTimestampVisitor;
 
 impl de::Visitor<'_> for GithubTimestampVisitor {
-    type Value = DateTime<Utc>;
+    type Value = Timestamp;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter
@@ -45,14 +44,16 @@ impl de::Visitor<'_> for GithubTimestampVisitor {
     where
         E: de::Error,
     {
-        serde_from(Utc.timestamp_opt(v, 0), &v)
+        Timestamp::from_second(v).map_err(E::custom)
     }
 
     fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
-        serde_from(Utc.timestamp_opt(v as i64, 0), &v)
+        i64::try_from(v)
+            .map_err(|_| E::custom(format!("value is not a legal timestamp: {v}")))
+            .and_then(|v| Timestamp::from_second(v).map_err(E::custom))
     }
 
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
@@ -63,20 +64,41 @@ impl de::Visitor<'_> for GithubTimestampVisitor {
     }
 }
 
-// Convert from chrono local result to something usable by serde
-//
-// Ref: https://github.com/chronotope/chrono/blob/bc410bb054932518822eb393147aad939862c7a5/src/naive/datetime/serde.rs#L1051
-pub(crate) fn serde_from<T, E, V>(me: LocalResult<T>, ts: &V) -> Result<T, E>
-where
-    E: de::Error,
-    V: fmt::Display,
-    T: fmt::Display,
-{
-    match me {
-        LocalResult::None => Err(E::custom(format!("value is not a legal timestamp: {ts}"))),
-        LocalResult::Ambiguous(min, max) => Err(E::custom(format!(
-            "value is an ambiguous timestamp: {ts}. It could be {min} or {max}"
-        ))),
-        LocalResult::Single(val) => Ok(val),
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde::Deserialize;
+
+    #[derive(Debug, Deserialize)]
+    struct TsWrapper {
+        #[serde(deserialize_with = "deserialize")]
+        ts: Timestamp,
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct OptTsWrapper {
+        #[serde(deserialize_with = "deserialize_opt")]
+        ts: Option<Timestamp>,
+    }
+
+    #[test]
+    fn deserializes_rfc3339_and_unix_timestamps() {
+        let expected: Timestamp = "2023-08-18T13:28:04Z".parse().unwrap();
+
+        let from_z: TsWrapper = serde_json::from_str(r#"{"ts":"2023-08-18T13:28:04Z"}"#).unwrap();
+        let from_offset: TsWrapper =
+            serde_json::from_str(r#"{"ts":"2023-08-18T15:28:04+02:00"}"#).unwrap();
+        let from_unix: TsWrapper = serde_json::from_str(r#"{"ts":1692365284}"#).unwrap();
+        let from_neg: TsWrapper = serde_json::from_str(r#"{"ts":-10}"#).unwrap();
+        let opt_null: OptTsWrapper = serde_json::from_str(r#"{"ts":null}"#).unwrap();
+
+        assert_eq!(from_z.ts, expected);
+        assert_eq!(from_offset.ts, expected);
+        assert_eq!(from_unix.ts, expected);
+        assert_eq!(from_neg.ts, Timestamp::from_second(-10).unwrap());
+        assert_eq!(opt_null.ts, None);
+
+        let too_large = format!(r#"{{"ts":{}}}"#, u64::MAX);
+        assert!(serde_json::from_str::<TsWrapper>(&too_large).is_err());
     }
 }

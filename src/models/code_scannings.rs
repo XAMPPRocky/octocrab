@@ -5,18 +5,18 @@ use super::*;
 pub struct CodeScanningAlert {
     /// The unique identifier of the code scanning alert.
     pub number: u64,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     pub url: Url,
     pub html_url: Url,
     pub state: CodeScanningState,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub fixed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub fixed_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dismissed_by: Option<SimpleUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub dismissed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub dismissed_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dismissed_reason: Option<DismissedReason>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -192,7 +192,7 @@ pub struct Analysis {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
     pub error: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     pub results_count: u64,
     pub rules_count: u64,
     pub id: u64,
@@ -219,8 +219,8 @@ pub struct CodeqlDatabase {
     pub uploader: SimpleUser,
     pub content_type: String,
     pub size: u64,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     pub url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub commit_oid: Option<String>,
@@ -242,7 +242,7 @@ pub struct DefaultSetup {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub threat_model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schedule: Option<String>,
 }
@@ -281,7 +281,7 @@ pub struct UploadSarif {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checkout_uri: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub started_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -325,7 +325,7 @@ pub struct Autofix {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub started_at: Option<jiff::Timestamp>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -411,11 +411,11 @@ pub struct VariantAnalysis {
     pub query_language: String,
     pub query_pack_url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub completed_at: Option<jiff::Timestamp>,
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actions_workflow_run_id: Option<u64>,

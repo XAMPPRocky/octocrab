@@ -10,7 +10,7 @@ use self::payload::{
     WorkflowRunEventPayload, WrappedEventPayload,
 };
 use super::{ActorId, OrgId, RepositoryId};
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use payload::MemberEventPayload;
 use serde::{de::Error, Deserialize, Serialize};
 use url::Url;
@@ -24,7 +24,7 @@ pub struct Event {
     pub actor: Actor,
     pub repo: Repository,
     pub public: bool,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     pub payload: Option<WrappedEventPayload>,
     pub org: Option<Org>,
 }
@@ -137,7 +137,7 @@ impl<'de> Deserialize<'de> for Event {
             actor: Actor,
             repo: Repository,
             public: bool,
-            created_at: DateTime<Utc>,
+            created_at: Timestamp,
             org: Option<Org>,
             payload: Option<IntermediatePayload>,
         }

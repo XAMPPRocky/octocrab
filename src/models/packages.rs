@@ -19,8 +19,8 @@ pub struct Package {
     pub owner: Option<SimpleUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repository: Option<MinimalRepository>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
 }
 
 /// A specific version of a GitHub Package.
@@ -37,10 +37,10 @@ pub struct PackageVersion {
     pub license: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub deleted_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub deleted_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<PackageVersionMetadata>,
 }

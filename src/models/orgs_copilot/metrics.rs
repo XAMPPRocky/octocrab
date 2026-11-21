@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use jiff::civil::Date;
 
 use super::super::*;
 
@@ -15,7 +15,7 @@ use super::super::*;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CopilotMetrics {
-    pub date: NaiveDate,
+    pub date: Date,
     pub total_active_users: u32,
     pub total_engaged_users: u32,
     pub copilot_ide_code_completions: CopilotIdeCodeCompletions,
@@ -51,7 +51,7 @@ pub struct Editor {
 pub struct Model {
     pub name: String,
     pub is_custom_model: bool,
-    pub custom_model_training_date: Option<NaiveDate>,
+    pub custom_model_training_date: Option<Date>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total_engaged_users: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]

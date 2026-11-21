@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -39,13 +39,13 @@ pub struct CodeSecurityConfiguration {
         skip_serializing_if = "Option::is_none",
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(flatten)]
     pub additional_properties: HashMap<String, serde_json::Value>,
 }

@@ -1,5 +1,5 @@
 use super::*;
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 #[derive(serde::Serialize)]
 pub struct ListCommitsBuilder<'octo, 'r> {
@@ -16,10 +16,10 @@ pub struct ListCommitsBuilder<'octo, 'r> {
     author: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    until: Option<DateTime<Utc>>,
+    until: Option<Timestamp>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
@@ -68,13 +68,13 @@ impl<'octo, 'r> ListCommitsBuilder<'octo, 'r> {
     }
 
     /// Only show notifications updated after the given time.
-    pub fn since(mut self, since: DateTime<Utc>) -> Self {
+    pub fn since(mut self, since: Timestamp) -> Self {
         self.since = Some(since);
         self
     }
 
     /// Only commits before this date will be returned.
-    pub fn until(mut self, until: DateTime<Utc>) -> Self {
+    pub fn until(mut self, until: Timestamp) -> Self {
         self.until = Some(until);
         self
     }

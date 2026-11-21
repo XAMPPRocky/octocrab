@@ -1,5 +1,5 @@
 use crate::models::{AssignmentId, ClassroomId, OrgId, RepositoryId, UserId};
-use chrono::DateTime;
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -24,7 +24,7 @@ pub struct Assignment {
     pub submitted: u32,
     pub passing: u32,
     pub language: String,
-    pub deadline: Option<DateTime<chrono::Utc>>,
+    pub deadline: Option<Timestamp>,
     pub starter_code_repository: SimpleCodeRepository,
     pub classroom: Classroom,
 }
@@ -113,7 +113,7 @@ pub struct SimpleAssignment {
     pub submitted: u32,
     pub passing: u32,
     pub language: String,
-    pub deadline: Option<DateTime<chrono::Utc>>,
+    pub deadline: Option<Timestamp>,
     pub classroom: SimpleClassroom,
 }
 
@@ -138,7 +138,7 @@ pub struct AssignmentGrade {
     pub roster_identifier: String,
     pub student_repository_name: String,
     pub student_repository_url: String,
-    pub submission_timestamp: DateTime<chrono::Utc>,
+    pub submission_timestamp: Timestamp,
     pub points_awarded: u32,
     pub points_available: u32,
     #[serde(skip_serializing_if = "Option::is_none")]

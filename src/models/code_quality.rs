@@ -38,7 +38,7 @@ pub struct CodeQualityFinding {
     pub rule: CodeQualityRule,
     pub location: CodeQualityLocation,
     pub message: CodeQualityMessage,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -53,7 +53,7 @@ pub struct CodeQualitySetup {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub runner_label: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schedule: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

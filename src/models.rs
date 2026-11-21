@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use url::Url;
 
@@ -495,7 +495,7 @@ pub struct IssueEvent {
     pub commit_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub commit_url: Option<String>,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -529,9 +529,9 @@ pub struct Project {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
     pub creator: Author,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -550,9 +550,9 @@ pub struct ProjectColumn {
     pub id: ProjectColumnId,
     pub node_id: String,
     pub name: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -639,8 +639,8 @@ pub struct UserProfile {
     pub public_gists: u64,
     pub followers: u64,
     pub following: u64,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 /// Data for updating a user profile,
@@ -684,7 +684,7 @@ pub struct SimpleUser {
     pub received_events_url: Url,
     pub r#type: String,
     pub site_admin: bool,
-    pub starred_at: Option<DateTime<Utc>>,
+    pub starred_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_view_type: Option<String>,
 }
@@ -783,7 +783,7 @@ pub struct Contributor {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct StarGazer {
-    pub starred_at: Option<DateTime<Utc>>,
+    pub starred_at: Option<Timestamp>,
     pub user: Option<Author>,
 }
 
@@ -821,13 +821,13 @@ pub struct Milestone {
     pub open_issues: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub closed_issues: Option<i64>,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub due_on: Option<DateTime<Utc>>,
+    pub due_on: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -990,19 +990,19 @@ pub struct Repository {
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub pushed_at: Option<DateTime<Utc>>,
+    pub pushed_at: Option<Timestamp>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1224,7 +1224,7 @@ pub struct RepositoryMetrics {
     pub description: Option<String>,
     pub documentation: Option<String>,
     pub files: HashMap<String, Option<RepositoryFile>>,
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub content_reports_enabled: Option<bool>,
 }
 
@@ -1301,9 +1301,9 @@ pub struct CheckRun {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<DateTime<Utc>>,
+    pub started_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -1346,9 +1346,9 @@ pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub target_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub state: StatusState,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<Author>,
@@ -1407,13 +1407,13 @@ pub struct Installation {
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -1506,7 +1506,7 @@ pub struct GitSshKey {
     #[serde(default)]
     pub title: String,
     #[serde(default)]
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(default)]
     pub verified: bool,
     #[serde(default)]
@@ -1526,7 +1526,7 @@ pub struct SshSigningKey {
     pub key: String,
     pub id: u64,
     pub title: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
 }
 
 /// An attestation entry returned when listing attestations.

@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::*;
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 pub trait EndpointSelector {
     const ENDPOINT: &'static str;
@@ -33,7 +33,7 @@ pub struct ListGistsBuilder<'octo, T: EndpointSelector> {
 
     /// Only show gists that were created after this UTC timestamp.
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     /// The maximum number of results in each page retrieved.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -56,7 +56,7 @@ impl<'octo, T: EndpointSelector> ListGistsBuilder<'octo, T> {
     }
 
     /// Only show gists that were created after this UTC timestamp.
-    pub fn since(mut self, created_after: impl Into<DateTime<Utc>>) -> Self {
+    pub fn since(mut self, created_after: impl Into<Timestamp>) -> Self {
         self.since = Some(created_after.into());
         self
     }
@@ -106,7 +106,7 @@ pub struct ListUserGistsBuilder<'octo> {
     username: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
@@ -127,7 +127,7 @@ impl<'octo> ListUserGistsBuilder<'octo> {
     }
 
     /// Only show gists that were updated after this UTC timestamp.
-    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+    pub fn since(mut self, last_updated: Timestamp) -> Self {
         self.since = Some(last_updated);
         self
     }

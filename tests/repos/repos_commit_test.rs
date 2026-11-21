@@ -101,9 +101,9 @@ async fn should_return_list_of_commits() {
                 .unwrap()
                 .date
                 .unwrap()
-                .to_rfc3339()
-                == "2024-04-30T08:54:10+00:00",
-            "expected '2024-04-30T08:54:10+00:00' value, got {:#?}",
+                .to_string()
+                == "2024-04-30T08:54:10Z",
+            "expected '2024-04-30T08:54:10Z' value, got {:#?}",
             commit
                 .commit
                 .author
@@ -111,7 +111,7 @@ async fn should_return_list_of_commits() {
                 .unwrap()
                 .date
                 .unwrap()
-                .to_rfc3339()
+                .to_string()
         );
     });
 }

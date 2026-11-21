@@ -52,7 +52,7 @@ pub struct Organization {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub html_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

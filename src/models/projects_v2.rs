@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::Author;
@@ -19,16 +19,16 @@ pub struct ProjectV2 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub public: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub number: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub short_description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub deleted_at: Option<DateTime<Utc>>,
+    pub deleted_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deleted_by: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -66,9 +66,9 @@ pub struct ProjectV2Field {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<ProjectV2FieldOption>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// An item in a Project (v2).
@@ -86,11 +86,11 @@ pub struct ProjectV2Item {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub archived_at: Option<DateTime<Utc>>,
+    pub archived_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub item_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -114,9 +114,9 @@ pub struct ProjectV2View {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creator: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filter: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

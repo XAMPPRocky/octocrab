@@ -11,7 +11,7 @@ pub struct InstallationsRequestBuilder<'octo, 'b> {
     #[serde(skip)]
     handler: &'b AppsRequestHandler<'octo>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -29,7 +29,7 @@ impl<'octo, 'b> InstallationsRequestBuilder<'octo, 'b> {
     }
 
     /// Only installations created at or after this time are returned.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<jiff::Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -72,7 +72,7 @@ mod tests {
         let octocrab = crate::Octocrab::default();
 
         let handler = octocrab.apps();
-        let yesterday = chrono::Utc::now() - chrono::Duration::days(1);
+        let yesterday = jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24);
 
         let list = handler
             .installations()

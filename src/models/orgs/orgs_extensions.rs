@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::Repository;
@@ -14,7 +14,7 @@ pub struct OrgNetworkConfiguration {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_settings_ids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_on: Option<DateTime<Utc>>,
+    pub created_on: Option<Timestamp>,
 }
 
 /// Response for listing hosted compute network configurations.

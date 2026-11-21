@@ -286,10 +286,10 @@ pub mod service;
 use api::repos::RepoRef;
 use api::users::UserRef;
 pub use body::OctoBody;
-use chrono::{DateTime, Utc};
 use http::{HeaderMap, HeaderValue, Method, Uri};
 use http_body_util::combinators::BoxBody;
 use http_body_util::BodyExt;
+use jiff::{SignedDuration, Timestamp};
 use service::middleware::auth_header::AuthHeaderLayer;
 use service::middleware::cache::{CacheStorage, HttpCacheLayer};
 use std::convert::{Infallible, TryInto};
@@ -1322,13 +1322,13 @@ impl DefaultOctocrabBuilderConfig {
 
 #[derive(Debug, Clone)]
 struct CachedTokenInner {
-    expiration: Option<DateTime<Utc>>,
+    expiration: Option<Timestamp>,
     secret: SecretString,
 }
 
 impl CachedTokenInner {
     #[allow(dead_code)]
-    fn new(secret: SecretString, expiration: Option<DateTime<Utc>>) -> Self {
+    fn new(secret: SecretString, expiration: Option<Timestamp>) -> Self {
         Self { secret, expiration }
     }
 
@@ -1349,12 +1349,12 @@ impl CachedToken {
 
     /// Returns a valid token if it exists and is not expired or if there is no expiration date.
     #[allow(dead_code)]
-    fn valid_token_with_buffer(&self, buffer: chrono::Duration) -> Option<SecretString> {
+    fn valid_token_with_buffer(&self, buffer: SignedDuration) -> Option<SecretString> {
         let inner = self.0.read().unwrap();
 
         if let Some(token) = inner.as_ref() {
             if let Some(exp) = token.expiration {
-                if exp - Utc::now() > buffer {
+                if exp.duration_since(Timestamp::now()) > buffer {
                     return Some(token.secret.clone());
                 }
             } else {
@@ -1367,11 +1367,11 @@ impl CachedToken {
 
     #[allow(dead_code)]
     fn valid_token(&self) -> Option<SecretString> {
-        self.valid_token_with_buffer(chrono::Duration::seconds(30))
+        self.valid_token_with_buffer(SignedDuration::from_secs(30))
     }
 
     #[allow(dead_code)]
-    fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<DateTime<Utc>>) {
+    fn set<S: Into<SecretString>>(&self, token: S, expiration: Option<Timestamp>) {
         *self.0.write().unwrap() = Some(CachedTokenInner::new(token.into(), expiration));
     }
 }
@@ -1644,7 +1644,7 @@ impl Octocrab {
     #[cfg(feature = "jwt")]
     #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub async fn installation_token(&self) -> Result<SecretString> {
-        self.installation_token_with_buffer(chrono::Duration::seconds(30))
+        self.installation_token_with_buffer(SignedDuration::from_secs(30))
             .await
     }
 
@@ -1656,7 +1656,7 @@ impl Octocrab {
     #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub async fn installation_token_with_buffer(
         &self,
-        buffer: chrono::Duration,
+        buffer: SignedDuration,
     ) -> Result<SecretString> {
         let token = if let AuthState::Installation { ref token, .. } = self.auth_state {
             token
@@ -2556,7 +2556,7 @@ impl Octocrab {
         let expiration = token_object
             .expires_at
             .map(|time| {
-                DateTime::<Utc>::from_str(&time).map_err(|e| error::Error::Other {
+                Timestamp::from_str(&time).map_err(|e| error::Error::Other {
                     source: Box::new(e),
                     backtrace: snafu::Backtrace::capture(),
                 })
@@ -2836,7 +2836,6 @@ mod tests {
     }
 
     use super::*;
-    use chrono::Duration;
 
     #[test]
     fn clear_token() {
@@ -2850,12 +2849,12 @@ mod tests {
     #[test]
     fn no_token_when_expired() {
         let cache = CachedToken(RwLock::new(None));
-        let expiration = Utc::now() + Duration::seconds(9);
+        let expiration = Timestamp::now() + SignedDuration::from_secs(9);
         cache.set("secret".to_string(), Some(expiration));
 
         assert!(
             cache
-                .valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(SignedDuration::from_secs(10))
                 .is_none(),
             "Token should be considered expired due to buffer."
         );
@@ -2864,12 +2863,12 @@ mod tests {
     #[test]
     fn get_valid_token_outside_buffer() {
         let cache = CachedToken(RwLock::new(None));
-        let expiration = Utc::now() + Duration::seconds(12);
+        let expiration = Timestamp::now() + SignedDuration::from_secs(12);
         cache.set("secret".to_string(), Some(expiration));
 
         assert!(
             cache
-                .valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(SignedDuration::from_secs(10))
                 .is_some(),
             "Token should still be valid outside of buffer."
         );
@@ -2882,7 +2881,7 @@ mod tests {
 
         assert!(
             cache
-                .valid_token_with_buffer(Duration::seconds(10))
+                .valid_token_with_buffer(SignedDuration::from_secs(10))
                 .is_some(),
             "Token with no expiration should always be considered valid."
         );

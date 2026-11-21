@@ -8,7 +8,7 @@ pub struct SbomGenerateReportResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SbomCreationInfo {
-    pub created: DateTime<Utc>,
+    pub created: Timestamp,
     pub creators: Vec<String>,
 }
 

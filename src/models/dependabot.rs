@@ -2,7 +2,7 @@
 //!
 //! See: [GitHub REST API Documentation](https://docs.github.com/en/rest/dependabot?apiVersion=2022-11-28)
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Deserializer, Serialize};
 use url::Url;
 
@@ -20,14 +20,14 @@ pub struct DependabotAlert {
     pub security_vulnerability: Option<DependabotAlertVulnerability>,
     pub url: Url,
     pub html_url: Url,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub dismissed_at: Option<DateTime<Utc>>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub dismissed_at: Option<Timestamp>,
     pub dismissed_by: Option<SimpleUser>,
     pub dismissed_reason: Option<DependabotAlertDismissedReason>,
     pub dismissed_comment: Option<String>,
-    pub fixed_at: Option<DateTime<Utc>>,
-    pub auto_dismissed_at: Option<DateTime<Utc>>,
+    pub fixed_at: Option<Timestamp>,
+    pub auto_dismissed_at: Option<Timestamp>,
     #[serde(default)]
     pub assignees: Vec<SimpleUser>,
     pub repository: Option<Repository>,
@@ -123,9 +123,9 @@ pub struct DependabotAlertSecurityAdvisory {
     pub identifiers: Vec<SecurityAdvisoryIdentifier>,
     #[serde(default)]
     pub references: Vec<DependabotReference>,
-    pub published_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub withdrawn_at: Option<DateTime<Utc>>,
+    pub published_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub withdrawn_at: Option<Timestamp>,
 }
 
 /// A vulnerability entry within a Dependabot security advisory.

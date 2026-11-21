@@ -60,13 +60,13 @@ pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_lock_reason: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub closed_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub merged_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub merged_at: Option<jiff::Timestamp>,
     /*
      * `pull-request` additional required fields,
      * Always available in WebhookEventPayload::PullRequest.
@@ -268,7 +268,7 @@ pub struct Review {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pull_request_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub submitted_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub submitted_at: Option<jiff::Timestamp>,
     #[serde(rename = "_links")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<Links>,
@@ -318,8 +318,8 @@ pub struct Comment {
     pub body_text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     pub html_url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_association: Option<AuthorAssociation>,
@@ -351,8 +351,8 @@ pub struct ReviewComment {
     pub in_reply_to_id: Option<CommentId>,
     pub user: Option<Author>,
     pub body: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     pub html_url: String,
     pub pull_request_url: String,
     #[serde(skip_serializing_if = "Option::is_none")]

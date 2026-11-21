@@ -18,7 +18,7 @@ pub struct TimelineEvent {
     /// The GitHub REST API link to the commit that referenced this issue.
     pub commit_url: Option<String>,
     /// The timestamp indicating when the event occurred.
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub project_card: Option<ProjectCard>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -32,7 +32,7 @@ pub struct TimelineEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assigner: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_association: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -70,7 +70,7 @@ pub struct TimelineEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rename: Option<Rename>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub submitted_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub submitted_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<pulls::ReviewState>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -127,5 +127,5 @@ pub struct Milestone {
 pub struct CommitAuthor {
     pub name: String,
     pub email: String,
-    pub date: Option<chrono::DateTime<chrono::Utc>>,
+    pub date: Option<jiff::Timestamp>,
 }

@@ -28,9 +28,9 @@ pub struct Hook {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -69,7 +69,7 @@ pub enum ContentType {
 pub struct Delivery {
     pub id: HookDeliveryId,
     pub guid: String,
-    pub delivered_at: DateTime<Utc>,
+    pub delivered_at: Timestamp,
     pub duration: f64,
     pub status: String,
     pub status_code: usize,
@@ -88,7 +88,7 @@ pub struct Delivery {
 pub struct DeliveryDetail {
     pub id: HookDeliveryId,
     pub guid: String,
-    pub delivered_at: DateTime<Utc>,
+    pub delivered_at: Timestamp,
     pub redelivery: bool,
     pub duration: f64,
     pub status: String,
@@ -101,7 +101,7 @@ pub struct DeliveryDetail {
     #[serde(default)]
     pub repository_id: Option<RepositoryId>,
     #[serde(default)]
-    pub throttled_at: Option<DateTime<Utc>>,
+    pub throttled_at: Option<Timestamp>,
     #[serde(default)]
     pub url: Option<String>,
     pub request: DeliveryRequest,

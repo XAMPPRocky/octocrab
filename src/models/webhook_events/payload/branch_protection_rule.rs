@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{BranchProtectionRuleId, RepositoryId};
@@ -45,7 +45,7 @@ pub struct BranchProtectionRule {
     pub authorized_actors_only: bool,
     pub authorized_dismissal_actors_only: bool,
     pub create_protected: Option<bool>,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     pub dismiss_stale_reviews_on_push: bool,
     pub id: BranchProtectionRuleId,
     pub ignore_approvals_from_contributors: bool,
@@ -63,7 +63,7 @@ pub struct BranchProtectionRule {
     pub required_status_checks_enforcement_level: BranchProtectionRuleLevel,
     pub signature_requirement_enforcement_level: BranchProtectionRuleLevel,
     pub strict_required_status_checks_policy: bool,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

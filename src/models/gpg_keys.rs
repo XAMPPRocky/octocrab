@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use super::date_serde;
@@ -50,13 +50,13 @@ pub struct GpgKey {
     pub can_encrypt_comms: bool,
     pub can_encrypt_storage: bool,
     pub can_certify: bool,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "date_serde::deserialize_opt"
     )]
-    pub expires_at: Option<DateTime<Utc>>,
+    pub expires_at: Option<Timestamp>,
     pub revoked: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub raw_key: Option<String>,

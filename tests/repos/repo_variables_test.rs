@@ -1,7 +1,7 @@
 // Tests for calls to the /repos/{owner}/{repo}/actions/variables API.
 
 use crate::mock_error::setup_error_handler;
-use chrono::DateTime;
+use jiff::Timestamp;
 use octocrab::{
     models::repos::{RepoVariable, RepoVariables},
     Octocrab,
@@ -126,22 +126,14 @@ async fn should_return_repo_variables() {
             RepoVariable {
                 name: String::from("USERNAME"),
                 value: String::from("octocat"),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
             },
             RepoVariable {
                 name: String::from("EMAIL"),
                 value: String::from("octocat@github.com"),
-                created_at: DateTime::parse_from_rfc3339("2020-01-10T10:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-11T11:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2020-01-10T10:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-11T11:59:22Z".parse::<Timestamp>().unwrap(),
             },
         ]
     );
@@ -172,12 +164,8 @@ async fn should_return_repo_variable() {
         RepoVariable {
             name: String::from("USERNAME"),
             value: String::from("octocat"),
-            created_at: DateTime::parse_from_rfc3339("2021-08-10T14:59:22Z")
-                .unwrap()
-                .into(),
-            updated_at: DateTime::parse_from_rfc3339("2022-01-10T14:59:22Z")
-                .unwrap()
-                .into(),
+            created_at: "2021-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+            updated_at: "2022-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
         }
     );
 }

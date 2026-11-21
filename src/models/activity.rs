@@ -8,8 +8,8 @@ pub struct Notification {
     pub subject: Subject,
     pub reason: String,
     pub unread: bool,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
-    pub last_read_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: jiff::Timestamp,
+    pub last_read_at: Option<jiff::Timestamp>,
     pub url: Url,
 }
 
@@ -48,7 +48,7 @@ pub struct ThreadSubscription {
     pub subscribed: bool,
     pub ignored: bool,
     pub reason: Option<Reason>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     pub url: Url,
     pub thread_url: Url,
 }
@@ -57,7 +57,7 @@ pub struct ThreadSubscription {
 #[non_exhaustive]
 pub struct StarredRepository {
     pub repo: Repository,
-    pub starred_at: DateTime<Utc>,
+    pub starred_at: Timestamp,
 }
 
 /// The stargazer count for a repository.
@@ -86,7 +86,7 @@ pub struct RepositorySubscription {
     pub subscribed: bool,
     pub ignored: bool,
     pub reason: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     pub url: Url,
     pub repository_url: Url,
 }

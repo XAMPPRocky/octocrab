@@ -12,8 +12,8 @@ pub enum Visibility {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OrganizationSecret {
     pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub visibility: Visibility,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub selected_repositories_url: Option<String>,

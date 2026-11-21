@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -128,7 +128,7 @@ pub struct Snapshot {
     pub metadata: Option<HashMap<String, serde_json::Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub manifests: Option<HashMap<String, SnapshotManifest>>,
-    pub scanned: DateTime<Utc>,
+    pub scanned: Timestamp,
 }
 
 /// Response returned when creating a dependency snapshot.

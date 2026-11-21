@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -31,7 +31,7 @@ pub struct MarketplacePlan {
 #[non_exhaustive]
 pub struct MarketplacePendingChange {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub effective_date: Option<DateTime<Utc>>,
+    pub effective_date: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_count: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -47,15 +47,15 @@ pub struct MarketplacePurchase {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub next_billing_date: Option<DateTime<Utc>>,
+    pub next_billing_date: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_count: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_free_trial: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub free_trial_ends_on: Option<DateTime<Utc>>,
+    pub free_trial_ends_on: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub plan: MarketplacePlan,
 }
 
@@ -103,15 +103,15 @@ pub struct UserMarketplacePurchase {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub next_billing_date: Option<DateTime<Utc>>,
+    pub next_billing_date: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_count: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_free_trial: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub free_trial_ends_on: Option<DateTime<Utc>>,
+    pub free_trial_ends_on: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub account: MarketplaceUserAccount,
     pub plan: MarketplacePlan,
 }

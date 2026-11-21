@@ -13,7 +13,7 @@ use crate::{
     },
     params, Octocrab, Page, Result,
 };
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 pub use crate::api::activity::watching::ListUserSubscriptionsBuilder;
 
@@ -764,10 +764,10 @@ pub struct ListReposForAuthenticatedUserBuilder<'octo> {
     page: Option<u8>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    before: Option<DateTime<Utc>>,
+    before: Option<Timestamp>,
 }
 
 impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
@@ -850,7 +850,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
     /// Only show notifications updated after the given time.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
-    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -858,7 +858,7 @@ impl<'octo> ListReposForAuthenticatedUserBuilder<'octo> {
     /// Only show notifications updated before the given time.
     ///
     /// [See the GitHub API documentation](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user--parameters)
-    pub fn before(mut self, before: impl Into<DateTime<Utc>>) -> Self {
+    pub fn before(mut self, before: impl Into<Timestamp>) -> Self {
         self.before = Some(before.into());
         self
     }
@@ -883,7 +883,7 @@ pub struct ListGistsForAuthenticatedUserBuilder<'octo> {
 
     /// Only show gists that were updated after the given ISO 8601 UTC timestamp.
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     /// The number of results per page (max 100).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -909,7 +909,7 @@ impl<'octo> ListGistsForAuthenticatedUserBuilder<'octo> {
     }
 
     /// Only show gists that were updated after the given ISO 8601 UTC timestamp.
-    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+    pub fn since(mut self, last_updated: Timestamp) -> Self {
         self.since = Some(last_updated);
         self
     }
@@ -940,7 +940,7 @@ pub struct ListStarredGistsBuilder<'octo> {
 
     /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
 
     /// Number of results to return per page. Maximum supported value is `100`.
     /// Larger values are clamped to `100`. Defaults to `30`
@@ -963,7 +963,7 @@ impl<'octo> ListStarredGistsBuilder<'octo> {
     }
 
     /// Only show gists that were starred after the given ISO 8601 UTC timestamp.
-    pub fn since(mut self, last_updated: DateTime<Utc>) -> Self {
+    pub fn since(mut self, last_updated: Timestamp) -> Self {
         self.since = Some(last_updated);
         self
     }
@@ -1409,7 +1409,7 @@ pub struct ListUserIssuesBuilder<'octo, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1462,7 +1462,7 @@ impl<'octo, 'd> ListUserIssuesBuilder<'octo, 'd> {
     }
 
     /// Only show issues updated at or after this time.
-    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -1504,7 +1504,7 @@ pub struct ListAllIssuesBuilder<'octo, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1557,7 +1557,7 @@ impl<'octo, 'd> ListAllIssuesBuilder<'octo, 'd> {
     }
 
     /// Only show issues updated at or after this time.
-    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
