@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.55.0](https://github.com/XAMPPRocky/octocrab/compare/v0.54.9...v0.55.0) - 2026-11-21
+
+### Added
+
+- [**breaking**] replaced chrono with jiff ([#1004](https://github.com/XAMPPRocky/octocrab/pull/1004)) ([#1005](https://github.com/XAMPPRocky/octocrab/pull/1005))
+
+### Other
+
+- Added #[non_exhaustive] to all models; added method for downloading job logs ([#1001](https://github.com/XAMPPRocky/octocrab/pull/1001))
+
 ## [0.54.9](https://github.com/XAMPPRocky/octocrab/compare/v0.54.8...v0.54.9) - 2026-10-31
 
 ### Fixed
