@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{Author, Repository};
@@ -26,9 +26,9 @@ pub struct AgentAutomation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// Response for listing repository agent automations.
@@ -154,9 +154,9 @@ pub struct AgentTask {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// Response for listing agent tasks.
@@ -177,8 +177,8 @@ pub struct AgentTasksResponse {
 #[non_exhaustive]
 pub struct AgentSecret {
     pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -207,8 +207,8 @@ pub struct AgentPublicKey {
 pub struct AgentVariable {
     pub name: String,
     pub value: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -236,8 +236,8 @@ pub struct AgentRepositoriesResponse {
 #[non_exhaustive]
 pub struct AgentMergeConfiguration {
     pub allowed_actions: Vec<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub user: AgentMergeUser,
 }
 

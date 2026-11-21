@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct InteractionLimit {
     pub limit: InteractionLimitType,
     pub origin: String,
-    pub expires_at: DateTime<chrono::Utc>,
+    pub expires_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

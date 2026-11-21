@@ -1,5 +1,5 @@
 use super::super::*;
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use url::Url;
 
 /// The configuration for GitHub Pages for a repository.
@@ -16,7 +16,7 @@ pub struct PagesSite {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub protected_domain_state: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub pending_domain_unverified_at: Option<DateTime<Utc>>,
+    pub pending_domain_unverified_at: Option<Timestamp>,
     #[serde(default)]
     pub custom_404: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -104,8 +104,8 @@ pub struct PageBuild {
     pub pusher: Option<Author>,
     pub commit: String,
     pub duration: u64,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 /// The status returned when requesting a GitHub Pages build.

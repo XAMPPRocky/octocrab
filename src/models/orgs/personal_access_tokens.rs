@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{Author, PatId, PatRequestId};
@@ -16,11 +16,11 @@ pub struct OrgPersonalAccessToken {
     #[serde(default)]
     pub token_expired: Option<bool>,
     #[serde(default)]
-    pub token_expires_at: Option<DateTime<Utc>>,
+    pub token_expires_at: Option<Timestamp>,
     #[serde(default)]
-    pub token_last_used_at: Option<DateTime<Utc>>,
+    pub token_last_used_at: Option<Timestamp>,
     #[serde(default)]
-    pub access_granted_at: Option<DateTime<Utc>>,
+    pub access_granted_at: Option<Timestamp>,
 }
 
 /// A request for a personal access token to access organization resources.
@@ -40,11 +40,11 @@ pub struct OrgPersonalAccessTokenRequest {
     #[serde(default)]
     pub token_expired: Option<bool>,
     #[serde(default)]
-    pub token_expires_at: Option<DateTime<Utc>>,
+    pub token_expires_at: Option<Timestamp>,
     #[serde(default)]
-    pub token_last_used_at: Option<DateTime<Utc>>,
+    pub token_last_used_at: Option<Timestamp>,
     #[serde(default)]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
 }
 
 /// Action to perform on a personal access token (e.g. revoke).

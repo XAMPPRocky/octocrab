@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::Deref;
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 /// Unique identifier for a GitHub ruleset.
@@ -296,9 +296,9 @@ pub struct Ruleset {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rules: Vec<Rule>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// Payload for creating or updating a ruleset.
@@ -380,7 +380,7 @@ pub struct RuleSuiteSummary {
     pub ref_name: String,
     pub repository_id: u64,
     pub repository_name: String,
-    pub pushed_at: DateTime<Utc>,
+    pub pushed_at: Timestamp,
     pub result: RuleSuiteResult,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evaluation_result: Option<RuleSuiteResult>,
@@ -401,7 +401,7 @@ pub struct RuleSuite {
     pub ref_name: String,
     pub repository_id: u64,
     pub repository_name: String,
-    pub pushed_at: DateTime<Utc>,
+    pub pushed_at: Timestamp,
     pub result: RuleSuiteResult,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evaluation_result: Option<RuleSuiteResult>,
@@ -476,7 +476,7 @@ pub struct RulesetVersion {
     pub version_id: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub actor: Option<RulesetVersionActor>,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub state: Option<serde_json::Value>,
 }

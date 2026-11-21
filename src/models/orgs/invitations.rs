@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{Author, InvitationId};
@@ -13,9 +13,9 @@ pub struct OrgInvitation {
     #[serde(default)]
     pub email: Option<String>,
     pub role: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(default)]
-    pub failed_at: Option<DateTime<Utc>>,
+    pub failed_at: Option<Timestamp>,
     #[serde(default)]
     pub failed_reason: Option<String>,
     #[serde(default)]
@@ -38,9 +38,9 @@ pub struct FailedOrgInvitation {
     #[serde(default)]
     pub email: Option<String>,
     pub role: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(default)]
-    pub failed_at: Option<DateTime<Utc>>,
+    pub failed_at: Option<Timestamp>,
     #[serde(default)]
     pub failed_reason: Option<String>,
 }

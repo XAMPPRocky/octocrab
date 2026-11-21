@@ -21,9 +21,9 @@ pub struct Comment {
     pub commit_id: String,
     #[serde(default)]
     pub user: Option<Author>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     pub author_association: AuthorAssociation,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reactions: Option<CommentReactions>,

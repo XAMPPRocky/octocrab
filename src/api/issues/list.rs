@@ -22,7 +22,7 @@ pub struct ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -105,7 +105,7 @@ impl<'octo, 'b, 'c, 'd> ListIssuesBuilder<'octo, 'b, 'c, 'd> {
     }
 
     /// Only return issues updated after the given timestamp.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<jiff::Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -156,7 +156,7 @@ mod tests {
             .labels(&labels)
             .sort(crate::params::issues::Sort::Comments)
             .direction(crate::params::Direction::Ascending)
-            .since(chrono::DateTime::parse_from_rfc3339("2003-07-01T10:52:37Z").unwrap())
+            .since("2003-07-01T10:52:37Z".parse::<jiff::Timestamp>().unwrap())
             .per_page(100)
             .page(1u8);
 

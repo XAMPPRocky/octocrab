@@ -162,11 +162,11 @@ pub struct GitHubError {
 }
 
 impl GitHubError {
-    /// Returns the rate limit reset time as a [`chrono::DateTime<chrono::Utc>`], if available.
-    pub fn rate_limit_reset_at(&self) -> Option<chrono::DateTime<chrono::Utc>> {
+    /// Returns the rate limit reset time as a [`jiff::Timestamp`], if available.
+    pub fn rate_limit_reset_at(&self) -> Option<jiff::Timestamp> {
         self.rate_limit_reset
             .and_then(|ts| i64::try_from(ts).ok())
-            .and_then(|ts| chrono::DateTime::from_timestamp(ts, 0))
+            .and_then(|ts| jiff::Timestamp::from_second(ts).ok())
     }
 }
 

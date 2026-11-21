@@ -691,7 +691,7 @@ impl IssueHandler<'_> {
     /// let comment = octocrab::instance()
     ///     .issues("owner", "repo")
     ///     .list_comments(101u64.into())
-    ///     .since(chrono::Utc::now())
+    ///     .since(jiff::Timestamp::now())
     ///     .per_page(100)
     ///     .page(2u32)
     ///     .send()
@@ -769,7 +769,7 @@ pub struct ListCommentsBuilder<'octo, 'r> {
     #[serde(skip)]
     issue_number: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -794,7 +794,7 @@ impl<'octo, 'r> ListCommentsBuilder<'octo, 'r> {
     }
 
     /// Only comments updated at or after this time are returned.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<jiff::Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -830,7 +830,7 @@ pub struct ListIssueCommentsBuilder<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
 }
 
 impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
@@ -870,7 +870,7 @@ impl<'octo, 'r> ListIssueCommentsBuilder<'octo, 'r> {
     }
 
     /// Only show comments updated after the given time.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<jiff::Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }

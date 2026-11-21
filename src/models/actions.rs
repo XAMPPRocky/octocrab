@@ -41,7 +41,7 @@ pub struct SelfHostedRunnerJitConfig {
 #[non_exhaustive]
 pub struct SelfHostedRunnerToken {
     pub token: String,
-    pub expires_at: DateTime<Utc>,
+    pub expires_at: Timestamp,
 }
 
 // Runner application downloads & labels
@@ -101,8 +101,8 @@ pub struct ActionsCacheItem {
     pub r#ref: Option<String>,
     pub key: String,
     pub version: String,
-    pub last_accessed_at: DateTime<Utc>,
-    pub created_at: DateTime<Utc>,
+    pub last_accessed_at: Timestamp,
+    pub created_at: Timestamp,
     pub size_in_bytes: i64,
 }
 
@@ -187,8 +187,8 @@ pub struct AccessPermissions {
 pub struct OrgVariable {
     pub name: String,
     pub value: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub visibility: crate::models::orgs::secrets::Visibility,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub selected_repositories_url: Option<String>,
@@ -206,8 +206,8 @@ pub struct OrgVariables {
 pub struct EnvironmentVariable {
     pub name: String,
     pub value: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -221,8 +221,8 @@ pub struct EnvironmentVariables {
 #[non_exhaustive]
 pub struct EnvironmentSecret {
     pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -276,7 +276,7 @@ pub struct ConcurrencyGroup {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_acquired_at: Option<DateTime<Utc>>,
+    pub last_acquired_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -303,7 +303,7 @@ pub struct ConcurrencyGroupDetails {
 pub struct RunnerVersionDeprecation {
     pub runner_version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub runtime_deprecates_at: Option<DateTime<Utc>>,
+    pub runtime_deprecates_at: Option<Timestamp>,
 }
 
 // Permissions extensions
@@ -358,9 +358,9 @@ pub struct ActionsPolicy {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditions: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -397,7 +397,7 @@ pub struct HostedRunner {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub public_ips: Option<Vec<serde_json::Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_active_on: Option<DateTime<Utc>>,
+    pub last_active_on: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -101,7 +101,7 @@ impl<'octo> AppsRequestHandler<'octo> {
     ///     .apps()
     ///     .installations()
     ///     // Optional Parameters
-    ///     .since(chrono::Utc::now() - chrono::Duration::days(1))
+    ///     .since(jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24))
     ///     .per_page(100)
     ///     .page(5u32)
     ///     // Send the request

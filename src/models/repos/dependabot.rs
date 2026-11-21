@@ -10,14 +10,14 @@ pub struct DependabotAlert {
     pub security_vulnerability: SecurityVulnerability,
     pub url: Url,
     pub html_url: Url,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub dismissed_at: Option<DateTime<Utc>>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub dismissed_at: Option<Timestamp>,
     pub dismissed_by: Option<SimpleUser>,
     pub dismissed_reason: Option<DissmisedReason>,
     pub dismissed_comment: Option<String>,
-    pub fixed_at: Option<DateTime<Utc>>,
-    pub auto_dismissed_at: Option<DateTime<Utc>>,
+    pub fixed_at: Option<Timestamp>,
+    pub auto_dismissed_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -78,9 +78,9 @@ pub struct SecurityAdvisory {
     pub cwes: Vec<Cwe>,
     pub identifiers: Vec<Identifier>,
     pub references: Vec<Reference>,
-    pub published_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub withdrawn_at: Option<DateTime<Utc>>,
+    pub published_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub withdrawn_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

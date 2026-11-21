@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct StarWebhookEventPayload {
     pub action: StarWebhookEventAction,
     pub enterprise: Option<serde_json::Value>,
-    pub starred_at: Option<DateTime<Utc>>,
+    pub starred_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -2,8 +2,6 @@ use super::*;
 
 pub use super::memberships::TeamMembership;
 
-use chrono;
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Team {
@@ -23,9 +21,9 @@ pub struct Team {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repos_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization: Option<orgs::Organization>,
 }
@@ -53,9 +51,9 @@ pub struct FullTeam {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repos_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization: Option<orgs::Organization>,
 }
@@ -98,9 +96,9 @@ pub struct TeamInvitation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     pub role: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub failed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub failed_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failed_reason: Option<String>,
     pub inviter: Author,

@@ -1,7 +1,7 @@
 use super::OrgHandler;
 use crate::models::issues::Issue;
 use crate::{params, Page, Result};
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 /// Builder for listing organization issues assigned to the authenticated user.
 ///
@@ -22,7 +22,7 @@ pub struct ListOrgIssuesBuilder<'octo, 'r, 'd> {
     #[serde(skip_serializing_if = "Option::is_none")]
     direction: Option<params::Direction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<DateTime<Utc>>,
+    since: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -75,7 +75,7 @@ impl<'octo, 'r, 'd> ListOrgIssuesBuilder<'octo, 'r, 'd> {
     }
 
     /// Only show issues updated at or after this time.
-    pub fn since(mut self, since: impl Into<DateTime<Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }

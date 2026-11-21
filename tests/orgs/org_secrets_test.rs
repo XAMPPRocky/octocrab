@@ -1,7 +1,7 @@
 // Tests for calls to the /orgs/{ORG}/actions/secrets API.
 
 use crate::mock_error::setup_error_handler;
-use chrono::DateTime;
+use jiff::Timestamp;
 use octocrab::{
     models::{
         orgs::secrets::{
@@ -98,34 +98,22 @@ async fn should_return_org_secrets() {
                 name: String::from("GIST_ID"),
                 visibility: Visibility::Private,
                 selected_repositories_url: None,
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
             },
             OrganizationSecret {
                 name: String::from("DEPLOY_TOKEN"),
                 visibility: Visibility::All,
                 selected_repositories_url: None,
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
             },
             OrganizationSecret {
                 name: String::from("GH_TOKEN"),
                 visibility: Visibility::Selected,
                 selected_repositories_url: Some(String::from("https://api.github.com/orgs/octo-org/actions/secrets/SUPER_SECRET/repositories")),
-                created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
-                updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                    .unwrap()
-                    .into(),
+                created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+                updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
             },
         ]
     );
@@ -183,12 +171,8 @@ async fn should_return_org_secret() {
             selected_repositories_url: Some(String::from(
                 "https://api.github.com/orgs/octo-org/actions/secrets/SUPER_SECRET/repositories"
             )),
-            created_at: DateTime::parse_from_rfc3339("2019-08-10T14:59:22Z")
-                .unwrap()
-                .into(),
-            updated_at: DateTime::parse_from_rfc3339("2020-01-10T14:59:22Z")
-                .unwrap()
-                .into(),
+            created_at: "2019-08-10T14:59:22Z".parse::<Timestamp>().unwrap(),
+            updated_at: "2020-01-10T14:59:22Z".parse::<Timestamp>().unwrap(),
         }
     );
 }

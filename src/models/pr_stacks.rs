@@ -2,7 +2,7 @@
 //!
 //! See <https://docs.github.com/en/rest/pulls/stacks?apiVersion=2022-11-28>
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -20,7 +20,7 @@ pub struct StackedPrEntry {
     /// Whether this PR is a draft.
     pub draft: bool,
     /// Timestamp when the PR was merged, or `None` if unmerged.
-    pub merged_at: Option<DateTime<Utc>>,
+    pub merged_at: Option<Timestamp>,
     /// Head branch ref and SHA.
     pub head: PrHeadRef,
 }
@@ -80,7 +80,7 @@ pub struct PrStack {
     /// Whether the stack is open (i.e., contains at least one unmerged PR).
     pub open: bool,
     /// When this stack was created.
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     /// Ordered list of pull requests in this stack, from bottom to top.
     pub pull_requests: Vec<StackedPrEntry>,
 }

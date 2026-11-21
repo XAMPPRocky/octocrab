@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -21,11 +21,11 @@ pub struct SecurityAdvisory {
     pub source_code_location: Option<Url>,
     pub identifiers: Option<Vec<SecurityAdvisoryIdentifier>>,
     pub references: Option<Vec<String>>,
-    pub published_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub github_reviewed_at: Option<DateTime<Utc>>,
-    pub nvd_published_at: Option<DateTime<Utc>>,
-    pub withdrawn_at: Option<DateTime<Utc>>,
+    pub published_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub github_reviewed_at: Option<Timestamp>,
+    pub nvd_published_at: Option<Timestamp>,
+    pub withdrawn_at: Option<Timestamp>,
     pub vulnerabilities: Option<Vec<Vulnerability>>,
     pub cvss_severities: Option<CvssSeverities>,
     pub cwes: Option<Vec<Cwe>>,
@@ -48,11 +48,11 @@ pub struct RepositoryAdvisory {
     pub publisher: Option<SimpleUser>,
     pub identifiers: Vec<SecurityAdvisoryIdentifier>,
     pub state: String,
-    pub created_at: Option<DateTime<Utc>>,
-    pub updated_at: Option<DateTime<Utc>>,
-    pub published_at: Option<DateTime<Utc>>,
-    pub closed_at: Option<DateTime<Utc>>,
-    pub withdrawn_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
+    pub published_at: Option<Timestamp>,
+    pub closed_at: Option<Timestamp>,
+    pub withdrawn_at: Option<Timestamp>,
     pub submission: Option<Submission>,
     pub vulnerabilities: Option<Vec<Vulnerability>>,
     pub cvss_severities: Option<CvssSeverities>,
@@ -245,8 +245,8 @@ pub struct RepositoryAdvisoryComment {
     pub body: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<SimpleUser>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub advisory_url: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]

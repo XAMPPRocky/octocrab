@@ -19,9 +19,9 @@ pub struct CopilotHandler<'octo, 'r> {
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    until: Option<chrono::DateTime<chrono::Utc>>,
+    until: Option<jiff::Timestamp>,
 }
 
 impl<'octo, 'r> CopilotHandler<'octo, 'r> {
@@ -64,14 +64,14 @@ impl<'octo, 'r> CopilotHandler<'octo, 'r> {
     /// Show usage metrics since this date.
     /// This is a timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
     /// Maximum value is 28 days ago.
-    pub fn since(mut self, since: chrono::DateTime<chrono::Utc>) -> Self {
+    pub fn since(mut self, since: jiff::Timestamp) -> Self {
         self.since = Some(since);
         self
     }
 
     /// Show usage metrics until this date.
     /// This is a timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ) and should not precede the since date if it is passed.
-    pub fn until(mut self, until: chrono::DateTime<chrono::Utc>) -> Self {
+    pub fn until(mut self, until: jiff::Timestamp) -> Self {
         self.until = Some(until);
         self
     }

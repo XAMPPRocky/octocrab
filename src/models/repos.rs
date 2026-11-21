@@ -89,8 +89,8 @@ pub struct RepoCommitPage {
 pub struct RepoVariable {
     pub name: String,
     pub value: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -181,7 +181,7 @@ pub struct GitUserTime {
     pub user: CommitAuthor,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub date: Option<DateTime<Utc>>,
+    pub date: Option<Timestamp>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub username: Option<String>,
@@ -195,7 +195,7 @@ pub struct CommitAuthor {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub date: Option<DateTime<Utc>>,
+    pub date: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -357,8 +357,8 @@ pub struct Release {
     pub prerelease: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub immutable: Option<bool>,
-    pub created_at: Option<DateTime<Utc>>,
-    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
+    pub published_at: Option<Timestamp>,
     pub author: Option<crate::models::Author>,
     pub assets: Vec<Asset>,
 }
@@ -386,8 +386,8 @@ pub struct Asset {
     pub size: i64,
     pub digest: Option<String>,
     pub download_count: i64,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub uploader: Option<Uploader>,
 }
 
@@ -497,7 +497,7 @@ pub struct DeployKey {
     pub url: Url,
     pub title: String,
     pub verified: bool,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     pub read_only: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub added_by: Option<String>,
@@ -506,7 +506,7 @@ pub struct DeployKey {
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub last_used: Option<DateTime<Utc>>,
+    pub last_used: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
 }
@@ -515,7 +515,7 @@ pub struct DeployKey {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct TrafficEntry {
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: Timestamp,
     pub count: u64,
     pub uniques: u64,
 }
@@ -580,7 +580,7 @@ pub struct Autolink {
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// A deployment in a repository.
@@ -604,8 +604,8 @@ pub struct Deployment {
     pub description: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub creator: Option<Author>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub statuses_url: Url,
     pub repository_url: Url,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -650,8 +650,8 @@ pub struct DeploymentStatus {
     pub environment: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub target_url: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub deployment_url: Url,
     pub repository_url: Url,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -741,7 +741,7 @@ pub struct Activity {
     pub before: String,
     pub after: String,
     pub r#ref: String,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: Timestamp,
     pub activity_type: ActivityType,
     #[serde(default)]
     pub actor: Option<Author>,
@@ -810,7 +810,7 @@ pub struct RepositoryInvitation {
     #[serde(default)]
     pub inviter: Option<Author>,
     pub permissions: InvitationPermission,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expired: Option<bool>,
     pub url: Url,
@@ -830,13 +830,13 @@ pub struct TagProtection {
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
     pub pattern: String,
@@ -860,13 +860,13 @@ pub struct IssueType {
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         default,
         deserialize_with = "super::date_serde::deserialize_opt"
     )]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
 }

@@ -1032,8 +1032,6 @@ pub struct InstallationEventRepository {
 
 #[cfg(test)]
 mod tests {
-    use chrono::TimeZone;
-
     use crate::models::AuthorAssociation;
 
     use super::payload::*;
@@ -1111,15 +1109,11 @@ mod tests {
         );
         assert_eq!(
             installation.updated_at.unwrap(),
-            chrono::Utc
-                .with_ymd_and_hms(2023, 8, 18, 13, 28, 4)
-                .unwrap()
+            "2023-08-18T13:28:04Z".parse::<jiff::Timestamp>().unwrap()
         );
         assert_eq!(
             installation.created_at.unwrap(),
-            chrono::Utc
-                .with_ymd_and_hms(2023, 7, 13, 9, 35, 31)
-                .unwrap()
+            "2023-07-13T09:35:31Z".parse::<jiff::Timestamp>().unwrap()
         );
         assert_eq!(installation.events.len(), 12);
     }

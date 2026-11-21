@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::mock_error::setup_error_handler;
-use chrono::Utc;
+use jiff::Timestamp;
 use octocrab::models::dependency_graph::{
     ChangeType, DependencyRelationship, DependencyScope, Snapshot, SnapshotDetector, SnapshotJob,
     SnapshotManifest, SnapshotManifestFile, SnapshotResolvedPackage,
@@ -228,7 +228,7 @@ async fn should_create_dependency_snapshot() {
         },
         metadata: None,
         manifests: Some(manifests),
-        scanned: Utc::now(),
+        scanned: Timestamp::now(),
     };
 
     let octocrab = setup_octocrab(&mock_server.uri());

@@ -55,9 +55,7 @@ impl<'octo> GistsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    ///     let yesterday: chrono::DateTime<chrono::Utc> =
-    ///         chrono::Utc::now()
-    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     let yesterday = jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24);
     ///     octocrab::instance()
     ///         .gists()
     ///         .list_all_gists()
@@ -84,9 +82,7 @@ impl<'octo> GistsHandler<'octo> {
     ///
     /// ```no_run
     /// # async fn run() -> octocrab::Result<()> {
-    ///     let yesterday: chrono::DateTime<chrono::Utc> =
-    ///         chrono::Utc::now()
-    ///             .checked_sub_days(chrono::Days::new(1)).unwrap();
+    ///     let yesterday = jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24);
     ///     let all_public_gists = octocrab::instance()
     ///         .gists()
     ///         .list_all_recent_public_gists()

@@ -147,10 +147,11 @@ impl<B, E> Policy<Request<OctoBody>, Response<B>, E> for RetryConfig {
                             header_as_i64(headers, "x-ratelimit-reset"),
                         ) {
                             (Some(secs), _, _) => Some(secs),
-                            (None, Some(0), Some(reset_ts)) => {
-                                Some(std::cmp::max(5, reset_ts - chrono::Utc::now().timestamp())
-                                    as u64)
-                            }
+                            (None, Some(0), Some(reset_ts)) => Some(std::cmp::max(
+                                5,
+                                reset_ts - jiff::Timestamp::now().as_second(),
+                            )
+                                as u64),
                             (None, _, _)
                                 if response.status() == http::StatusCode::TOO_MANY_REQUESTS
                                     || (response.status() == http::StatusCode::FORBIDDEN
@@ -266,7 +267,7 @@ mod tests {
     #[tokio::test]
     async fn retries_forbidden_when_primary_rate_limit_is_exhausted() {
         let mut policy = policy(false, 3);
-        let reset = (chrono::Utc::now().timestamp() + 60).to_string();
+        let reset = (jiff::Timestamp::now().as_second() + 60).to_string();
         let mut result = response(
             StatusCode::FORBIDDEN,
             &[

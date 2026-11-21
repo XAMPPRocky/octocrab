@@ -50,14 +50,14 @@ pub struct CopilotBillingSeats {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct CopilotSeat {
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub pending_cancellation_date: Option<String>,
-    pub last_activity_at: Option<DateTime<Utc>>,
+    pub last_activity_at: Option<Timestamp>,
     pub last_activity_editor: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_authenticated_at: Option<DateTime<Utc>>,
+    pub last_authenticated_at: Option<Timestamp>,
     pub plan_type: Option<String>,
     pub assignee: Option<SimpleUser>, // null if user has deleted their account within this billing cycle.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -9,7 +9,7 @@ use crate::Page;
 use http::Uri;
 use snafu::ResultExt;
 
-type DateTime = chrono::DateTime<chrono::Utc>;
+use jiff::Timestamp;
 
 /// Handler for GitHub's notifications API.
 ///
@@ -108,11 +108,11 @@ impl<'octo> NotificationsHandler<'octo> {
         &self,
         owner: impl AsRef<str>,
         repo: impl AsRef<str>,
-        last_read_at: impl Into<Option<DateTime>>,
+        last_read_at: impl Into<Option<Timestamp>>,
     ) -> crate::Result<()> {
         #[derive(serde::Serialize)]
         struct Inner {
-            last_read_at: DateTime,
+            last_read_at: Timestamp,
         }
 
         let body = last_read_at
@@ -148,11 +148,11 @@ impl<'octo> NotificationsHandler<'octo> {
     /// ```
     pub async fn mark_all_as_read(
         &self,
-        last_read_at: impl Into<Option<DateTime>>,
+        last_read_at: impl Into<Option<Timestamp>>,
     ) -> crate::Result<()> {
         #[derive(serde::Serialize)]
         struct Inner {
-            last_read_at: DateTime,
+            last_read_at: Timestamp,
         }
 
         let body = last_read_at
@@ -298,9 +298,9 @@ pub struct ListNotificationsBuilder<'octo> {
     #[serde(skip_serializing_if = "Option::is_none")]
     participating: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    before: Option<chrono::DateTime<chrono::Utc>>,
+    before: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     per_page: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -334,13 +334,13 @@ impl<'octo> ListNotificationsBuilder<'octo> {
     }
 
     /// Only show notifications updated after the given time.
-    pub fn since(mut self, since: chrono::DateTime<chrono::Utc>) -> Self {
+    pub fn since(mut self, since: Timestamp) -> Self {
         self.since = Some(since);
         self
     }
 
     /// Only show notifications updated before the given time.
-    pub fn before(mut self, before: chrono::DateTime<chrono::Utc>) -> Self {
+    pub fn before(mut self, before: Timestamp) -> Self {
         self.before = Some(before);
         self
     }

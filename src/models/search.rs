@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -73,8 +73,8 @@ pub struct TopicSearchResultItem {
     pub description: Option<String>,
     pub created_by: Option<String>,
     pub released: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub featured: bool,
     pub curated: bool,
     pub score: f64,

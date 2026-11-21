@@ -1,5 +1,5 @@
 use super::*;
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -9,8 +9,8 @@ pub struct WorkFlow {
     pub name: String,
     pub path: String,
     pub state: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     pub url: Url,
     pub html_url: Url,
     pub badge_url: Url,
@@ -30,8 +30,8 @@ pub struct Run {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<String>,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
+    pub updated_at: jiff::Timestamp,
     pub url: Url,
     pub html_url: Url,
     pub jobs_url: Url,
@@ -58,7 +58,7 @@ pub struct HeadCommit {
     pub id: String,
     pub tree_id: String,
     pub message: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: jiff::Timestamp,
     pub author: super::repos::CommitAuthor,
     pub committer: super::repos::CommitAuthor,
 }
@@ -80,10 +80,10 @@ pub struct Job {
     pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conclusion: Option<Conclusion>,
-    pub created_at: DateTime<Utc>,
-    pub started_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub started_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<Timestamp>,
     pub name: String,
     pub steps: Vec<Step>,
     pub check_run_url: String,
@@ -132,9 +132,9 @@ pub struct Step {
     pub conclusion: Option<Conclusion>,
     pub number: i64,
     // Github might set null here during Step startup...
-    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub started_at: Option<jiff::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub completed_at: Option<jiff::Timestamp>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -147,9 +147,9 @@ pub struct WorkflowListArtifact {
     pub url: Url,
     pub archive_download_url: Url,
     pub expired: bool,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub expires_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub expires_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub workflow_run: Option<ArtifactWorkflowRun>,
 }
@@ -249,7 +249,7 @@ pub struct PendingDeployment {
     pub environment: PendingDeploymentEnvironment,
     #[serde(default)]
     pub wait_timer: u64,
-    pub wait_timer_started_at: Option<DateTime<Utc>>,
+    pub wait_timer_started_at: Option<Timestamp>,
     #[serde(default)]
     pub current_user_can_approve: bool,
     #[serde(default)]

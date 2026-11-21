@@ -15,9 +15,9 @@ pub struct App {
     pub external_url: Url,
     pub html_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     pub permissions: Permissions,
     pub events: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -133,7 +133,7 @@ pub struct InstallationRequest {
     pub node_id: String,
     pub account: Author,
     pub requester: Author,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
 }
 
 /// Repositories accessible to an installation.
@@ -210,13 +210,13 @@ pub struct AppAuthorization {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub note_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fingerprint: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub expires_at: Option<DateTime<Utc>>,
+    pub expires_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Author>,
     #[serde(skip_serializing_if = "Option::is_none")]

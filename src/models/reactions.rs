@@ -28,5 +28,5 @@ pub struct Reaction {
     pub node_id: String,
     pub user: Author,
     pub content: ReactionContent,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: jiff::Timestamp,
 }

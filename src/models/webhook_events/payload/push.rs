@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -35,7 +35,7 @@ pub struct PushWebhookEventCommit {
     pub modified: Vec<String>,
     #[serde(default)]
     pub removed: Vec<String>,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: Timestamp,
     pub tree_id: String,
     pub url: Url,
 }

@@ -4,14 +4,14 @@ use super::super::*;
 #[non_exhaustive]
 pub struct SecretScanningAlert {
     pub number: i64,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: Option<DateTime<Utc>>,
+    pub created_at: Timestamp,
+    pub updated_at: Option<Timestamp>,
     pub url: Url,
     pub html_url: Url,
     pub locations_url: Url,
     pub state: State,
     pub resolution: Option<Resolution>,
-    pub resolved_at: Option<DateTime<Utc>>,
+    pub resolved_at: Option<Timestamp>,
     pub resolved_by: Option<SimpleUser>,
     pub secret_type: String,
     pub secret_type_display_name: String,
@@ -20,7 +20,7 @@ pub struct SecretScanningAlert {
     pub repository: Option<Repository>,
     pub push_protection_bypassed_by: Option<SimpleUser>,
     pub push_protection_bypassed: Option<bool>,
-    pub push_protection_bypassed_at: Option<DateTime<Utc>>,
+    pub push_protection_bypassed_at: Option<Timestamp>,
     pub resolution_comment: Option<String>,
     pub validity: Validity,
     pub publicly_leaked: Option<bool>,
@@ -173,9 +173,9 @@ pub struct SecretScanningCustomPattern {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom_pattern_version: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<Timestamp>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<Timestamp>,
 }
 
 /// Request entry for bulk creating secret scanning custom patterns.
@@ -364,7 +364,7 @@ pub enum PushProtectionBypassReason {
 pub struct PushProtectionBypass {
     pub reason: PushProtectionBypassReason,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub expire_at: Option<DateTime<Utc>>,
+    pub expire_at: Option<Timestamp>,
     pub token_type: String,
 }
 
@@ -392,9 +392,9 @@ pub struct SecretScanningScan {
     pub scan_type: String,
     pub status: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<DateTime<Utc>>,
+    pub started_at: Option<Timestamp>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<Timestamp>,
 }
 
 /// A custom pattern backfill scan entry.
@@ -405,9 +405,9 @@ pub struct CustomPatternBackfillScan {
     pub scan_type: String,
     pub status: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub started_at: Option<DateTime<Utc>>,
+    pub started_at: Option<Timestamp>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub completed_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<Timestamp>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pattern_slug: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

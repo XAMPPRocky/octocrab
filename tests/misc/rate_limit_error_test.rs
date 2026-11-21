@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use jiff::Timestamp;
 use octocrab::{Error, Octocrab};
 use serde_json::json;
 use wiremock::{
@@ -45,7 +45,7 @@ async fn should_expose_rate_limit_reset_and_headers_on_error() {
             assert_eq!(source.rate_limit_reset, Some(1715000000));
             assert_eq!(
                 source.rate_limit_reset_at(),
-                DateTime::from_timestamp(1715000000, 0)
+                Timestamp::from_second(1715000000).ok()
             );
 
             let headers = source.headers.expect("headers should be present");

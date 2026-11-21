@@ -26,7 +26,7 @@ pub struct ListCommentsBuilder<'octo, 'b> {
     #[serde(skip_serializing_if = "Option::is_none")]
     page: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    since: Option<chrono::DateTime<chrono::Utc>>,
+    since: Option<jiff::Timestamp>,
 }
 
 impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
@@ -69,7 +69,7 @@ impl<'octo, 'b> ListCommentsBuilder<'octo, 'b> {
     }
 
     /// Only show notifications updated after the given time.
-    pub fn since(mut self, since: impl Into<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn since(mut self, since: impl Into<jiff::Timestamp>) -> Self {
         self.since = Some(since.into());
         self
     }
@@ -336,7 +336,7 @@ mod tests {
     async fn serialize() {
         let octocrab = crate::Octocrab::default();
         let handler = octocrab.pulls("rust-lang", "rust");
-        let yesterday = chrono::Utc::now() - chrono::Duration::days(1);
+        let yesterday = jiff::Timestamp::now() - jiff::SignedDuration::from_hours(24);
         let list = handler
             .list_comments(Some(1))
             .sort(crate::params::pulls::comments::Sort::Updated)

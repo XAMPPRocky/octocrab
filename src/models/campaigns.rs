@@ -30,18 +30,18 @@ pub struct CampaignAlertStats {
 #[non_exhaustive]
 pub struct Campaign {
     pub number: u64,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
     pub name: String,
     pub description: String,
     pub managers: Vec<SimpleUser>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub team_managers: Option<Vec<teams::Team>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub published_at: Option<DateTime<Utc>>,
-    pub ends_at: DateTime<Utc>,
+    pub published_at: Option<Timestamp>,
+    pub ends_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_at: Option<Timestamp>,
     pub state: CampaignState,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact_link: Option<String>,
@@ -63,7 +63,7 @@ pub struct CreateCampaign {
     pub managers: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub team_managers: Option<Vec<String>>,
-    pub ends_at: DateTime<Utc>,
+    pub ends_at: Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact_link: Option<String>,
     pub code_scanning_alerts: Vec<CampaignCodeScanningAlert>,
@@ -83,7 +83,7 @@ pub struct UpdateCampaign {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub team_managers: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub ends_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact_link: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
