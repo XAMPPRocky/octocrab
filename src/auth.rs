@@ -5,6 +5,8 @@ use crate::models::AppId;
 use crate::Octocrab;
 use crate::Result;
 #[cfg(feature = "jwt")]
+use futures::future::BoxFuture;
+#[cfg(feature = "jwt")]
 #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
 pub use jsonwebtoken::EncodingKey;
 #[cfg(feature = "jwt")]
@@ -41,6 +43,51 @@ impl fmt::Debug for AppAuth {
     }
 }
 
+/// Signs GitHub App JWTs with a private key that octocrab doesn't hold, such as a
+/// key in a cloud KMS or an HSM.
+///
+/// octocrab builds the JWT and calls [`AppSigner::sign`] with its signing input,
+/// `base64url(header) || '.' || base64url(claims)`.
+///
+/// ```no_run
+/// use futures::future::BoxFuture;
+/// use octocrab::{auth::AppSigner, models::AppId, Octocrab};
+///
+/// struct KmsSigner;
+///
+/// impl AppSigner for KmsSigner {
+///     fn sign<'a>(
+///         &'a self,
+///         message: &'a [u8],
+///     ) -> BoxFuture<'a, Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>>> {
+///         Box::pin(async move {
+///             // Ask the KMS for an RS256 signature of `message`.
+/// #           let _ = message;
+/// #           Ok(Vec::new())
+///         })
+///     }
+/// }
+///
+/// # fn run() -> octocrab::Result<()> {
+/// let octocrab = Octocrab::builder()
+///     .app_with_signer(AppId(42), KmsSigner)
+///     .build()?;
+/// # Ok(())
+/// # }
+/// ```
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+pub trait AppSigner: Send + Sync {
+    /// Returns the RS256 (RSASSA-PKCS1-v1_5 using SHA-256) signature of `message`,
+    /// as raw bytes.
+    ///
+    /// If the KMS expects a SHA-256 digest, hash `message` first.
+    fn sign<'a>(
+        &'a self,
+        message: &'a [u8],
+    ) -> BoxFuture<'a, Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>>>;
+}
+
 /// The forms of authentication we support
 #[derive(Default)]
 pub enum Auth {
@@ -66,6 +113,30 @@ pub enum Auth {
     UserAccessToken(SecretString),
 }
 
+#[cfg(feature = "jwt")]
+#[derive(Serialize)]
+struct Claims {
+    iss: AppId,
+    iat: usize,
+    exp: usize,
+}
+
+#[cfg(feature = "jwt")]
+impl Claims {
+    fn new(github_app_id: AppId) -> Self {
+        let now = SystemTime::UNIX_EPOCH.elapsed().unwrap().as_secs() as usize;
+
+        // Github only allows JWTs that expire in the next 10 minutes.
+        // The token is issued 60 seconds in the past and expires in 9 minutes,
+        // to allow some clock drift.
+        Claims {
+            iss: github_app_id,
+            iat: now - 60,
+            exp: now + (9 * 60),
+        }
+    }
+}
+
 /// Create a JSON Web Token that can be used to authenticate an a GitHub application.
 ///
 /// See: <https://docs.github.com/en/developers/apps/getting-started-with-apps/setting-up-your-development-environment-to-create-a-github-app#authenticating-as-a-github-app>
@@ -75,27 +146,38 @@ pub fn create_jwt(
     github_app_id: AppId,
     key: &EncodingKey,
 ) -> Result<String, jsonwebtoken::errors::Error> {
-    #[derive(Serialize)]
-    struct Claims {
-        iss: AppId,
-        iat: usize,
-        exp: usize,
-    }
-
-    let now = SystemTime::UNIX_EPOCH.elapsed().unwrap().as_secs() as usize;
-
-    // Github only allows JWTs that expire in the next 10 minutes.
-    // The token is issued 60 seconds in the past and expires in 9 minutes,
-    // to allow some clock drift.
-    let claims = Claims {
-        iss: github_app_id,
-        iat: now - 60,
-        exp: now + (9 * 60),
-    };
-
     let header = Header::new(Algorithm::RS256);
 
-    jsonwebtoken::encode(&header, &claims, key)
+    jsonwebtoken::encode(&header, &Claims::new(github_app_id), key)
+}
+
+/// Like [`create_jwt`], but signs the JWT with an [`AppSigner`].
+#[cfg(feature = "jwt")]
+#[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+pub async fn create_jwt_with_signer(
+    github_app_id: AppId,
+    signer: &dyn AppSigner,
+) -> Result<String> {
+    use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+
+    let header =
+        serde_json::to_vec(&Header::new(Algorithm::RS256)).context(crate::error::SerdeSnafu)?;
+    let claims =
+        serde_json::to_vec(&Claims::new(github_app_id)).context(crate::error::SerdeSnafu)?;
+    let mut jwt = format!(
+        "{}.{}",
+        BASE64_URL_SAFE_NO_PAD.encode(header),
+        BASE64_URL_SAFE_NO_PAD.encode(claims)
+    );
+
+    let signature = signer
+        .sign(jwt.as_bytes())
+        .await
+        .context(crate::error::AppSignerSnafu)?;
+    jwt.push('.');
+    BASE64_URL_SAFE_NO_PAD.encode_string(signature, &mut jwt);
+
+    Ok(jwt)
 }
 
 #[cfg(feature = "jwt")]
