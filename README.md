@@ -291,6 +291,8 @@ Octocrab supports authenticating as a GitHub App via JWT (using the `jwt` featur
   octocrab = { version = "...", default-features = false, features = ["default-client", "rustls", "rustls-ring"] }
   ```
 
+If the app's private key lives in a cloud KMS or an HSM, implement `auth::AppSigner` and use `OctocrabBuilder::app_with_signer`. octocrab builds the JWT and the signer only has to produce its RS256 signature.
+
 ### TLS Providers
 - **`rustls-ring`** *(default)*: Uses `rustls` with the `ring` cryptography provider.
 - **`rustls-aws-lc-rs`**: Uses `rustls` with AWS-LC.

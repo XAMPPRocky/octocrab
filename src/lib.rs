@@ -343,6 +343,8 @@ use crate::service::middleware::retry::RetryConfig;
 
 #[cfg(feature = "jwt")]
 use auth::AppAuth;
+#[cfg(feature = "jwt")]
+use auth::AppSigner;
 use auth::Auth;
 #[cfg(feature = "jwt")]
 use models::{AppId, InstallationId, InstallationToken};
@@ -685,11 +687,20 @@ where
 
         if let Some(executor) = self.executor {
             return Ok(Octocrab::new_with_executor(
-                service, self.auth, base_uri, upload_uri, executor,
+                service,
+                self.auth.into(),
+                base_uri,
+                upload_uri,
+                executor,
             ));
         }
 
-        Ok(Octocrab::new(service, self.auth, base_uri, upload_uri))
+        Ok(Octocrab::new(
+            service,
+            self.auth.into(),
+            base_uri,
+            upload_uri,
+        ))
     }
 }
 
@@ -792,7 +803,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 
     /// Add a personal token to use for authentication.
     pub fn personal_token<S: Into<SecretString>>(mut self, token: S) -> Self {
-        self.config.auth = Auth::PersonalToken(token.into());
+        self.config.auth = BuilderAuth::Auth(Auth::PersonalToken(token.into()));
         self
     }
 
@@ -801,7 +812,7 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
     #[cfg(feature = "jwt")]
     #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
     pub fn app(mut self, app_id: AppId, key: jsonwebtoken::EncodingKey) -> Self {
-        self.config.auth = Auth::App(AppAuth { app_id, key });
+        self.config.auth = BuilderAuth::Auth(Auth::App(AppAuth { app_id, key }));
         self
     }
 
@@ -818,22 +829,34 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         Ok(self.app(app_id, key))
     }
 
+    /// Authenticate as a GitHub App whose private key is held outside the process,
+    /// e.g. in a cloud KMS or an HSM, and used through `signer`.
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+    pub fn app_with_signer(mut self, app_id: AppId, signer: impl AppSigner + 'static) -> Self {
+        self.config.auth = BuilderAuth::AppSigner {
+            app_id,
+            signer: Arc::new(signer),
+        };
+        self
+    }
+
     /// Authenticate as a Basic Auth
     /// username and password
     pub fn basic_auth(mut self, username: String, password: String) -> Self {
-        self.config.auth = Auth::Basic { username, password };
+        self.config.auth = BuilderAuth::Auth(Auth::Basic { username, password });
         self
     }
 
     /// Authenticate with an OAuth token.
     pub fn oauth(mut self, oauth: auth::OAuth) -> Self {
-        self.config.auth = Auth::OAuth(oauth);
+        self.config.auth = BuilderAuth::Auth(Auth::OAuth(oauth));
         self
     }
 
     /// Authenticate with a user access token.
     pub fn user_access_token<S: Into<SecretString>>(mut self, token: S) -> Self {
-        self.config.auth = Auth::UserAccessToken(token.into());
+        self.config.auth = BuilderAuth::Auth(Auth::UserAccessToken(token.into()));
         self
     }
 
@@ -1207,31 +1230,40 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
         }
 
         let (auth_header, auth_state): (Option<HeaderValue>, _) = match config.auth {
-            Auth::None => (None, AuthState::None),
-            Auth::Basic { username, password } => {
-                (None, AuthState::BasicAuth { username, password })
-            }
-            Auth::PersonalToken(token) => (
-                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
-                AuthState::None,
-            ),
-            Auth::UserAccessToken(token) => (
-                Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
-                AuthState::None,
-            ),
-            #[cfg(feature = "jwt")]
-            Auth::App(app_auth) => (None, AuthState::App(app_auth)),
-            Auth::OAuth(device) => (
-                Some(
-                    format!(
-                        "{} {}",
-                        device.token_type,
-                        device.access_token.expose_secret()
-                    )
-                    .parse()
-                    .unwrap(),
+            BuilderAuth::Auth(auth) => match auth {
+                Auth::None => (None, InternalAuthState::None),
+                Auth::Basic { username, password } => {
+                    (None, InternalAuthState::BasicAuth { username, password })
+                }
+                Auth::PersonalToken(token) => (
+                    Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                    InternalAuthState::None,
                 ),
-                AuthState::None,
+                Auth::UserAccessToken(token) => (
+                    Some(format!("Bearer {}", token.expose_secret()).parse().unwrap()),
+                    InternalAuthState::None,
+                ),
+                #[cfg(feature = "jwt")]
+                Auth::App(app_auth) => {
+                    (None, InternalAuthState::App(AppCredentials::Rsa(app_auth)))
+                }
+                Auth::OAuth(device) => (
+                    Some(
+                        format!(
+                            "{} {}",
+                            device.token_type,
+                            device.access_token.expose_secret()
+                        )
+                        .parse()
+                        .unwrap(),
+                    ),
+                    InternalAuthState::None,
+                ),
+            },
+            #[cfg(feature = "jwt")]
+            BuilderAuth::AppSigner { app_id, signer } => (
+                None,
+                InternalAuthState::App(AppCredentials::Signer { app_id, signer }),
             ),
         };
 
@@ -1270,14 +1302,29 @@ impl OctocrabBuilder<NoSvc, DefaultOctocrabBuilderConfig, NoAuth, NotLayerReady>
 struct PreparedConfig {
     extra_headers: Vec<(HeaderName, HeaderValue)>,
     auth_header: Option<HeaderValue>,
-    auth_state: AuthState,
+    auth_state: InternalAuthState,
     base_uri: Uri,
     upload_uri: Uri,
     cache_storage: Option<Arc<dyn CacheStorage>>,
 }
 
+enum BuilderAuth {
+    Auth(Auth),
+    #[cfg(feature = "jwt")]
+    AppSigner {
+        app_id: AppId,
+        signer: Arc<dyn AppSigner>,
+    },
+}
+
+impl Default for BuilderAuth {
+    fn default() -> Self {
+        Self::Auth(Auth::None)
+    }
+}
+
 pub struct DefaultOctocrabBuilderConfig {
-    auth: Auth,
+    auth: BuilderAuth,
     previews: Vec<&'static str>,
     extra_headers: Vec<(HeaderName, String)>,
     #[cfg(feature = "timeout")]
@@ -1296,7 +1343,7 @@ pub struct DefaultOctocrabBuilderConfig {
 impl Default for DefaultOctocrabBuilderConfig {
     fn default() -> Self {
         Self {
-            auth: Auth::None,
+            auth: BuilderAuth::default(),
             previews: Vec::new(),
             extra_headers: Vec::new(),
             #[cfg(feature = "timeout")]
@@ -1444,6 +1491,89 @@ pub enum AuthState {
 }
 
 #[cfg(feature = "jwt")]
+#[derive(Clone)]
+enum AppCredentials {
+    Rsa(AppAuth),
+    Signer {
+        app_id: AppId,
+        signer: Arc<dyn AppSigner>,
+    },
+}
+
+#[cfg(feature = "jwt")]
+impl fmt::Debug for AppCredentials {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Rsa(app) => fmt::Debug::fmt(app, f),
+            Self::Signer { app_id, .. } => f
+                .debug_struct("AppSigner")
+                .field("app_id", app_id)
+                .finish_non_exhaustive(),
+        }
+    }
+}
+
+#[cfg(feature = "jwt")]
+impl AppCredentials {
+    async fn generate_bearer_token(&self) -> Result<String> {
+        match self {
+            Self::Rsa(app) => app.generate_bearer_token(),
+            Self::Signer { app_id, signer } => {
+                auth::create_jwt_with_signer(*app_id, signer.as_ref()).await
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+enum InternalAuthState {
+    None,
+    BasicAuth {
+        username: String,
+        password: String,
+    },
+    #[cfg(feature = "jwt")]
+    App(AppCredentials),
+    #[cfg(feature = "jwt")]
+    Installation {
+        app: AppCredentials,
+        installation: InstallationId,
+        token: CachedToken,
+        repositories: Option<Vec<String>>,
+        repository_ids: Option<Vec<RepositoryId>>,
+    },
+    AccessToken {
+        token: SecretString,
+    },
+}
+
+impl From<AuthState> for InternalAuthState {
+    fn from(state: AuthState) -> Self {
+        match state {
+            AuthState::None => Self::None,
+            AuthState::BasicAuth { username, password } => Self::BasicAuth { username, password },
+            #[cfg(feature = "jwt")]
+            AuthState::App(app) => Self::App(AppCredentials::Rsa(app)),
+            #[cfg(feature = "jwt")]
+            AuthState::Installation {
+                app,
+                installation,
+                token,
+                repositories,
+                repository_ids,
+            } => Self::Installation {
+                app: AppCredentials::Rsa(app),
+                installation,
+                token,
+                repositories,
+                repository_ids,
+            },
+            AuthState::AccessToken { token } => Self::AccessToken { token },
+        }
+    }
+}
+
+#[cfg(feature = "jwt")]
 #[derive(serde::Serialize)]
 struct CreateInstallationAccessToken<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1461,7 +1591,7 @@ pub type OctocrabService = Buffer<
 #[derive(Clone)]
 pub struct Octocrab {
     client: OctocrabService,
-    auth_state: AuthState,
+    auth_state: InternalAuthState,
     base_uri: Uri,
     upload_uri: Uri,
 }
@@ -1492,7 +1622,7 @@ impl<'octo> InstallationRequestBuilder<'octo> {
 
     /// Build the installation-authenticated `Octocrab`.
     pub fn build(self) -> Result<Octocrab> {
-        let app_auth = if let AuthState::App(ref app_auth) = self.crab.auth_state {
+        let app_auth = if let InternalAuthState::App(ref app_auth) = self.crab.auth_state {
             app_auth.clone()
         } else {
             return Err(Error::Installation {
@@ -1502,7 +1632,7 @@ impl<'octo> InstallationRequestBuilder<'octo> {
 
         Ok(Octocrab {
             client: self.crab.client.clone(),
-            auth_state: AuthState::Installation {
+            auth_state: InternalAuthState::Installation {
                 app: app_auth,
                 installation: self.installation,
                 token: CachedToken::default(),
@@ -1546,7 +1676,7 @@ impl Octocrab {
     }
 
     /// Creates a new `Octocrab`.
-    fn new<S>(service: S, auth_state: AuthState, base_uri: Uri, upload_uri: Uri) -> Self
+    fn new<S>(service: S, auth_state: InternalAuthState, base_uri: Uri, upload_uri: Uri) -> Self
     where
         S: Service<Request<OctoBody>, Response = Response<BoxBody<Bytes, crate::Error>>>
             + Send
@@ -1567,7 +1697,7 @@ impl Octocrab {
     /// Creates a new `Octocrab` with a custom executor
     fn new_with_executor<S>(
         service: S,
-        auth_state: AuthState,
+        auth_state: InternalAuthState,
         base_uri: Uri,
         upload_uri: Uri,
         executor: Executor,
@@ -1658,7 +1788,7 @@ impl Octocrab {
         &self,
         buffer: SignedDuration,
     ) -> Result<SecretString> {
-        let token = if let AuthState::Installation { ref token, .. } = self.auth_state {
+        let token = if let InternalAuthState::Installation { ref token, .. } = self.auth_state {
             token
         } else {
             return Err(Error::InstallationTokenInvalidAuth {
@@ -1681,7 +1811,7 @@ impl Octocrab {
     pub fn user_access_token<S: Into<SecretString>>(&self, token: S) -> Result<Self> {
         Ok(Octocrab {
             client: self.client.clone(),
-            auth_state: AuthState::AccessToken {
+            auth_state: InternalAuthState::AccessToken {
                 token: token.into(),
             },
             base_uri: self.base_uri.clone(),
@@ -2508,7 +2638,7 @@ impl Octocrab {
     #[cfg(feature = "jwt")]
     async fn request_installation_auth_token(&self) -> Result<SecretString> {
         let (app, installation, token, repositories, repository_ids) =
-            if let AuthState::Installation {
+            if let InternalAuthState::Installation {
                 ref app,
                 installation,
                 ref token,
@@ -2523,10 +2653,11 @@ impl Octocrab {
                 });
             };
         let mut request = Builder::new();
-        let mut sensitive_value =
-            HeaderValue::from_str(format!("Bearer {}", app.generate_bearer_token()?).as_str())
-                .map_err(http::Error::from)
-                .context(HttpSnafu)?;
+        let mut sensitive_value = HeaderValue::from_str(
+            format!("Bearer {}", app.generate_bearer_token().await?).as_str(),
+        )
+        .map_err(http::Error::from)
+        .context(HttpSnafu)?;
 
         let uri = http::Uri::builder()
             .path_and_query(format!("/app/installations/{installation}/access_tokens"))
@@ -2606,7 +2737,7 @@ impl Octocrab {
         let body: OctoBody = body.into();
         #[cfg(feature = "jwt")]
         let (first_body, retry_request) =
-            if matches!(self.auth_state, AuthState::Installation { .. }) {
+            if matches!(self.auth_state, InternalAuthState::Installation { .. }) {
                 match body
                     .try_clone()
                     .or_else(|| http_body::Body::is_end_stream(&body).then(OctoBody::empty))
@@ -2623,16 +2754,16 @@ impl Octocrab {
         let send_request = |mut parts: http::request::Parts, body: OctoBody| {
             async move {
                 let auth_header: Option<HeaderValue> = match self.auth_state {
-                    AuthState::None => None,
+                    InternalAuthState::None => None,
                     #[cfg(feature = "jwt")]
-                    AuthState::App(ref app) => Some(
+                    InternalAuthState::App(ref app) => Some(
                         HeaderValue::from_str(
-                            format!("Bearer {}", app.generate_bearer_token()?).as_str(),
+                            format!("Bearer {}", app.generate_bearer_token().await?).as_str(),
                         )
                         .map_err(http::Error::from)
                         .context(HttpSnafu)?,
                     ),
-                    AuthState::BasicAuth {
+                    InternalAuthState::BasicAuth {
                         ref username,
                         ref password,
                     } => {
@@ -2652,7 +2783,7 @@ impl Octocrab {
                         )
                     }
                     #[cfg(feature = "jwt")]
-                    AuthState::Installation { ref token, .. } => {
+                    InternalAuthState::Installation { ref token, .. } => {
                         let token = if let Some(token) = token.valid_token() {
                             token
                         } else {
@@ -2667,7 +2798,7 @@ impl Octocrab {
                             .context(HttpSnafu)?,
                         )
                     }
-                    AuthState::AccessToken { ref token } => Some(
+                    InternalAuthState::AccessToken { ref token } => Some(
                         HeaderValue::from_str(format!("Bearer {}", token.expose_secret()).as_str())
                             .map_err(http::Error::from)
                             .context(HttpSnafu)?,
@@ -2704,7 +2835,7 @@ impl Octocrab {
 
         #[cfg(feature = "jwt")]
         if StatusCode::UNAUTHORIZED == response.status() {
-            if let AuthState::Installation { ref token, .. } = self.auth_state {
+            if let InternalAuthState::Installation { ref token, .. } = self.auth_state {
                 token.clear();
 
                 if let Some((parts, body)) = retry_request {

@@ -106,6 +106,13 @@ pub enum Error {
         source: jsonwebtoken::errors::Error,
         backtrace: Backtrace,
     },
+    #[cfg(feature = "jwt")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "jwt")))]
+    #[snafu(display("GitHub App signer error: {}", source))]
+    AppSigner {
+        source: Box<dyn std::error::Error + Send + Sync>,
+        backtrace: Backtrace,
+    },
     #[snafu(display("GraphQL Error: {}\nFound at {}", source, backtrace))]
     Graphql {
         source: GraphqlErrors,
